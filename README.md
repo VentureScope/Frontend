@@ -20,6 +20,27 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Project Structure
+
+The Next.js `app/` directory routing is organized into Route Groups (folders wrapped in parenthesis) to allow isolated layouts without affecting the URL structure:
+
+- **`app/(landing)`**: Publicly accessible pages.
+  - `page.tsx`: The main landing page (default root `/`).
+  - `about/page.tsx`: Information about VentureScope (`/about`).
+  - `market-insight/page.tsx`: Market trends and insights (`/market-insight`).
+
+- **`app/(auth)`**: Authentication pages, grouped here to share auth-specific layouts.
+  - `sign-in/page.tsx`: User login page (`/sign-in`).
+  - `register/page.tsx`: New user registration page (`/register`).
+
+- **`app/(dashboard)`**: The protected application area accessible only to authenticated users.
+  - `dashboard/page.tsx`: The main user dashboard view (`/dashboard`).
+
+**Other key directories:**
+- **`components/`**: Reusable UI components (including global layouts and Shadcn UI components).
+- **`lib/`**: Utility functions, including the centralized Axios API client (`api.ts`).
+- **`store/`**: Global state management using Zustand (`useAppStore.ts`).
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
