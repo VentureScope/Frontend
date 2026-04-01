@@ -1,55 +1,75 @@
-## Getting Started
+# VentureScope Frontend
 
-First, run the development server:
+VentureScope is an AI-powered tech career guidance and analytics platform designed to bridge the gap between academic achievements and employability for students and early-career professionals, specifically within the Ethiopian technology sector.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+This repository contains the frontend client, built to be robust, responsive, and scalable.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Personalized Career Recommendations:** Semantic matching to align user profiles with real-world job demands.
+- **Adaptive Learning Roadmaps:** Dynamic pathways that identify and help close skill gaps.
+- **RAG-Powered AI Chatbot:** A multi-turn conversational advisor grounded in real-world market data for tailored career advice.
+- **Automated Resume Generation:** Provides ATS-optimized CV creation based on extracted skills and academic history.
+- **Corporate Workforce Analytics:** A B2B module providing data visualizations and talent management for HR managers.
+- **Unified Data Integration:** Seamless integration with GitHub for technical portfolios and university portals (via eStudent Chrome Extension) for academic records.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Tech Stack
+
+- **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **UI & Styling:** [Tailwind CSS v4](https://tailwindcss.com/) & [Shadcn UI](https://ui.shadcn.com/)
+- **State Management:** [Zustand](https://zustand-demo.pmnd.rs/) (with `localStorage` persistence)
+- **Data Fetching & APIs:** [Axios](https://axios-http.com/)
 
 ## Project Structure
 
-The Next.js `app/` directory routing is organized into Route Groups (folders wrapped in parenthesis) to allow isolated layouts without affecting the URL structure:
+The codebase is organized into Next.js Route Groups to allow isolated layouts without affecting URL structures:
 
-- **`app/(landing)`**: Publicly accessible pages.
-  - `page.tsx`: The main landing page (default root `/`).
-  - `about/page.tsx`: Information about VentureScope (`/about`).
-  - `market-insight/page.tsx`: Market trends and insights (`/market-insight`).
+- **`app/(landing)/`**: Publicly accessible marketing and informational pages (`/`, `/about`, `/market-insight`).
+- **`app/(auth)/`**: Authentication flows (`/sign-in`, `/register`).
+- **`app/(dashboard)/`**: Protected application area accessible only to authenticated users (`/dashboard`).
 
-- **`app/(auth)`**: Authentication pages, grouped here to share auth-specific layouts.
-  - `sign-in/page.tsx`: User login page (`/sign-in`).
-  - `register/page.tsx`: New user registration page (`/register`).
+**Core Directories:**
+- `components/`: Reusable UI elements (Shadcn UI, global layouts, and dashboard widgets).
+- `lib/`: Utility functions and global configurations (e.g., centralized Axios API instance `api.ts`).
+- `store/`: Global state management stores defined with Zustand (`useAppStore.ts`).
 
-- **`app/(dashboard)`**: The protected application area accessible only to authenticated users.
-  - `dashboard/page.tsx`: The main user dashboard view (`/dashboard`).
+## Getting Started
 
-**Other key directories:**
-- **`components/`**: Reusable UI components (including global layouts and Shadcn UI components).
-- **`lib/`**: Utility functions, including the centralized Axios API client (`api.ts`).
-- **`store/`**: Global state management using Zustand (`useAppStore.ts`).
+### Prerequisites
 
-## Learn More
+- Node.js (v20+ recommended)
+- npm, yarn, pnpm, or bun
 
-To learn more about Next.js, take a look at the following resources:
+### Installation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Clone the repository and navigate to the project directory:
+   ```bash
+   git clone <repository-url>
+   cd VentureScope/Frontend
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-## Deploy on Vercel
+3. Configure Environment Variables:
+   Create a `.env.local` file in the root directory:
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:8000/api
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Scripts
+
+- `npm run dev`: Starts the local development server.
+- `npm run build`: Builds the application for production.
+- `npm run start`: Starts the production server.
+- `npm run lint`: Runs ESLint to check for code quality issues.
