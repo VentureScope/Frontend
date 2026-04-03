@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { SignInPayload } from "@/types/auth";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid work email"),
@@ -26,12 +27,10 @@ const loginSchema = z.object({
   rememberMe: z.boolean().optional(),
 });
 
-type FormValues = z.infer<typeof loginSchema>;
-
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
 
-  const form = useForm<FormValues>({
+  const form = useForm<SignInPayload>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
@@ -40,7 +39,7 @@ export default function SignInPage() {
     },
   });
 
-  function onSubmit(values: FormValues) {
+  function onSubmit(values: SignInPayload) {
     console.log("Sign In Data:", values);
   }
 

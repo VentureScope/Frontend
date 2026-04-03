@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { RegisterPayload } from "@/types/auth";
 
 const formSchema = z.object({
   role: z.enum(["individual", "corporate"]),
@@ -28,12 +29,10 @@ const formSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
-type FormValues = z.infer<typeof formSchema>;
-
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
 
-  const form = useForm<FormValues>({
+  const form = useForm<RegisterPayload>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       role: "individual",
@@ -43,7 +42,7 @@ export default function RegisterPage() {
     },
   });
 
-  function onSubmit(values: FormValues) {
+  function onSubmit(values: RegisterPayload) {
     console.log(values);
   }
 
