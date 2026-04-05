@@ -12,7 +12,11 @@ import { Eye, EyeOff, ArrowRight, TrendingUp, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { getApiErrorMessage, loginUser } from "@/lib/auth-api";
+import {
+  getApiErrorMessage,
+  getGoogleOAuthLoginUrl,
+  loginUser,
+} from "@/lib/auth-api";
 import { useAppStore } from "@/store/useAppStore";
 import { SignInPayload } from "@/types/auth";
 
@@ -21,10 +25,13 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+const GOOGLE_OAUTH_SESSION_KEY = "google_oauth_tx";
+
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const setAuthData = useAppStore((state) => state.setAuthData);
   const router = useRouter();
 
@@ -52,6 +59,42 @@ export default function SignInPage() {
       setApiError(getApiErrorMessage(error));
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function onGoogleSignIn() {
+    setApiError(null);
+    setIsGoogleSubmitting(true);
+    console.log("[oauth] Requesting Google login URL");
+
+    try {
+      const { authorization_url, state } = await getGoogleOAuthLoginUrl();
+      const parsedAuthorizationUrl = new URL(authorization_url);
+      const clientId = parsedAuthorizationUrl.searchParams.get("client_id");
+
+      if (!clientId) {
+        setApiError(
+          "Google OAuth is not configured on the server (missing client_id). Please contact support or try again later.",
+        );
+        setIsGoogleSubmitting(false);
+        return;
+      }
+
+      sessionStorage.setItem(
+        GOOGLE_OAUTH_SESSION_KEY,
+        JSON.stringify({
+          state,
+          createdAt: Date.now(),
+        }),
+      );
+      console.log("[oauth] Redirecting to Google authorization URL", {
+        authorizationHost: parsedAuthorizationUrl.host,
+      });
+      window.location.href = authorization_url;
+    } catch (error) {
+      setApiError(getApiErrorMessage(error));
+      setIsGoogleSubmitting(false);
+      console.log("[oauth] Failed to start Google OAuth", { error });
     }
   }
 
@@ -137,7 +180,10 @@ export default function SignInPage() {
             {/* Social Logins */}
             <div className="flex w-full flex-col gap-3 sm:flex-row text-sm">
               <Button
+                type="button"
                 variant="outline"
+                onClick={onGoogleSignIn}
+                disabled={isGoogleSubmitting || isSubmitting}
                 className="flex-1 h-11 gap-2 border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50"
               >
                 <svg className="h-4 w-4" viewBox="0 0 24 24">
@@ -158,9 +204,12 @@ export default function SignInPage() {
                     fill="#EA4335"
                   />
                 </svg>
-                <span className="font-semibold">Google</span>
+                <span className="font-semibold">
+                  {isGoogleSubmitting ? "Connecting..." : "Google"}
+                </span>
               </Button>
               <Button
+                type="button"
                 variant="outline"
                 className="flex-1 h-11 gap-2 border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50"
               >

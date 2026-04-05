@@ -25,4 +25,10 @@ export interface RegisterSuccessResponse {
 export interface LoginSuccessResponse {
   access_token: string;
   token_type: "bearer" | string;
+  user?: Record<string, unknown>;
+}
+
+export interface GoogleOAuthLoginResponse {
+  authorization_url: string;
+  state: string;
 }
