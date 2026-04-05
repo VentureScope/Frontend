@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import Sidebar from "@/components/dashboard/layout/Sidebar";
 import TopNav from "@/components/dashboard/layout/TopNav";
+import { useAppStore } from "@/store/useAppStore";
 // import { useAppStore } from "@/store/useAppStore";
 
 interface DashboardLayoutProps {
@@ -14,21 +15,19 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   // TODO: Re-enable real auth checks once backend integration is complete.
-  const isAuthenticated = true;
-  // const token = useAppStore((state) => state.authData.token);
-  // const [isHydrated, setIsHydrated] = useState(
-  //   useAppStore.persist.hasHydrated(),
-  // );
-
-  const [isHydrated] = useState(true);
+  const token = useAppStore((state) => state.authData.token);
+  const isAuthenticated = Boolean(token);
+  const [isHydrated, setIsHydrated] = useState(
+    useAppStore.persist.hasHydrated(),
+  );
 
   useEffect(() => {
-    // const unsubscribe = useAppStore.persist.onFinishHydration(() => {
-    //   setIsHydrated(true);
-    // });
-    // return () => {
-    //   unsubscribe();
-    // };
+    const unsubscribe = useAppStore.persist.onFinishHydration(() => {
+      setIsHydrated(true);
+    });
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
