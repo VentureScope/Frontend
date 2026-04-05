@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -35,6 +35,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
+import { useAppStore } from "@/store/useAppStore";
+import { getUserProfileView } from "@/lib/user-profile";
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name is required"),
@@ -45,16 +47,26 @@ const profileSchema = z.object({
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("profile");
+  const user = useAppStore((state) => state.authData.user);
+  const profile = getUserProfileView(user);
+  const profileDefaults = useMemo(
+    () => ({
+      fullName: profile.fullName,
+      role: profile.role,
+      location: profile.location,
+      portfolio: "",
+    }),
+    [profile.fullName, profile.role, profile.location],
+  );
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
-    defaultValues: {
-      fullName: "Alexander Sterling",
-      role: "Senior Strategic Consultant",
-      location: "London, UK (GMT +1)",
-      portfolio: "alexsterling.design",
-    },
+    defaultValues: profileDefaults,
   });
+
+  useEffect(() => {
+    form.reset(profileDefaults);
+  }, [form, profileDefaults]);
 
   const sidebarItems = [
     { id: "profile", label: "Profile Identity", icon: User },
@@ -125,8 +137,8 @@ export default function SettingsPage() {
                     <div className="relative group">
                       <div className="h-36 w-36 rounded-full border-[6px] border-white shadow-2xl bg-slate-100 overflow-hidden ring-1 ring-slate-100">
                         <img
-                          src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alexander"
-                          alt="Avatar"
+                          src={profile.avatarUrl}
+                          alt={profile.fullName}
                           className="h-full w-full object-cover"
                         />
                       </div>

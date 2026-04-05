@@ -53,7 +53,7 @@ export default function RegisterPage() {
       setAuthData({
         token: loginResult.access_token,
         tokenType: loginResult.token_type,
-        user: null,
+        user: loginResult.user ?? null,
       });
       form.reset({
         email: "",

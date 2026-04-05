@@ -1,11 +1,18 @@
+"use client";
+
 import { Search, Bell, HelpCircle } from "lucide-react";
 import Link from "next/link";
+import { getUserProfileView } from "@/lib/user-profile";
+import { useAppStore } from "@/store/useAppStore";
 
 type TopNavProps = {
   breadcrumb: string;
 };
 
 export default function TopNav({ breadcrumb }: TopNavProps) {
+  const user = useAppStore((state) => state.authData.user);
+  const profile = getUserProfileView(user);
+
   return (
     <header className="sticky top-0 z-30 flex h-20 w-full items-center justify-between border-b border-slate-100 bg-white/80 px-10 backdrop-blur-md">
       <div className="flex items-center gap-6">
@@ -37,8 +44,8 @@ export default function TopNav({ breadcrumb }: TopNavProps) {
         <Link href="/dashboard/profile">
           <div className="h-10 w-10 overflow-hidden rounded-full border border-slate-200">
             <img
-              src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alexander"
-              alt="User"
+              src={profile.avatarUrl}
+              alt={profile.fullName}
               className="h-full w-full object-cover bg-slate-100"
             />
           </div>

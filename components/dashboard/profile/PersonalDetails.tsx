@@ -1,8 +1,15 @@
 // components/dashboard/profile/PersonalDetails.tsx
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { UserCircle } from "lucide-react";
+import { getUserProfileView } from "@/lib/user-profile";
+import { useAppStore } from "@/store/useAppStore";
 
 export default function PersonalDetails() {
+  const user = useAppStore((state) => state.authData.user);
+  const profile = getUserProfileView(user);
+
   return (
     <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm">
       <div className="mb-6 flex items-center justify-between">
@@ -25,15 +32,15 @@ export default function PersonalDetails() {
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
             Email Address
           </p>
-          <p className="text-sm font-medium text-slate-900">
-            a.sterling@venturescope.ai
-          </p>
+          <p className="text-sm font-medium text-slate-900">{profile.email}</p>
         </div>
         <div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
             Timezone
           </p>
-          <p className="text-sm font-medium text-slate-900">GMT +1 (London)</p>
+          <p className="text-sm font-medium text-slate-900">
+            {profile.timezone}
+          </p>
         </div>
       </div>
     </div>

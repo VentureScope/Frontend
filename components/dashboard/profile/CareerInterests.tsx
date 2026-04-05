@@ -1,10 +1,17 @@
 // components/dashboard/profile/CareerInterests.tsx
+"use client";
+
+import { getUserProfileView } from "@/lib/user-profile";
+import { useAppStore } from "@/store/useAppStore";
+
 export default function CareerInterests() {
+  const user = useAppStore((state) => state.authData.user);
+  const profile = getUserProfileView(user);
   const tags = [
-    "FinTech Strategy",
+    profile.careerInterest,
     "AI Governance",
-    "VC Operations",
-    "B2B SaaS",
+    "Career Intelligence",
+    "Growth Opportunities",
   ];
 
   return (
@@ -13,7 +20,7 @@ export default function CareerInterests() {
         <h3 className="text-xl font-bold text-slate-900">Career Interests</h3>
         <p className="text-sm text-slate-400 leading-relaxed">
           Your curated interests help our AI engine surface the most relevant
-          market shifts and role opportunities.
+          market shifts and role opportunities for {profile.firstName}.
         </p>
         <div className="flex flex-wrap gap-3">
           {tags.map((t) => (

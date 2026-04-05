@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { AuthUser } from "@/types/auth";
 
 interface AppState {
   theme: "light" | "dark" | "system";
@@ -8,12 +9,12 @@ interface AppState {
   authData: {
     token: string | null;
     tokenType: string | null;
-    user: Record<string, unknown> | null;
+    user: AuthUser | null;
   };
   setAuthData: (data: {
     token: string | null;
     tokenType: string | null;
-    user: Record<string, unknown> | null;
+    user: AuthUser | null;
   }) => void;
   clearAuth: () => void;
 }

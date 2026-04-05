@@ -32,6 +32,7 @@ export default function Sidebar() {
       // Always clear local auth so users can exit even if backend logout fails.
     } finally {
       clearAuth();
+      sessionStorage.removeItem("google_oauth_tx");
       router.push("/");
       setIsLoggingOut(false);
     }

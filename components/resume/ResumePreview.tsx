@@ -1,7 +1,14 @@
+"use client";
+
 import React from "react";
 import { Settings2, Download } from "lucide-react";
+import { getUserProfileView } from "@/lib/user-profile";
+import { useAppStore } from "@/store/useAppStore";
 
 export default function ResumePreview() {
+  const user = useAppStore((state) => state.authData.user);
+  const profile = getUserProfileView(user);
+
   const technicalStack = [
     { name: "User Experience", level: "Expert" },
     { name: "React / Tailwind", level: "Advanced" },
@@ -31,21 +38,25 @@ export default function ResumePreview() {
   ];
 
   return (
-    <div className="w-full max-w-[650px] overflow-hidden rounded-[40px] bg-white shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] border border-slate-50">
+    <div className="w-full max-w-162.5 overflow-hidden rounded-[40px] bg-white shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] border border-slate-50">
       {/* 1. Main Resume Paper Content */}
       <div className="p-14 pb-8 space-y-12">
         {/* Header Section */}
         <div className="text-center space-y-6">
           <h2 className="text-[38px] font-black tracking-tight text-[#0f172a] uppercase leading-none">
-            Alexander Chase
+            {profile.fullName}
           </h2>
           <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-            <span>alex.chase@portfolio.com</span>
+            <span>{profile.email}</span>
             <div className="h-1 w-1 bg-slate-300 rounded-full" />
-            <span>linkedin.com/in/achase</span>
+            <span>
+              {profile.githubUsername
+                ? `github.com/${profile.githubUsername}`
+                : "Professional Profile"}
+            </span>
             <div className="h-1 w-1 bg-slate-300 rounded-full" />
             <div className="text-center">
-              <span>San Francisco, CA</span>
+              <span>{profile.location}</span>
             </div>
           </div>
         </div>

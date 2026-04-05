@@ -52,7 +52,7 @@ export default function SignInPage() {
       setAuthData({
         token: authResult.access_token,
         tokenType: authResult.token_type,
-        user: null,
+        user: authResult.user ?? null,
       });
       router.push("/");
     } catch (error) {

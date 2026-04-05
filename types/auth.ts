@@ -22,10 +22,22 @@ export interface RegisterSuccessResponse {
   role: string;
 }
 
+export interface AuthUser {
+  id?: string;
+  email?: string;
+  full_name?: string;
+  github_username?: string | null;
+  career_interest?: string | null;
+  role?: string;
+  is_active?: boolean;
+  is_admin?: boolean;
+  [key: string]: unknown;
+}
+
 export interface LoginSuccessResponse {
   access_token: string;
   token_type: "bearer" | string;
-  user?: Record<string, unknown>;
+  user?: AuthUser;
 }
 
 export interface GoogleOAuthLoginResponse {

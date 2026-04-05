@@ -1,13 +1,20 @@
+"use client";
+
 import { Pencil, MapPin } from "lucide-react";
+import { getUserProfileView } from "@/lib/user-profile";
+import { useAppStore } from "@/store/useAppStore";
 
 export default function ProfileHeader() {
+  const user = useAppStore((state) => state.authData.user);
+  const profile = getUserProfileView(user);
+
   return (
     <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
       <div className="relative">
         <div className="h-32 w-32 overflow-hidden rounded-[24px] border-4 border-white shadow-xl bg-slate-200">
           <img
-            src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alexander"
-            alt="Alexander Sterling"
+            src={profile.avatarUrl}
+            alt={profile.fullName}
             className="h-full w-full object-cover"
           />
         </div>
@@ -18,10 +25,11 @@ export default function ProfileHeader() {
 
       <div className="space-y-1 text-center md:text-left pt-2">
         <h1 className="text-4xl font-bold tracking-tight text-slate-900">
-          Alexander Sterling
+          {profile.fullName}
         </h1>
         <p className="flex items-center justify-center gap-2 text-lg text-slate-500 md:justify-start">
-          Senior Strategic Consultant • London, UK
+          <MapPin size={16} className="text-slate-400" />
+          {profile.role} • {profile.location}
         </p>
       </div>
     </div>

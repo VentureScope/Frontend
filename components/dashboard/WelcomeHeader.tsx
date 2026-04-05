@@ -1,14 +1,22 @@
+"use client";
+
 // components/dashboard/WelcomeHeader.tsx
+import { getUserProfileView } from "@/lib/user-profile";
+import { useAppStore } from "@/store/useAppStore";
+
 export default function WelcomeHeader() {
+  const user = useAppStore((state) => state.authData.user);
+  const profile = getUserProfileView(user);
+
   return (
     <div className="flex flex-col h-full justify-center gap-6">
       <div className="space-y-4">
         <h1 className="text-5xl font-bold tracking-tight text-slate-900">
-          Welcome back, Alex
+          Welcome back, {profile.firstName}
         </h1>
         <p className="max-w-md text-lg leading-relaxed text-slate-500">
-          Your career trajectory is currently outperforming 82% of peers in your
-          sector. Let's keep the momentum.
+          You are currently focused on {profile.careerInterest}. We are tracking
+          opportunities aligned with your {profile.role.toLowerCase()} journey.
         </p>
       </div>
 

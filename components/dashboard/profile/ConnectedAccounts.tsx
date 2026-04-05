@@ -1,6 +1,14 @@
+"use client";
+
 import { Share2, Github, GraduationCap } from "lucide-react";
+import { getUserProfileView } from "@/lib/user-profile";
+import { useAppStore } from "@/store/useAppStore";
 
 export default function ConnectedAccounts() {
+  const user = useAppStore((state) => state.authData.user);
+  const profile = getUserProfileView(user);
+  const hasGitHub = Boolean(profile.githubUsername);
+
   return (
     <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm">
       <div className="mb-6 flex items-center gap-2 text-blue-600">
@@ -14,11 +22,19 @@ export default function ConnectedAccounts() {
         <div className="flex items-center justify-between rounded-xl bg-slate-50/50 p-3 border border-slate-100">
           <div className="flex items-center gap-3">
             <Github size={18} className="text-slate-600" />
-            <span className="text-sm font-bold text-slate-700">GitHub</span>
+            <span className="text-sm font-bold text-slate-700">
+              {hasGitHub ? `GitHub (@${profile.githubUsername})` : "GitHub"}
+            </span>
           </div>
-          <span className="rounded-md bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600">
-            LINKED
-          </span>
+          {hasGitHub ? (
+            <span className="rounded-md bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600">
+              LINKED
+            </span>
+          ) : (
+            <button className="text-[9px] font-bold text-blue-600 hover:underline">
+              CONNECT
+            </button>
+          )}
         </div>
 
         <div className="flex items-center justify-between rounded-xl bg-slate-50/50 p-3 border border-slate-100">
