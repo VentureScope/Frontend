@@ -2,8 +2,8 @@ import axios from "axios";
 
 // Create a standard base API instance
 const api = axios.create({
-  // Configure the base URL from env, or provide a default placeholder.
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://api.example.com",
+  // Reads from env first; falls back to local backend for development.
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",

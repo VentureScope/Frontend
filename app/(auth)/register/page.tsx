@@ -1,49 +1,73 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
-import {
-  Eye,
-  EyeOff,
-  User,
-  Building2,
-  CheckCircle2,
-  Star,
-  Sparkles,
-} from "lucide-react";
-
-import { cn } from "@/lib/utils";
+import { Eye, EyeOff, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { getApiErrorMessage, loginUser, registerUser } from "@/lib/auth-api";
+import { useAppStore } from "@/store/useAppStore";
 import { RegisterPayload } from "@/types/auth";
 
 const formSchema = z.object({
-  role: z.enum(["individual", "corporate"]),
-  fullName: z.string().min(2, "Full name is required"),
+  role: z.literal("professional"),
   email: z.string().email("Please enter a valid work email"),
   password: z.string().min(8, "Password must be at least 8 characters"),
+  full_name: z.string().min(2, "Full name is required"),
+  career_interest: z.string().min(2, "Career interest is required"),
 });
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const setAuthData = useAppStore((state) => state.setAuthData);
+  const router = useRouter();
 
   const form = useForm<RegisterPayload>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      role: "individual",
-      fullName: "",
       email: "",
       password: "",
+      full_name: "",
+      career_interest: "",
+      role: "professional",
     },
   });
 
-  function onSubmit(values: RegisterPayload) {
-    console.log(values);
+  async function onSubmit(values: RegisterPayload) {
+    setApiError(null);
+    setIsSubmitting(true);
+
+    try {
+      await registerUser(values);
+      const loginResult = await loginUser({
+        email: values.email,
+        password: values.password,
+      });
+      setAuthData({
+        token: loginResult.access_token,
+        tokenType: loginResult.token_type,
+        user: null,
+      });
+      form.reset({
+        email: "",
+        password: "",
+        full_name: "",
+        career_interest: "",
+        role: "professional",
+      });
+      router.push("/");
+    } catch (error) {
+      setApiError(getApiErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -107,7 +131,7 @@ export default function RegisterPage() {
 
         {/* RIGHT SIDE - FORM */}
         <section className="flex flex-1 flex-col items-center justify-center bg-white px-6 py-8 sm:px-8 lg:pl-12">
-          <div className="w-full max-w-[420px] space-y-5">
+          <div className="w-full max-w-105 space-y-5">
             <div className="space-y-1">
               <h2 className="text-2xl font-bold tracking-tight text-slate-900">
                 Create your account
@@ -118,83 +142,11 @@ export default function RegisterPage() {
             </div>
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-              {/* Role Selection */}
-              <div className="space-y-2">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                  Select your role
-                </span>
-                <div className="grid grid-cols-2 gap-3">
-                  <Controller
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                      <>
-                        {/* Individual Option */}
-                        <div
-                          onClick={() => field.onChange("individual")}
-                          className={cn(
-                            "relative cursor-pointer rounded-lg border p-3 transition-all",
-                            field.value === "individual"
-                              ? "border-blue-600 bg-blue-50/50 shadow-sm"
-                              : "border-transparent bg-white shadow-sm ring-1 ring-slate-200",
-                          )}
-                        >
-                          {field.value === "individual" && (
-                            <CheckCircle2 className="absolute right-2 top-2 h-4 w-4 fill-blue-600 text-white" />
-                          )}
-                          <User
-                            className={cn(
-                              "mb-2 h-5 w-5",
-                              field.value === "individual"
-                                ? "text-blue-600"
-                                : "text-slate-400",
-                            )}
-                          />
-                          <div className="space-y-0.5">
-                            <p className="text-sm font-bold text-slate-900">
-                              Individual
-                            </p>
-                            <p className="text-[10px] text-slate-500">
-                              Student or Professional
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Corporate Option */}
-                        <div
-                          onClick={() => field.onChange("corporate")}
-                          className={cn(
-                            "relative cursor-pointer rounded-lg border p-3 transition-all",
-                            field.value === "corporate"
-                              ? "border-blue-600 bg-blue-50/50 shadow-sm"
-                              : "border-transparent bg-white shadow-sm ring-1 ring-slate-200",
-                          )}
-                        >
-                          {field.value === "corporate" && (
-                            <CheckCircle2 className="absolute right-2 top-2 h-4 w-4 fill-blue-600 text-white" />
-                          )}
-                          <Building2
-                            className={cn(
-                              "mb-2 h-5 w-5",
-                              field.value === "corporate"
-                                ? "text-blue-600"
-                                : "text-slate-400",
-                            )}
-                          />
-                          <div className="space-y-0.5">
-                            <p className="text-sm font-bold text-slate-900">
-                              Corporate
-                            </p>
-                            <p className="text-[10px] text-slate-500">
-                              HR & Talent Teams
-                            </p>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  />
-                </div>
-              </div>
+              <input
+                type="hidden"
+                {...form.register("role")}
+                value="professional"
+              />
 
               {/* Input Fields */}
               <Field>
@@ -203,12 +155,28 @@ export default function RegisterPage() {
                 </FieldLabel>
                 <Input
                   placeholder="Enter your full name"
-                  {...form.register("fullName")}
+                  {...form.register("full_name")}
                   className="h-10 text-sm border-none bg-[#f0f4ff] px-3 focus-visible:ring-2 focus-visible:ring-blue-600"
                 />
-                {form.formState.errors.fullName && (
+                {form.formState.errors.full_name && (
                   <FieldError className="text-[10px]">
-                    {form.formState.errors.fullName.message}
+                    {form.formState.errors.full_name.message}
+                  </FieldError>
+                )}
+              </Field>
+
+              <Field>
+                <FieldLabel className="text-xs font-bold text-slate-800">
+                  Career Interest
+                </FieldLabel>
+                <Input
+                  placeholder="e.g. Data Science, Product Management"
+                  {...form.register("career_interest")}
+                  className="h-10 text-sm border-none bg-[#f0f4ff] px-3 focus-visible:ring-2 focus-visible:ring-blue-600"
+                />
+                {form.formState.errors.career_interest && (
+                  <FieldError className="text-[10px]">
+                    {form.formState.errors.career_interest.message}
                   </FieldError>
                 )}
               </Field>
@@ -257,10 +225,15 @@ export default function RegisterPage() {
 
               <Button
                 type="submit"
+                disabled={isSubmitting}
                 className="h-10 w-full bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700"
               >
-                Create Account
+                {isSubmitting ? "Creating Account..." : "Create Account"}
               </Button>
+
+              {apiError && (
+                <p className="text-center text-xs text-red-600">{apiError}</p>
+              )}
 
               {/* Divider */}
               <div className="relative py-1">

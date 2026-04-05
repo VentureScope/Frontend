@@ -1,42 +1,42 @@
-import Sidebar from "@/components/layout/sidebar";
-import Header from "@/components/layout/Header";
-import ScoreCard from "@/components/dashboard/ScoreCard";
-import SkillGapItem from "@/components/dashboard/SkillGapItem";
-import JobCard from "@/components/dashboard/JobCard";
-export default function Dashboard() {
+import WelcomeHeader from "@/components/dashboard/WelcomeHeader";
+import InsightCard from "@/components/dashboard/InsightCard";
+import ModuleGrid from "@/components/dashboard/ModuleGrid";
+import DataSyncCard from "@/components/dashboard/DataSyncCard";
+import MarketTrendsCard from "@/components/dashboard/MarketTrendsCard";
+import RecentActivity from "@/components/dashboard/RecentActivity";
+import SuggestedActions from "@/components/dashboard/SuggestedActions";
+
+export default function DashboardPage() {
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar />
-
-      <main className="flex-1 p-6 space-y-6 overflow-y-auto">
-        <Header />
-
-        {/* TOP SECTION */}
-        <ScoreCard />
-
-        {/* MAIN GRID */}
-        <div className="grid grid-cols-3 gap-6">
-
-          {/* LEFT SIDE */}
-          <div className="col-span-2 space-y-4">
-            <h2 className="font-semibold">Skill Gaps</h2>
-
-            <SkillGapItem />
-            <SkillGapItem />
-            <SkillGapItem />
+    <div className="min-h-screen bg-[#f8fafc] p-6 lg:p-10">
+      <div className="mx-auto max-w-7xl space-y-8">
+        {/* Top Section: Welcome & Hero Insight */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <WelcomeHeader />
           </div>
-
-          {/* RIGHT SIDE */}
-          <div className="space-y-4">
-            <h2 className="font-semibold">Best Matches</h2>
-
-            <JobCard />
-            <JobCard />
-            <JobCard />
-          </div>
-
+          <InsightCard />
         </div>
-      </main>
+
+        {/* Second Section: Status & Interaction Grid */}
+        <ModuleGrid />
+
+        {/* Third Section: Data & Analytics */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <DataSyncCard />
+          <div className="lg:col-span-2">
+            <MarketTrendsCard />
+          </div>
+        </div>
+
+        {/* Bottom Section: Activity & Suggestions */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <RecentActivity />
+          </div>
+          <SuggestedActions />
+        </div>
+      </div>
     </div>
   );
 }

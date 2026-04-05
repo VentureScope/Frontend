@@ -4,7 +4,8 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Menu, X } from "lucide-react";
+import { Sparkles, Menu, X, LogOut } from "lucide-react";
+import { useAppStore } from "@/store/useAppStore";
 
 const NAV_LINKS = [
   { name: "Home", href: "/" },
@@ -14,6 +15,13 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const token = useAppStore((state) => state.authData.token);
+  const clearAuth = useAppStore((state) => state.clearAuth);
+  // const isAuthenticated = Boolean(token);
+  const isAuthenticated = true;
+  const navLinks = isAuthenticated
+    ? [...NAV_LINKS, { name: "Dashboard", href: "/dashboard" }]
+    : NAV_LINKS;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [indicatorStyle, setIndicatorStyle] = useState({
     left: 0,
@@ -24,7 +32,7 @@ export default function Navbar() {
 
   // Calculate sliding underline indicator styles for active desktop nav link
   useEffect(() => {
-    const activeIndex = NAV_LINKS.findIndex((link) => link.href === pathname);
+    const activeIndex = navLinks.findIndex((link) => link.href === pathname);
 
     // Slight delay to ensure refs are firmly mounted before calc
     const timer = setTimeout(() => {
@@ -43,7 +51,7 @@ export default function Navbar() {
     }, 50);
 
     return () => clearTimeout(timer);
-  }, [pathname]);
+  }, [pathname, navLinks]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -56,6 +64,11 @@ export default function Navbar() {
       document.body.style.overflow = "unset";
     };
   }, [isMobileMenuOpen]);
+
+  function handleLogout() {
+    clearAuth();
+    setIsMobileMenuOpen(false);
+  }
 
   return (
     <>
@@ -71,7 +84,7 @@ export default function Navbar() {
 
           {/* Desktop Links */}
           <div className="hidden items-center gap-8 md:flex relative pb-1">
-            {NAV_LINKS.map((link, index) => {
+            {navLinks.map((link, index) => {
               const isActive = pathname === link.href;
               return (
                 <Link
@@ -93,7 +106,7 @@ export default function Navbar() {
 
             {/* Animated Sliding Underline for Desktop */}
             <span
-              className="absolute -bottom-1 h-[3px] rounded-full bg-blue-600 transition-all duration-500 ease-in-out"
+              className="absolute -bottom-1 h-0.75 rounded-full bg-blue-600 transition-all duration-500 ease-in-out"
               style={{
                 left: `${indicatorStyle.left}px`,
                 width: `${indicatorStyle.width}px`,
@@ -104,18 +117,40 @@ export default function Navbar() {
 
           {/* Desktop Actions */}
           <div className="hidden items-center gap-4 md:flex">
-            <Link
-              href="/sign-in"
-              className="text-sm font-bold text-slate-700 hover:text-blue-600"
-            >
-              Sign In
-            </Link>
-            <Button
-              asChild
-              className="bg-[#1d59db] font-bold hover:bg-blue-700 rounded-full px-6"
-            >
-              <Link href="/register">Get Started</Link>
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="rounded-full border-slate-200 px-6 font-bold text-slate-700 hover:bg-slate-50"
+                >
+                  <Link href="/dashboard">Dashboard</Link>
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleLogout}
+                  className="rounded-full bg-[#1d59db] px-6 font-bold text-white hover:bg-blue-700"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/sign-in"
+                  className="text-sm font-bold text-slate-700 hover:text-blue-600"
+                >
+                  Sign In
+                </Link>
+                <Button
+                  asChild
+                  className="bg-[#1d59db] font-bold hover:bg-blue-700 rounded-full px-6"
+                >
+                  <Link href="/register">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -139,7 +174,7 @@ export default function Navbar() {
 
       {/* Mobile Sidebar Slide-out */}
       <div
-        className={`fixed top-0 right-0 z-50 flex h-[100dvh] w-4/5 max-w-sm flex-col bg-white shadow-2xl transition-transform duration-500 ease-in-out md:hidden ${
+        className={`fixed top-0 right-0 z-50 flex h-dvh w-4/5 max-w-sm flex-col bg-white shadow-2xl transition-transform duration-500 ease-in-out md:hidden ${
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -165,7 +200,7 @@ export default function Navbar() {
 
         <div className="flex flex-col flex-1 overflow-y-auto px-6 py-8">
           <div className="flex flex-col gap-6">
-            {NAV_LINKS.map((link) => {
+            {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link
@@ -185,23 +220,56 @@ export default function Navbar() {
           </div>
 
           <div className="mt-10 flex flex-col gap-4 border-t border-slate-100 pt-8">
-            <Button
-              asChild
-              variant="outline"
-              className="w-full justify-center rounded-full border-slate-200 py-6 text-base font-bold text-slate-700 hover:bg-slate-50"
-            >
-              <Link href="/sign-in" onClick={() => setIsMobileMenuOpen(false)}>
-                Sign In
-              </Link>
-            </Button>
-            <Button
-              asChild
-              className="w-full justify-center rounded-full bg-[#1d59db] py-6 text-base font-bold text-white hover:bg-blue-700"
-            >
-              <Link href="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                Get Started
-              </Link>
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-center rounded-full border-slate-200 py-6 text-base font-bold text-slate-700 hover:bg-slate-50"
+                >
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full justify-center rounded-full bg-[#1d59db] py-6 text-base font-bold text-white hover:bg-blue-700"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-center rounded-full border-slate-200 py-6 text-base font-bold text-slate-700 hover:bg-slate-50"
+                >
+                  <Link
+                    href="/sign-in"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Sign In
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  className="w-full justify-center rounded-full bg-[#1d59db] py-6 text-base font-bold text-white hover:bg-blue-700"
+                >
+                  <Link
+                    href="/register"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Get Started
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

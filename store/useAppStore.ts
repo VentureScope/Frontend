@@ -5,8 +5,16 @@ interface AppState {
   theme: "light" | "dark" | "system";
   setTheme: (theme: "light" | "dark" | "system") => void;
   // user auth placeholder
-  authData: { token: string | null; user: null | object };
-  setAuthData: (data: { token: string | null; user: null | object }) => void;
+  authData: {
+    token: string | null;
+    tokenType: string | null;
+    user: Record<string, unknown> | null;
+  };
+  setAuthData: (data: {
+    token: string | null;
+    tokenType: string | null;
+    user: Record<string, unknown> | null;
+  }) => void;
   clearAuth: () => void;
 }
 
@@ -15,9 +23,10 @@ export const useAppStore = create<AppState>()(
     (set) => ({
       theme: "system",
       setTheme: (theme) => set({ theme }),
-      authData: { token: null, user: null },
+      authData: { token: null, tokenType: null, user: null },
       setAuthData: (authData) => set({ authData }),
-      clearAuth: () => set({ authData: { token: null, user: null } }),
+      clearAuth: () =>
+        set({ authData: { token: null, tokenType: null, user: null } }),
     }),
     {
       name: "app-storage", // name of the item in the storage (must be unique)

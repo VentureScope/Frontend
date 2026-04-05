@@ -3,44 +3,56 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import {
-  Eye,
-  EyeOff,
-  ArrowRight,
-  TrendingUp,
-  Sparkles,
-  Github,
-} from "lucide-react";
+import { Eye, EyeOff, ArrowRight, TrendingUp, Github } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { getApiErrorMessage, loginUser } from "@/lib/auth-api";
+import { useAppStore } from "@/store/useAppStore";
 import { SignInPayload } from "@/types/auth";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid work email"),
   password: z.string().min(1, "Password is required"),
-  rememberMe: z.boolean().optional(),
 });
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const setAuthData = useAppStore((state) => state.setAuthData);
+  const router = useRouter();
 
   const form = useForm<SignInPayload>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
-      rememberMe: false,
     },
   });
 
-  function onSubmit(values: SignInPayload) {
-    console.log("Sign In Data:", values);
+  async function onSubmit(values: SignInPayload) {
+    setApiError(null);
+    setIsSubmitting(true);
+
+    try {
+      const authResult = await loginUser(values);
+      setAuthData({
+        token: authResult.access_token,
+        tokenType: authResult.token_type,
+        user: null,
+      });
+      router.push("/");
+    } catch (error) {
+      setApiError(getApiErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -58,7 +70,7 @@ export default function SignInPage() {
               priority
             />
             {/* Subtle Gradient to ensure text always pops! */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#020817]/60 via-transparent to-[#020817]/80" />
+            <div className="absolute inset-0 bg-linear-to-br from-[#020817]/60 via-transparent to-[#020817]/80" />
           </div>
 
           <div className="relative z-10 space-y-8">
@@ -112,7 +124,7 @@ export default function SignInPage() {
 
         {/* --- RIGHT SIDE: LOGIN FORM (Centered in its container) --- */}
         <section className="flex flex-1 items-center justify-center bg-white px-6 py-10 sm:px-10">
-          <div className="w-full max-w-[420px] space-y-6 bg-transparent">
+          <div className="w-full max-w-105 space-y-6 bg-transparent">
             <div className="space-y-1.5">
               <h2 className="text-3xl font-bold tracking-tight text-slate-900">
                 Welcome back
@@ -159,11 +171,11 @@ export default function SignInPage() {
 
             {/* Divider */}
             <div className="relative flex items-center py-1">
-              <div className="flex-grow border-t border-slate-200"></div>
-              <span className="mx-4 flex-shrink text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              <div className="grow border-t border-slate-200"></div>
+              <span className="mx-4 shrink text-[10px] font-bold uppercase tracking-widest text-slate-400">
                 Or continue with email
               </span>
-              <div className="flex-grow border-t border-slate-200"></div>
+              <div className="grow border-t border-slate-200"></div>
             </div>
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -215,22 +227,18 @@ export default function SignInPage() {
                 )}
               </Field>
 
-              <div className="flex items-center space-x-2 py-0.5">
-                <Checkbox id="rememberMe" />
-                <label
-                  htmlFor="rememberMe"
-                  className="text-sm font-medium leading-none text-slate-500 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Remember me for 30 days
-                </label>
-              </div>
-
               <Button
                 type="submit"
+                disabled={isSubmitting}
                 className="mt-2 h-12 w-full bg-[#1d59db] text-base font-semibold text-white shadow-xl shadow-blue-500/20 hover:bg-[#1748b3]"
               >
-                Sign In <ArrowRight className="ml-2 h-5 w-5" />
+                {isSubmitting ? "Signing In..." : "Sign In"}
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
+
+              {apiError && (
+                <p className="text-center text-xs text-red-600">{apiError}</p>
+              )}
             </form>
 
             <p className="text-center text-sm text-slate-600">
