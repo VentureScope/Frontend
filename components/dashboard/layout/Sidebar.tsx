@@ -10,16 +10,31 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+import { logoutUser } from "@/lib/auth-api";
 import { useAppStore } from "@/store/useAppStore";
 
 export default function Sidebar() {
   const clearAuth = useAppStore((state) => state.clearAuth);
   const router = useRouter();
   const pathname = usePathname();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  function handleLogout() {
-    clearAuth();
-    router.push("/");
+  async function handleLogout() {
+    if (isLoggingOut) {
+      return;
+    }
+
+    setIsLoggingOut(true);
+    try {
+      await logoutUser();
+    } catch {
+      // Always clear local auth so users can exit even if backend logout fails.
+    } finally {
+      clearAuth();
+      router.push("/");
+      setIsLoggingOut(false);
+    }
   }
 
   const menu = [
@@ -91,10 +106,11 @@ export default function Sidebar() {
         <button
           type="button"
           onClick={handleLogout}
+          disabled={isLoggingOut}
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1d59db] py-4 text-sm font-bold text-white shadow-xl shadow-blue-600/20 transition-colors hover:bg-blue-700"
         >
           <LogOut size={16} />
-          Logout
+          {isLoggingOut ? "Logging out..." : "Logout"}
         </button>
       </div>
     </aside>

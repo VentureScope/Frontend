@@ -57,21 +57,33 @@ export default function MarketInsightsPage() {
                 LIVE FEED
               </span>
             </div>
-            <p className="text-sm text-slate-500 mb-20">
+            <p className="text-sm text-slate-500 mb-8">
               Quarterly growth in job postings by core competency
             </p>
 
-            <div className="grid grid-cols-5 gap-4">
+            <div className="space-y-6">
               {[
-                { name: "Python", grow: "+24%" },
-                { name: "Cloud", grow: "+18%" },
-                { name: "AI/ML", grow: "+42%" },
-                { name: "React", grow: "+12%" },
-                { name: "FinTech", grow: "+9%" },
-              ].map((s, i) => (
-                <div key={i} className="text-center space-y-2">
-                  <p className="text-xs font-bold text-slate-800">{s.name}</p>
-                  <p className="text-xs font-bold text-blue-600">{s.grow}</p>
+                { name: "Python", growth: 24, color: "bg-blue-600" },
+                { name: "Cloud", growth: 18, color: "bg-sky-500" },
+                { name: "AI/ML", growth: 42, color: "bg-indigo-600" },
+                { name: "React", growth: 12, color: "bg-cyan-500" },
+                { name: "FinTech", growth: 9, color: "bg-blue-400" },
+              ].map((skill, idx) => (
+                <div key={idx} className="space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium text-slate-700">
+                      {skill.name}
+                    </span>
+                    <span className="text-blue-600 font-bold">
+                      +{skill.growth}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                    <div
+                      className={`${skill.color} h-2 rounded-full transition-all duration-700`}
+                      style={{ width: `${skill.growth}%` }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -114,12 +126,19 @@ export default function MarketInsightsPage() {
                   name: "Bole District",
                   sub: "Tech & Logistics Focus",
                   pct: "42%",
+                  value: 42,
                 },
-                { name: "Kazanchis", sub: "FinTech & NGO Core", pct: "28%" },
+                {
+                  name: "Kazanchis",
+                  sub: "FinTech & NGO Core",
+                  pct: "28%",
+                  value: 28,
+                },
                 {
                   name: "Lideta (ICT Park)",
                   sub: "Infrastructure & Data",
                   pct: "15%",
+                  value: 15,
                 },
               ].map((h, i) => (
                 <div
@@ -137,7 +156,17 @@ export default function MarketInsightsPage() {
                       <p className="text-xs text-slate-500">{h.sub}</p>
                     </div>
                   </div>
-                  <span className="font-bold text-blue-600">{h.pct}</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className="bg-blue-600 h-1.5 rounded-full"
+                        style={{ width: `${h.value}%` }}
+                      />
+                    </div>
+                    <span className="font-bold text-blue-600 text-sm w-10 text-right">
+                      {h.pct}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -158,21 +187,29 @@ export default function MarketInsightsPage() {
                   role: "Software Engineer",
                   sal: "85k - 140k",
                   border: "border-l-blue-600",
+                  min: 85,
+                  max: 140,
                 },
                 {
                   role: "AI Specialist",
                   sal: "120k - 210k",
                   border: "border-l-rose-500",
+                  min: 120,
+                  max: 210,
                 },
                 {
                   role: "DevOps Architect",
                   sal: "95k - 160k",
                   border: "border-l-indigo-600",
+                  min: 95,
+                  max: 160,
                 },
                 {
                   role: "Data Scientist",
                   sal: "80k - 135k",
                   border: "border-l-slate-400",
+                  min: 80,
+                  max: 135,
                 },
               ].map((b, i) => (
                 <div
@@ -182,13 +219,29 @@ export default function MarketInsightsPage() {
                   <p className="text-xs font-bold text-slate-500 mb-1">
                     {b.role}
                   </p>
-                  <div className="flex items-baseline gap-2">
+                  <div className="flex items-baseline gap-2 mb-2">
                     <span className="text-2xl font-bold text-slate-900">
                       {b.sal}
                     </span>
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                       ETB
                     </span>
+                  </div>
+                  <div className="relative pt-1">
+                    <div className="flex h-1.5 overflow-hidden rounded-full bg-slate-200 text-xs">
+                      <div
+                        style={{ width: `${(b.min / 250) * 100}%` }}
+                        className="flex flex-col justify-center overflow-hidden bg-blue-500 shadow-none"
+                      />
+                      <div
+                        style={{ width: `${((b.max - b.min) / 250) * 100}%` }}
+                        className="flex flex-col justify-center overflow-hidden bg-blue-300 shadow-none"
+                      />
+                    </div>
+                    <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                      <span>{b.min}k</span>
+                      <span>{b.max}k</span>
+                    </div>
                   </div>
                 </div>
               ))}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Menu, X, LogOut } from "lucide-react";
+import { logoutUser } from "@/lib/auth-api";
 import { useAppStore } from "@/store/useAppStore";
 
 const NAV_LINKS = [
@@ -17,12 +18,11 @@ export default function Navbar() {
   const pathname = usePathname();
   const token = useAppStore((state) => state.authData.token);
   const clearAuth = useAppStore((state) => state.clearAuth);
-  // const isAuthenticated = Boolean(token);
-  const isAuthenticated = true;
-  const navLinks = isAuthenticated
-    ? [...NAV_LINKS, { name: "Dashboard", href: "/dashboard" }]
-    : NAV_LINKS;
+  const isAuthenticated = Boolean(token);
+  // const isAuthenticated = true;
+  const navLinks = NAV_LINKS;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [indicatorStyle, setIndicatorStyle] = useState({
     left: 0,
     width: 0,
@@ -65,9 +65,21 @@ export default function Navbar() {
     };
   }, [isMobileMenuOpen]);
 
-  function handleLogout() {
-    clearAuth();
-    setIsMobileMenuOpen(false);
+  async function handleLogout() {
+    if (isLoggingOut) {
+      return;
+    }
+
+    setIsLoggingOut(true);
+    try {
+      await logoutUser();
+    } catch {
+      // Always clear local auth so users can exit even if backend logout fails.
+    } finally {
+      clearAuth();
+      setIsMobileMenuOpen(false);
+      setIsLoggingOut(false);
+    }
   }
 
   return (
@@ -129,10 +141,11 @@ export default function Navbar() {
                 <Button
                   type="button"
                   onClick={handleLogout}
+                  disabled={isLoggingOut}
                   className="rounded-full bg-[#1d59db] px-6 font-bold text-white hover:bg-blue-700"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  Logout
+                  {isLoggingOut ? "Logging out..." : "Logout"}
                 </Button>
               </>
             ) : (
@@ -237,10 +250,11 @@ export default function Navbar() {
                 <Button
                   type="button"
                   onClick={handleLogout}
+                  disabled={isLoggingOut}
                   className="w-full justify-center rounded-full bg-[#1d59db] py-6 text-base font-bold text-white hover:bg-blue-700"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  Logout
+                  {isLoggingOut ? "Logging out..." : "Logout"}
                 </Button>
               </>
             ) : (
