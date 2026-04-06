@@ -77,7 +77,6 @@ export default function Navbar() {
       // Always clear local auth so users can exit even if backend logout fails.
     } finally {
       clearAuth();
-      sessionStorage.removeItem("google_oauth_tx");
       setIsMobileMenuOpen(false);
       setIsLoggingOut(false);
     }
