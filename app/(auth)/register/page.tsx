@@ -10,7 +10,12 @@ import { Eye, EyeOff, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { getApiErrorMessage, loginUser, registerUser } from "@/lib/auth-api";
+import {
+  buildAuthSessionData,
+  getApiErrorMessage,
+  loginUser,
+  registerUser,
+} from "@/lib/auth-api";
 import { useAppStore } from "@/store/useAppStore";
 import { RegisterPayload } from "@/types/auth";
 
@@ -50,11 +55,8 @@ export default function RegisterPage() {
         email: values.email,
         password: values.password,
       });
-      setAuthData({
-        token: loginResult.access_token,
-        tokenType: loginResult.token_type,
-        user: loginResult.user ?? null,
-      });
+      const authSessionData = await buildAuthSessionData(loginResult);
+      setAuthData(authSessionData);
       form.reset({
         email: "",
         password: "",

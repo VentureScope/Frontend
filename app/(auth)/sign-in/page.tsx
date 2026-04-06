@@ -13,7 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
+  buildAuthSessionData,
   getApiErrorMessage,
+  getGithubOAuthLoginUrl,
   getGoogleOAuthLoginUrl,
   loginUser,
 } from "@/lib/auth-api";
@@ -26,12 +28,14 @@ const loginSchema = z.object({
 });
 
 const GOOGLE_OAUTH_SESSION_KEY = "google_oauth_tx";
+const GITHUB_OAUTH_SESSION_KEY = "github_oauth_tx";
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
+  const [isGithubSubmitting, setIsGithubSubmitting] = useState(false);
   const setAuthData = useAppStore((state) => state.setAuthData);
   const router = useRouter();
 
@@ -49,11 +53,8 @@ export default function SignInPage() {
 
     try {
       const authResult = await loginUser(values);
-      setAuthData({
-        token: authResult.access_token,
-        tokenType: authResult.token_type,
-        user: authResult.user ?? null,
-      });
+      const authSessionData = await buildAuthSessionData(authResult);
+      setAuthData(authSessionData);
       router.push("/");
     } catch (error) {
       setApiError(getApiErrorMessage(error));
@@ -95,6 +96,34 @@ export default function SignInPage() {
       setApiError(getApiErrorMessage(error));
       setIsGoogleSubmitting(false);
       console.log("[oauth] Failed to start Google OAuth", { error });
+    }
+  }
+
+  async function onGithubSignIn() {
+    setApiError(null);
+    setIsGithubSubmitting(true);
+    console.log("[oauth] Requesting GitHub login URL");
+
+    try {
+      const { authorization_url, state } = await getGithubOAuthLoginUrl();
+      const parsedAuthorizationUrl = new URL(authorization_url);
+
+      sessionStorage.setItem(
+        GITHUB_OAUTH_SESSION_KEY,
+        JSON.stringify({
+          state,
+          createdAt: Date.now(),
+        }),
+      );
+
+      console.log("[oauth] Redirecting to GitHub authorization URL", {
+        authorizationHost: parsedAuthorizationUrl.host,
+      });
+      window.location.href = authorization_url;
+    } catch (error) {
+      setApiError(getApiErrorMessage(error));
+      setIsGithubSubmitting(false);
+      console.log("[oauth] Failed to start GitHub OAuth", { error });
     }
   }
 
@@ -183,7 +212,9 @@ export default function SignInPage() {
                 type="button"
                 variant="outline"
                 onClick={onGoogleSignIn}
-                disabled={isGoogleSubmitting || isSubmitting}
+                disabled={
+                  isGoogleSubmitting || isGithubSubmitting || isSubmitting
+                }
                 className="flex-1 h-11 gap-2 border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50"
               >
                 <svg className="h-4 w-4" viewBox="0 0 24 24">
@@ -211,10 +242,16 @@ export default function SignInPage() {
               <Button
                 type="button"
                 variant="outline"
+                onClick={onGithubSignIn}
+                disabled={
+                  isGoogleSubmitting || isGithubSubmitting || isSubmitting
+                }
                 className="flex-1 h-11 gap-2 border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50"
               >
                 <Github className="h-4 w-4 text-slate-800" />
-                <span className="font-semibold">GitHub</span>
+                <span className="font-semibold">
+                  {isGithubSubmitting ? "Connecting..." : "GitHub"}
+                </span>
               </Button>
             </div>
 

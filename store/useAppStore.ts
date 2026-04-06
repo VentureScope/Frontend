@@ -1,21 +1,12 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { AuthUser } from "@/types/auth";
+import { AuthSessionData } from "@/types/auth";
 
 interface AppState {
   theme: "light" | "dark" | "system";
   setTheme: (theme: "light" | "dark" | "system") => void;
-  // user auth placeholder
-  authData: {
-    token: string | null;
-    tokenType: string | null;
-    user: AuthUser | null;
-  };
-  setAuthData: (data: {
-    token: string | null;
-    tokenType: string | null;
-    user: AuthUser | null;
-  }) => void;
+  authData: AuthSessionData;
+  setAuthData: (data: AuthSessionData) => void;
   clearAuth: () => void;
 }
 
@@ -31,7 +22,7 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: "app-storage", // name of the item in the storage (must be unique)
-      storage: createJSONStorage(() => localStorage), // (optional) by default, 'localStorage' is used
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({ theme: state.theme, authData: state.authData }), // optionally pick fields to persist
     },
   ),

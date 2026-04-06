@@ -40,7 +40,18 @@ export interface LoginSuccessResponse {
   user?: AuthUser;
 }
 
+export interface AuthSessionData {
+  token: string | null;
+  tokenType: string | null;
+  user: AuthUser | null;
+}
+
 export interface GoogleOAuthLoginResponse {
+  authorization_url: string;
+  state: string;
+}
+
+export interface GithubOAuthLoginResponse {
   authorization_url: string;
   state: string;
 }

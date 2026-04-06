@@ -5,16 +5,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   buildAuthSessionData,
-  completeGoogleOAuthCallback,
+  completeGithubOAuthCallback,
   getApiErrorMessage,
 } from "@/lib/auth-api";
 import { useAppStore } from "@/store/useAppStore";
 
-const GOOGLE_OAUTH_SESSION_KEY = "google_oauth_tx";
+const GITHUB_OAUTH_SESSION_KEY = "github_oauth_tx";
 const OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
 
 function readStoredOAuthState(): { state: string; createdAt: number } | null {
-  const raw = sessionStorage.getItem(GOOGLE_OAUTH_SESSION_KEY);
+  const raw = sessionStorage.getItem(GITHUB_OAUTH_SESSION_KEY);
 
   if (!raw) {
     return null;
@@ -43,16 +43,16 @@ function readStoredOAuthState(): { state: string; createdAt: number } | null {
   }
 }
 
-export default function GoogleOAuthCallbackPage() {
+export default function GithubOAuthCallbackPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setAuthData = useAppStore((state) => state.setAuthData);
   const [statusMessage, setStatusMessage] = useState(
-    "Completing Google sign in...",
+    "Completing GitHub sign in...",
   );
 
   useEffect(() => {
-    console.log("[oauth] Handling Google callback");
+    console.log("[oauth] Handling GitHub callback");
     const error = searchParams.get("error");
     const errorDescription = searchParams.get("error_description");
     const code = searchParams.get("code");
@@ -64,7 +64,7 @@ export default function GoogleOAuthCallbackPage() {
         errorDescription,
       });
       setStatusMessage(
-        errorDescription || "Google sign in was canceled or failed.",
+        errorDescription || "GitHub sign in was canceled or failed.",
       );
       return;
     }
@@ -91,25 +91,25 @@ export default function GoogleOAuthCallbackPage() {
     const now = Date.now();
     if (now - storedState.createdAt > OAUTH_STATE_TTL_MS) {
       console.log("[oauth] Stored OAuth state has expired");
-      sessionStorage.removeItem(GOOGLE_OAUTH_SESSION_KEY);
+      sessionStorage.removeItem(GITHUB_OAUTH_SESSION_KEY);
       setStatusMessage("Your sign-in session expired. Please try again.");
       return;
     }
 
-    sessionStorage.removeItem(GOOGLE_OAUTH_SESSION_KEY);
+    sessionStorage.removeItem(GITHUB_OAUTH_SESSION_KEY);
 
     async function exchangeCode() {
       try {
         console.log("[oauth] Requesting token exchange", {
-          endpoint: "/api/auth/oauth/google/callback",
+          endpoint: "/api/auth/oauth/github/callback",
         });
-        const authResult = await completeGoogleOAuthCallback(
+        const authResult = await completeGithubOAuthCallback(
           oauthCode,
           oauthState,
         );
         const authSessionData = await buildAuthSessionData(authResult);
         setAuthData(authSessionData);
-        console.log("[oauth] Google sign-in completed");
+        console.log("[oauth] GitHub sign-in completed");
         router.replace("/");
       } catch (exchangeError) {
         console.log("[oauth] Token exchange failed", { exchangeError });
@@ -123,7 +123,7 @@ export default function GoogleOAuthCallbackPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-        <h1 className="text-xl font-semibold text-slate-900">Google Sign-In</h1>
+        <h1 className="text-xl font-semibold text-slate-900">GitHub Sign-In</h1>
         <p className="mt-3 text-sm text-slate-600">{statusMessage}</p>
       </div>
     </div>
