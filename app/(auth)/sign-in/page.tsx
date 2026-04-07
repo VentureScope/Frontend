@@ -113,6 +113,7 @@ export default function SignInPage() {
         JSON.stringify({
           state,
           createdAt: Date.now(),
+          flow: "sign-in",
         }),
       );
 

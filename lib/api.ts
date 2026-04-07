@@ -6,7 +6,7 @@ const api = axios.create({
   // Reads from env first; falls back to local backend for development.
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
   // baseURL: "http://localhost:8000",
-  timeout: 10000,
+  timeout: 100000,
   headers: {
     "Content-Type": "application/json",
   },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -47,11 +47,17 @@ export default function GoogleOAuthCallbackPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setAuthData = useAppStore((state) => state.setAuthData);
+  const hasProcessedCallbackRef = useRef(false);
   const [statusMessage, setStatusMessage] = useState(
     "Completing Google sign in...",
   );
 
   useEffect(() => {
+    if (hasProcessedCallbackRef.current) {
+      return;
+    }
+
+    hasProcessedCallbackRef.current = true;
     console.log("[oauth] Handling Google callback");
     const error = searchParams.get("error");
     const errorDescription = searchParams.get("error_description");
@@ -81,6 +87,7 @@ export default function GoogleOAuthCallbackPage() {
 
     const storedState = readStoredOAuthState();
     if (!storedState || storedState.state !== state) {
+      sessionStorage.removeItem(GOOGLE_OAUTH_SESSION_KEY);
       console.log("[oauth] State validation failed", {
         hasStoredState: Boolean(storedState),
       });

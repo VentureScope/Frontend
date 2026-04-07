@@ -391,3 +391,31 @@ export async function buildAuthSessionData(
     user,
   };
 }
+
+export async function syncGithubProfile(): Promise<
+  import("../types/github").GitHubProfileSyncResponse
+> {
+  const path = "/api/users/me/github/sync";
+  try {
+    const response = await api.get(path);
+    logRequestSuccess("GET", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("GET", path, error);
+    throw error;
+  }
+}
+
+export async function getGithubSyncedData(): Promise<
+  import("../types/github").GitHubSyncedDataResponse
+> {
+  const path = "/api/users/me/github/synced-data";
+  try {
+    const response = await api.get(path);
+    logRequestSuccess("GET", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("GET", path, error);
+    throw error;
+  }
+}
