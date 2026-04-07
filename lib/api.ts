@@ -1,9 +1,11 @@
 import axios from "axios";
+import { useAppStore } from "@/store/useAppStore";
 
 // Create a standard base API instance
 const api = axios.create({
   // Reads from env first; falls back to local backend for development.
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
+  // baseURL: "http://localhost:8000",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -13,11 +15,11 @@ const api = axios.create({
 // Configure Request Interceptor (e.g., inject auth tokens here)
 api.interceptors.request.use(
   (config) => {
-    // Example: retrieve token from local storage or memory
-    // const token = useAppStore.getState().token;
-    // if (token && config.headers) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    // retrieve token from local storage or memory
+    const token = useAppStore.getState().authData.token;
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {

@@ -1,39 +1,103 @@
-import { Terminal, ArrowLeftRight, RotateCcw } from "lucide-react";
+"use client";
+
+import {
+  Terminal,
+  ArrowLeftRight,
+  RotateCcw,
+  MessageSquarePlus,
+  MessageCircle,
+  Trash2,
+} from "lucide-react";
+import { useEffect } from "react";
+import { useChatStore } from "@/store/useChatStore";
 
 export default function AdvisorSideBar() {
+  const {
+    sessions,
+    activeSessionId,
+    fetchSessions,
+    createSession,
+    setActiveSession,
+    deleteSession,
+  } = useChatStore();
+
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
+
+  const handleStartNewChat = async () => {
+    await createSession("New Chat");
+  };
+
+  const handleQuickAction = async (label: string) => {
+    const id = await createSession(label);
+    if (id) {
+      // Small timeout to allow WebSocket connection
+      setTimeout(() => {
+        useChatStore.getState().sendMessage(label);
+      }, 500);
+    }
+  };
+
   return (
     <div className="space-y-12">
-      {/* Match Score Card */}
+      {/* Sessions List */}
       <div className="space-y-6">
-        <div className="flex items-center gap-6">
-          <div className="h-16 w-16 rounded-full border-4 border-blue-600 flex items-center justify-center text-xl font-bold text-slate-900">
-            84
-          </div>
-          <div>
-            <h3 className="font-bold text-slate-900">Match Score</h3>
-            <p className="text-xs text-slate-400">vs. Top Tier Roles</p>
-          </div>
+        <div className="flex items-center justify-between">
+          <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+            Conversations
+          </h4>
+          <button
+            onClick={handleStartNewChat}
+            className="flex items-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-700"
+          >
+            <MessageSquarePlus size={14} />
+            New Chat
+          </button>
         </div>
 
-        <div className="space-y-6 pt-2">
-          <div className="space-y-2">
-            <div className="flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-tight">
-              <span>Technical Skill Alignment</span>
-              <span className="text-blue-600">92%</span>
+        <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+          {sessions.map((session) => (
+            <div
+              key={session.id}
+              className={`group flex items-center justify-between w-full p-3 rounded-xl border transition-all text-left ${
+                activeSessionId === session.id
+                  ? "border-blue-200 bg-blue-50/50"
+                  : "border-transparent hover:border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <button
+                onClick={() => setActiveSession(session.id)}
+                className="flex items-center gap-3 flex-1 overflow-hidden"
+              >
+                <MessageCircle
+                  size={16}
+                  className={
+                    activeSessionId === session.id
+                      ? "text-blue-600"
+                      : "text-slate-400"
+                  }
+                />
+                <p
+                  className={`text-xs font-medium truncate ${activeSessionId === session.id ? "text-blue-900" : "text-slate-700"}`}
+                >
+                  {session.title || "New Chat"}
+                </p>
+              </button>
+
+              <button
+                onClick={() => deleteSession(session.id)}
+                className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 transition-opacity"
+              >
+                <Trash2 size={14} />
+              </button>
             </div>
-            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-              <div className="h-full bg-blue-600" style={{ width: "92%" }} />
+          ))}
+          {sessions.length === 0 && (
+            <div className="text-center py-6 text-xs text-slate-400">
+              No previous conversations.
             </div>
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between text-[11px] font-bold text-slate-500 uppercase tracking-tight">
-              <span>Market Reach</span>
-              <span className="text-blue-600">68%</span>
-            </div>
-            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-              <div className="h-full bg-blue-600" style={{ width: "68%" }} />
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -56,6 +120,7 @@ export default function AdvisorSideBar() {
           ].map((action, i) => (
             <button
               key={i}
+              onClick={() => handleQuickAction(action.label)}
               className="group flex flex-col items-start gap-4 w-full p-4 rounded-xl border border-slate-100 hover:border-blue-100 hover:bg-blue-50/30 transition-all text-left"
             >
               <div className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-100">

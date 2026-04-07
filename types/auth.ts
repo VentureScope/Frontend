@@ -22,6 +22,22 @@ export interface RegisterSuccessResponse {
   role: string;
 }
 
+export interface UserUpdatePayload {
+  full_name?: string | null;
+  github_username?: string | null;
+  career_interest?: string | null;
+  estudent_profile?: string | null;
+}
+
+export interface PasswordChangePayload {
+  current_password?: string;
+  new_password?: string;
+}
+
+export interface DeleteAccountPayload {
+  password?: string;
+}
+
 export interface AuthUser {
   id?: string;
   email?: string;

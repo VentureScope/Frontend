@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,12 +37,6 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { useAppStore } from "@/store/useAppStore";
 import { getUserProfileView } from "@/lib/user-profile";
-import {
-  updateCurrentUserProfile,
-  changeCurrentUserPassword,
-  deleteCurrentUserAccount,
-} from "@/lib/auth-api";
-import { useRouter } from "next/navigation";
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name is required"),
@@ -52,17 +46,8 @@ const profileSchema = z.object({
 });
 
 export default function SettingsPage() {
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState("profile");
-
-  // States for password change
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [currPassword, setCurrPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-
   const user = useAppStore((state) => state.authData.user);
-  const setAuthData = useAppStore((state) => state.setAuthData);
   const profile = getUserProfileView(user);
   const profileDefaults = useMemo(
     () => ({
@@ -82,53 +67,6 @@ export default function SettingsPage() {
   useEffect(() => {
     form.reset(profileDefaults);
   }, [form, profileDefaults]);
-
-  async function onProfileSubmit(values: z.infer<typeof profileSchema>) {
-    try {
-      const updatedUser = await updateCurrentUserProfile({
-        full_name: values.fullName,
-      });
-      // Optionally sync role/location back to backend if backend supported them later
-      setAuthData({ ...useAppStore.getState().authData, user: updatedUser });
-      alert("Profile updated successfully!");
-    } catch (error: any) {
-      alert(error?.message || "Failed to update profile.");
-    }
-  }
-
-  async function onPasswordSubmit() {
-    if (!currPassword || !newPassword) {
-      setPasswordError("Both current and new passwords are required");
-      return;
-    }
-    setPasswordError("");
-    try {
-      await changeCurrentUserPassword({
-        current_password: currPassword,
-        new_password: newPassword,
-      });
-      setIsChangingPassword(false);
-      setCurrPassword("");
-      setNewPassword("");
-      alert("Password changed successfully!");
-    } catch (error: any) {
-      setPasswordError(error?.message || "Failed to change password.");
-    }
-  }
-
-  async function onDeleteAccount() {
-    const password = window.prompt(
-      "WARNING: This will delete your account.\n\nEnter your password to confirm:",
-    );
-    if (!password) return;
-    try {
-      await deleteCurrentUserAccount({ password });
-      setAuthData({ token: null, tokenType: null, user: null });
-      router.push("/sign-in");
-    } catch (error: any) {
-      alert(error?.message || "Failed to delete account. Incorrect password?");
-    }
-  }
 
   const sidebarItems = [
     { id: "profile", label: "Profile Identity", icon: User },
@@ -153,19 +91,13 @@ export default function SettingsPage() {
           </div>
           <div className="flex gap-4">
             <Button
-              onClick={() => form.reset(profileDefaults)}
-              disabled={activeTab !== "profile" || form.formState.isSubmitting}
               variant="outline"
               className="h-14 rounded-2xl border-slate-200 bg-white font-bold text-slate-500 hover:bg-slate-50 px-10"
             >
               Discard
             </Button>
-            <Button
-              onClick={form.handleSubmit(onProfileSubmit)}
-              disabled={activeTab !== "profile" || form.formState.isSubmitting}
-              className="h-14 rounded-2xl bg-[#1d59db] font-bold text-white shadow-xl shadow-blue-500/20 px-12 hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
+            <Button className="h-14 rounded-2xl bg-[#1d59db] font-bold text-white shadow-xl shadow-blue-500/20 px-12 hover:bg-blue-700 transition-all">
+              Save Changes
             </Button>
           </div>
         </header>
@@ -227,7 +159,7 @@ export default function SettingsPage() {
 
                   <form
                     className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10"
-                    onSubmit={form.handleSubmit(onProfileSubmit)}
+                    onSubmit={form.handleSubmit(console.log)}
                   >
                     <Field>
                       <FieldLabel className="w-full">
@@ -302,70 +234,21 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="rounded-[40px] bg-white p-10 shadow-sm border border-slate-100 divide-y divide-slate-50">
-                  <div className="py-8">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <p className="text-lg font-black text-slate-900">
-                          Account Password
-                        </p>
-                        <p className="text-sm text-slate-400">
-                          Keep your credentials up to date.
-                        </p>
-                      </div>
-                      <Button
-                        onClick={() =>
-                          setIsChangingPassword(!isChangingPassword)
-                        }
-                        variant="outline"
-                        className="h-12 rounded-xl font-bold px-8"
-                      >
-                        {isChangingPassword ? "Cancel" : "Change Password"}
-                      </Button>
+                  <div className="flex items-center justify-between py-8">
+                    <div>
+                      <p className="text-lg font-black text-slate-900">
+                        Account Password
+                      </p>
+                      <p className="text-sm text-slate-400">
+                        Last changed: 4 months ago
+                      </p>
                     </div>
-
-                    {isChangingPassword && (
-                      <div className="mt-6 flex flex-col gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                        {passwordError && (
-                          <div className="text-rose-500 text-sm font-bold bg-rose-50 p-3 rounded-lg">
-                            {passwordError}
-                          </div>
-                        )}
-                        <Field>
-                          <FieldLabel className="w-full">
-                            <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
-                              Current Password
-                            </FieldTitle>
-                            <Input
-                              type="password"
-                              value={currPassword}
-                              onChange={(e) => setCurrPassword(e.target.value)}
-                              className="h-12 rounded-xl bg-white border border-slate-200 font-bold px-4"
-                            />
-                          </FieldLabel>
-                        </Field>
-
-                        <Field>
-                          <FieldLabel className="w-full">
-                            <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
-                              New Password
-                            </FieldTitle>
-                            <Input
-                              type="password"
-                              value={newPassword}
-                              onChange={(e) => setNewPassword(e.target.value)}
-                              className="h-12 rounded-xl bg-white border border-slate-200 font-bold px-4"
-                            />
-                          </FieldLabel>
-                        </Field>
-
-                        <Button
-                          onClick={onPasswordSubmit}
-                          className="h-12 mt-2 w-full md:w-auto rounded-xl bg-[#1d59db] font-bold"
-                        >
-                          Confirm Password Change
-                        </Button>
-                      </div>
-                    )}
+                    <Button
+                      variant="outline"
+                      className="h-12 rounded-xl font-bold px-8"
+                    >
+                      Change Password
+                    </Button>
                   </div>
                   <div className="flex items-center justify-between py-8">
                     <div>
@@ -575,7 +458,6 @@ export default function SettingsPage() {
                       </div>
                     </div>
                     <Button
-                      onClick={onDeleteAccount}
                       variant="ghost"
                       className="text-rose-600 font-bold hover:bg-rose-100 hover:text-rose-700"
                     >
@@ -632,7 +514,7 @@ export default function SettingsPage() {
                       </div>
                       <div>
                         <p className="font-black text-slate-800 text-lg">
-                          •••• 4242
+                          â€¢â€¢â€¢â€¢ 4242
                         </p>
                         <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                           Expires 12/26

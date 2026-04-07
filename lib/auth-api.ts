@@ -4,12 +4,15 @@ import api from "@/lib/api";
 import {
   AuthSessionData,
   AuthUser,
+  DeleteAccountPayload,
   GithubOAuthLoginResponse,
   GoogleOAuthLoginResponse,
   LoginSuccessResponse,
+  PasswordChangePayload,
   RegisterPayload,
   RegisterSuccessResponse,
   SignInPayload,
+  UserUpdatePayload,
 } from "@/types/auth";
 
 interface ApiErrorBody {
@@ -328,6 +331,48 @@ export async function getCurrentUser(
     return response.data;
   } catch (error) {
     logRequestError("GET", path, error);
+    throw error;
+  }
+}
+
+export async function updateCurrentUserProfile(
+  payload: UserUpdatePayload,
+): Promise<AuthUser> {
+  const path = "/api/users/me";
+  try {
+    const response = await api.patch<AuthUser>(path, payload);
+    logRequestSuccess("PATCH", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("PATCH", path, error);
+    throw error;
+  }
+}
+
+export async function changeCurrentUserPassword(
+  payload: PasswordChangePayload,
+): Promise<void> {
+  const path = "/api/users/me/password";
+  try {
+    const response = await api.put(path, payload);
+    logRequestSuccess("PUT", path, { status: response.status });
+  } catch (error) {
+    logRequestError("PUT", path, error);
+    throw error;
+  }
+}
+
+export async function deleteCurrentUserAccount(
+  payload: DeleteAccountPayload,
+): Promise<void> {
+  const path = "/api/users/me";
+  try {
+    const response = await api.delete(path, {
+      data: payload,
+    });
+    logRequestSuccess("DELETE", path, { status: response.status });
+  } catch (error) {
+    logRequestError("DELETE", path, error);
     throw error;
   }
 }

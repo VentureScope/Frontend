@@ -17,17 +17,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   // TODO: Re-enable real auth checks once backend integration is complete.
   const token = useAppStore((state) => state.authData.token);
   const isAuthenticated = Boolean(token);
-  const [isHydrated, setIsHydrated] = useState(
-    useAppStore.persist.hasHydrated(),
-  );
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = useAppStore.persist.onFinishHydration(() => {
-      setIsHydrated(true);
-    });
-    return () => {
-      unsubscribe();
-    };
+    setIsHydrated(true);
   }, []);
 
   useEffect(() => {
