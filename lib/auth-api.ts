@@ -419,3 +419,13 @@ export async function getGithubSyncedData(): Promise<
     throw error;
   }
 }
+
+export const getLatestTranscript = async () => {
+  const response = await api.get('/api/transcripts/latest');
+  return response.data;
+};
+
+export const getTranscriptConfig = async () => {
+  const response = await api.get('/api/transcript-configs/');
+  return response.data;
+};

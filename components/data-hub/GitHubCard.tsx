@@ -1,13 +1,15 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { Github, RefreshCw } from "lucide-react";
 import { syncGithubProfile, getGithubSyncedData } from "@/lib/auth-api";
 import { GitHubSyncedDataResponse } from "@/types/github";
+import { useAppStore } from "@/store/useAppStore";
 
 const GITHUB_OAUTH_SESSION_KEY = "github_oauth_tx";
 
 export default function GitHubCard() {
+  const user = useAppStore((state) => state.authData.user);
   const [data, setData] = useState<GitHubSyncedDataResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -97,7 +99,8 @@ export default function GitHubCard() {
     }
   }
 
-  const isConnected = !!data?.github_username;
+  const isConnected = !!(data?.github_username || user?.github_username);
+  const displayUsername = data?.github_username || user?.github_username;
   const totalRepos = data?.repositories?.length || 0;
 
   // Flatten languages across all sync'd repos to get unique language count
@@ -156,7 +159,7 @@ export default function GitHubCard() {
               </h3>
               <p className="text-sm text-slate-500">
                 {isConnected
-                  ? `Connected as @${data.github_username}`
+                  ? `Connected as @${displayUsername}`
                   : "Syncing technical contributions & repositories"}
               </p>
             </div>

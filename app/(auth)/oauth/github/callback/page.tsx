@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -18,160 +18,188 @@ interface GithubOAuthTransaction {
   state: string;
   createdAt: number;
   flow?: string;
-  returnTo?: string;
+  returnUrl?: string;
 }
 
-function readStoredOAuthState(): GithubOAuthTransaction | null {
-  const raw = sessionStorage.getItem(GITHUB_OAUTH_SESSION_KEY);
-
-  if (!raw) {
-    return null;
-  }
-
-  try {
-    const parsed = JSON.parse(raw) as {
-      state?: unknown;
-      createdAt?: unknown;
-      flow?: unknown;
-      returnTo?: unknown;
-    };
-
-    if (typeof parsed.state !== "string") {
-      return null;
-    }
-
-    if (typeof parsed.createdAt !== "number") {
-      return null;
-    }
-
-    return {
-      state: parsed.state,
-      createdAt: parsed.createdAt,
-      flow: typeof parsed.flow === "string" ? parsed.flow : undefined,
-      returnTo:
-        typeof parsed.returnTo === "string" ? parsed.returnTo : undefined,
-    };
-  } catch {
-    return null;
-  }
-}
-
-export default function GithubOAuthCallbackPage() {
+function GithubCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setAuthData = useAppStore((state) => state.setAuthData);
-  const hasProcessedCallbackRef = useRef(false);
-  const [statusMessage, setStatusMessage] = useState(
-    "Completing GitHub sign in...",
+
+  const [status, setStatus] = useState<"processing" | "success" | "error">(
+    "processing",
   );
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const processedRef = useRef(false);
 
   useEffect(() => {
-    if (hasProcessedCallbackRef.current) {
-      return;
-    }
+    if (processedRef.current) return;
+    processedRef.current = true;
 
-    hasProcessedCallbackRef.current = true;
-    console.log("[oauth] Handling GitHub callback");
-    const error = searchParams.get("error");
-    const errorDescription = searchParams.get("error_description");
-    const code = searchParams.get("code");
-    const state = searchParams.get("state");
-
-    if (error) {
-      console.log("[oauth] Callback contains provider error", {
-        error,
-        errorDescription,
-      });
-      setStatusMessage(
-        errorDescription || "GitHub sign in was canceled or failed.",
-      );
-      return;
-    }
-
-    if (!code || !state) {
-      setStatusMessage(
-        "Missing OAuth parameters. Please try signing in again.",
-      );
-      return;
-    }
-
-    const oauthCode = code;
-    const oauthState = state;
-
-    const storedTransaction = readStoredOAuthState();
-    if (!storedTransaction || storedTransaction.state !== state) {
-      sessionStorage.removeItem(GITHUB_OAUTH_SESSION_KEY);
-      console.log("[oauth] State validation failed", {
-        hasStoredState: Boolean(storedTransaction),
-      });
-      setStatusMessage("State validation failed. Please try signing in again.");
-      return;
-    }
-
-    const now = Date.now();
-    if (now - storedTransaction.createdAt > OAUTH_STATE_TTL_MS) {
-      console.log("[oauth] Stored OAuth state has expired");
-      sessionStorage.removeItem(GITHUB_OAUTH_SESSION_KEY);
-      setStatusMessage("Your sign-in session expired. Please try again.");
-      return;
-    }
-
-    const isGithubSyncFlow = storedTransaction.flow === "github-sync";
-    const isGithubSignInFlow = storedTransaction.flow === "sign-in";
-    const returnToPath =
-      typeof storedTransaction.returnTo === "string" &&
-      storedTransaction.returnTo.trim().length > 0
-        ? storedTransaction.returnTo
-        : "/dashboard/data-hub";
-
-    sessionStorage.removeItem(GITHUB_OAUTH_SESSION_KEY);
-
-    async function exchangeCode() {
+    async function processCallback() {
       try {
-        console.log("[oauth] Requesting token exchange", {
-          endpoint: "/api/auth/oauth/github/callback",
-        });
-        const authResult = await completeGithubOAuthCallback(
-          oauthCode,
-          oauthState,
-        );
-        const authSessionData = await buildAuthSessionData(authResult);
-        setAuthData(authSessionData);
+        const code = searchParams.get("code");
+        const stateUrl = searchParams.get("state");
+        const errorFromUrl = searchParams.get("error");
+        const errorDescription = searchParams.get("error_description");
 
-        if (isGithubSyncFlow) {
-          console.log("[oauth] Completing GitHub profile sync after callback");
+        if (errorFromUrl) {
+          throw new Error(errorDescription || errorFromUrl);
+        }
+
+        if (!code || !stateUrl) {
+          throw new Error("Missing required OAuth parameters (code or state).");
+        }
+
+        // Read stored transaction
+        const storedJson = sessionStorage.getItem(GITHUB_OAUTH_SESSION_KEY);
+        if (!storedJson) {
+          throw new Error("No active GitHub login session found.");
+        }
+
+        let tx: GithubOAuthTransaction;
+        try {
+          tx = JSON.parse(storedJson);
+        } catch {
+          throw new Error("Invalid GitHub login session data.");
+        }
+
+        sessionStorage.removeItem(GITHUB_OAUTH_SESSION_KEY);
+
+        // Verify state matches
+        if (tx.state !== stateUrl) {
+          throw new Error("State parameter mismatch. Security check failed.");
+        }
+
+        // Verify TTL
+        if (Date.now() - tx.createdAt > OAUTH_STATE_TTL_MS) {
+          throw new Error("Login session expired. Please try again.");
+        }
+
+        const isSyncFlow = tx.flow === "sync";
+
+        if (isSyncFlow) {
+          // Complete the OAuth handshake
+          await completeGithubOAuthCallback(code, stateUrl);
+          // Kickoff the sync profile step after receiving token
           await syncGithubProfile();
-          router.replace(returnToPath);
-          return;
-        }
+          
+          setStatus("success");
+          setTimeout(() => {
+            const redirectUrl = tx.returnUrl || "/dashboard/settings";
+            router.replace(redirectUrl);
+          }, 1500);
+        } else {
+          // Standard login flow
+          const res = await completeGithubOAuthCallback(code, stateUrl);
+          const sessionData = await buildAuthSessionData(res);
+          setAuthData(sessionData);
 
-        if (isGithubSignInFlow) {
-          try {
-            console.log("[oauth] Running post-login GitHub profile sync");
-            await syncGithubProfile();
-          } catch (syncError) {
-            // Sign-in succeeded; keep login flow non-blocking if sync fails.
-            console.log("[oauth] Post-login GitHub sync failed", { syncError });
-          }
-        }
+          setStatus("success");
 
-        console.log("[oauth] GitHub sign-in completed");
-        router.replace("/");
-      } catch (exchangeError) {
-        console.log("[oauth] Token exchange failed", { exchangeError });
-        setStatusMessage(getApiErrorMessage(exchangeError));
+          const isFullProfile =
+            sessionData.user?.full_name && sessionData.user?.career_interest !== "undecided";
+          const returnUrl = tx.returnUrl || "/dashboard";
+
+          setTimeout(() => {
+            if (!isFullProfile) {
+              router.replace("/register/complete-profile");
+            } else {
+              router.replace(returnUrl);
+            }
+          }, 1500);
+        }
+      } catch (error) {
+        console.error("Github OAuth callback error:", error);
+        setStatus("error");
+        setErrorMessage(getApiErrorMessage(error));
       }
     }
 
-    exchangeCode();
+    processCallback();
   }, [router, searchParams, setAuthData]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-      <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-        <h1 className="text-xl font-semibold text-slate-900">GitHub Sign-In</h1>
-        <p className="mt-3 text-sm text-slate-600">{statusMessage}</p>
+    <div className="flex min-h-screen items-center justify-center bg-white p-4">
+      <div className="glass-panel w-full max-w-md p-8 text-center pt-10 px-8 pb-10">
+        <div className="mb-6 flex justify-center">
+          {status === "processing" && (
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-50/50">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+            </div>
+          )}
+          {status === "success" && (
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50">
+              <svg
+                className="h-10 w-10 text-emerald-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+          )}
+          {status === "error" && (
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-rose-50">
+              <svg
+                className="h-10 w-10 text-rose-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </div>
+          )}
+        </div>
+
+        <h2 className="mb-2 text-2xl font-black text-slate-900">
+          {status === "processing" && "Connecting to GitHub..."}
+          {status === "success" && "GitHub Connected!"}
+          {status === "error" && "Connection Failed"}
+        </h2>
+
+        <p className="text-sm text-slate-500 font-medium">
+          {status === "processing" && "Please wait while we verify your credentials."}
+          {status === "success" && "Redirecting you back securely..."}
+          {status === "error" && (errorMessage || "An unexpected error occurred during GitHub login.")}
+        </p>
+
+        {status === "error" && (
+          <button
+            onClick={() => router.push("/sign-in")}
+            className="mt-8 w-full rounded-xl bg-slate-900 py-3.5 text-sm font-bold text-white transition-all hover:bg-slate-800"
+          >
+            Back to Sign In
+          </button>
+        )}
       </div>
     </div>
+  );
+}
+
+export default function GithubOAuthCallback() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-white p-4">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-50/50">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+        </div>
+      </div>
+    }>
+      <GithubCallbackContent />
+    </Suspense>
   );
 }
