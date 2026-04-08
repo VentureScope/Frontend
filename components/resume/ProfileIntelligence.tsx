@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Github,
-  GraduationCap,
-  CheckCircle2,
-  Code2,
-  RefreshCw,
-} from "lucide-react";
+import { Github, GraduationCap, CheckCircle2, Code2 } from "lucide-react";
 import {
   getLatestTranscript,
   getTranscriptConfig,
@@ -19,6 +13,8 @@ import {
 } from "@/types/transcript";
 import { GitHubSyncedDataResponse } from "@/types/github";
 import { useAppStore } from "@/store/useAppStore";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 export default function ProfileIntelligence() {
   const user = useAppStore((state) => state.authData.user);
@@ -31,9 +27,20 @@ export default function ProfileIntelligence() {
     async function fetchData() {
       try {
         const [transcriptRes, configRes, githubRes] = await Promise.all([
-          getLatestTranscript().catch((err: any) => null),
-          getTranscriptConfig().catch((err: any) => null),
-          getGithubSyncedData().catch((err: any) => null),
+          getLatestTranscript().catch((err: any) => {
+            if (err.response?.status !== 404)
+              toast.error("Failed to load transcript data");
+            return null;
+          }),
+          getTranscriptConfig().catch((err: any) => {
+            console.error("Error fetching transcript config:", err);
+            return null;
+          }),
+          getGithubSyncedData().catch((err: any) => {
+            if (err.response?.status !== 404)
+              toast.error("Failed to load GitHub data");
+            return null;
+          }),
         ]);
 
         if (transcriptRes) setTranscript(transcriptRes);
@@ -41,6 +48,7 @@ export default function ProfileIntelligence() {
         if (githubRes) setGithub(githubRes);
       } catch (error) {
         console.error("Failed to fetch profile intelligence data", error);
+        toast.error("Failed to fetch profile intelligence data");
       } finally {
         setLoading(false);
       }
@@ -61,14 +69,41 @@ export default function ProfileIntelligence() {
   const totalRepos = github?.repositories?.length || 0;
   const totalCommits = github?.contributions?.total_contributions || 0;
 
+  if (loading) {
+    return (
+      <div className="rounded-[32px] bg-white p-10 shadow-sm border border-slate-100 relative">
+        <div className="flex items-center justify-between mb-8">
+          <Skeleton className="h-6 w-48" />
+          <Skeleton className="h-4 w-32" />
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {/* GitHub Card Skeleton */}
+          <div className="flex items-center justify-between rounded-3xl p-6 border border-slate-100">
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-12 w-12 rounded-2xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </div>
+          </div>
+          {/* Academic Card Skeleton */}
+          <div className="flex items-center justify-between rounded-3xl p-6 border border-slate-100">
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-12 w-12 rounded-2xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-[32px] bg-white p-10 shadow-sm border border-slate-100 relative">
-      {loading && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-[32px]">
-          <RefreshCw size={24} className="animate-spin text-blue-600" />
-        </div>
-      )}
-
       <div className="flex items-center justify-between mb-8">
         <h3 className="text-xl font-bold text-slate-900">
           Profile Intelligence

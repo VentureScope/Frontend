@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { GraduationCap, FileText, UploadCloud, RefreshCw } from "lucide-react";
+import { GraduationCap, FileText, UploadCloud } from "lucide-react";
 import { getLatestTranscript, getTranscriptConfig } from "@/lib/auth-api";
 import {
   TranscriptResponse,
   TranscriptConfigResponse,
 } from "@/types/transcript";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 export default function AcademicStatusCard() {
   const [transcript, setTranscript] = useState<TranscriptResponse | null>(null);
@@ -18,20 +20,27 @@ export default function AcademicStatusCard() {
       try {
         const [transcriptData, configData] = await Promise.all([
           getLatestTranscript().catch((err: any) => {
-            if (err.response?.status !== 404)
+            if (err.response?.status !== 404) {
               console.error("Error fetching latest transcript:", err);
+              toast.error("Failed to load transcript data");
+            }
             return null;
           }),
           getTranscriptConfig().catch((err: any) => {
             console.error("Error fetching transcript config:", err);
+            toast.error("Failed to load transcript configuration");
             return null;
           }),
         ]);
 
-        if (transcriptData) setTranscript(transcriptData);
+        if (transcriptData) {
+          setTranscript(transcriptData);
+          toast.success("Academic records updated");
+        }
         if (configData) setConfig(configData);
       } catch (error) {
         console.error("Failed to load academic data", error);
+        toast.error("An expected error occurred while fetching records");
       } finally {
         setLoading(false);
       }
@@ -57,14 +66,38 @@ export default function AcademicStatusCard() {
       })
     : "Never";
 
+  if (loading && !transcript) {
+    return (
+      <div className="relative rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-6">
+            <Skeleton className="h-16 w-16 rounded-2xl" />
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-12">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-5 w-32" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-6 w-16" />
+            </div>
+            <div className="flex gap-3">
+              <Skeleton className="h-12 w-48 rounded-xl" />
+              <Skeleton className="h-12 w-40 rounded-xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm">
-      {loading && !transcript && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[32px] bg-white/60 backdrop-blur-sm">
-          <RefreshCw size={24} className="animate-spin text-blue-600" />
-        </div>
-      )}
-
       <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-6">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-rose-50 text-rose-500">

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Manrope, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+import { Toaster } from "@/components/ui/sonner";
+
 const manrope = Manrope({
   variable: "--font-sans",
   subsets: ["latin"],
@@ -28,6 +30,7 @@ export default function RootLayout({
         className={`${manrope.variable} ${geistMono.variable} font-sans antialiased`}
       >
         {children}
+        <Toaster />
       </body>
     </html>
   );

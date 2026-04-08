@@ -5,6 +5,8 @@ import { Github, RefreshCw } from "lucide-react";
 import { syncGithubProfile, getGithubSyncedData } from "@/lib/auth-api";
 import { GitHubSyncedDataResponse } from "@/types/github";
 import { useAppStore } from "@/store/useAppStore";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 const GITHUB_OAUTH_SESSION_KEY = "github_oauth_tx";
 
@@ -20,17 +22,13 @@ export default function GitHubCard() {
     setSyncError(null);
     try {
       const result = await getGithubSyncedData();
-      console.log("[github-sync] Synced data payload", {
-        githubUsername: result.github_username,
-        repoCount: result.repositories?.length ?? 0,
-        repoNamesPreview:
-          result.repositories?.slice(0, 10).map((repo) => repo.name) ?? [],
-        syncedAt: result.synced_at,
-      });
       setData(result);
     } catch (error: any) {
       if (error?.response?.status !== 404) {
         console.error("Failed to fetch github synced data:", error);
+        toast.error("Failed to load GitHub data", {
+          description: "We couldn't retrieve your GitHub syncing status.",
+        });
       }
     } finally {
       setLoading(false);
@@ -46,12 +44,8 @@ export default function GitHubCard() {
     setSyncError(null);
     try {
       const response = await syncGithubProfile();
-      console.log("[github-sync] Sync trigger response", {
-        status: response.status,
-        message: response.message,
-        githubConnected: response.github_connected,
-        repoCount: response.repositories?.length ?? 0,
-        hasAuthorizationUrl: Boolean(response.authorization_url),
+      toast.success("Sync Started", {
+        description: "Executing GitHub sync flow.",
       });
 
       // If the backend returns an authorization URL, redirect the user
@@ -90,9 +84,14 @@ export default function GitHubCard() {
       }
 
       // If it immediately synced without auth redirect, refresh data
+      toast.success("GitHub Synchronized");
       await fetchSyncedData();
     } catch (error: any) {
       setSyncError("Failed to initiate sync");
+      toast.error("Action Failed", {
+        description:
+          error.response?.data?.detail || "Failed to trigger GitHub sync.",
+      });
       console.error(error);
     } finally {
       setSyncing(false);
@@ -114,7 +113,10 @@ export default function GitHubCard() {
   }
 
   const stats = [
-    { label: "REPOS SYNCED", value: isConnected ? totalRepos.toString() : "-" },
+    {
+      label: "REPOS SYNCED",
+      value: isConnected ? totalRepos.toString() : "-",
+    },
     {
       label: "COMMITS",
       value: isConnected
@@ -137,16 +139,39 @@ export default function GitHubCard() {
       })
     : "Never";
 
-  return (
-    <div className="flex h-full flex-col justify-between rounded-[32px] border border-slate-100 bg-white p-10 shadow-sm relative">
-      {loading && !data && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-[32px]">
-          <div className="animate-spin text-blue-600">
-            <RefreshCw size={24} />
+  if (loading && !data) {
+    return (
+      <div className="flex h-full flex-col justify-between rounded-[32px] border border-slate-100 bg-white p-10 shadow-sm relative">
+        <div className="space-y-10">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-5">
+              <Skeleton className="h-14 w-14 rounded-2xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            </div>
+            <Skeleton className="h-6 w-24 rounded-full" />
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <Skeleton className="h-24 w-full rounded-2xl" />
+            <Skeleton className="h-24 w-full rounded-2xl" />
+            <Skeleton className="h-24 w-full rounded-2xl" />
           </div>
         </div>
-      )}
+        <div className="mt-12 flex items-center justify-between border-t border-slate-50 pt-6">
+          <div className="space-y-2">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+          <Skeleton className="h-8 w-32 rounded-lg" />
+        </div>
+      </div>
+    );
+  }
 
+  return (
+    <div className="flex h-full flex-col justify-between rounded-[32px] border border-slate-100 bg-white p-10 shadow-sm relative">
       <div className="space-y-10">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-5">

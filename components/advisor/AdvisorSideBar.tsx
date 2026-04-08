@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 import { useChatStore } from "@/store/useChatStore";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdvisorSideBar() {
   const {
@@ -19,6 +20,7 @@ export default function AdvisorSideBar() {
     createSession,
     setActiveSession,
     deleteSession,
+    isLoading,
   } = useChatStore();
 
   useEffect(() => {
@@ -38,6 +40,32 @@ export default function AdvisorSideBar() {
       }, 500);
     }
   };
+
+  if (isLoading && sessions.length === 0) {
+    return (
+      <div className="space-y-12">
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+            <Skeleton className="h-10 w-full rounded-xl" />
+            <Skeleton className="h-10 w-full rounded-xl" />
+            <Skeleton className="h-10 w-full rounded-xl" />
+          </div>
+        </div>
+        <div className="space-y-6">
+          <Skeleton className="h-3 w-28" />
+          <div className="space-y-3">
+            <Skeleton className="h-24 w-full rounded-xl" />
+            <Skeleton className="h-24 w-full rounded-xl" />
+            <Skeleton className="h-24 w-full rounded-xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-12">

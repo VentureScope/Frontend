@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Share2, Github, GraduationCap, RefreshCw } from "lucide-react";
+import { Share2, Github, GraduationCap } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { getGithubSyncedData, getLatestTranscript } from "@/lib/auth-api";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 export default function ConnectedAccounts() {
   const user = useAppStore((state) => state.authData.user);
@@ -37,6 +39,7 @@ export default function ConnectedAccounts() {
         }
       } catch (err) {
         console.error("Failed to check connected accounts", err);
+        toast.error("Failed to sync connected accounts status");
       } finally {
         setLoading(false);
       }
@@ -45,14 +48,35 @@ export default function ConnectedAccounts() {
     checkConnections();
   }, [user]);
 
+  if (loading) {
+    return (
+      <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm relative">
+        <div className="mb-6 flex items-center gap-2 text-slate-300">
+          <Skeleton className="h-4 w-4" />
+          <Skeleton className="h-3 w-32" />
+        </div>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between rounded-xl p-3 border border-slate-100 bg-slate-50/50">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-4 w-4 rounded-full" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+            <Skeleton className="h-4 w-12" />
+          </div>
+          <div className="flex items-center justify-between rounded-xl p-3 border border-slate-100 bg-slate-50/50">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-4 w-4 rounded-full" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+            <Skeleton className="h-4 w-12" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm relative">
-      {loading && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-[32px]">
-          <RefreshCw size={24} className="animate-spin text-blue-600" />
-        </div>
-      )}
-
       <div className="mb-6 flex items-center gap-2 text-blue-600">
         <Share2 size={18} />
         <span className="text-[10px] font-bold uppercase tracking-widest">
