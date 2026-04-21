@@ -1,5 +1,6 @@
 import { Sparkles } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -8,7 +9,13 @@ export default function Footer() {
         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
           <div className="flex flex-col items-center gap-4 text-center md:items-start md:text-left">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-blue-600 fill-blue-600" />
+              <Image
+                src="/logo.png"
+                alt="VentureScope Logo"
+                width={24}
+                height={24}
+                className="h-6 w-6 object-contain"
+              />
               <span className="text-xl font-bold text-slate-900">
                 VentureScope
               </span>

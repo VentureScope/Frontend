@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Menu, X, LogOut } from "lucide-react";
@@ -88,7 +89,13 @@ export default function Navbar() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-blue-600 fill-blue-600" />
+            <Image
+              src="/logo.png"
+              alt="VentureScope Logo"
+              width={28}
+              height={28}
+              className="h-7 w-7 object-contain"
+            />
             <span className="text-xl font-bold tracking-tight text-slate-900">
               VentureScope
             </span>
@@ -197,7 +204,13 @@ export default function Navbar() {
             className="flex items-center gap-2"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            <Sparkles className="h-5 w-5 text-blue-600 fill-blue-600" />
+            <Image
+              src="/logo.png"
+              alt="VentureScope Logo"
+              width={24}
+              height={24}
+              className="h-6 w-6 object-contain"
+            />
             <span className="font-bold tracking-tight text-slate-900">
               VentureScope
             </span>

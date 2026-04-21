@@ -9,6 +9,7 @@ import {
   LogOut,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { logoutUser } from "@/lib/auth-api";
@@ -66,7 +67,14 @@ export default function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 h-full w-64 border-r border-slate-100 bg-white hidden lg:flex flex-col">
       <div className="p-8">
-        <Link href="/" className="flex items-center gap-2 rounded-md">
+        <Link href="/" className="flex items-center gap-3 rounded-md">
+          <Image
+            src="/logo.png"
+            alt="VentureScope Logo"
+            width={32}
+            height={32}
+            className="h-8 w-8 object-contain"
+          />
           <div>
             <h2 className="text-xl font-bold tracking-tight text-slate-900 leading-none">
               VentureScope

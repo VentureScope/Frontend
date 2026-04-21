@@ -148,7 +148,14 @@ export default function SignInPage() {
 
           <div className="relative z-10 space-y-8">
             {/* Logo */}
-            <div className="flex items-center gap-2 text-white">
+            <div className="flex items-center gap-3 text-white">
+              <Image
+                src="/logo.png"
+                alt="VentureScope Logo"
+                width={32}
+                height={32}
+                className="h-8 w-8 object-contain"
+              />
               <span className="text-2xl font-bold tracking-tight">
                 VentureScope
               </span>

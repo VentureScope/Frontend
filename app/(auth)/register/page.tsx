@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -79,7 +80,14 @@ export default function RegisterPage() {
         <section className="relative hidden w-1/2 flex-col justify-between bg-[#1d59db] p-8 shrink-0 lg:flex">
           <div className="space-y-6">
             {/* Logo */}
-            <div className="flex items-center gap-2 text-white">
+            <div className="flex items-center gap-3 text-white">
+              <Image
+                src="/logo.png"
+                alt="VentureScope Logo"
+                width={32}
+                height={32}
+                className="h-8 w-8 object-contain"
+              />
               <span className="text-xl font-bold tracking-tight">
                 VentureScope
               </span>
