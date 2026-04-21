@@ -14,23 +14,23 @@ export default function MarketInsightsPage() {
   return (
     <div className="bg-slate-50/50 pb-24">
       {/* HEADER SECTION */}
-      <section className="mx-auto max-w-7xl px-6 pt-16 lg:px-8">
-        <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
-          <div className="space-y-4">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8 sm:pt-16 lg:px-8">
+        <div className="flex flex-col justify-between gap-6 sm:gap-8 md:flex-row md:items-end">
+          <div className="space-y-3 sm:space-y-4 text-center md:text-left">
             <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-blue-700">
               Ethiopia Tech Report 2024
             </span>
-            <h1 className="text-5xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
               Market Insights
             </h1>
-            <p className="max-w-xl text-lg text-slate-500 leading-relaxed">
+            <p className="max-w-xl mx-auto md:mx-0 text-base sm:text-lg text-slate-500 leading-relaxed">
               Real-time intelligence on the evolving digital economy in Addis
               Ababa and beyond. We track human capital, fiscal trends, and
               emerging skill ecosystems.
             </p>
           </div>
 
-          <div className="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm border border-slate-100">
+          <div className="flex items-center justify-center md:justify-start gap-4 rounded-2xl bg-white p-4 shadow-sm border border-slate-100">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
               <RefreshCw className="h-5 w-5 text-blue-600" />
             </div>
@@ -45,19 +45,19 @@ export default function MarketInsightsPage() {
       </section>
 
       {/* TOP GRID */}
-      <section className="mx-auto max-w-7xl px-6 mt-12 lg:px-8">
-        <div className="grid gap-8 lg:grid-cols-3">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-8 sm:mt-12 lg:px-8">
+        <div className="grid gap-6 sm:gap-8 lg:grid-cols-3">
           {/* Emerging Skill Demand */}
-          <div className="lg:col-span-2 rounded-3xl bg-white p-10 shadow-sm border border-slate-100">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-xl font-bold text-slate-900">
+          <div className="lg:col-span-2 rounded-2xl sm:rounded-3xl bg-white p-6 sm:p-8 lg:p-10 shadow-sm border border-slate-100">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-2 gap-2">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900">
                 Emerging Skill Demand
               </h2>
-              <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded tracking-widest">
+              <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded tracking-widest shrink-0">
                 LIVE FEED
               </span>
             </div>
-            <p className="text-sm text-slate-500 mb-8">
+            <p className="text-xs sm:text-sm text-slate-500 mb-6 sm:mb-8">
               Quarterly growth in job postings by core competency
             </p>
 
@@ -90,22 +90,22 @@ export default function MarketInsightsPage() {
           </div>
 
           {/* Market Forecast Card */}
-          <div className="rounded-3xl bg-[#1d59db] p-10 text-white relative overflow-hidden flex flex-col justify-between">
-            <TrendingUp className="absolute right-[-20px] top-[-20px] h-48 w-48 text-white/10 rotate-12" />
-            <div className="space-y-2">
-              <h3 className="text-xl font-bold">Market Forecast</h3>
-              <p className="text-sm text-blue-100 leading-relaxed">
+          <div className="rounded-2xl sm:rounded-3xl bg-[#1d59db] p-6 sm:p-8 lg:p-10 text-white relative overflow-hidden flex flex-col justify-between min-h-75 sm:min-h-0">
+            <TrendingUp className="absolute -right-5 -top-5 h-32 w-32 sm:h-48 sm:w-48 text-white/10 rotate-12" />
+            <div className="space-y-2 relative z-10">
+              <h3 className="text-lg sm:text-xl font-bold">Market Forecast</h3>
+              <p className="text-xs sm:text-sm text-blue-100 leading-relaxed max-w-[80%]">
                 Projected 32% growth in Ethiopia's IT sector outsourcing for
                 2025.
               </p>
             </div>
-            <div>
-              <p className="text-5xl font-bold mb-1">$450M+</p>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-blue-200">
+            <div className="relative z-10 mt-6 sm:mt-0">
+              <p className="text-4xl sm:text-5xl font-bold mb-1">$450M+</p>
+              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-blue-200">
                 Estimated Local Value
               </p>
             </div>
-            <Button className="w-full bg-white text-blue-700 font-bold hover:bg-blue-50 mt-8 py-6 rounded-xl">
+            <Button className="w-full bg-white text-blue-700 font-bold hover:bg-blue-50 mt-6 sm:mt-8 py-5 sm:py-6 rounded-xl relative z-10">
               Unlock Full Report
             </Button>
           </div>
@@ -113,14 +113,14 @@ export default function MarketInsightsPage() {
       </section>
 
       {/* SECOND GRID */}
-      <section className="mx-auto max-w-7xl px-6 mt-8 lg:px-8">
-        <div className="grid gap-8 lg:grid-cols-5">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-6 sm:mt-8 lg:px-8">
+        <div className="grid gap-6 sm:gap-8 lg:grid-cols-5">
           {/* Top Hiring Hubs */}
-          <div className="lg:col-span-2 rounded-3xl bg-blue-50/50 p-10 border border-blue-100">
-            <h2 className="text-xl font-bold text-slate-900 mb-8">
+          <div className="lg:col-span-2 rounded-2xl sm:rounded-3xl bg-blue-50/50 p-6 sm:p-8 lg:p-10 border border-blue-100">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-6 sm:mb-8">
               Top Hiring Hubs
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {[
                 {
                   name: "Bole District",
@@ -143,27 +143,29 @@ export default function MarketInsightsPage() {
               ].map((h, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between bg-white p-5 rounded-2xl shadow-sm border border-slate-100"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100 gap-3 sm:gap-2"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 flex items-center justify-center rounded-full bg-slate-50">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 flex shrink-0 items-center justify-center rounded-full bg-slate-50">
                       <MapPin className="h-4 w-4 text-slate-400" />
                     </div>
                     <div>
-                      <p className="font-bold text-slate-900 text-sm">
+                      <p className="font-bold text-slate-900 text-xs sm:text-sm">
                         {h.name}
                       </p>
-                      <p className="text-xs text-slate-500">{h.sub}</p>
+                      <p className="text-[10px] sm:text-xs text-slate-500">
+                        {h.sub}
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                  <div className="flex items-center justify-end gap-2 ml-10 sm:ml-0">
+                    <div className="w-12 sm:w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
                       <div
                         className="bg-blue-600 h-1.5 rounded-full"
                         style={{ width: `${h.value}%` }}
                       />
                     </div>
-                    <span className="font-bold text-blue-600 text-sm w-10 text-right">
+                    <span className="font-bold text-blue-600 text-xs sm:text-sm w-10 text-right">
                       {h.pct}
                     </span>
                   </div>
@@ -173,15 +175,15 @@ export default function MarketInsightsPage() {
           </div>
 
           {/* Salary Benchmarks */}
-          <div className="lg:col-span-3 rounded-3xl bg-white p-10 border border-slate-100 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">
+          <div className="lg:col-span-3 rounded-2xl sm:rounded-3xl bg-white p-6 sm:p-8 lg:p-10 border border-slate-100 shadow-sm">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900">
               Salary Benchmarks
             </h2>
-            <p className="text-sm text-slate-500 mb-8 mt-2">
+            <p className="text-xs sm:text-sm text-slate-500 mb-6 sm:mb-8 mt-1 sm:mt-2">
               Monthly gross averages in ETB for Mid-Senior levels
             </p>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
               {[
                 {
                   role: "Software Engineer",
@@ -251,8 +253,8 @@ export default function MarketInsightsPage() {
       </section>
 
       {/* CTA SECTION */}
-      <section className="mx-auto max-w-7xl px-6 mt-16 lg:px-8">
-        <div className="rounded-[40px] bg-gradient-to-b from-slate-50 to-white border border-slate-100 p-12 lg:p-24 text-center relative overflow-hidden">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-16 lg:px-8">
+        <div className="rounded-3xl sm:rounded-[40px] bg-linear-to-b from-slate-50 to-white border border-slate-100 p-8 sm:p-12 lg:p-24 text-center relative overflow-hidden">
           <div
             className="absolute inset-0 opacity-[0.4]"
             style={{
@@ -260,21 +262,21 @@ export default function MarketInsightsPage() {
               backgroundSize: "40px 40px",
             }}
           />
-          <div className="relative z-10 space-y-10">
-            <h2 className="text-4xl font-bold text-slate-900 max-w-2xl mx-auto sm:text-5xl leading-tight">
+          <div className="relative z-10 space-y-6 sm:space-y-10">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 max-w-2xl mx-auto leading-tight">
               Ready for deeper intelligence?
             </h2>
-            <p className="text-slate-500 text-lg max-w-xl mx-auto">
+            <p className="text-slate-500 text-sm sm:text-lg max-w-xl mx-auto">
               Get custom market maps, predictive career pathing, and direct
               connections to top-tier Ethiopian tech firms.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button className="h-14 px-10 rounded-xl bg-blue-600 font-bold hover:bg-blue-700">
+            <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-4">
+              <Button className="h-12 sm:h-14 w-full sm:w-auto px-6 sm:px-10 rounded-xl bg-blue-600 font-bold hover:bg-blue-700">
                 Sign Up for Personalized Insights
               </Button>
               <Button
                 variant="outline"
-                className="h-14 px-10 rounded-xl border-slate-200 bg-white font-bold text-slate-700 hover:bg-slate-50"
+                className="h-12 sm:h-14 w-full sm:w-auto px-6 sm:px-10 rounded-xl border-slate-200 bg-white font-bold text-slate-700 hover:bg-slate-50"
               >
                 Download Sample Report
               </Button>

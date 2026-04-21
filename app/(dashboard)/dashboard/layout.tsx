@@ -18,6 +18,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const token = useAppStore((state) => state.authData.token);
   const isAuthenticated = Boolean(token);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setIsHydrated(true);
@@ -42,11 +43,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Sidebar />
-      <div className="lg:pl-64">
-        <TopNav breadcrumb="Dashboard" />
-        <main className="p-6 lg:p-8">{children}</main>
+    <div className="min-h-screen bg-slate-50 relative">
+      <Sidebar
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+      />
+      <div className="lg:pl-64 flex flex-col min-h-screen">
+        <TopNav
+          breadcrumb="Dashboard"
+          onMenuClick={() => setIsMobileMenuOpen(true)}
+        />
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );

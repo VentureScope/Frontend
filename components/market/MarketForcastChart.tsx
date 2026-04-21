@@ -15,31 +15,31 @@ const MarketForecastChart = () => {
   const maxPercent = 100;
 
   return (
-    <div className="w-full rounded-[32px] border border-slate-100 bg-white p-6 md:p-10 shadow-sm">
+    <div className="w-full rounded-[28px] sm:rounded-[32px] border border-slate-100 bg-white p-4 sm:p-6 md:p-10 shadow-sm overflow-hidden">
       {/* Header Section */}
-      <div className="mb-8 md:mb-12 flex flex-col md:flex-row md:items-start justify-between gap-4">
+      <div className="mb-6 sm:mb-8 md:mb-12 flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div className="space-y-1">
-          <h2 className="text-[28px] md:text-[30px] font-extrabold tracking-tight text-[#0f172a]">
+          <h2 className="text-2xl sm:text-[28px] md:text-[30px] font-extrabold tracking-tight text-[#0f172a]">
             Market Forecast FR5.5
           </h2>
-          <p className="text-[15px] font-medium text-slate-400">
+          <p className="text-sm sm:text-[15px] font-medium text-slate-400">
             AI-predicted talent demand trendline for Q3/Q4 2024
           </p>
         </div>
 
-        <div className="flex items-center gap-1 rounded-full bg-[#f1f5f9] p-1.5 self-start md:self-auto">
-          <button className="rounded-full bg-[#e1ebff] px-5 py-1.5 text-[13px] font-bold text-[#1d59db] shadow-sm transition-all">
+        <div className="flex items-center gap-1 rounded-full bg-[#f1f5f9] p-1 sm:p-1.5 self-start md:self-auto shrink-0 w-fit">
+          <button className="rounded-full bg-[#e1ebff] px-4 sm:px-5 py-1 sm:py-1.5 text-xs sm:text-[13px] font-bold text-[#1d59db] shadow-sm transition-all whitespace-nowrap">
             Quarterly
           </button>
-          <button className="px-5 py-1.5 text-[13px] font-bold text-slate-400 hover:text-slate-600 transition-colors">
+          <button className="px-4 sm:px-5 py-1 sm:py-1.5 text-xs sm:text-[13px] font-bold text-slate-400 hover:text-slate-600 transition-colors whitespace-nowrap">
             Yearly
           </button>
         </div>
       </div>
 
       {/* Histogram Chart Section - No gaps between bars */}
-      <div className="relative w-full overflow-x-auto pb-4">
-        <div className="min-w-[680px] md:min-w-full">
+      <div className="relative w-full overflow-x-auto pb-4 hide-scrollbar">
+        <div className="min-w-125 md:min-w-full pl-6 pr-2">
           <div className="relative w-full" style={{ minHeight: "360px" }}>
             {/* Background Y-axis grid lines */}
             <div className="absolute inset-0 pointer-events-none z-0">
@@ -102,7 +102,7 @@ const MarketForecastChart = () => {
                         {/* Dashed top edge for forecast bars */}
                         {item.type === "forecast" && (
                           <div
-                            className="absolute top-0 left-0 w-full h-[3px] pointer-events-none"
+                            className="absolute top-0 left-0 w-full h-0.75 pointer-events-none"
                             style={{
                               background:
                                 "repeating-linear-gradient(90deg, #b0002d, #b0002d 6px, transparent 6px, transparent 12px)",

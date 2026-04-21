@@ -49,7 +49,7 @@ export default function AdvisorSideBar() {
             <Skeleton className="h-3 w-24" />
             <Skeleton className="h-4 w-20" />
           </div>
-          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+          <div className="space-y-2 max-h-75 overflow-y-auto pr-2 custom-scrollbar">
             <Skeleton className="h-10 w-full rounded-xl" />
             <Skeleton className="h-10 w-full rounded-xl" />
             <Skeleton className="h-10 w-full rounded-xl" />
@@ -84,7 +84,7 @@ export default function AdvisorSideBar() {
           </button>
         </div>
 
-        <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+        <div className="space-y-2 max-h-75 overflow-y-auto pr-2 custom-scrollbar">
           {sessions.map((session) => (
             <div
               key={session.id}

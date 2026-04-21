@@ -75,7 +75,7 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 p-4 sm:p-8">
-      <div className="flex w-full max-w-5xl overflow-hidden bg-white shadow-2xl">
+      <div className="flex w-full max-w-5xl overflow-hidden rounded-2xl sm:rounded-3xl bg-white shadow-2xl">
         {/* LEFT SIDE - BRANDING & TESTIMONIAL */}
         <section className="relative hidden w-1/2 flex-col justify-between bg-[#1d59db] p-8 shrink-0 lg:flex">
           <div className="space-y-6">
@@ -140,9 +140,9 @@ export default function RegisterPage() {
         </section>
 
         {/* RIGHT SIDE - FORM */}
-        <section className="flex flex-1 flex-col items-center justify-center bg-white px-6 py-8 sm:px-8 lg:pl-12">
-          <div className="w-full max-w-105 space-y-5">
-            <div className="space-y-1">
+        <section className="flex flex-1 flex-col items-center justify-center bg-white px-6 py-10 sm:px-12 lg:px-16">
+          <div className="w-full max-w-sm sm:max-w-md space-y-5">
+            <div className="space-y-1 text-center sm:text-left">
               <h2 className="text-2xl font-bold tracking-tight text-slate-900">
                 Create your account
               </h2>

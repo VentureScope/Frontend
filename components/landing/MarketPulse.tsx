@@ -3,26 +3,26 @@ import { Button } from "@/components/ui/button";
 
 export default function MarketPulse() {
   return (
-    <section className="py-24 bg-slate-50/50">
+    <section className="py-16 sm:py-24 bg-slate-50/50">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-          <div className="space-y-2">
-            <h2 className="text-4xl font-bold tracking-tight text-slate-900">
+        <div className="mb-8 sm:mb-12 flex flex-col justify-between gap-4 sm:gap-6 md:flex-row md:items-end">
+          <div className="space-y-2 text-center md:text-left">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">
               Ethiopia Tech Market Pulse
             </h2>
-            <p className="text-slate-500">
+            <p className="text-sm sm:text-base text-slate-500">
               Real-time intelligence from our ecosystem trackers. Data refreshed
               every 24 hours.
             </p>
           </div>
-          <Button className="bg-blue-600 rounded-full px-6 font-bold">
+          <Button className="bg-blue-600 rounded-full px-6 font-bold w-full md:w-auto">
             Detailed Trends <Activity className="ml-2 h-4 w-4" />
           </Button>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {/* Skill Demand Card */}
-          <div className="rounded-2xl bg-white p-8 shadow-sm border border-slate-100">
+          <div className="rounded-2xl bg-white p-6 sm:p-8 shadow-sm border border-slate-100">
             <div className="mb-8 flex items-center justify-between">
               <h3 className="font-bold text-slate-900">
                 Emerging Skill Demand
@@ -69,8 +69,10 @@ export default function MarketPulse() {
           </div>
 
           {/* Hiring Hubs Card */}
-          <div className="rounded-2xl bg-white p-8 shadow-sm border border-slate-100">
-            <h3 className="mb-8 font-bold text-slate-900">Top Hiring Hubs</h3>
+          <div className="rounded-2xl bg-white p-6 sm:p-8 shadow-sm border border-slate-100">
+            <h3 className="mb-6 sm:mb-8 font-bold text-slate-900">
+              Top Hiring Hubs
+            </h3>
             <div className="space-y-6">
               {[
                 {
@@ -110,13 +112,13 @@ export default function MarketPulse() {
           </div>
 
           {/* Match Score Card */}
-          <div className="flex flex-col justify-between rounded-2xl bg-blue-700 p-8 text-white shadow-xl shadow-blue-200">
-            <BarChart3 className="h-8 w-8 text-blue-200" />
+          <div className="flex flex-col justify-between rounded-2xl bg-blue-700 p-6 sm:p-8 text-white shadow-xl shadow-blue-200">
+            <BarChart3 className="h-8 w-8 text-blue-200 mb-6 sm:mb-0" />
             <div className="space-y-2">
-              <p className="text-sm font-medium text-blue-100">
+              <p className="text-xs sm:text-sm font-medium text-blue-100">
                 Avg. Match Score
               </p>
-              <h4 className="text-6xl font-bold">64%</h4>
+              <h4 className="text-5xl sm:text-6xl font-bold">64%</h4>
               <p className="text-xs text-blue-200/80 leading-relaxed pt-2">
                 Local talent readiness index vs. industry needs.
               </p>

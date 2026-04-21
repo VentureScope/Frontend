@@ -26,7 +26,7 @@ export default function AdvisorPage() {
       </section>
 
       {/* Analytics Sidebar - Responsive toggling */}
-      <aside className="absolute right-0 lg:relative w-[280px] sm:w-[320px] xl:w-[400px] h-full transform translate-x-full peer-checked:translate-x-0 lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col border-l border-t border-slate-200 bg-white/90 lg:bg-white/80 p-6 sm:p-8 overflow-y-auto custom-scrollbar shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.1)] lg:shadow-sm z-40 backdrop-blur-2xl">
+      <aside className="absolute right-0 lg:relative w-70 sm:w-[320px] xl:w-100 h-full transform translate-x-full peer-checked:translate-x-0 lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col border-l border-t border-slate-200 bg-white/90 lg:bg-white/80 p-6 sm:p-8 overflow-y-auto custom-scrollbar shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.1)] lg:shadow-sm z-40 backdrop-blur-2xl">
         <label
           htmlFor="sidebar-toggle"
           className="lg:hidden absolute top-4 left-4 text-slate-400 hover:text-slate-600 cursor-pointer p-2"

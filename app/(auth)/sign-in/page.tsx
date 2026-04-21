@@ -130,7 +130,7 @@ export default function SignInPage() {
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 p-4 sm:p-8">
-      <div className="flex w-full max-w-5xl overflow-hidden bg-white shadow-2xl">
+      <div className="flex w-full max-w-5xl overflow-hidden rounded-2xl sm:rounded-3xl bg-white shadow-2xl">
         {/* --- LEFT SIDE: BRANDING & VISUALS (Hidden on mobile/tablet for focus) --- */}
         <section className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-[#020817] p-10 shrink-0 lg:flex">
           {/* Background Image Effect */}
@@ -203,9 +203,9 @@ export default function SignInPage() {
         </section>
 
         {/* --- RIGHT SIDE: LOGIN FORM (Centered in its container) --- */}
-        <section className="flex flex-1 items-center justify-center bg-white px-6 py-10 sm:px-10">
-          <div className="w-full max-w-105 space-y-6 bg-transparent">
-            <div className="space-y-1.5">
+        <section className="flex flex-1 flex-col items-center justify-center bg-white px-6 py-10 sm:px-12 lg:px-16">
+          <div className="w-full max-w-sm sm:max-w-md space-y-6 bg-transparent">
+            <div className="space-y-1.5 text-center sm:text-left">
               <h2 className="text-3xl font-bold tracking-tight text-slate-900">
                 Welcome back
               </h2>

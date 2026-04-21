@@ -15,7 +15,13 @@ import { useState } from "react";
 import { logoutUser } from "@/lib/auth-api";
 import { useAppStore } from "@/store/useAppStore";
 
-export default function Sidebar() {
+export default function Sidebar({
+  isOpen,
+  onClose,
+}: {
+  isOpen?: boolean;
+  onClose?: () => void;
+}) {
   const clearAuth = useAppStore((state) => state.clearAuth);
   const router = useRouter();
   const pathname = usePathname();
@@ -65,62 +71,78 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 border-r border-slate-100 bg-white hidden lg:flex flex-col">
-      <div className="p-8">
-        <Link href="/" className="flex items-center gap-3 rounded-md">
-          <Image
-            src="/logo.png"
-            alt="VentureScope Logo"
-            width={32}
-            height={32}
-            className="h-8 w-8 object-contain"
-          />
-          <div>
-            <h2 className="text-xl font-bold tracking-tight text-slate-900 leading-none">
-              VentureScope
-            </h2>
-            <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-slate-400 mt-1">
-              Intelligence Layer
-            </p>
-          </div>
-        </Link>
-      </div>
+    <>
+      <div
+        className={`fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden transition-opacity ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}
+        onClick={onClose}
+      />
+      <aside
+        className={`fixed left-0 top-0 h-full w-64 border-r border-slate-100 bg-white flex flex-col z-50 transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+      >
+        <div className="p-8 flex items-center justify-between">
+          <Link
+            href="/"
+            className="flex items-center gap-3 rounded-md"
+            onClick={onClose}
+          >
+            <Image
+              src="/logo.png"
+              alt="VentureScope Logo"
+              width={32}
+              height={32}
+              className="h-8 w-8 object-contain"
+            />
+            <div>
+              <h2 className="text-xl font-bold tracking-tight text-slate-900 leading-none">
+                VentureScope
+              </h2>
+              <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-slate-400 mt-1">
+                Intelligence Layer
+              </p>
+            </div>
+          </Link>
+        </div>
 
-      <nav className="flex-1 space-y-1 px-4">
-        {menu.map((item) => {
-          const active = isActive(item.href);
+        <nav className="flex-1 space-y-1 px-4 overflow-y-auto custom-scrollbar">
+          {menu.map((item) => {
+            const active = isActive(item.href);
 
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium transition-all ${
-                active
-                  ? "bg-blue-50 text-blue-600"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-              }`}
-            >
-              <item.icon
-                size={20}
-                className={active ? "text-blue-600" : "text-slate-400"}
-              />
-              {item.name}
-            </Link>
-          );
-        })}
-      </nav>
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                onClick={onClose}
+                className={`flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium transition-all ${
+                  active
+                    ? "bg-blue-50 text-blue-600"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                }`}
+              >
+                <item.icon
+                  size={20}
+                  className={active ? "text-blue-600" : "text-slate-400"}
+                />
+                {item.name}
+              </Link>
+            );
+          })}
+        </nav>
 
-      <div className="p-6">
-        <button
-          type="button"
-          onClick={handleLogout}
-          disabled={isLoggingOut}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1d59db] py-4 text-sm font-bold text-white shadow-xl shadow-blue-600/20 transition-colors hover:bg-blue-700"
-        >
-          <LogOut size={16} />
-          {isLoggingOut ? "Logging out..." : "Logout"}
-        </button>
-      </div>
-    </aside>
+        <div className="p-6">
+          <button
+            type="button"
+            onClick={() => {
+              onClose?.();
+              handleLogout();
+            }}
+            disabled={isLoggingOut}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1d59db] py-4 text-sm font-bold text-white shadow-xl shadow-blue-600/20 transition-colors hover:bg-blue-700"
+          >
+            <LogOut size={16} className="shrink-0" />
+            {isLoggingOut ? "Logging out..." : "Logout"}
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }
