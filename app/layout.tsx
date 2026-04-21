@@ -30,6 +30,7 @@ export default function RootLayout({
       <body
         className={`${manrope.variable} ${geistMono.variable} font-sans antialiased`}
       >
+        <Analytics />
         {children}
         <Toaster />
       </body>
