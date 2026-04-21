@@ -11,8 +11,8 @@ export default function PersonalDetails() {
   const profile = getUserProfileView(user);
 
   return (
-    <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
+      <div className="mb-5 flex items-center justify-between sm:mb-6">
         <div className="flex items-center gap-2 text-blue-600">
           <UserCircle size={18} />
           <span className="text-[10px] font-bold uppercase tracking-widest">
@@ -32,13 +32,15 @@ export default function PersonalDetails() {
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
             Email Address
           </p>
-          <p className="text-sm font-medium text-slate-900">{profile.email}</p>
+          <p className="break-all text-sm font-medium text-slate-900">
+            {profile.email}
+          </p>
         </div>
         <div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
             Timezone
           </p>
-          <p className="text-sm font-medium text-slate-900">
+          <p className="wrap-break-word text-sm font-medium text-slate-900">
             {profile.timezone}
           </p>
         </div>

@@ -38,12 +38,17 @@ export interface DeleteAccountPayload {
   password?: string;
 }
 
+export interface UserSkillsPayload {
+  skills: string[];
+}
+
 export interface AuthUser {
   id?: string;
   email?: string;
   full_name?: string;
   github_username?: string | null;
   career_interest?: string | null;
+  skills?: string[] | null;
   role?: string;
   is_active?: boolean;
   is_admin?: boolean;

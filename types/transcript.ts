@@ -35,7 +35,9 @@ export interface TranscriptDataSchema {
 export interface TranscriptResponse {
   id: string;
   user_id: string;
+  student_id: string | null;
   version: number;
+  uploaded_at: string;
   transcript_data: TranscriptDataSchema;
   created_at: string;
   updated_at: string;

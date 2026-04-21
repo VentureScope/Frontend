@@ -160,7 +160,7 @@ export default function ProfileIntelligence() {
               </h4>
               <p className="text-[11px] text-slate-500 font-medium">
                 {isGithubConnected
-                  ? `\${totalRepos} Repositories, \${totalCommits} Commits`
+                  ? `${totalRepos} Repositories, ${totalCommits} Commits`
                   : "Not Connected"}
               </p>
             </div>
@@ -201,7 +201,7 @@ export default function ProfileIntelligence() {
               </h4>
               <p className="text-[11px] text-slate-500 font-medium">
                 {isAcademicConnected
-                  ? `GPA: \${latestCGPA?.toFixed(2) || "N/A"}/\${gpaScale.toFixed(1)}, Synced`
+                  ? `GPA: ${latestCGPA?.toFixed(2) || "N/A"}/${gpaScale.toFixed(1)}, Synced`
                   : "No Academic Records"}
               </p>
             </div>

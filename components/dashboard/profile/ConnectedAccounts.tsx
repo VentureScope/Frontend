@@ -34,7 +34,7 @@ export default function ConnectedAccounts() {
           setGithubUsername(user.github_username);
         }
 
-        if (transcriptRes?.transcript_data?.semesters?.length > 0) {
+        if ((transcriptRes?.transcript_data?.semesters?.length ?? 0) > 0) {
           setHasAcademic(true);
         }
       } catch (err) {
@@ -50,20 +50,20 @@ export default function ConnectedAccounts() {
 
   if (loading) {
     return (
-      <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm relative">
+      <div className="relative rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
         <div className="mb-6 flex items-center gap-2 text-slate-300">
           <Skeleton className="h-4 w-4" />
           <Skeleton className="h-3 w-32" />
         </div>
         <div className="space-y-3">
-          <div className="flex items-center justify-between rounded-xl p-3 border border-slate-100 bg-slate-50/50">
+          <div className="flex flex-col gap-2 rounded-xl border border-slate-100 bg-slate-50/50 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <Skeleton className="h-4 w-4 rounded-full" />
               <Skeleton className="h-4 w-24" />
             </div>
             <Skeleton className="h-4 w-12" />
           </div>
-          <div className="flex items-center justify-between rounded-xl p-3 border border-slate-100 bg-slate-50/50">
+          <div className="flex flex-col gap-2 rounded-xl border border-slate-100 bg-slate-50/50 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <Skeleton className="h-4 w-4 rounded-full" />
               <Skeleton className="h-4 w-24" />
@@ -76,7 +76,7 @@ export default function ConnectedAccounts() {
   }
 
   return (
-    <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm relative">
+    <div className="relative rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
       <div className="mb-6 flex items-center gap-2 text-blue-600">
         <Share2 size={18} />
         <span className="text-[10px] font-bold uppercase tracking-widest">
@@ -88,20 +88,20 @@ export default function ConnectedAccounts() {
         {/* GitHub Integration */}
         <div
           className={
-            "flex items-center justify-between rounded-xl p-3 border " +
+            "flex flex-col gap-2 rounded-xl border p-3 sm:flex-row sm:items-center sm:justify-between " +
             (hasGithub
               ? "bg-[#f4f7ff] border-blue-100"
               : "bg-slate-50/50 border-slate-100")
           }
         >
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <Github
               size={18}
               className={hasGithub ? "text-blue-600" : "text-slate-600"}
             />
             <span
               className={
-                "text-sm font-bold " +
+                "min-w-0 break-all text-sm font-bold " +
                 (hasGithub ? "text-slate-900" : "text-slate-700")
               }
             >
@@ -109,13 +109,13 @@ export default function ConnectedAccounts() {
             </span>
           </div>
           {hasGithub ? (
-            <span className="rounded-md bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600">
+            <span className="self-start rounded-md bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600 sm:self-auto">
               LINKED
             </span>
           ) : (
             <Link
               href="/dashboard/settings"
-              className="text-[9px] font-bold text-blue-600 hover:underline"
+              className="self-start text-[10px] font-bold text-blue-600 hover:underline sm:self-auto"
             >
               CONNECT
             </Link>
@@ -125,7 +125,7 @@ export default function ConnectedAccounts() {
         {/* Academic Portal (eStudent) */}
         <div
           className={
-            "flex items-center justify-between rounded-xl p-3 border " +
+            "flex flex-col gap-2 rounded-xl border p-3 sm:flex-row sm:items-center sm:justify-between " +
             (hasAcademic
               ? "bg-[#eff6ff] border-blue-100"
               : "bg-slate-50/50 border-slate-100")
@@ -146,13 +146,13 @@ export default function ConnectedAccounts() {
             </span>
           </div>
           {hasAcademic ? (
-            <span className="rounded-md bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600 tracking-widest">
+            <span className="self-start rounded-md bg-emerald-50 px-2 py-1 text-[9px] font-bold tracking-widest text-emerald-600 sm:self-auto">
               SYNCED
             </span>
           ) : (
             <Link
               href="/dashboard/settings"
-              className="text-[9px] font-bold text-blue-600 hover:underline"
+              className="self-start text-[10px] font-bold text-blue-600 hover:underline sm:self-auto"
             >
               CONNECT
             </Link>

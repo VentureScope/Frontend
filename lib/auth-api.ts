@@ -12,13 +12,23 @@ import {
   RegisterPayload,
   RegisterSuccessResponse,
   SignInPayload,
+  UserSkillsPayload,
   UserUpdatePayload,
 } from "@/types/auth";
+import {
+  TranscriptConfigResponse,
+  TranscriptResponse,
+} from "@/types/transcript";
 
 interface ApiErrorBody {
   message?: string;
   detail?: string;
   error?: string;
+}
+
+export interface CVUploadResponse {
+  cv_url: string;
+  message: string;
 }
 
 const GOOGLE_OAUTH_LOGIN_PATH = "/api/auth/oauth/google/login";
@@ -349,6 +359,58 @@ export async function updateCurrentUserProfile(
   }
 }
 
+export async function getCurrentUserProfile(): Promise<AuthUser> {
+  const path = "/api/users/me";
+  try {
+    const response = await api.get<AuthUser>(path);
+    logRequestSuccess("GET", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("GET", path, error);
+    throw error;
+  }
+}
+
+export async function updateCurrentUserSkills(
+  payload: UserSkillsPayload,
+): Promise<void> {
+  const path = "/api/users/me/skills";
+  try {
+    const response = await api.put(path, payload);
+    logRequestSuccess("PUT", path, {
+      status: response.status,
+      count: payload.skills.length,
+    });
+  } catch (error) {
+    logRequestError("PUT", path, error);
+    throw error;
+  }
+}
+
+export async function uploadCurrentUserCv(
+  file: File,
+): Promise<CVUploadResponse> {
+  const path = "/api/users/me/cv";
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await api.post<CVUploadResponse>(path, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    logRequestSuccess("POST", path, {
+      status: response.status,
+      hasUrl: !!response.data.cv_url,
+    });
+    return response.data;
+  } catch (error) {
+    logRequestError("POST", path, error);
+    throw error;
+  }
+}
+
 export async function changeCurrentUserPassword(
   payload: PasswordChangePayload,
 ): Promise<void> {
@@ -420,12 +482,38 @@ export async function getGithubSyncedData(): Promise<
   }
 }
 
-export const getLatestTranscript = async () => {
-  const response = await api.get('/api/transcripts/latest');
-  return response.data;
+export const getLatestTranscript = async (): Promise<TranscriptResponse> => {
+  const path = "/api/transcripts/latest";
+  try {
+    const response = await api.get<TranscriptResponse>(path);
+    logRequestSuccess("GET", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("GET", path, error);
+    throw error;
+  }
 };
 
-export const getTranscriptConfig = async () => {
-  const response = await api.get('/api/transcript-configs/');
-  return response.data;
+export const getTranscriptConfig =
+  async (): Promise<TranscriptConfigResponse> => {
+    const path = "/api/transcript-configs/";
+    try {
+      const response = await api.get<TranscriptConfigResponse>(path);
+      logRequestSuccess("GET", path, { status: response.status });
+      return response.data;
+    } catch (error) {
+      logRequestError("GET", path, error);
+      throw error;
+    }
+  };
+
+export const deleteTranscript = async (transcriptId: string): Promise<void> => {
+  const path = `/api/transcripts/${transcriptId}`;
+  try {
+    const response = await api.delete(path);
+    logRequestSuccess("DELETE", path, { status: response.status });
+  } catch (error) {
+    logRequestError("DELETE", path, error);
+    throw error;
+  }
 };
