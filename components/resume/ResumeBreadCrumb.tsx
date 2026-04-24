@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 
 export default function ResumeBreadcrumb() {
   return (
-    <nav className="mb-10 flex items-center gap-3 text-sm font-medium">
+    <nav className="mb-6 flex flex-wrap items-center gap-2 text-xs font-medium sm:mb-8 sm:gap-3 sm:text-sm">
       <Link
         href="/dashboard/resume-builder"
         className="text-slate-900 hover:text-blue-600 transition-colors"
@@ -11,7 +10,9 @@ export default function ResumeBreadcrumb() {
         Resume Builder
       </Link>
       <span className="text-slate-300">/</span>
-      <span className="text-slate-400">Senior Product Designer</span>
+      <span className="max-w-full wrap-break-word text-slate-400">
+        Senior Product Designer
+      </span>
     </nav>
   );
 }

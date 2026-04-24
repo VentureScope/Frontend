@@ -322,7 +322,7 @@ export default function SkillIntelligence() {
       </div>
 
       <div className="space-y-3 rounded-2xl border border-slate-100 bg-white p-5 sm:p-6">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700">
             Your Skills
           </h3>

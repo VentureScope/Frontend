@@ -123,9 +123,9 @@ export default function CareerInterests() {
           {tags.map((t) => (
             <span
               key={t}
-              className="group flex max-w-full items-center gap-2 rounded-full border border-slate-100 bg-white px-4 py-2 text-xs font-bold text-blue-600 shadow-sm transition-all hover:border-blue-200"
+              className="group flex min-w-0 max-w-full items-center gap-2 rounded-full border border-slate-100 bg-white px-4 py-2 text-xs font-bold text-blue-600 shadow-sm transition-all hover:border-blue-200"
             >
-              <span className="max-w-50 text-left wrap-break-word sm:max-w-60">
+              <span className="max-w-40 text-left wrap-break-word sm:max-w-56">
                 {t}
               </span>
               <button
@@ -169,7 +169,7 @@ export default function CareerInterests() {
               type="button"
               disabled={isSaving}
               onClick={() => setIsAdding(true)}
-              className="flex items-center gap-1.5 rounded-full border border-dashed border-slate-300 bg-slate-50/50 px-4 py-2 text-xs font-bold text-slate-400 hover:bg-slate-50 transition-colors"
+              className="flex w-full items-center justify-center gap-1.5 rounded-full border border-dashed border-slate-300 bg-slate-50/50 px-4 py-2 text-xs font-bold text-slate-400 transition-colors hover:bg-slate-50 sm:w-auto"
             >
               <Plus size={14} />
               Add Interest

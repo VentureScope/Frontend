@@ -28,14 +28,18 @@ export default function ProfileHeader() {
           </Link>
         </div>
 
-        <div className="space-y-1 text-center md:text-left md:pt-1 lg:pt-2">
+        <div className="min-w-0 space-y-1 text-center md:pt-1 md:text-left lg:pt-2">
           <h1 className="wrap-break-word text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
             {profile.fullName}
           </h1>
-          <p className="flex flex-wrap items-center justify-center gap-2 text-sm text-slate-500 sm:text-base lg:text-lg md:justify-start">
-            <MapPin size={15} className="text-slate-400" />
-            {profile.role} • {profile.location}
-          </p>
+          <div className="flex flex-col items-center gap-1 text-sm text-slate-500 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-2 sm:text-base md:justify-start lg:text-lg">
+            <span className="inline-flex max-w-full items-center gap-1.5">
+              <MapPin size={15} className="shrink-0 text-slate-400" />
+              <span className="wrap-break-word">{profile.location}</span>
+            </span>
+            <span className="hidden text-slate-300 sm:inline">•</span>
+            <span className="wrap-break-word">{profile.role}</span>
+          </div>
         </div>
       </div>
 

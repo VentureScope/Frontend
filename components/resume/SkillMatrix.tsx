@@ -15,10 +15,13 @@ export default function SkillMatrix() {
         {activeSkills.map((skill) => (
           <div
             key={skill}
-            className="flex items-center gap-2 rounded-full bg-[#eff6ff] px-4 py-2 text-[13px] font-bold text-[#1d59db] border border-blue-100"
+            className="flex max-w-full items-center gap-2 rounded-full border border-blue-100 bg-[#eff6ff] px-4 py-2 text-[13px] font-bold text-[#1d59db]"
           >
-            {skill}{" "}
-            <X size={14} className="cursor-pointer hover:text-blue-800" />
+            <span className="wrap-break-word">{skill}</span>
+            <X
+              size={14}
+              className="shrink-0 cursor-pointer hover:text-blue-800"
+            />
           </div>
         ))}
 
@@ -26,10 +29,13 @@ export default function SkillMatrix() {
         {suggestedSkills.map((skill) => (
           <div
             key={skill}
-            className="flex items-center gap-2 rounded-full bg-[#fff1f2] px-4 py-2 text-[13px] font-bold text-[#e11d48] border border-rose-100"
+            className="flex max-w-full items-center gap-2 rounded-full border border-rose-100 bg-[#fff1f2] px-4 py-2 text-[13px] font-bold text-[#e11d48]"
           >
-            {skill}{" "}
-            <Plus size={14} className="cursor-pointer hover:text-rose-800" />
+            <span className="wrap-break-word">{skill}</span>
+            <Plus
+              size={14}
+              className="shrink-0 cursor-pointer hover:text-rose-800"
+            />
           </div>
         ))}
       </div>

@@ -7,12 +7,12 @@ export default function ExperienceHistory() {
 
       <div className="space-y-6">
         {/* Experience Card */}
-        <div className="rounded-[28px] bg-[#f8fafc] p-8 border border-slate-100">
+        <div className="rounded-[28px] border border-slate-100 bg-[#f8fafc] p-5 sm:p-6 lg:p-8">
           <div className="mb-4 space-y-1">
-            <h4 className="text-lg font-bold text-slate-900">
+            <h4 className="wrap-break-word text-base font-bold text-slate-900 sm:text-lg">
               Lead Designer @ FinSphere
             </h4>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <p className="wrap-break-word text-[11px] font-bold uppercase tracking-widest text-slate-400 sm:text-xs">
               2021 — Present • San Francisco
             </p>
           </div>
@@ -39,7 +39,7 @@ export default function ExperienceHistory() {
         </div>
 
         {/* Add Position Button */}
-        <button className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 bg-white py-6 text-sm font-bold text-slate-400 hover:bg-slate-50 hover:border-blue-200 hover:text-blue-600 transition-all">
+        <button className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 bg-white py-5 text-xs font-bold text-slate-400 transition-all hover:border-blue-200 hover:bg-slate-50 hover:text-blue-600 sm:py-6 sm:text-sm">
           <Plus size={18} /> Add Experience Position
         </button>
       </div>

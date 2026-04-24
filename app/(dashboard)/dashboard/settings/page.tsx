@@ -157,53 +157,53 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] p-6 lg:p-12">
-      <div className="mx-auto max-w-6xl space-y-12">
+    <div className="min-h-screen bg-[#f8fafc] px-4 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-10 xl:px-12">
+      <div className="mx-auto max-w-6xl space-y-8 sm:space-y-10 lg:space-y-12">
         {/* --- GLOBAL HEADER --- */}
-        <header className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+        <header className="flex flex-col justify-between gap-5 sm:gap-6 md:flex-row md:items-end">
           <div className="space-y-2">
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#1d59db]">
               Command Center
             </p>
-            <h1 className="text-5xl font-black tracking-tight text-[#0f172a]">
+            <h1 className="text-3xl font-black tracking-tight text-[#0f172a] sm:text-4xl lg:text-5xl">
               Settings
             </h1>
           </div>
-          <div className="flex gap-4">
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4">
             <Button
               onClick={() => form.reset(profileDefaults)}
               disabled={activeTab !== "profile" || form.formState.isSubmitting}
               variant="outline"
-              className="h-14 rounded-2xl border-slate-200 bg-white font-bold text-slate-500 hover:bg-slate-50 px-10"
+              className="h-12 w-full rounded-2xl border-slate-200 bg-white px-6 font-bold text-slate-500 hover:bg-slate-50 sm:h-14 sm:w-auto sm:px-10"
             >
               Discard
             </Button>
             <Button
               onClick={form.handleSubmit(onProfileSubmit)}
               disabled={activeTab !== "profile" || form.formState.isSubmitting}
-              className="h-14 rounded-2xl bg-[#1d59db] font-bold text-white shadow-xl shadow-blue-500/20 px-12 hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-12 w-full rounded-2xl bg-[#1d59db] px-6 font-bold text-white shadow-xl shadow-blue-500/20 transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:h-14 sm:w-auto sm:px-12"
             >
               {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
             </Button>
           </div>
         </header>
 
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
           {/* --- SIDEBAR NAVIGATION --- */}
-          <nav className="space-y-3 lg:col-span-3">
+          <nav className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3 lg:col-span-3 lg:grid-cols-1">
             {sidebarItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 className={cn(
-                  "flex w-full items-center gap-4 rounded-2xl px-6 py-5 text-sm font-bold transition-all border border-transparent",
+                  "flex w-full items-center gap-3 rounded-2xl border border-transparent px-4 py-3 text-left text-sm font-bold transition-all sm:px-5 sm:py-4 lg:gap-4 lg:px-6 lg:py-5",
                   activeTab === item.id
                     ? "bg-white text-[#1d59db] shadow-sm border-slate-100"
                     : "text-slate-400 hover:text-slate-600 hover:bg-slate-50",
                 )}
               >
                 <item.icon
-                  size={22}
+                  size={20}
                   className={
                     activeTab === item.id ? "text-[#1d59db]" : "text-slate-300"
                   }
@@ -218,22 +218,22 @@ export default function SettingsPage() {
             {/* 1. PROFILE IDENTITY */}
             {activeTab === "profile" && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="rounded-[40px] bg-white p-10 shadow-sm border border-slate-100">
-                  <div className="flex flex-col gap-10 md:flex-row md:items-center mb-12">
+                <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-10">
+                  <div className="mb-8 flex flex-col gap-6 sm:mb-10 sm:gap-8 md:flex-row md:items-center lg:mb-12 lg:gap-10">
                     <div className="relative group">
-                      <div className="h-36 w-36 rounded-full border-[6px] border-white shadow-2xl bg-slate-100 overflow-hidden ring-1 ring-slate-100">
+                      <div className="h-28 w-28 overflow-hidden rounded-full border-[6px] border-white bg-slate-100 shadow-2xl ring-1 ring-slate-100 sm:h-32 sm:w-32 lg:h-36 lg:w-36">
                         <img
                           src={profile.avatarUrl}
                           alt={profile.fullName}
                           className="h-full w-full object-cover"
                         />
                       </div>
-                      <button className="absolute bottom-1 right-1 h-11 w-11 bg-blue-600 rounded-full border-4 border-white flex items-center justify-center text-white shadow-lg hover:bg-blue-700 transition-transform hover:scale-110">
-                        <Camera size={20} />
+                      <button className="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-blue-600 text-white shadow-lg transition-transform hover:scale-110 hover:bg-blue-700 sm:h-11 sm:w-11">
+                        <Camera size={18} />
                       </button>
                     </div>
                     <div className="space-y-2">
-                      <h3 className="text-3xl font-black text-[#0f172a]">
+                      <h3 className="text-2xl font-black text-[#0f172a] sm:text-3xl">
                         Public Identity
                       </h3>
                       <p className="text-slate-400 max-w-sm leading-relaxed">
@@ -244,7 +244,7 @@ export default function SettingsPage() {
                   </div>
 
                   <form
-                    className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10"
+                    className="grid grid-cols-1 gap-x-8 gap-y-7 sm:gap-y-8 md:grid-cols-2 md:gap-y-10"
                     onSubmit={form.handleSubmit(onProfileSubmit)}
                   >
                     <Field>
@@ -319,9 +319,9 @@ export default function SettingsPage() {
                   </form>
                 </div>
 
-                <div className="rounded-[40px] bg-white p-10 shadow-sm border border-slate-100 divide-y divide-slate-50">
-                  <div className="py-8">
-                    <div className="flex items-center justify-between mb-4">
+                <div className="divide-y divide-slate-50 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-10">
+                  <div className="py-6 sm:py-8">
+                    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <p className="text-lg font-black text-slate-900">
                           Account Password
@@ -335,14 +335,14 @@ export default function SettingsPage() {
                           setIsChangingPassword(!isChangingPassword)
                         }
                         variant="outline"
-                        className="h-12 rounded-xl font-bold px-8"
+                        className="h-11 w-full rounded-xl px-4 font-bold sm:h-12 sm:w-auto sm:px-8"
                       >
                         {isChangingPassword ? "Cancel" : "Change Password"}
                       </Button>
                     </div>
 
                     {isChangingPassword && (
-                      <div className="mt-6 flex flex-col gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                      <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 sm:p-6">
                         {passwordError && (
                           <div className="text-rose-500 text-sm font-bold bg-rose-50 p-3 rounded-lg">
                             {passwordError}
@@ -385,7 +385,7 @@ export default function SettingsPage() {
                       </div>
                     )}
                   </div>
-                  <div className="flex items-center justify-between py-8">
+                  <div className="flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:py-8">
                     <div>
                       <p className="text-lg font-black text-slate-900">
                         Two-Factor Authentication
@@ -404,13 +404,13 @@ export default function SettingsPage() {
             {/* 2. INTELLIGENCE SOURCES */}
             {activeTab === "intelligence" && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="rounded-[40px] bg-white p-12 shadow-sm border border-slate-100 flex items-center justify-between">
-                  <div className="flex items-center gap-8">
-                    <div className="h-20 w-20 rounded-full border-[6px] border-emerald-50 flex items-center justify-center text-emerald-500 text-2xl font-black">
+                <div className="flex flex-col gap-5 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-12 xl:flex-row xl:items-center xl:justify-between">
+                  <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full border-[6px] border-emerald-50 text-xl font-black text-emerald-500 sm:h-20 sm:w-20 sm:text-2xl">
                       98%
                     </div>
                     <div>
-                      <h3 className="text-2xl font-black text-[#0f172a]">
+                      <h3 className="text-xl font-black text-[#0f172a] sm:text-2xl">
                         Intelligence Sync Health
                       </h3>
                       <p className="text-slate-400 font-medium">
@@ -420,14 +420,14 @@ export default function SettingsPage() {
                   </div>
                   <Button
                     variant="outline"
-                    className="h-12 rounded-xl border-blue-100 text-blue-600 font-bold gap-3 px-8"
+                    className="h-11 w-full gap-3 rounded-xl border-blue-100 px-5 font-bold text-blue-600 sm:h-12 sm:w-auto sm:px-8"
                   >
                     <RefreshCw size={18} /> Force Data Refresh
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="rounded-[40px] border-2 border-blue-100 bg-white p-10 flex flex-col justify-between h-72">
+                <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2">
+                  <div className="flex min-h-64 flex-col justify-between rounded-3xl border-2 border-blue-100 bg-white p-5 sm:p-8 lg:rounded-[40px] lg:p-10">
                     <div className="flex items-start justify-between">
                       <div className="h-16 w-16 rounded-[20px] bg-slate-900 flex items-center justify-center text-white">
                         <Github size={32} />
@@ -437,7 +437,7 @@ export default function SettingsPage() {
                       </Badge>
                     </div>
                     <div className="space-y-2">
-                      <h4 className="text-xl font-black text-[#0f172a]">
+                      <h4 className="text-lg font-black text-[#0f172a] sm:text-xl">
                         GitHub Contributions
                       </h4>
                       <p className="text-sm text-slate-400 leading-relaxed">
@@ -450,7 +450,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
 
-                  <div className="rounded-[40px] border border-slate-100 border-dashed bg-white p-10 flex flex-col justify-between h-72 opacity-60 transition-opacity hover:opacity-100">
+                  <div className="flex min-h-64 flex-col justify-between rounded-3xl border border-dashed border-slate-100 bg-white p-5 opacity-60 transition-opacity hover:opacity-100 sm:p-8 lg:rounded-[40px] lg:p-10">
                     <div className="flex items-start justify-between">
                       <div className="h-16 w-16 rounded-[20px] bg-slate-50 flex items-center justify-center text-slate-300">
                         <GraduationCap size={32} />
@@ -460,14 +460,14 @@ export default function SettingsPage() {
                       </span>
                     </div>
                     <div className="space-y-4">
-                      <h4 className="text-xl font-black text-slate-400">
+                      <h4 className="text-lg font-black text-slate-400 sm:text-xl">
                         University Transcript Hub
                       </h4>
                       <p className="text-sm text-slate-400 leading-relaxed">
                         Authorized academic portals to verify degrees and GPA
                         scores.
                       </p>
-                      <Button className="w-full h-12 rounded-xl bg-[#1d59db] font-bold">
+                      <Button className="h-11 w-full rounded-xl bg-[#1d59db] font-bold sm:h-12">
                         Connect Portal
                       </Button>
                     </div>
@@ -479,20 +479,20 @@ export default function SettingsPage() {
             {/* 3. AI ADVISOR TUNING */}
             {activeTab === "ai-advisor" && (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="rounded-[40px] bg-white p-12 shadow-sm border border-slate-100 space-y-12">
+                <div className="space-y-8 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:space-y-10 sm:p-8 lg:rounded-[40px] lg:space-y-12 lg:p-12">
                   <div className="space-y-3">
-                    <h3 className="text-3xl font-black text-[#0f172a]">
+                    <h3 className="text-2xl font-black text-[#0f172a] sm:text-3xl">
                       Advisor Personality
                     </h3>
-                    <p className="text-slate-400 text-lg">
+                    <p className="text-base text-slate-400 sm:text-lg">
                       Calibrate the intelligence engine to your specific
                       professional appetite.
                     </p>
                   </div>
 
-                  <div className="space-y-12">
-                    <div className="space-y-8 p-10 rounded-[32px] bg-slate-50 border border-slate-100">
-                      <div className="flex justify-between items-end">
+                  <div className="space-y-8 sm:space-y-10 lg:space-y-12">
+                    <div className="space-y-6 rounded-3xl border border-slate-100 bg-slate-50 p-5 sm:space-y-8 sm:p-8 lg:rounded-[32px] lg:p-10">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                           <p className="text-[11px] font-bold uppercase tracking-widest text-[#1d59db] mb-2">
                             Career Goal Aggression
@@ -514,8 +514,8 @@ export default function SettingsPage() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="flex items-center justify-between p-8 rounded-3xl bg-white border border-slate-100 shadow-sm">
+                    <div className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 md:gap-8">
+                      <div className="flex items-center justify-between gap-4 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
                         <div className="space-y-1">
                           <p className="font-bold text-[#0f172a]">
                             Direct & Analytical Tone
@@ -526,7 +526,7 @@ export default function SettingsPage() {
                         </div>
                         <Switch defaultChecked />
                       </div>
-                      <div className="flex items-center justify-between p-8 rounded-3xl bg-white border border-slate-100 shadow-sm">
+                      <div className="flex items-center justify-between gap-4 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
                         <div className="space-y-1">
                           <p className="font-bold text-[#0f172a]">
                             Global Benchmarking
@@ -546,26 +546,26 @@ export default function SettingsPage() {
             {/* 4. PRIVACY & SECURITY */}
             {activeTab === "privacy" && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="rounded-[40px] bg-[#020617] p-16 text-white shadow-2xl relative overflow-hidden">
+                <div className="relative overflow-hidden rounded-3xl bg-[#020617] p-5 text-white shadow-2xl sm:p-8 lg:rounded-[40px] lg:p-12 xl:p-16">
                   <div className="absolute top-0 right-0 h-64 w-64 bg-blue-600/10 blur-[100px]" />
-                  <div className="relative z-10 space-y-10">
+                  <div className="relative z-10 space-y-7 sm:space-y-8 lg:space-y-10">
                     <div className="space-y-4">
-                      <h3 className="text-4xl font-black tracking-tight">
+                      <h3 className="text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">
                         Intelligence Anonymization
                       </h3>
-                      <p className="text-slate-400 text-lg leading-relaxed max-w-2xl">
+                      <p className="max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg">
                         When enabled, your data is scrubbed of all PII
                         (Personally Identifiable Information) before being
                         mapped to global trend analysis.
                       </p>
                     </div>
-                    <div className="flex items-center justify-between p-10 rounded-[32px] bg-white/5 border border-white/10 backdrop-blur-md">
-                      <div className="flex items-center gap-8">
-                        <div className="h-16 w-16 rounded-2xl bg-blue-600/20 flex items-center justify-center text-blue-400">
+                    <div className="flex flex-col gap-5 rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:p-8 lg:rounded-[32px] lg:p-10">
+                      <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600/20 text-blue-400 sm:h-16 sm:w-16">
                           <EyeOff size={32} />
                         </div>
                         <div>
-                          <p className="font-black text-xl">
+                          <p className="text-lg font-black sm:text-xl">
                             Privacy Shield Mode
                           </p>
                           <p className="text-sm text-slate-400 font-medium">
@@ -578,12 +578,12 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[40px] bg-white p-12 border border-slate-100 space-y-10">
-                  <h4 className="text-xl font-black text-slate-900">
+                <div className="space-y-8 rounded-3xl border border-slate-100 bg-white p-5 sm:p-8 lg:rounded-[40px] lg:p-12 lg:space-y-10">
+                  <h4 className="text-lg font-black text-slate-900 sm:text-xl">
                     Data Management
                   </h4>
-                  <div className="flex items-center justify-between p-8 rounded-3xl bg-rose-50/50 border border-rose-100">
-                    <div className="flex items-center gap-6 text-rose-600">
+                  <div className="flex flex-col gap-4 rounded-3xl border border-rose-100 bg-rose-50/50 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+                    <div className="flex items-center gap-4 text-rose-600 sm:gap-6">
                       <ShieldAlert size={28} />
                       <div>
                         <p className="font-black">Purge Personal History</p>
@@ -607,7 +607,7 @@ export default function SettingsPage() {
             {/* 5. SUBSCRIPTION & BILLING */}
             {activeTab === "billing" && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="rounded-[40px] bg-[#1d59db] p-12 text-white shadow-2xl relative overflow-hidden group">
+                <div className="group relative overflow-hidden rounded-3xl bg-[#1d59db] p-5 text-white shadow-2xl sm:p-8 lg:rounded-[40px] lg:p-12">
                   <div className="absolute top-0 right-0 h-64 w-64 bg-white/10 blur-[100px] transition-all group-hover:scale-125" />
                   <div className="relative z-10 flex flex-col justify-between gap-12 md:flex-row md:items-center">
                     <div className="space-y-6">
@@ -619,16 +619,16 @@ export default function SettingsPage() {
                           Active Member
                         </p>
                       </div>
-                      <h3 className="text-5xl font-black tracking-tighter">
+                      <h3 className="text-3xl font-black tracking-tighter sm:text-4xl lg:text-5xl">
                         Intelligence Pro
                       </h3>
-                      <p className="text-blue-100/80 text-lg leading-relaxed max-w-sm">
+                      <p className="max-w-sm text-base leading-relaxed text-blue-100/80 sm:text-lg">
                         Unlimited AI Advisor access, real-time Ethiopia market
                         maps, and automated career pathing.
                       </p>
                     </div>
-                    <div className="text-right space-y-2">
-                      <p className="text-7xl font-black tracking-tighter">
+                    <div className="space-y-2 text-left md:text-right">
+                      <p className="text-5xl font-black tracking-tighter sm:text-6xl lg:text-7xl">
                         $29
                         <span className="text-2xl text-blue-200/50">/mo</span>
                       </p>
@@ -639,17 +639,17 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="rounded-[40px] bg-white p-12 shadow-sm border border-slate-100 flex flex-col justify-between">
-                    <h4 className="font-black text-slate-900 text-xl mb-10">
+                <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2">
+                  <div className="flex flex-col justify-between rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-12">
+                    <h4 className="mb-7 text-lg font-black text-slate-900 sm:mb-10 sm:text-xl">
                       Payment Method
                     </h4>
-                    <div className="flex items-center gap-6 p-6 rounded-[24px] bg-slate-50 border border-slate-100">
-                      <div className="h-12 w-16 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400">
+                    <div className="flex items-center gap-4 rounded-[24px] border border-slate-100 bg-slate-50 p-4 sm:gap-6 sm:p-6">
+                      <div className="flex h-12 w-14 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 sm:w-16">
                         <CardIcon size={28} />
                       </div>
                       <div>
-                        <p className="font-black text-slate-800 text-lg">
+                        <p className="text-base font-black text-slate-800 sm:text-lg">
                           •••• 4242
                         </p>
                         <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
@@ -659,14 +659,14 @@ export default function SettingsPage() {
                     </div>
                     <Button
                       variant="link"
-                      className="p-0 h-auto text-[#1d59db] font-bold text-xs mt-10 justify-start uppercase tracking-widest"
+                      className="mt-7 h-auto justify-start p-0 text-xs font-bold uppercase tracking-widest text-[#1d59db] sm:mt-10"
                     >
                       Update Billing Data
                     </Button>
                   </div>
 
-                  <div className="rounded-[40px] bg-white p-12 shadow-sm border border-slate-100 space-y-10">
-                    <h4 className="font-black text-slate-900 text-xl">
+                  <div className="space-y-8 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-12 lg:space-y-10">
+                    <h4 className="text-lg font-black text-slate-900 sm:text-xl">
                       Allocation Stats
                     </h4>
                     <div className="space-y-8">
@@ -692,8 +692,8 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[40px] bg-white p-12 shadow-sm border border-slate-100">
-                  <h4 className="font-black text-slate-900 text-xl mb-12">
+                <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-12">
+                  <h4 className="mb-7 text-lg font-black text-slate-900 sm:mb-10 sm:text-xl lg:mb-12">
                     Invoice History
                   </h4>
                   <div className="space-y-2">
@@ -719,10 +719,10 @@ export default function SettingsPage() {
                     ].map((inv, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between py-6 border-b border-slate-50 last:border-none group"
+                        className="group flex flex-col gap-4 border-b border-slate-50 py-5 last:border-none sm:flex-row sm:items-center sm:justify-between sm:py-6"
                       >
-                        <div className="flex items-center gap-6">
-                          <div className="h-12 w-12 rounded-[18px] bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#1d59db] group-hover:text-white transition-colors">
+                        <div className="flex items-center gap-4 sm:gap-6">
+                          <div className="flex h-11 w-11 items-center justify-center rounded-[18px] bg-slate-50 text-slate-400 transition-colors group-hover:bg-[#1d59db] group-hover:text-white sm:h-12 sm:w-12">
                             <Download size={20} />
                           </div>
                           <div>
@@ -734,8 +734,8 @@ export default function SettingsPage() {
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-10">
-                          <span className="text-lg font-black text-slate-900">
+                        <div className="flex items-center justify-between gap-4 sm:justify-end sm:gap-10">
+                          <span className="text-base font-black text-slate-900 sm:text-lg">
                             {inv.amt}
                           </span>
                           <Badge className="bg-emerald-50 text-emerald-600 border-none font-bold text-[10px] uppercase py-1.5 px-4 rounded-lg">
