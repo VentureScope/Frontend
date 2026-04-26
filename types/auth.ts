@@ -52,6 +52,7 @@ export interface AuthUser {
   role?: string;
   is_active?: boolean;
   is_admin?: boolean;
+  profile_picture_url?: string | null;
   [key: string]: unknown;
 }
 

@@ -98,6 +98,10 @@ export function getUserProfileView(
     getFirstNonEmptyString(user, ["timezone", "tz"]) ||
     DEFAULT_PROFILE.timezone;
 
+  const profilePictureUrl = getFirstNonEmptyString(user, [
+    "profile_picture_url",
+  ]);
+
   const avatarSeed = encodeURIComponent(fullName || email || "explorer");
 
   return {
@@ -109,6 +113,6 @@ export function getUserProfileView(
     githubUsername,
     location,
     timezone,
-    avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`,
+    avatarUrl: profilePictureUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`,
   };
 }

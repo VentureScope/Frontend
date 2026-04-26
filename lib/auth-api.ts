@@ -517,3 +517,55 @@ export const deleteTranscript = async (transcriptId: string): Promise<void> => {
     throw error;
   }
 };
+
+export interface ProfilePictureUploadResponse {
+  profile_picture_url: string;
+  message: string;
+}
+
+export async function uploadProfilePicture(
+  file: File,
+): Promise<ProfilePictureUploadResponse> {
+  const path = "/api/users/me/profile-picture";
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await api.post<ProfilePictureUploadResponse>(path, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    logRequestSuccess("POST", path, {
+      status: response.status,
+      hasUrl: !!response.data.profile_picture_url,
+    });
+    return response.data;
+  } catch (error) {
+    logRequestError("POST", path, error);
+    throw error;
+  }
+}
+
+export async function deleteProfilePicture(): Promise<void> {
+  const path = "/api/users/me/profile-picture";
+  try {
+    const response = await api.delete(path);
+    logRequestSuccess("DELETE", path, { status: response.status });
+  } catch (error) {
+    logRequestError("DELETE", path, error);
+    throw error;
+  }
+}
+
+export async function getProfilePictureUrl(): Promise<string> {
+  const path = "/api/users/me/profile-picture/url";
+  try {
+    const response = await api.get<string>(path);
+    logRequestSuccess("GET", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("GET", path, error);
+    throw error;
+  }
+}
