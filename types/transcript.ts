@@ -1,4 +1,4 @@
-﻿export interface CourseSchema {
+export interface CourseSchema {
   code: string;
   title: string;
   credit_hours: number;
@@ -29,6 +29,7 @@ export interface SemesterSchema {
 }
 
 export interface TranscriptDataSchema {
+  student_id?: string;
   semesters: SemesterSchema[];
 }
 
