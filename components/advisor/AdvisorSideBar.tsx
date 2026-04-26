@@ -8,9 +8,11 @@ import {
   MessageCircle,
   Trash2,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useChatStore } from "@/store/useChatStore";
 import { Skeleton } from "@/components/ui/skeleton";
+import { X } from "lucide-react";
 
 export default function AdvisorSideBar() {
   const {
@@ -27,8 +29,22 @@ export default function AdvisorSideBar() {
     fetchSessions();
   }, [fetchSessions]);
 
-  const handleStartNewChat = async () => {
-    await createSession("New Chat");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newChatTitle, setNewChatTitle] = useState("");
+
+  const handleStartNewChat = () => {
+    setIsModalOpen(true);
+  };
+
+  const submitNewChat = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const title = newChatTitle.trim() || "New Chat";
+
+    // Close immediately for snappy UX
+    setIsModalOpen(false);
+    setNewChatTitle("");
+
+    await createSession(title);
   };
 
   const handleQuickAction = async (label: string) => {
@@ -88,11 +104,10 @@ export default function AdvisorSideBar() {
           {sessions.map((session) => (
             <div
               key={session.id}
-              className={`group flex items-center justify-between w-full p-3 rounded-xl border transition-all text-left ${
-                activeSessionId === session.id
-                  ? "border-blue-200 bg-blue-50/50"
-                  : "border-transparent hover:border-slate-200 hover:bg-slate-50"
-              }`}
+              className={`group flex items-center justify-between w-full p-3 rounded-xl border transition-all text-left ${activeSessionId === session.id
+                ? "border-blue-200 bg-blue-50/50"
+                : "border-transparent hover:border-slate-200 hover:bg-slate-50"
+                }`}
             >
               <button
                 onClick={() => setActiveSession(session.id)}
@@ -179,6 +194,57 @@ export default function AdvisorSideBar() {
           </div>
         </div>
       </div>
+
+      {/* New Chat Modal */}
+      {isModalOpen && typeof window !== "undefined" && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/20 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-slate-900">Start New Chat</h3>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={submitNewChat} className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="chat-title" className="text-sm font-medium text-slate-700">
+                  Chat Title
+                </label>
+                <input
+                  id="chat-title"
+                  type="text"
+                  autoFocus
+                  placeholder="e.g. Resume Review"
+                  value={newChatTitle}
+                  onChange={(e) => setNewChatTitle(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="rounded-xl px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!newChatTitle.trim()}
+                  className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors"
+                >
+                  Create Chat
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
