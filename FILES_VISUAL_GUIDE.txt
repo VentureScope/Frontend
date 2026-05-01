@@ -1,0 +1,301 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║           RESUME BUILDER FLOW - VISUAL FILE GUIDE                              ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+
+┌─ ALL FILES ORGANIZED BY TYPE ─────────────────────────────────────────────────┐
+│                                                                                  │
+│  🆕 NEW FILES TO CREATE (5 files)                                              │
+│  ========================================                                       │
+│                                                                                  │
+│  📦 STATE MANAGEMENT                                                            │
+│  └─ store/useResumeBuilderStore.ts                         (1.2 KB | 47 lines) │
+│     ├─ Manages: step, selectedRole, selectedHighlights                         │
+│     ├─ Actions: openFlow, closeFlow, setStep, etc.                             │
+│     └─ Used by: All step components + page.tsx                                 │
+│                                                                                  │
+│  🎨 FLOW COMPONENTS (4 files)                                                   │
+│  └─ components/resume/                                                          │
+│     ├─ ResumeBuilderFlow.tsx                               (733 B | 28 lines)  │
+│     │  └─ Conditionally renders steps based on store state                     │
+│     │                                                                            │
+│     ├─ Step1RoleSelection.tsx                            (7.76 KB | 217 lines) │
+│     │  ├─ Modal: Search + 6 trending roles with market data                    │
+│     │  ├─ Output: setSelectedRole() + setStep("step2")                         │
+│     │  └─ UI: Role cards, demand badges, trend indicators                      │
+│     │                                                                            │
+│     ├─ Step2HighlightsSelection.tsx                      (12.76 KB | 338 lines)│
+│     │  ├─ Modal: GitHub projects, education, skills selection                  │
+│     │  ├─ Output: setSelectedHighlights() + setStep("step3")                   │
+│     │  ├─ UI: Checkboxes, AI Assistant sidebar, match score                    │
+│     │  └─ Imports: ResumePreview is NOT used here                              │
+│     │                                                                            │
+│     └─ Step3Editor.tsx                                   (8.2 KB | 220 lines)  │
+│        ├─ Modal: Split-panel (ATS analysis + preview)                          │
+│        ├─ Output: closeFlow() when complete                                    │
+│        ├─ UI: ATS score, workflow steps, Save/Export                           │
+│        └─ Imports: ResumePreview (for live preview)                            │
+│                                                                                  │
+├────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  ✏️ MODIFIED FILES (1 file)                                                     │
+│  ================================                                               │
+│                                                                                  │
+│  📄 ENTRY POINT                                                                 │
+│  └─ app/(dashboard)/dashboard/resume-builder/page.tsx  (1 modified file)       │
+│     ├─ Change: Add "use client"                                                │
+│     ├─ Change: Import useResumeBuilderStore + step components                  │
+│     ├─ Change: Add useEffect() to auto-open flow                               │
+│     ├─ Change: Conditional rendering based on step                             │
+│     └─ Falls back: To original editor when step === "closed"                   │
+│                                                                                  │
+│  ❌ NOT MODIFIED                                                               │
+│  └─ app/(dashboard)/dashboard/page.tsx                  (Dashboard unchanged)  │
+│  └─ components/dashboard/ModuleGrid.tsx                 (Button grid unchanged)│
+│                                                                                  │
+├────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  📦 EXISTING DEPENDENCIES (14+ files | NO CHANGES NEEDED)                       │
+│  ===================================================                            │
+│                                                                                  │
+│  🎯 RESUME COMPONENTS (7+ files in components/resume/)                          │
+│  └─ ResumePreview.tsx                  (live preview display)                  │
+│  └─ ProfileIntelligence.tsx            (user data sync)                        │
+│  └─ ProfessionalSummary.tsx            (experience editor)                     │
+│  └─ SkillMatrix.tsx                    (skills editor)                         │
+│  └─ ExperienceHistory.tsx              (work history)                          │
+│  └─ AtsAnalytics.tsx                   (ATS scoring)                           │
+│  └─ ResumeBreadCrumb.tsx               (navigation)                            │
+│                                                                                  │
+│  🏪 STATE MANAGEMENT                                                            │
+│  └─ store/useAppStore.ts               (user/auth data)                        │
+│                                                                                  │
+│  🔧 UTILITIES                                                                   │
+│  └─ lib/user-profile.ts                (user profile functions)                │
+│  └─ lib/auth-api.ts                    (auth API calls)                        │
+│                                                                                  │
+│  📋 TYPES                                                                       │
+│  └─ types/transcript.ts                (transcript types)                      │
+│  └─ types/github.ts                    (GitHub types)                          │
+│                                                                                  │
+│  📦 EXTERNAL PACKAGES (already installed)                                       │
+│  └─ react                              (UI framework)                           │
+│  └─ zustand                            (state management)                       │
+│  └─ lucide-react                       (icons)                                 │
+│  └─ next                               (framework)                             │
+│                                                                                  │
+└────────────────────────────────────────────────────────────────────────────────┘
+
+
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                          FILE IMPORT RELATIONSHIPS                              ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+resume-builder/page.tsx (ENTRY POINT)
+│
+├──→ import useResumeBuilderStore           (NEW store)
+├──→ import Step1RoleSelection              (NEW component)
+├──→ import Step2HighlightsSelection        (NEW component)
+├──→ import Step3Editor                     (NEW component)
+│
+├──→ import ResumePreview                   (EXISTING)
+│    ├──→ import useAppStore
+│    ├──→ import getUserProfileView
+│    └──→ (uses lucide-react icons)
+│
+├──→ import ProfileIntelligence             (EXISTING)
+│    ├──→ import useAppStore
+│    ├──→ import auth-api functions
+│    └──→ (uses lucide-react icons)
+│
+├──→ import ProfessionalSummary             (EXISTING)
+├──→ import SkillMatrix                     (EXISTING)
+├──→ import ExperienceHistory               (EXISTING)
+├──→ import AtsAnalytics                    (EXISTING)
+├──→ import ResumeBreadCrumb                (EXISTING)
+│
+└──→ (conditional rendering based on useResumeBuilderStore step)
+
+
+Step1RoleSelection (NEW)
+│
+├──→ import react (useState, useMemo)
+├──→ import lucide-react (icons)
+└──→ import useResumeBuilderStore
+
+
+Step2HighlightsSelection (NEW)
+│
+├──→ import react (useState)
+├──→ import lucide-react (icons)
+└──→ import useResumeBuilderStore
+
+
+Step3Editor (NEW)
+│
+├──→ import react (useState)
+├──→ import ResumePreview                   (EXISTING)
+├──→ import lucide-react (icons)
+└──→ import useResumeBuilderStore
+
+
+ResumeBuilderFlow (NEW - optional organization)
+│
+├──→ import next/dynamic (SSR disabled)
+├──→ import useResumeBuilderStore
+└──→ (dynamic imports of Step components)
+
+
+useResumeBuilderStore (NEW)
+│
+└──→ import zustand
+
+
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                       STEP-BY-STEP FLOW VISUALIZATION                          ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+USER NAVIGATES TO /dashboard/resume-builder
+                          │
+                          ▼
+              resume-builder/page.tsx LOADS
+                          │
+                          ├─ useEffect triggers
+                          ├─ Checks: step === "closed" ?
+                          │   YES ──→ openFlow() ──→ step = "step1"
+                          │
+                          ▼
+              useResumeBuilderStore updates
+                          │
+                          ├─ All components re-render
+                          ├─ page.tsx checks step
+                          │   step === "step1" ? YES
+                          │
+                          ▼
+              STEP 1 MODAL RENDERS
+              ┌────────────────────────────┐
+              │ Step1RoleSelection         │
+              │ ─────────────────          │
+              │ Search input               │
+              │ 6 role cards               │
+              │ Market demand badges       │
+              │ [Cancel]  [Next]           │
+              └────────────────────────────┘
+                          │
+                          │ USER SELECTS ROLE
+                          ├─ setSelectedRole("Senior DevOps")
+                          ├─ setStep("step2")
+                          │
+                          ▼
+              useResumeBuilderStore updates
+                          │
+                          ├─ page.tsx checks step
+                          │   step === "step2" ? YES
+                          │
+                          ▼
+              STEP 2 MODAL RENDERS
+              ┌────────────────────────────┐
+              │ Step2HighlightsSelection   │
+              │ ─────────────────────────  │
+              │ GitHub Projects (checkbox) │
+              │ Education (checkbox)       │
+              │ Skills (selectable badges) │
+              │ AI Assistant sidebar       │
+              │ [Back]  [Generate]         │
+              └────────────────────────────┘
+                          │
+                          │ USER SELECTS HIGHLIGHTS
+                          ├─ setSelectedHighlights({...})
+                          ├─ setStep("step3")
+                          │
+                          ▼
+              useResumeBuilderStore updates
+                          │
+                          ├─ page.tsx checks step
+                          │   step === "step3" ? YES
+                          │
+                          ▼
+              STEP 3 MODAL RENDERS
+              ┌────────────────────────────┐
+              │ Step3Editor                │
+              │ ──────────────             │
+              │ LEFT:            RIGHT:    │
+              │ • ATS Score      Resume    │
+              │ • Keyword Dens.  Preview   │
+              │ • Format Compat. (Real)    │
+              │ • Workflow steps           │
+              │ [Save] [Export]            │
+              └────────────────────────────┘
+                          │
+                          │ USER CLICKS EXPORT or X
+                          ├─ closeFlow() ──→ step = "closed"
+                          │
+                          ▼
+              useResumeBuilderStore updates
+                          │
+                          ├─ page.tsx checks step
+                          │   step === "closed" ? YES
+                          │
+                          ▼
+              ORIGINAL EDITOR RENDERS
+              ┌────────────────────────────┐
+              │ Breadcrumb                 │
+              │ ──────────────────────     │
+              │ LEFT:            RIGHT:    │
+              │ • Intelligence   • ATS     │
+              │ • Summary        • Preview │
+              │ • Skills                   │
+              │ • Experience               │
+              └────────────────────────────┘
+
+
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                           STORAGE OF FILES                                     ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+NEW (5)
+  store/
+    └─ useResumeBuilderStore.ts
+  
+  components/resume/
+    ├─ ResumeBuilderFlow.tsx
+    ├─ Step1RoleSelection.tsx
+    ├─ Step2HighlightsSelection.tsx
+    └─ Step3Editor.tsx
+
+MODIFIED (1)
+  app/(dashboard)/dashboard/resume-builder/
+    └─ page.tsx
+
+UNCHANGED
+  app/(dashboard)/dashboard/
+    ├─ page.tsx (dashboard)
+    └─ resume-builder/page.tsx (now flows through steps)
+  
+  components/
+    ├─ dashboard/ModuleGrid.tsx
+    └─ resume/ (all existing components)
+  
+  store/
+    └─ useAppStore.ts
+  
+  lib/
+    └─ *.ts (all utilities)
+  
+  types/
+    └─ *.ts (all types)
+
+
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                           SUMMARY                                              ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+✅ 5 NEW FILES CREATED              (~29 KB, ~500 lines)
+✅ 1 FILE MODIFIED                  (resume-builder/page.tsx)
+✅ 14+ EXISTING FILES USED          (no changes needed)
+✅ 0 NEW DEPENDENCIES               (all already installed)
+✅ 0 BREAKING CHANGES               (isolated to resume-builder route)
+
+TOTAL IMPACT: 6 files touched (5 new + 1 modified)
+READY FOR: Testing and deployment
+
