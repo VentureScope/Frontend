@@ -1,7 +1,12 @@
 // components/dashboard/ModuleGrid.tsx
+"use client";
+
 import { BookOpen, HelpCircle, FileText, Send } from "lucide-react";
+import { useResumeBuilderStore } from "@/store/useResumeBuilderStore";
 
 export default function ModuleGrid() {
+  const { openFlow } = useResumeBuilderStore();
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
       {/* Active Module */}
@@ -71,7 +76,10 @@ export default function ModuleGrid() {
         <h3 className="mb-6 sm:mb-8 text-lg sm:text-xl font-bold text-slate-900">
           Resume Version 4.2
         </h3>
-        <button className="w-full rounded-xl sm:rounded-2xl bg-blue-50 py-3 sm:py-4 text-sm sm:text-base font-bold text-blue-600 hover:bg-blue-100 transition-colors">
+        <button
+          onClick={() => openFlow()}
+          className="w-full rounded-xl sm:rounded-2xl bg-blue-50 py-3 sm:py-4 text-sm sm:text-base font-bold text-blue-600 hover:bg-blue-100 transition-colors"
+        >
           Build New Resume
         </button>
       </div>
