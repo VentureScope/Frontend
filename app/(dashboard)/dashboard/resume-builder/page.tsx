@@ -1,3 +1,10 @@
+"use client";
+
+import { useEffect } from "react";
+import { useResumeBuilderStore } from "@/store/useResumeBuilderStore";
+import Step1RoleSelection from "@/components/resume/Step1RoleSelection";
+import Step2HighlightsSelection from "@/components/resume/Step2HighlightsSelection";
+import Step3Editor from "@/components/resume/Step3Editor";
 import ResumeBreadcrumb from "@/components/resume/ResumeBreadCrumb";
 import ProfileIntelligence from "@/components/resume/ProfileIntelligence";
 import ProfessionalSummary from "@/components/resume/ProfessionalSummary";
@@ -7,6 +14,27 @@ import AtsAnalytics from "@/components/resume/AtsAnalytics";
 import ResumePreview from "@/components/resume/ResumePreview";
 
 export default function ResumeBuilderPage() {
+  const { step, openFlow } = useResumeBuilderStore();
+
+  // Open the flow when the page loads
+  useEffect(() => {
+    if (step === "closed") {
+      openFlow();
+    }
+  }, []);
+
+  // Show flow modals based on current step
+  if (step !== "closed") {
+    return (
+      <div className="min-h-screen bg-[#f8fafc]">
+        {step === "step1" && <Step1RoleSelection />}
+        {step === "step2" && <Step2HighlightsSelection />}
+        {step === "step3" && <Step3Editor />}
+      </div>
+    );
+  }
+
+  // Show original editor after flow is complete
   return (
     <div className="min-h-screen bg-[#f8fafc] px-4 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-8 xl:px-12">
       <div className="mx-auto max-w-7xl">
