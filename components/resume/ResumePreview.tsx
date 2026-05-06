@@ -2,40 +2,10 @@
 
 import React from "react";
 import { Settings2, Download } from "lucide-react";
-import { getUserProfileView } from "@/lib/user-profile";
-import { useAppStore } from "@/store/useAppStore";
+import { mockResumes, Resume } from "@/app/(dashboard)/dashboard/resume-builder/mockData";
 
-export default function ResumePreview() {
-  const user = useAppStore((state) => state.authData.user);
-  const profile = getUserProfileView(user);
-
-  const technicalStack = [
-    { name: "User Experience", level: "Expert" },
-    { name: "React / Tailwind", level: "Advanced" },
-    { name: "Figma Architect", level: "Expert" },
-    { name: "System Design", level: "Advanced" },
-  ];
-
-  const experience = [
-    {
-      company: "FinSphere",
-      role: "Lead Product Designer",
-      period: "2021 — Present",
-      bullets: [
-        'Architected the "Aura" Design System used by 12+ internal teams.',
-        "Increased core transaction conversion rate by 22% via new UI patterns.",
-      ],
-    },
-    {
-      company: "Creative Logic",
-      role: "Senior Designer",
-      period: "2018 — 2021",
-      bullets: [
-        "Led redesign of the SaaS analytics dashboard.",
-        "Mentored 4 junior designers in atomic design principles.",
-      ],
-    },
-  ];
+export default function ResumePreview({ resume = mockResumes[0] }: { resume?: Resume }) {
+  if (!resume) return null;
 
   return (
     <div className="w-full max-w-full overflow-hidden rounded-3xl border border-slate-50 bg-white shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] lg:rounded-[40px]">
@@ -44,19 +14,17 @@ export default function ResumePreview() {
         {/* Header Section */}
         <div className="space-y-4 text-center sm:space-y-6">
           <h2 className="wrap-break-word text-2xl font-black uppercase leading-tight tracking-tight text-[#0f172a] sm:text-3xl lg:text-[38px] lg:leading-none">
-            {profile.fullName}
+            User Name
           </h2>
           <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 sm:gap-x-4 sm:text-[11px]">
-            <span className="wrap-break-word text-center">{profile.email}</span>
+            <span className="wrap-break-word text-center">user@example.com</span>
             <div className="hidden h-1 w-1 rounded-full bg-slate-300 sm:block" />
             <span className="wrap-break-word text-center">
-              {profile.githubUsername
-                ? `github.com/${profile.githubUsername}`
-                : "Professional Profile"}
+              Professional Profile
             </span>
             <div className="hidden h-1 w-1 rounded-full bg-slate-300 sm:block" />
             <div className="text-center">
-              <span className="wrap-break-word">{profile.location}</span>
+              <span className="wrap-break-word">San Francisco, CA</span>
             </div>
           </div>
         </div>
@@ -67,10 +35,7 @@ export default function ResumePreview() {
             Professional Profile
           </h4>
           <p className="text-[13.5px] font-medium leading-relaxed text-slate-600 sm:text-[14.5px]">
-            Senior Product Designer with 6+ years of experience in fin-tech and
-            digital curator aesthetics. Proven track record of increasing user
-            engagement by 40% through intentional design systems and
-            accessibility-first frameworks.
+            {resume.content.summary}
           </p>
         </div>
 
@@ -80,16 +45,16 @@ export default function ResumePreview() {
             Technical Stack
           </h4>
           <div className="grid grid-cols-1 gap-x-12 gap-y-4 sm:grid-cols-2">
-            {technicalStack.map((skill) => (
+            {resume.content.skills.map((skill, index) => (
               <div
-                key={skill.name}
+                key={index}
                 className="flex items-center justify-between gap-3 text-[13px] font-bold"
               >
                 <span className="wrap-break-word text-slate-800">
-                  {skill.name}
+                  {skill}
                 </span>
                 <span className="text-slate-400 font-medium">
-                  {skill.level}
+                  Expert
                 </span>
               </div>
             ))}
@@ -102,18 +67,18 @@ export default function ResumePreview() {
             Experience
           </h4>
           <div className="space-y-10">
-            {experience.map((job, idx) => (
-              <div key={idx} className="space-y-4">
+            {resume.content.experience.map((job) => (
+              <div key={job.id} className="space-y-4">
                 <div className="flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:justify-between">
                   <h5 className="wrap-break-word text-[15px] font-bold text-[#0f172a] sm:text-[15.5px]">
                     {job.company} — {job.role}
                   </h5>
                   <span className="text-[11px] font-bold text-slate-400">
-                    {job.period}
+                    {job.duration}
                   </span>
                 </div>
                 <ul className="space-y-2 pl-4">
-                  {job.bullets.map((bullet, bIdx) => (
+                  {job.description.map((bullet, bIdx) => (
                     <li
                       key={bIdx}
                       className="text-[13.5px] text-slate-500 leading-relaxed list-disc"
@@ -121,6 +86,32 @@ export default function ResumePreview() {
                       {bullet}
                     </li>
                   ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Section: Education */}
+        <div className="space-y-8">
+          <h4 className="text-[11px] font-bold text-[#1d59db] uppercase tracking-[0.2em] border-b border-slate-100 pb-2.5">
+            Education
+          </h4>
+          <div className="space-y-10">
+            {resume.content.education.map((edu) => (
+              <div key={edu.id} className="space-y-4">
+                <div className="flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:justify-between">
+                  <h5 className="wrap-break-word text-[15px] font-bold text-[#0f172a] sm:text-[15.5px]">
+                    {edu.degree}
+                  </h5>
+                  <span className="text-[11px] font-bold text-slate-400">
+                    {edu.year}
+                  </span>
+                </div>
+                <ul className="space-y-2 pl-4">
+                  <li className="text-[13.5px] text-slate-500 leading-relaxed list-disc">
+                    {edu.school}
+                  </li>
                 </ul>
               </div>
             ))}
@@ -142,3 +133,4 @@ export default function ResumePreview() {
     </div>
   );
 }
+
