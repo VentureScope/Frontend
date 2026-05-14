@@ -53,6 +53,8 @@ export interface AuthUser {
   is_active?: boolean;
   is_admin?: boolean;
   profile_picture_url?: string | null;
+  has_password?: boolean;
+  oauth_provider?: string | null;
   [key: string]: unknown;
 }
 

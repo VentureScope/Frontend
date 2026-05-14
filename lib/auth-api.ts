@@ -30,7 +30,7 @@ import {
 
 interface ApiErrorBody {
   message?: string;
-  detail?: string;
+  detail?: any;
   error?: string;
 }
 
@@ -110,7 +110,26 @@ function getMessage(source: unknown): string | null {
   }
 
   const record = source as ApiErrorBody;
-  return record.message || record.detail || record.error || null;
+  
+  if (record.message && typeof record.message === "string") {
+    return record.message;
+  }
+  
+  if (record.detail) {
+    if (typeof record.detail === "string") {
+      return record.detail;
+    }
+    // Handle FastAPI 422 validation errors where detail is an array of objects
+    if (Array.isArray(record.detail)) {
+      return record.detail.map((err: any) => err.msg || "Validation error").join(", ");
+    }
+  }
+  
+  if (record.error && typeof record.error === "string") {
+    return record.error;
+  }
+  
+  return null;
 }
 
 export function getApiErrorMessage(error: unknown): string {
