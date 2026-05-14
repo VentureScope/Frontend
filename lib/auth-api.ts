@@ -5,12 +5,20 @@ import {
   AuthSessionData,
   AuthUser,
   DeleteAccountPayload,
+  ForgotPasswordPayload,
+  ForgotPasswordResponse,
   GithubOAuthLoginResponse,
   GoogleOAuthLoginResponse,
   LoginSuccessResponse,
+  OtpResendPayload,
+  OtpResendResponse,
+  OtpVerifyPayload,
+  OtpVerifyResponse,
   PasswordChangePayload,
   RegisterPayload,
   RegisterSuccessResponse,
+  ResetPasswordPayload,
+  ResetPasswordResponse,
   SignInPayload,
   UserSkillsPayload,
   UserUpdatePayload,
@@ -131,6 +139,62 @@ export async function registerUser(
   const path = "/api/auth/register";
   try {
     const response = await api.post<RegisterSuccessResponse>(path, payload);
+    logRequestSuccess("POST", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("POST", path, error);
+    throw error;
+  }
+}
+
+export async function verifyEmail(
+  payload: OtpVerifyPayload,
+): Promise<OtpVerifyResponse> {
+  const path = "/api/auth/verify-email";
+  try {
+    const response = await api.post<OtpVerifyResponse>(path, payload);
+    logRequestSuccess("POST", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("POST", path, error);
+    throw error;
+  }
+}
+
+export async function resendOtp(
+  payload: OtpResendPayload,
+): Promise<OtpResendResponse> {
+  const path = "/api/auth/otp/resend";
+  try {
+    const response = await api.post<OtpResendResponse>(path, payload);
+    logRequestSuccess("POST", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("POST", path, error);
+    throw error;
+  }
+}
+
+export async function requestPasswordReset(
+  payload: ForgotPasswordPayload,
+): Promise<ForgotPasswordResponse> {
+  const path = "/api/auth/forgot-password";
+  try {
+    const response = await api.post<ForgotPasswordResponse>(path, payload);
+    logRequestSuccess("POST", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("POST", path, error);
+    throw error;
+  }
+}
+
+export async function resetPassword(
+  payload: ResetPasswordPayload,
+): Promise<ResetPasswordResponse> {
+  const path = "/api/auth/reset-password";
+  try {
+    const response = await api.post<ResetPasswordResponse>(path, payload);
     logRequestSuccess("POST", path, { status: response.status });
     return response.data;
   } catch (error) {

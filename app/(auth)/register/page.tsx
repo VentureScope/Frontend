@@ -12,12 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
-  buildAuthSessionData,
   getApiErrorMessage,
-  loginUser,
   registerUser,
 } from "@/lib/auth-api";
-import { useAppStore } from "@/store/useAppStore";
 import { RegisterPayload } from "@/types/auth";
 
 const formSchema = z.object({
@@ -32,7 +29,6 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const setAuthData = useAppStore((state) => state.setAuthData);
   const router = useRouter();
 
   const form = useForm<RegisterPayload>({
@@ -52,20 +48,12 @@ export default function RegisterPage() {
 
     try {
       await registerUser(values);
-      const loginResult = await loginUser({
+      // Registration triggers an OTP email. Redirect to verification page.
+      const params = new URLSearchParams({
         email: values.email,
-        password: values.password,
+        p: btoa(values.password), // base64-encode for URL safety
       });
-      const authSessionData = await buildAuthSessionData(loginResult);
-      setAuthData(authSessionData);
-      form.reset({
-        email: "",
-        password: "",
-        full_name: "",
-        career_interest: "",
-        role: "professional",
-      });
-      router.push("/");
+      router.push(`/verify-email?${params.toString()}`);
     } catch (error) {
       setApiError(getApiErrorMessage(error));
     } finally {

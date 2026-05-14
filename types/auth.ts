@@ -77,3 +77,40 @@ export interface GithubOAuthLoginResponse {
   authorization_url: string;
   state: string;
 }
+
+// OTP verification types
+export interface OtpVerifyPayload {
+  email: string;
+  otp: string;
+}
+
+export interface OtpVerifyResponse {
+  message: string;
+}
+
+export interface OtpResendPayload {
+  email: string;
+}
+
+export interface OtpResendResponse {
+  message: string;
+}
+
+// Password reset types
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+}
+
+export interface ResetPasswordPayload {
+  email: string;
+  otp: string;
+  new_password: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}
