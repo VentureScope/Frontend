@@ -62,6 +62,7 @@ function logRequestError(method: string, path: string, error: unknown): void {
 function validateOAuthAuthorizationUrl(
   authorizationUrl: string,
   expectedState: string,
+  provider: string,
   options?: {
     requireRedirectUri?: boolean;
     requireCodeResponseType?: boolean;
@@ -80,27 +81,29 @@ function validateOAuthAuthorizationUrl(
     requireScope = true,
   } = options ?? {};
 
+  const providerName = provider.charAt(0).toUpperCase() + provider.slice(1);
+
   if (!clientId) {
-    throw new Error("Google authorization URL is missing client_id.");
+    throw new Error(`${providerName} authorization URL is missing client_id.`);
   }
 
   if (requireRedirectUri && !redirectUri) {
-    throw new Error("Google authorization URL is missing redirect_uri.");
+    throw new Error(`${providerName} authorization URL is missing redirect_uri.`);
   }
 
   if (
     requireCodeResponseType &&
     (!responseType || responseType.toLowerCase() !== "code")
   ) {
-    throw new Error("Google authorization URL is missing response_type=code.");
+    throw new Error(`${providerName} authorization URL is missing response_type=code.`);
   }
 
   if (requireScope && !scope) {
-    throw new Error("Google authorization URL is missing scope.");
+    throw new Error(`${providerName} authorization URL is missing scope.`);
   }
 
   if (!state || state !== expectedState) {
-    throw new Error("Google authorization state mismatch.");
+    throw new Error(`${providerName} authorization state mismatch.`);
   }
 }
 
@@ -269,6 +272,7 @@ export async function getGoogleOAuthLoginUrl(): Promise<GoogleOAuthLoginResponse
     validateOAuthAuthorizationUrl(
       response.data.authorization_url,
       response.data.state,
+      "google",
     );
 
     logRequestSuccess("GET", GOOGLE_OAUTH_LOGIN_PATH, {
@@ -319,6 +323,7 @@ export async function getGithubOAuthLoginUrl(): Promise<GithubOAuthLoginResponse
     validateOAuthAuthorizationUrl(
       response.data.authorization_url,
       response.data.state,
+      "github",
       {
         requireRedirectUri: false,
         requireCodeResponseType: false,
