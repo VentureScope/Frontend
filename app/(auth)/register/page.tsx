@@ -1,57 +1,131 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Eye, EyeOff, Star } from "lucide-react";
+import { Eye, EyeOff, Star, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  getApiErrorMessage,
-  registerUser,
-} from "@/lib/auth-api";
+import { getApiErrorMessage, registerUser } from "@/lib/auth-api";
 import { RegisterPayload } from "@/types/auth";
 
-const formSchema = z.object({
-  role: z.literal("professional"),
-  email: z.string().email("Please enter a valid work email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  full_name: z.string().min(2, "Full name is required"),
-  career_interest: z.string().min(2, "Career interest is required"),
-});
+// ─── Password Strength ────────────────────────────────────────────────────────
+
+interface PasswordRequirement {
+  label: string;
+  test: (pw: string) => boolean;
+}
+
+const PASSWORD_REQUIREMENTS: PasswordRequirement[] = [
+  { label: "At least 8 characters", test: (pw) => pw.length >= 8 },
+  { label: "One uppercase letter (A–Z)", test: (pw) => /[A-Z]/.test(pw) },
+  { label: "One lowercase letter (a–z)", test: (pw) => /[a-z]/.test(pw) },
+  { label: "One number (0–9)", test: (pw) => /\d/.test(pw) },
+  {
+    label: "One special character (!@#…)",
+    test: (pw) => /[^A-Za-z0-9]/.test(pw),
+  },
+];
+
+type StrengthLevel = 0 | 1 | 2 | 3 | 4;
+
+interface StrengthInfo {
+  level: StrengthLevel;
+  label: string;
+  color: string; // Tailwind bg class
+  textColor: string; // Tailwind text class
+}
+
+function getStrength(password: string): StrengthInfo {
+  const passed = PASSWORD_REQUIREMENTS.filter((r) => r.test(password)).length;
+
+  if (password.length === 0) {
+    return { level: 0, label: "", color: "bg-slate-200", textColor: "text-slate-400" };
+  }
+  if (passed <= 1) {
+    return { level: 1, label: "Weak", color: "bg-red-500", textColor: "text-red-500" };
+  }
+  if (passed === 2) {
+    return { level: 2, label: "Fair", color: "bg-amber-500", textColor: "text-amber-500" };
+  }
+  if (passed === 3 || passed === 4) {
+    return { level: 3, label: "Good", color: "bg-blue-500", textColor: "text-blue-500" };
+  }
+  return { level: 4, label: "Strong", color: "bg-emerald-500", textColor: "text-emerald-500" };
+}
+
+// ─── Zod Schema ───────────────────────────────────────────────────────────────
+
+const formSchema = z
+  .object({
+    role: z.literal("professional"),
+    email: z.string().email("Please enter a valid work email"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Must include an uppercase letter")
+      .regex(/[a-z]/, "Must include a lowercase letter")
+      .regex(/\d/, "Must include a number")
+      .regex(/[^A-Za-z0-9]/, "Must include a special character"),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+    full_name: z.string().min(2, "Full name is required"),
+    career_interest: z.string().min(2, "Career interest is required"),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+type FormValues = z.infer<typeof formSchema>;
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
-  const form = useForm<RegisterPayload>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
       full_name: "",
       career_interest: "",
       role: "professional",
     },
+    mode: "onChange",
   });
 
-  async function onSubmit(values: RegisterPayload) {
+  // Watch password live for the strength indicator
+  const passwordValue = form.watch("password");
+  const strength = useMemo(() => getStrength(passwordValue ?? ""), [passwordValue]);
+
+  async function onSubmit(values: FormValues) {
     setApiError(null);
     setIsSubmitting(true);
 
     try {
-      await registerUser(values);
-      // Registration triggers an OTP email. Redirect to verification page.
+      const payload: RegisterPayload = {
+        email: values.email,
+        password: values.password,
+        full_name: values.full_name,
+        career_interest: values.career_interest,
+        role: values.role,
+      };
+      await registerUser(payload);
+      // Registration triggers an OTP email — redirect to verification page.
       const params = new URLSearchParams({
         email: values.email,
-        p: btoa(values.password), // base64-encode for URL safety
+        p: btoa(values.password),
       });
       router.push(`/verify-email?${params.toString()}`);
     } catch (error) {
@@ -64,7 +138,7 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 p-4 sm:p-8">
       <div className="flex w-full max-w-5xl overflow-hidden rounded-2xl sm:rounded-3xl bg-white shadow-2xl">
-        {/* LEFT SIDE - BRANDING & TESTIMONIAL */}
+        {/* ── LEFT SIDE ── */}
         <section className="relative hidden w-1/2 flex-col justify-between bg-[#1d59db] p-8 shrink-0 lg:flex">
           <div className="space-y-6">
             {/* Logo */}
@@ -104,8 +178,9 @@ export default function RegisterPage() {
               ))}
             </div>
             <p className="mb-4 text-sm font-medium leading-relaxed text-white">
-              "VentureScope transformed our recruitment strategy from guesswork
-              to a precision science. The AI advisor is truly elite."
+              &quot;VentureScope transformed our recruitment strategy from
+              guesswork to a precision science. The AI advisor is truly
+              elite.&quot;
             </p>
             <div className="flex items-center gap-3">
               <div className="h-8 w-8 overflow-hidden rounded-full border-2 border-white/50">
@@ -127,7 +202,7 @@ export default function RegisterPage() {
           </div>
         </section>
 
-        {/* RIGHT SIDE - FORM */}
+        {/* ── RIGHT SIDE ── */}
         <section className="flex flex-1 flex-col items-center justify-center bg-white px-6 py-10 sm:px-12 lg:px-16">
           <div className="w-full max-w-sm sm:max-w-md space-y-5">
             <div className="space-y-1 text-center sm:text-left">
@@ -146,7 +221,7 @@ export default function RegisterPage() {
                 value="professional"
               />
 
-              {/* Input Fields */}
+              {/* Full Name */}
               <Field>
                 <FieldLabel className="text-xs font-bold text-slate-800">
                   Full Name
@@ -163,6 +238,7 @@ export default function RegisterPage() {
                 )}
               </Field>
 
+              {/* Career Interest */}
               <Field>
                 <FieldLabel className="text-xs font-bold text-slate-800">
                   Career Interest
@@ -179,6 +255,7 @@ export default function RegisterPage() {
                 )}
               </Field>
 
+              {/* Work Email */}
               <Field>
                 <FieldLabel className="text-xs font-bold text-slate-800">
                   Work Email
@@ -195,6 +272,7 @@ export default function RegisterPage() {
                 )}
               </Field>
 
+              {/* Password + Strength */}
               <Field>
                 <FieldLabel className="text-xs font-bold text-slate-800">
                   Password
@@ -214,9 +292,85 @@ export default function RegisterPage() {
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
-                {form.formState.errors.password && (
+
+                {/* Strength bar — only shown when typing */}
+                {passwordValue && passwordValue.length > 0 && (
+                  <div className="mt-2 space-y-2">
+                    {/* Segmented bar */}
+                    <div className="flex items-center gap-1.5">
+                      {[1, 2, 3, 4].map((seg) => (
+                        <div
+                          key={seg}
+                          className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+                            strength.level >= seg
+                              ? strength.color
+                              : "bg-slate-200"
+                          }`}
+                        />
+                      ))}
+                      {strength.label && (
+                        <span
+                          className={`ml-1 shrink-0 text-[10px] font-bold transition-colors ${strength.textColor}`}
+                        >
+                          {strength.label}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Requirements checklist */}
+                    <ul className="grid grid-cols-1 gap-y-0.5">
+                      {PASSWORD_REQUIREMENTS.map((req) => {
+                        const met = req.test(passwordValue);
+                        return (
+                          <li
+                            key={req.label}
+                            className={`flex items-center gap-1.5 text-[10px] transition-colors ${
+                              met ? "text-emerald-600" : "text-slate-400"
+                            }`}
+                          >
+                            {met ? (
+                              <Check size={10} className="shrink-0" />
+                            ) : (
+                              <X size={10} className="shrink-0" />
+                            )}
+                            {req.label}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
+
+                {form.formState.errors.password && !passwordValue && (
                   <FieldError className="text-[10px]">
                     {form.formState.errors.password.message}
+                  </FieldError>
+                )}
+              </Field>
+
+              {/* Confirm Password */}
+              <Field>
+                <FieldLabel className="text-xs font-bold text-slate-800">
+                  Confirm Password
+                </FieldLabel>
+                <div className="relative">
+                  <Input
+                    type={showConfirm ? "text" : "password"}
+                    placeholder="••••••••"
+                    {...form.register("confirmPassword")}
+                    className="h-10 text-sm border-none bg-[#f0f4ff] px-3 pr-10 focus-visible:ring-2 focus-visible:ring-blue-600"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm(!showConfirm)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {form.formState.errors.confirmPassword && (
+                  <FieldError className="text-[10px]">
+                    {form.formState.errors.confirmPassword.message}
                   </FieldError>
                 )}
               </Field>
