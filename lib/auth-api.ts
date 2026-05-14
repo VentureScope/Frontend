@@ -5,12 +5,20 @@ import {
   AuthSessionData,
   AuthUser,
   DeleteAccountPayload,
+  ForgotPasswordPayload,
+  ForgotPasswordResponse,
   GithubOAuthLoginResponse,
   GoogleOAuthLoginResponse,
   LoginSuccessResponse,
+  OtpResendPayload,
+  OtpResendResponse,
+  OtpVerifyPayload,
+  OtpVerifyResponse,
   PasswordChangePayload,
   RegisterPayload,
   RegisterSuccessResponse,
+  ResetPasswordPayload,
+  ResetPasswordResponse,
   SignInPayload,
   UserSkillsPayload,
   UserUpdatePayload,
@@ -22,7 +30,7 @@ import {
 
 interface ApiErrorBody {
   message?: string;
-  detail?: string;
+  detail?: any;
   error?: string;
 }
 
@@ -54,6 +62,7 @@ function logRequestError(method: string, path: string, error: unknown): void {
 function validateOAuthAuthorizationUrl(
   authorizationUrl: string,
   expectedState: string,
+  provider: string,
   options?: {
     requireRedirectUri?: boolean;
     requireCodeResponseType?: boolean;
@@ -72,27 +81,29 @@ function validateOAuthAuthorizationUrl(
     requireScope = true,
   } = options ?? {};
 
+  const providerName = provider.charAt(0).toUpperCase() + provider.slice(1);
+
   if (!clientId) {
-    throw new Error("Google authorization URL is missing client_id.");
+    throw new Error(`${providerName} authorization URL is missing client_id.`);
   }
 
   if (requireRedirectUri && !redirectUri) {
-    throw new Error("Google authorization URL is missing redirect_uri.");
+    throw new Error(`${providerName} authorization URL is missing redirect_uri.`);
   }
 
   if (
     requireCodeResponseType &&
     (!responseType || responseType.toLowerCase() !== "code")
   ) {
-    throw new Error("Google authorization URL is missing response_type=code.");
+    throw new Error(`${providerName} authorization URL is missing response_type=code.`);
   }
 
   if (requireScope && !scope) {
-    throw new Error("Google authorization URL is missing scope.");
+    throw new Error(`${providerName} authorization URL is missing scope.`);
   }
 
   if (!state || state !== expectedState) {
-    throw new Error("Google authorization state mismatch.");
+    throw new Error(`${providerName} authorization state mismatch.`);
   }
 }
 
@@ -102,7 +113,26 @@ function getMessage(source: unknown): string | null {
   }
 
   const record = source as ApiErrorBody;
-  return record.message || record.detail || record.error || null;
+  
+  if (record.message && typeof record.message === "string") {
+    return record.message;
+  }
+  
+  if (record.detail) {
+    if (typeof record.detail === "string") {
+      return record.detail;
+    }
+    // Handle FastAPI 422 validation errors where detail is an array of objects
+    if (Array.isArray(record.detail)) {
+      return record.detail.map((err: any) => err.msg || "Validation error").join(", ");
+    }
+  }
+  
+  if (record.error && typeof record.error === "string") {
+    return record.error;
+  }
+  
+  return null;
 }
 
 export function getApiErrorMessage(error: unknown): string {
@@ -131,6 +161,62 @@ export async function registerUser(
   const path = "/api/auth/register";
   try {
     const response = await api.post<RegisterSuccessResponse>(path, payload);
+    logRequestSuccess("POST", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("POST", path, error);
+    throw error;
+  }
+}
+
+export async function verifyEmail(
+  payload: OtpVerifyPayload,
+): Promise<OtpVerifyResponse> {
+  const path = "/api/auth/verify-email";
+  try {
+    const response = await api.post<OtpVerifyResponse>(path, payload);
+    logRequestSuccess("POST", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("POST", path, error);
+    throw error;
+  }
+}
+
+export async function resendOtp(
+  payload: OtpResendPayload,
+): Promise<OtpResendResponse> {
+  const path = "/api/auth/otp/resend";
+  try {
+    const response = await api.post<OtpResendResponse>(path, payload);
+    logRequestSuccess("POST", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("POST", path, error);
+    throw error;
+  }
+}
+
+export async function requestPasswordReset(
+  payload: ForgotPasswordPayload,
+): Promise<ForgotPasswordResponse> {
+  const path = "/api/auth/forgot-password";
+  try {
+    const response = await api.post<ForgotPasswordResponse>(path, payload);
+    logRequestSuccess("POST", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("POST", path, error);
+    throw error;
+  }
+}
+
+export async function resetPassword(
+  payload: ResetPasswordPayload,
+): Promise<ResetPasswordResponse> {
+  const path = "/api/auth/reset-password";
+  try {
+    const response = await api.post<ResetPasswordResponse>(path, payload);
     logRequestSuccess("POST", path, { status: response.status });
     return response.data;
   } catch (error) {
@@ -186,6 +272,7 @@ export async function getGoogleOAuthLoginUrl(): Promise<GoogleOAuthLoginResponse
     validateOAuthAuthorizationUrl(
       response.data.authorization_url,
       response.data.state,
+      "google",
     );
 
     logRequestSuccess("GET", GOOGLE_OAUTH_LOGIN_PATH, {
@@ -236,6 +323,7 @@ export async function getGithubOAuthLoginUrl(): Promise<GithubOAuthLoginResponse
     validateOAuthAuthorizationUrl(
       response.data.authorization_url,
       response.data.state,
+      "github",
       {
         requireRedirectUri: false,
         requireCodeResponseType: false,

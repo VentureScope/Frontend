@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Eye, EyeOff, ArrowRight, TrendingUp, Github } from "lucide-react";
+import { AxiosError } from "axios";
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
@@ -57,6 +58,15 @@ export default function SignInPage() {
       setAuthData(authSessionData);
       router.push("/");
     } catch (error) {
+      // 403 means email not verified — redirect to OTP verification page
+      if (error instanceof AxiosError && error.response?.status === 403) {
+        const params = new URLSearchParams({
+          email: values.email,
+          p: btoa(values.password),
+        });
+        router.push(`/verify-email?${params.toString()}`);
+        return;
+      }
       setApiError(getApiErrorMessage(error));
     } finally {
       setIsSubmitting(false);
@@ -293,7 +303,7 @@ export default function SignInPage() {
                     Password
                   </FieldLabel>
                   <Link
-                    href="#"
+                    href="/forgot-password"
                     className="text-[11px] font-bold text-blue-600 hover:underline"
                   >
                     Forgot password?
