@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -24,6 +24,7 @@ import {
   ShieldAlert,
   AlertTriangle,
   X,
+  Smartphone,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -80,10 +81,30 @@ export default function SettingsPage() {
 
   // MFA state
   const [mfaEnabled, setMfaEnabled] = useState(false);
+  const [mfaFactors, setMfaFactors] = useState<any[]>([]);
   const [isMfaLoading, setIsMfaLoading] = useState(true);
   const [showMfaModal, setShowMfaModal] = useState(false);
   const [showMfaEnrollModal, setShowMfaEnrollModal] = useState(false);
   const [mfaReauthStep, setMfaReauthStep] = useState<"init" | "otp">("init");
+
+  const refreshMfaData = useCallback(async () => {
+    setIsMfaLoading(true);
+    try {
+      const aal = await mfaGetAAL();
+      setMfaEnabled(aal.mfa_enabled);
+      if (aal.mfa_enabled) {
+        const { mfaListFactors } = await import("@/lib/mfa-api");
+        const res = await mfaListFactors();
+        setMfaFactors(res.factors);
+      } else {
+        setMfaFactors([]);
+      }
+    } catch (err) {
+      console.error("Failed to load MFA status", err);
+    } finally {
+      setIsMfaLoading(false);
+    }
+  }, []);
   const [mfaPassword, setMfaPassword] = useState("");
   const [mfaOtp, setMfaOtp] = useState("");
   const [mfaError, setMfaError] = useState("");
@@ -121,18 +142,8 @@ export default function SettingsPage() {
   }, [form, profileDefaults]);
 
   useEffect(() => {
-    async function loadMfaStatus() {
-      try {
-        const aal = await mfaGetAAL();
-        setMfaEnabled(aal.mfa_enabled);
-      } catch (err) {
-        console.error("Failed to load MFA status", err);
-      } finally {
-        setIsMfaLoading(false);
-      }
-    }
-    loadMfaStatus();
-  }, []);
+    refreshMfaData();
+  }, [refreshMfaData]);
 
   async function handleMfaToggle(checked: boolean) {
     if (checked) {
@@ -520,6 +531,49 @@ export default function SettingsPage() {
                     )}
                   </div>
 
+                  {/* Factor List */}
+                  {mfaEnabled && mfaFactors.length > 0 && (
+                    <div className="mt-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                          Registered Devices
+                        </h4>
+                        <button
+                          onClick={() => setShowMfaEnrollModal(true)}
+                          className="text-[10px] font-bold uppercase tracking-widest text-blue-600 hover:underline"
+                        >
+                          + Add Backup Authenticator
+                        </button>
+                      </div>
+                      <div className="grid gap-3">
+                        {mfaFactors.map((f, i) => (
+                          <div
+                            key={f.factor_id}
+                            className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/50 p-4 transition-colors hover:bg-slate-50"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm text-slate-400">
+                                <Smartphone size={20} />
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold text-slate-900">
+                                  {f.friendly_name || `Authenticator ${i + 1}`}
+                                </p>
+                                <p className="text-[10px] text-slate-400 font-medium">
+                                  Added {new Date(f.created_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                            {mfaFactors.length > 1 && (
+                              <Badge className="bg-white text-slate-400 border border-slate-200 font-bold text-[9px] uppercase px-2 py-0.5">
+                                Active
+                              </Badge>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -1019,8 +1073,8 @@ export default function SettingsPage() {
               {mfaReauthStep === "init" ? (
                 <>
                   <p className="text-sm text-slate-600 leading-relaxed">
-                    Disabling two-factor authentication makes your account less secure. 
-                    {needsPassword 
+                    Disabling two-factor authentication makes your account less secure.
+                    {needsPassword
                       ? " Please enter your password to confirm this change."
                       : " We will send a verification code to your email to confirm this change."}
                   </p>
@@ -1085,11 +1139,11 @@ export default function SettingsPage() {
           </div>
         </div>
       )}
-      
-      <MFAEnrollModal 
-        isOpen={showMfaEnrollModal} 
+
+      <MFAEnrollModal
+        isOpen={showMfaEnrollModal}
         onClose={() => setShowMfaEnrollModal(false)}
-        onSuccess={() => setMfaEnabled(true)}
+        onSuccess={refreshMfaData}
       />
     </div>
 
