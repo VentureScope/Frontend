@@ -52,6 +52,7 @@ import {
 } from "@/lib/auth-api";
 import { mfaGetAAL, mfaDisable } from "@/lib/mfa-api";
 import { useRouter } from "next/navigation";
+import { MFAEnrollModal } from "@/components/mfa/mfa-enroll-modal";
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name is required"),
@@ -81,6 +82,7 @@ export default function SettingsPage() {
   const [mfaEnabled, setMfaEnabled] = useState(false);
   const [isMfaLoading, setIsMfaLoading] = useState(true);
   const [showMfaModal, setShowMfaModal] = useState(false);
+  const [showMfaEnrollModal, setShowMfaEnrollModal] = useState(false);
   const [mfaReauthStep, setMfaReauthStep] = useState<"init" | "otp">("init");
   const [mfaPassword, setMfaPassword] = useState("");
   const [mfaOtp, setMfaOtp] = useState("");
@@ -134,8 +136,7 @@ export default function SettingsPage() {
 
   async function handleMfaToggle(checked: boolean) {
     if (checked) {
-      // Redirect to enrollment page
-      router.push("/mfa-enroll");
+      setShowMfaEnrollModal(true);
     } else {
       // Start disable flow — open re-auth modal
       setMfaError("");
@@ -1084,6 +1085,12 @@ export default function SettingsPage() {
           </div>
         </div>
       )}
+      
+      <MFAEnrollModal 
+        isOpen={showMfaEnrollModal} 
+        onClose={() => setShowMfaEnrollModal(false)}
+        onSuccess={() => setMfaEnabled(true)}
+      />
     </div>
 
   );

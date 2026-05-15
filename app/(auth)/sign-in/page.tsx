@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Eye, EyeOff, ArrowRight, TrendingUp, Github } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, TrendingUp, Github, ShieldCheck, Loader2 } from "lucide-react";
 import { AxiosError } from "axios";
 
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,16 @@ export default function SignInPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const [isGithubSubmitting, setIsGithubSubmitting] = useState(false);
+  
+  // MFA In-place state
+  const [step, setStep] = useState<"login" | "mfa">("login");
+  const [mfaFactors, setMfaFactors] = useState<any[]>([]);
+  const [selectedFactor, setSelectedFactor] = useState<any | null>(null);
+  const [challengeId, setChallengeId] = useState<string | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
+  const [isVerifyingMfa, setIsVerifyingMfa] = useState(false);
+  const [mfaError, setMfaError] = useState<string | null>(null);
+
   const setAuthData = useAppStore((state) => state.setAuthData);
   const router = useRouter();
 
@@ -60,15 +70,28 @@ export default function SignInPage() {
       const authSessionData = await buildAuthSessionData(authResult);
       setAuthData(authSessionData);
 
-      // Check MFA requirement before redirecting
+      // Check MFA requirement
       try {
+        const { mfaListFactors, mfaChallenge } = await import("@/lib/mfa-api");
         const aal = await mfaGetAAL();
+        
         if (aal.current_level === "aal1" && aal.next_level === "aal2") {
-          router.push("/mfa-challenge?redirect=/");
-          return;
+          const factorsRes = await mfaListFactors();
+          setMfaFactors(factorsRes.factors);
+          
+          if (factorsRes.factors.length > 0) {
+            // Auto-select first factor and get challenge
+            const first = factorsRes.factors[0];
+            const ch = await mfaChallenge({ factor_id: first.factor_id });
+            setSelectedFactor(first);
+            setChallengeId(ch.challenge_id);
+            setStep("mfa");
+            setIsSubmitting(false);
+            return;
+          }
         }
-      } catch {
-        // If AAL check fails, proceed normally — MFA not blocking
+      } catch (err) {
+        console.error("MFA Check failed", err);
       }
 
       router.push("/");
@@ -85,6 +108,28 @@ export default function SignInPage() {
       setApiError(getApiErrorMessage(error));
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function onMfaVerify() {
+    if (!selectedFactor || !challengeId || mfaCode.length !== 6) return;
+    
+    setMfaError(null);
+    setIsVerifyingMfa(true);
+    
+    try {
+      const { mfaVerify } = await import("@/lib/mfa-api");
+      await mfaVerify({
+        factor_id: selectedFactor.factor_id,
+        challenge_id: challengeId,
+        code: mfaCode,
+      });
+      router.push("/");
+    } catch (err) {
+      setMfaError(getApiErrorMessage(err));
+      setMfaCode("");
+    } finally {
+      setIsVerifyingMfa(false);
     }
   }
 
@@ -166,6 +211,7 @@ export default function SignInPage() {
               fill
               className="object-cover opacity-80"
               priority
+              sizes="50vw"
             />
             {/* Subtle Gradient to ensure text always pops! */}
             <div className="absolute inset-0 bg-linear-to-br from-[#020817]/60 via-transparent to-[#020817]/80" />
@@ -297,83 +343,166 @@ export default function SignInPage() {
               <div className="grow border-t border-slate-200"></div>
             </div>
 
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <Field>
-                <FieldLabel className="text-[13px] font-bold text-slate-800">
-                  Work Email
-                </FieldLabel>
-                <Input
-                  placeholder="name@company.com"
-                  {...form.register("email")}
-                  className="h-11 border-none bg-[#f0f4ff] px-4 ring-offset-0 focus-visible:ring-2 focus-visible:ring-blue-600"
-                />
-                {form.formState.errors.email && (
-                  <FieldError>{form.formState.errors.email.message}</FieldError>
-                )}
-              </Field>
-
-              <Field>
-                <div className="flex items-center justify-between">
+            {step === "login" ? (
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <Field>
                   <FieldLabel className="text-[13px] font-bold text-slate-800">
-                    Password
+                    Work Email
                   </FieldLabel>
-                  <Link
-                    href="/forgot-password"
-                    className="text-[11px] font-bold text-blue-600 hover:underline"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-                <div className="relative">
                   <Input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    {...form.register("password")}
-                    className="h-11 border-none bg-[#f0f4ff] px-4 pr-12 ring-offset-0 focus-visible:ring-2 focus-visible:ring-blue-600"
+                    placeholder="name@company.com"
+                    {...form.register("email")}
+                    className="h-11 border-none bg-[#f0f4ff] px-4 ring-offset-0 focus-visible:ring-2 focus-visible:ring-blue-600"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  {form.formState.errors.email && (
+                    <FieldError>{form.formState.errors.email.message}</FieldError>
+                  )}
+                </Field>
+
+                <Field>
+                  <div className="flex items-center justify-between">
+                    <FieldLabel className="text-[13px] font-bold text-slate-800">
+                      Password
+                    </FieldLabel>
+                    <Link
+                      href="/forgot-password"
+                      className="text-[11px] font-bold text-blue-600 hover:underline"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      {...form.register("password")}
+                      className="h-11 border-none bg-[#f0f4ff] px-4 pr-12 ring-offset-0 focus-visible:ring-2 focus-visible:ring-blue-600"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  {form.formState.errors.password && (
+                    <FieldError>
+                      {form.formState.errors.password.message}
+                    </FieldError>
+                  )}
+                </Field>
+
+                <div className="flex items-center space-x-2 py-1">
+                  <input
+                    type="checkbox"
+                    id="remember_me"
+                    {...form.register("remember_me")}
+                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600 cursor-pointer"
+                  />
+                  <label
+                    htmlFor="remember_me"
+                    className="text-sm font-semibold text-slate-700 cursor-pointer select-none"
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
+                    Remember this device (24h)
+                  </label>
                 </div>
-                {form.formState.errors.password && (
-                  <FieldError>
-                    {form.formState.errors.password.message}
-                  </FieldError>
-                )}
-              </Field>
 
-              <div className="flex items-center space-x-2 py-1">
-                <input
-                  type="checkbox"
-                  id="remember_me"
-                  {...form.register("remember_me")}
-                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600 cursor-pointer"
-                />
-                <label
-                  htmlFor="remember_me"
-                  className="text-sm font-semibold text-slate-700 cursor-pointer select-none"
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="mt-2 h-12 w-full bg-[#1d59db] text-base font-semibold text-white shadow-xl shadow-blue-500/20 hover:bg-[#1748b3]"
                 >
-                  Remember this device (24h)
-                </label>
+                  {isSubmitting ? "Signing In..." : "Sign In"}
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+
+                {apiError && (
+                  <p className="text-center text-xs text-red-600">{apiError}</p>
+                )}
+              </form>
+            ) : (
+              <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                <div className="text-center sm:text-left space-y-2">
+                  <div className="flex items-center justify-center sm:justify-start">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 mb-2">
+                      <ShieldCheck className="h-6 w-6 text-blue-600" />
+                    </div>
+                  </div>
+                  <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+                    Verify it's you
+                  </h2>
+                  <p className="text-sm text-slate-500 leading-relaxed">
+                    Enter the 6-digit code from your authenticator app{" "}
+                    {selectedFactor?.friendly_name && (
+                      <span className="font-bold text-slate-700">
+                        ({selectedFactor.friendly_name})
+                      </span>
+                    )}
+                  </p>
+                </div>
+
+                <div className="flex justify-center sm:justify-start gap-2 sm:gap-3">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <input
+                      key={i}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={mfaCode[i] || ""}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "").slice(-1);
+                        const newCode = mfaCode.split("");
+                        newCode[i] = val;
+                        const full = newCode.join("").slice(0, 6);
+                        setMfaCode(full);
+                        if (val && i < 5) {
+                          (e.target.nextElementSibling as HTMLInputElement)?.focus();
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Backspace" && !mfaCode[i] && i > 0) {
+                          (e.currentTarget.previousElementSibling as HTMLInputElement)?.focus();
+                        }
+                        if (e.key === "Enter" && mfaCode.length === 6 && !isVerifyingMfa) {
+                          onMfaVerify();
+                        }
+                      }}
+                      disabled={isVerifyingMfa}
+                      className="h-13 w-10 sm:h-14 sm:w-12 rounded-xl border-2 border-transparent bg-[#f0f4ff] text-center text-xl sm:text-2xl font-bold text-slate-800 outline-none transition-all focus:border-blue-600 focus:bg-white"
+                    />
+                  ))}
+                </div>
+
+                {mfaError && (
+                  <p className="text-center sm:text-left text-xs font-bold text-red-600 bg-red-50 p-3 rounded-lg border border-red-100">
+                    {mfaError}
+                  </p>
+                )}
+
+                <Button
+                  onClick={onMfaVerify}
+                  disabled={isVerifyingMfa || mfaCode.length !== 6}
+                  className="h-12 w-full bg-[#1d59db] text-base font-semibold text-white shadow-xl shadow-blue-500/20 hover:bg-[#1748b3]"
+                >
+                  {isVerifyingMfa ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Verifying...
+                    </>
+                  ) : (
+                    "Confirm"
+                  )}
+                </Button>
+
+                <button
+                  onClick={() => setStep("login")}
+                  className="w-full text-center text-xs font-bold text-slate-400 hover:text-slate-600"
+                >
+                  Back to login
+                </button>
               </div>
-
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="mt-2 h-12 w-full bg-[#1d59db] text-base font-semibold text-white shadow-xl shadow-blue-500/20 hover:bg-[#1748b3]"
-              >
-                {isSubmitting ? "Signing In..." : "Sign In"}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-
-              {apiError && (
-                <p className="text-center text-xs text-red-600">{apiError}</p>
-              )}
-            </form>
+            )}
 
             <p className="text-center text-sm text-slate-600">
               Don't have an account?{" "}

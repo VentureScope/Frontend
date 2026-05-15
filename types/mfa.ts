@@ -9,6 +9,7 @@ export interface MFAEnrollResponse {
 export interface MFAEnrollVerifyPayload {
   factor_id: string;
   code: string;
+  friendly_name?: string;
 }
 
 export interface MFAEnrollVerifyResponse {
