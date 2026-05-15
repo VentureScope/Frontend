@@ -11,6 +11,7 @@ export interface RegisterPayload {
 export interface SignInPayload {
   email: string;
   password: string;
+  remember_me?: boolean;
 }
 
 export interface RegisterSuccessResponse {
@@ -74,6 +75,10 @@ export interface AuthUser {
   is_active?: boolean;
   is_admin?: boolean;
   profile_picture_url?: string | null;
+  has_password?: boolean;
+  oauth_provider?: string | null;
+  mfa_enabled?: boolean;
+  mfa_enrolled_at?: string | null;
   [key: string]: unknown;
 }
 
@@ -97,4 +102,41 @@ export interface GoogleOAuthLoginResponse {
 export interface GithubOAuthLoginResponse {
   authorization_url: string;
   state: string;
+}
+
+// OTP verification types
+export interface OtpVerifyPayload {
+  email: string;
+  otp: string;
+}
+
+export interface OtpVerifyResponse {
+  message: string;
+}
+
+export interface OtpResendPayload {
+  email: string;
+}
+
+export interface OtpResendResponse {
+  message: string;
+}
+
+// Password reset types
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+}
+
+export interface ResetPasswordPayload {
+  email: string;
+  otp: string;
+  new_password: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
 }

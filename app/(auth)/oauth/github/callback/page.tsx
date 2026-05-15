@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -9,6 +9,7 @@ import {
   getApiErrorMessage,
   syncGithubProfile,
 } from "@/lib/auth-api";
+import { mfaGetAAL } from "@/lib/mfa-api";
 import { useAppStore } from "@/store/useAppStore";
 
 const GITHUB_OAUTH_SESSION_KEY = "github_oauth_tx";
@@ -102,10 +103,20 @@ function GithubCallbackContent() {
             sessionData.user?.full_name && sessionData.user?.career_interest !== "undecided";
           const returnUrl = tx.returnUrl || "/dashboard";
 
-          setTimeout(() => {
+          setTimeout(async () => {
             if (!isFullProfile) {
               router.replace("/register/complete-profile");
             } else {
+              // Critical: check AAL before redirecting
+              try {
+                const aal = await mfaGetAAL();
+                if (aal.current_level === "aal1" && aal.next_level === "aal2") {
+                  router.replace("/mfa-challenge?redirect=" + returnUrl);
+                  return;
+                }
+              } catch (e) {
+                console.error("AAL check failed:", e);
+              }
               router.replace(returnUrl);
             }
           }, 1500);

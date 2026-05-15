@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -14,6 +14,7 @@ import {
   GraduationCap,
   RefreshCw,
   EyeOff,
+  Eye,
   Camera,
   MapPin,
   Briefcase,
@@ -21,6 +22,10 @@ import {
   Download,
   CreditCard as CardIcon,
   ShieldAlert,
+  AlertTriangle,
+  X,
+  Smartphone,
+  Trash2,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -43,8 +48,13 @@ import {
   updateCurrentUserProfile,
   changeCurrentUserPassword,
   deleteCurrentUserAccount,
+  getApiErrorMessage,
+  reauthenticate,
+  verifyReauthenticate,
 } from "@/lib/auth-api";
+import { mfaGetAAL, mfaDisable } from "@/lib/mfa-api";
 import { useRouter } from "next/navigation";
+import { MFAEnrollModal } from "@/components/mfa/mfa-enroll-modal";
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name is required"),
@@ -57,14 +67,63 @@ export default function SettingsPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("profile");
 
-  // States for password change
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [currPassword, setCurrPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
+  // Delete account modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [showDeletePassword, setShowDeletePassword] = useState(false);
+  const [deleteConfirmed, setDeleteConfirmed] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
+  // MFA state
+  const [mfaEnabled, setMfaEnabled] = useState(false);
+  const [mfaFactors, setMfaFactors] = useState<any[]>([]);
+  const [mfaMode, setMfaMode] = useState<"disable" | "unenroll">("disable");
+  const [removingFactorId, setRemovingFactorId] = useState<string | null>(null);
+  const [isMfaLoading, setIsMfaLoading] = useState(true);
+  const [showMfaModal, setShowMfaModal] = useState(false);
+  const [showMfaEnrollModal, setShowMfaEnrollModal] = useState(false);
+  const [mfaReauthStep, setMfaReauthStep] = useState<"init" | "otp">("init");
+
+  const refreshMfaData = useCallback(async () => {
+    setIsMfaLoading(true);
+    try {
+      const aal = await mfaGetAAL();
+      setMfaEnabled(aal.mfa_enabled);
+      if (aal.mfa_enabled) {
+        const { mfaListFactors } = await import("@/lib/mfa-api");
+        const res = await mfaListFactors();
+        setMfaFactors(res.factors);
+      } else {
+        setMfaFactors([]);
+      }
+    } catch (err) {
+      console.error("Failed to load MFA status", err);
+    } finally {
+      setIsMfaLoading(false);
+    }
+  }, []);
+  const [mfaPassword, setMfaPassword] = useState("");
+  const [mfaOtp, setMfaOtp] = useState("");
+  const [mfaError, setMfaError] = useState("");
+  const [isMfaProcessing, setIsMfaProcessing] = useState(false);
+
   const user = useAppStore((state) => state.authData.user);
   const setAuthData = useAppStore((state) => state.setAuthData);
+
+  // Determine if user needs a password for sensitive actions.
+  // Fallback to checking oauth_provider if has_password is missing from an old session.
+  const needsPassword = useMemo(() => {
+    if (user?.has_password !== undefined) return user.has_password;
+    // If has_password is unknown, only require it if they don't have an OAuth provider
+    return !user?.oauth_provider;
+  }, [user?.has_password, user?.oauth_provider]);
+
   const profile = getUserProfileView(user);
   const profileDefaults = useMemo(
     () => ({
@@ -84,6 +143,82 @@ export default function SettingsPage() {
   useEffect(() => {
     form.reset(profileDefaults);
   }, [form, profileDefaults]);
+
+  useEffect(() => {
+    refreshMfaData();
+  }, [refreshMfaData]);
+
+  async function handleMfaToggle(checked: boolean) {
+    if (checked) {
+      setShowMfaEnrollModal(true);
+    } else {
+      // Start disable flow — open re-auth modal
+      setMfaMode("disable");
+      setRemovingFactorId(null);
+      setMfaError("");
+      setMfaPassword("");
+      setMfaOtp("");
+      setMfaReauthStep("init");
+      setShowMfaModal(true);
+    }
+  }
+
+  async function onUnenrollClick(factorId: string) {
+    if (mfaFactors.length === 1) {
+      // Last factor — disable MFA entirely
+      handleMfaToggle(false);
+    } else {
+      // Multiple factors — just remove this one
+      setMfaMode("unenroll");
+      setRemovingFactorId(factorId);
+      setMfaError("");
+      setMfaPassword("");
+      setMfaOtp("");
+      setMfaReauthStep("init");
+      setShowMfaModal(true);
+    }
+  }
+
+  async function onMfaActionConfirm() {
+    setIsMfaProcessing(true);
+    setMfaError("");
+    try {
+      const { mfaDisable, mfaUnenroll } = await import("@/lib/mfa-api");
+
+      // 1. Re-authenticate if not already aal2
+      if (mfaReauthStep === "init") {
+        const res = await reauthenticate(needsPassword ? mfaPassword : undefined);
+        if (res.status === "otp_sent") {
+          setMfaReauthStep("otp");
+          setIsMfaProcessing(false);
+          return;
+        }
+      } else {
+        await verifyReauthenticate(mfaOtp);
+      }
+
+      // 2. Perform Action
+      if (mfaMode === "disable") {
+        await mfaDisable();
+        toast.success("MFA Disabled", {
+          description: "Two-factor authentication has been removed from your account.",
+        });
+      } else if (mfaMode === "unenroll" && removingFactorId) {
+        await mfaUnenroll({ factor_id: removingFactorId });
+        toast.success("Authenticator Removed", {
+          description: "The selected device has been unenrolled.",
+        });
+      }
+
+      // 3. Sync & Close
+      await refreshMfaData();
+      setShowMfaModal(false);
+    } catch (err: any) {
+      setMfaError(getApiErrorMessage(err));
+    } finally {
+      setIsMfaProcessing(false);
+    }
+  }
 
   async function onProfileSubmit(values: z.infer<typeof profileSchema>) {
     try {
@@ -128,20 +263,31 @@ export default function SettingsPage() {
   }
 
   async function onDeleteAccount() {
-    const password = window.prompt(
-      "WARNING: This will delete your account.\n\nEnter your password to confirm:",
-    );
-    if (!password) return;
+    if (!deleteConfirmed) return;
+    if (needsPassword && !deletePassword) {
+      setDeleteError("Please enter your password to confirm.");
+      return;
+    }
+    setDeleteError("");
+    setIsDeletingAccount(true);
     try {
-      await deleteCurrentUserAccount({ password });
+      await deleteCurrentUserAccount(
+        needsPassword ? { password: deletePassword } : {},
+      );
       setAuthData({ token: null, tokenType: null, user: null });
       router.push("/sign-in");
     } catch (error: any) {
-      toast.error("Deletion Failed", {
-        description:
-          error?.message || "Failed to delete account. Incorrect password?",
-      });
+      setDeleteError(getApiErrorMessage(error));
+    } finally {
+      setIsDeletingAccount(false);
     }
+  }
+
+  function openDeleteModal() {
+    setDeletePassword("");
+    setDeleteConfirmed(false);
+    setDeleteError("");
+    setShowDeleteModal(true);
   }
 
   const sidebarItems = [
@@ -387,16 +533,89 @@ export default function SettingsPage() {
                   </div>
                   <div className="flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:py-8">
                     <div>
-                      <p className="text-lg font-black text-slate-900">
-                        Two-Factor Authentication
-                      </p>
+                      <div className="flex items-center gap-3">
+                        <p className="text-lg font-black text-slate-900">
+                          Two-Factor Authentication
+                        </p>
+                        {mfaEnabled ? (
+                          <Badge className="bg-emerald-50 text-emerald-600 border-none font-bold text-[10px] uppercase py-1 px-3">
+                            Enabled
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-slate-100 text-slate-400 border-none font-bold text-[10px] uppercase py-1 px-3">
+                            Disabled
+                          </Badge>
+                        )}
+                      </div>
                       <p className="text-sm text-slate-400">
                         Protects your intelligence assets with secondary
                         validation.
                       </p>
                     </div>
-                    <Switch defaultChecked />
+                    {isMfaLoading ? (
+                      <Skeleton className="h-6 w-12 rounded-full" />
+                    ) : (
+                      <Switch
+                        id="mfa-toggle"
+                        checked={mfaEnabled}
+                        onCheckedChange={handleMfaToggle}
+                      />
+                    )}
                   </div>
+
+                  {/* Factor List */}
+                  {mfaEnabled && mfaFactors.length > 0 && (
+                    <div className="mt-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                          Registered Devices
+                        </h4>
+                        <button 
+                          onClick={() => setShowMfaEnrollModal(true)}
+                          disabled={mfaFactors.length >= 3}
+                          className="text-[10px] font-bold uppercase tracking-widest text-blue-600 hover:underline disabled:text-slate-300 disabled:no-underline"
+                        >
+                          {mfaFactors.length >= 3 ? "Limit Reached (Max 3)" : "+ Add Backup Authenticator"}
+                        </button>
+                      </div>
+                      <div className="grid gap-3">
+                        {mfaFactors.map((f, i) => (
+                          <div 
+                            key={f.factor_id}
+                            className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/50 p-4 transition-colors hover:bg-slate-50"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm text-slate-400">
+                                <Smartphone size={20} />
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold text-slate-900">
+                                  {f.friendly_name || `Authenticator ${i + 1}`}
+                                </p>
+                                <p className="text-[10px] text-slate-400 font-medium">
+                                  Added {new Date(f.created_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              {mfaFactors.length > 1 && (
+                                <Badge className="bg-white text-slate-400 border border-slate-200 font-bold text-[9px] uppercase px-2 py-0.5">
+                                  Active
+                                </Badge>
+                              )}
+                              <button 
+                                onClick={() => onUnenrollClick(f.factor_id)}
+                                className="rounded-lg p-2 text-slate-300 hover:bg-rose-50 hover:text-rose-500 transition-colors"
+                                title="Remove Authenticator"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -593,7 +812,7 @@ export default function SettingsPage() {
                       </div>
                     </div>
                     <Button
-                      onClick={onDeleteAccount}
+                      onClick={openDeleteModal}
                       variant="ghost"
                       className="text-rose-600 font-bold hover:bg-rose-100 hover:text-rose-700"
                     >
@@ -751,6 +970,226 @@ export default function SettingsPage() {
           </main>
         </div>
       </div>
+
+      {/* ── DELETE ACCOUNT MODAL ── */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+            {/* Close */}
+            <button
+              onClick={() => setShowDeleteModal(false)}
+              className="absolute right-5 top-5 rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Header */}
+            <div className="mb-6 flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100">
+                <AlertTriangle className="text-rose-600" size={22} />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-slate-900">
+                  Delete Account
+                </h3>
+                <p className="text-xs text-slate-400">
+                  This action cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="space-y-5">
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Your account will be deactivated. All synced data and AI
+                intelligence history will be removed. Contact support within
+                30 days to restore your account.
+              </p>
+
+              {/* Password field — only for email/password accounts */}
+              {needsPassword && (
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                    Confirm with your password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showDeletePassword ? "text" : "password"}
+                      placeholder="Enter your password"
+                      value={deletePassword}
+                      onChange={(e) => setDeletePassword(e.target.value)}
+                      className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 pr-12 text-sm font-medium text-slate-900 outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowDeletePassword(!showDeletePassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      {showDeletePassword ? (
+                        <EyeOff size={16} />
+                      ) : (
+                        <Eye size={16} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Confirmation checkbox */}
+              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-rose-100 bg-rose-50/60 p-4">
+                <input
+                  type="checkbox"
+                  checked={deleteConfirmed}
+                  onChange={(e) => setDeleteConfirmed(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 accent-rose-600"
+                />
+                <span className="text-xs font-semibold leading-relaxed text-rose-700">
+                  I understand this will permanently delete my account and all
+                  associated data.
+                </span>
+              </label>
+
+              {/* Error */}
+              {deleteError && (
+                <p className="rounded-xl bg-rose-50 px-4 py-3 text-xs font-semibold text-rose-600">
+                  {deleteError}
+                </p>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 rounded-xl font-bold"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={onDeleteAccount}
+                  disabled={
+                    !deleteConfirmed ||
+                    isDeletingAccount ||
+                    (needsPassword && !deletePassword)
+                  }
+                  className="flex-1 rounded-xl bg-rose-600 font-bold text-white hover:bg-rose-700 disabled:opacity-50"
+                >
+                  {isDeletingAccount ? "Deleting..." : "Delete My Account"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ── MFA DISABLE MODAL ── */}
+      {showMfaModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+            {/* Close */}
+            <button
+              onClick={() => setShowMfaModal(false)}
+              className="absolute right-5 top-5 rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Header */}
+            <div className="mb-6 flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100">
+                <ShieldCheck className="text-blue-600" size={22} />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-slate-900">
+                  {mfaMode === "disable" ? "Confirm MFA Disable" : "Confirm Removal"}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  {mfaReauthStep === "init"
+                    ? "Verify your identity to proceed."
+                    : "Enter the code sent to your email."}
+                </p>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="space-y-5">
+              {mfaReauthStep === "init" ? (
+                <>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    {mfaMode === "disable" 
+                      ? "Disabling two-factor authentication makes your account less secure." 
+                      : "Removing this authenticator device will restrict your backup options."}
+                    {needsPassword
+                      ? " Please enter your password to confirm this change."
+                      : " We will send a verification code to your email to confirm this change."}
+                  </p>
+
+                  {needsPassword && (
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                        Confirm with your password
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="Enter your password"
+                        value={mfaPassword}
+                        onChange={(e) => setMfaPassword(e.target.value)}
+                        className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                      />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="space-y-4 text-center">
+                  <p className="text-sm text-slate-600">
+                    A 6-digit code has been sent to your registered email.
+                  </p>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder="000000"
+                    value={mfaOtp}
+                    onChange={(e) => setMfaOtp(e.target.value.replace(/\D/g, ""))}
+                    className="h-14 w-full rounded-xl border-2 border-slate-200 bg-slate-50 text-center text-2xl font-bold tracking-[0.5em] text-slate-900 focus:border-blue-600 outline-none"
+                  />
+                </div>
+              )}
+
+              {/* Error */}
+              {mfaError && (
+                <p className="rounded-xl bg-rose-50 px-4 py-3 text-xs font-semibold text-rose-600">
+                  {mfaError}
+                </p>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowMfaModal(false)}
+                  className="flex-1 rounded-xl font-bold"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={onMfaActionConfirm}
+                  disabled={isMfaProcessing || (mfaReauthStep === "init" && needsPassword && !mfaPassword) || (mfaReauthStep === "otp" && mfaOtp.length !== 6)}
+                  className="flex-1 rounded-xl bg-blue-600 font-bold text-white hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {isMfaProcessing ? "Processing..." : mfaReauthStep === "init" && !needsPassword ? "Send Code" : mfaMode === "disable" ? "Confirm Disable" : "Confirm Removal"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <MFAEnrollModal
+        isOpen={showMfaEnrollModal}
+        onClose={() => setShowMfaEnrollModal(false)}
+        onSuccess={refreshMfaData}
+      />
     </div>
+
   );
 }
