@@ -25,6 +25,7 @@ import {
   AlertTriangle,
   X,
   Smartphone,
+  Trash2,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -82,6 +83,8 @@ export default function SettingsPage() {
   // MFA state
   const [mfaEnabled, setMfaEnabled] = useState(false);
   const [mfaFactors, setMfaFactors] = useState<any[]>([]);
+  const [mfaMode, setMfaMode] = useState<"disable" | "unenroll">("disable");
+  const [removingFactorId, setRemovingFactorId] = useState<string | null>(null);
   const [isMfaLoading, setIsMfaLoading] = useState(true);
   const [showMfaModal, setShowMfaModal] = useState(false);
   const [showMfaEnrollModal, setShowMfaEnrollModal] = useState(false);
@@ -150,6 +153,8 @@ export default function SettingsPage() {
       setShowMfaEnrollModal(true);
     } else {
       // Start disable flow — open re-auth modal
+      setMfaMode("disable");
+      setRemovingFactorId(null);
       setMfaError("");
       setMfaPassword("");
       setMfaOtp("");
@@ -158,11 +163,29 @@ export default function SettingsPage() {
     }
   }
 
-  async function onMfaDisableConfirm() {
+  async function onUnenrollClick(factorId: string) {
+    if (mfaFactors.length === 1) {
+      // Last factor — disable MFA entirely
+      handleMfaToggle(false);
+    } else {
+      // Multiple factors — just remove this one
+      setMfaMode("unenroll");
+      setRemovingFactorId(factorId);
+      setMfaError("");
+      setMfaPassword("");
+      setMfaOtp("");
+      setMfaReauthStep("init");
+      setShowMfaModal(true);
+    }
+  }
+
+  async function onMfaActionConfirm() {
     setIsMfaProcessing(true);
     setMfaError("");
     try {
-      // 1. Re-authenticate
+      const { mfaDisable, mfaUnenroll } = await import("@/lib/mfa-api");
+
+      // 1. Re-authenticate if not already aal2
       if (mfaReauthStep === "init") {
         const res = await reauthenticate(needsPassword ? mfaPassword : undefined);
         if (res.status === "otp_sent") {
@@ -174,13 +197,22 @@ export default function SettingsPage() {
         await verifyReauthenticate(mfaOtp);
       }
 
-      // 2. Disable MFA (after successful re-auth, session is aal2)
-      await mfaDisable();
-      setMfaEnabled(false);
+      // 2. Perform Action
+      if (mfaMode === "disable") {
+        await mfaDisable();
+        toast.success("MFA Disabled", {
+          description: "Two-factor authentication has been removed from your account.",
+        });
+      } else if (mfaMode === "unenroll" && removingFactorId) {
+        await mfaUnenroll({ factor_id: removingFactorId });
+        toast.success("Authenticator Removed", {
+          description: "The selected device has been unenrolled.",
+        });
+      }
+
+      // 3. Sync & Close
+      await refreshMfaData();
       setShowMfaModal(false);
-      toast.success("MFA Disabled", {
-        description: "Two-factor authentication has been removed from your account.",
-      });
     } catch (err: any) {
       setMfaError(getApiErrorMessage(err));
     } finally {
@@ -538,16 +570,17 @@ export default function SettingsPage() {
                         <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
                           Registered Devices
                         </h4>
-                        <button
+                        <button 
                           onClick={() => setShowMfaEnrollModal(true)}
-                          className="text-[10px] font-bold uppercase tracking-widest text-blue-600 hover:underline"
+                          disabled={mfaFactors.length >= 3}
+                          className="text-[10px] font-bold uppercase tracking-widest text-blue-600 hover:underline disabled:text-slate-300 disabled:no-underline"
                         >
-                          + Add Backup Authenticator
+                          {mfaFactors.length >= 3 ? "Limit Reached (Max 3)" : "+ Add Backup Authenticator"}
                         </button>
                       </div>
                       <div className="grid gap-3">
                         {mfaFactors.map((f, i) => (
-                          <div
+                          <div 
                             key={f.factor_id}
                             className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/50 p-4 transition-colors hover:bg-slate-50"
                           >
@@ -564,11 +597,20 @@ export default function SettingsPage() {
                                 </p>
                               </div>
                             </div>
-                            {mfaFactors.length > 1 && (
-                              <Badge className="bg-white text-slate-400 border border-slate-200 font-bold text-[9px] uppercase px-2 py-0.5">
-                                Active
-                              </Badge>
-                            )}
+                            <div className="flex items-center gap-3">
+                              {mfaFactors.length > 1 && (
+                                <Badge className="bg-white text-slate-400 border border-slate-200 font-bold text-[9px] uppercase px-2 py-0.5">
+                                  Active
+                                </Badge>
+                              )}
+                              <button 
+                                onClick={() => onUnenrollClick(f.factor_id)}
+                                className="rounded-lg p-2 text-slate-300 hover:bg-rose-50 hover:text-rose-500 transition-colors"
+                                title="Remove Authenticator"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -1058,7 +1100,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <h3 className="text-lg font-black text-slate-900">
-                  Confirm MFA Disable
+                  {mfaMode === "disable" ? "Confirm MFA Disable" : "Confirm Removal"}
                 </h3>
                 <p className="text-xs text-slate-400">
                   {mfaReauthStep === "init"
@@ -1073,7 +1115,9 @@ export default function SettingsPage() {
               {mfaReauthStep === "init" ? (
                 <>
                   <p className="text-sm text-slate-600 leading-relaxed">
-                    Disabling two-factor authentication makes your account less secure.
+                    {mfaMode === "disable" 
+                      ? "Disabling two-factor authentication makes your account less secure." 
+                      : "Removing this authenticator device will restrict your backup options."}
                     {needsPassword
                       ? " Please enter your password to confirm this change."
                       : " We will send a verification code to your email to confirm this change."}
@@ -1128,11 +1172,11 @@ export default function SettingsPage() {
                   Cancel
                 </Button>
                 <Button
-                  onClick={onMfaDisableConfirm}
+                  onClick={onMfaActionConfirm}
                   disabled={isMfaProcessing || (mfaReauthStep === "init" && needsPassword && !mfaPassword) || (mfaReauthStep === "otp" && mfaOtp.length !== 6)}
                   className="flex-1 rounded-xl bg-blue-600 font-bold text-white hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {isMfaProcessing ? "Processing..." : mfaReauthStep === "init" && !needsPassword ? "Send Code" : "Confirm Disable"}
+                  {isMfaProcessing ? "Processing..." : mfaReauthStep === "init" && !needsPassword ? "Send Code" : mfaMode === "disable" ? "Confirm Disable" : "Confirm Removal"}
                 </Button>
               </div>
             </div>
