@@ -20,12 +20,14 @@ import {
   getGoogleOAuthLoginUrl,
   loginUser,
 } from "@/lib/auth-api";
+import { mfaGetAAL } from "@/lib/mfa-api";
 import { useAppStore } from "@/store/useAppStore";
 import { SignInPayload } from "@/types/auth";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid work email"),
   password: z.string().min(1, "Password is required"),
+  remember_me: z.boolean().optional(),
 });
 
 const GOOGLE_OAUTH_SESSION_KEY = "google_oauth_tx";
@@ -45,6 +47,7 @@ export default function SignInPage() {
     defaultValues: {
       email: "",
       password: "",
+      remember_me: false,
     },
   });
 
@@ -56,6 +59,18 @@ export default function SignInPage() {
       const authResult = await loginUser(values);
       const authSessionData = await buildAuthSessionData(authResult);
       setAuthData(authSessionData);
+
+      // Check MFA requirement before redirecting
+      try {
+        const aal = await mfaGetAAL();
+        if (aal.current_level === "aal1" && aal.next_level === "aal2") {
+          router.push("/mfa-challenge?redirect=/");
+          return;
+        }
+      } catch {
+        // If AAL check fails, proceed normally — MFA not blocking
+      }
+
       router.push("/");
     } catch (error) {
       // 403 means email not verified — redirect to OTP verification page
@@ -330,6 +345,21 @@ export default function SignInPage() {
                   </FieldError>
                 )}
               </Field>
+
+              <div className="flex items-center space-x-2 py-1">
+                <input
+                  type="checkbox"
+                  id="remember_me"
+                  {...form.register("remember_me")}
+                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600 cursor-pointer"
+                />
+                <label
+                  htmlFor="remember_me"
+                  className="text-sm font-semibold text-slate-700 cursor-pointer select-none"
+                >
+                  Remember this device (24h)
+                </label>
+              </div>
 
               <Button
                 type="submit"

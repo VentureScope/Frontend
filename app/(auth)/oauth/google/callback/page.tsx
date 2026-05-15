@@ -8,6 +8,7 @@ import {
   completeGoogleOAuthCallback,
   getApiErrorMessage,
 } from "@/lib/auth-api";
+import { mfaGetAAL } from "@/lib/mfa-api";
 import { useAppStore } from "@/store/useAppStore";
 
 const GOOGLE_OAUTH_SESSION_KEY = "google_oauth_tx";
@@ -117,6 +118,19 @@ function GoogleOAuthCallbackContent() {
         const authSessionData = await buildAuthSessionData(authResult);
         setAuthData(authSessionData);
         console.log("[oauth] Google sign-in completed");
+
+        // Critical: check AAL before redirecting — OAuth users with MFA
+        // enrolled must complete the challenge here, not just on the login page.
+        try {
+          const aal = await mfaGetAAL();
+          if (aal.current_level === "aal1" && aal.next_level === "aal2") {
+            router.replace("/mfa-challenge?redirect=/");
+            return;
+          }
+        } catch {
+          // AAL check failure is non-fatal
+        }
+
         router.replace("/");
       } catch (exchangeError) {
         console.log("[oauth] Token exchange failed", { exchangeError });

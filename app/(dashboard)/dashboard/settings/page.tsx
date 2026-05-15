@@ -47,7 +47,10 @@ import {
   changeCurrentUserPassword,
   deleteCurrentUserAccount,
   getApiErrorMessage,
+  reauthenticate,
+  verifyReauthenticate,
 } from "@/lib/auth-api";
+import { mfaGetAAL, mfaDisable } from "@/lib/mfa-api";
 import { useRouter } from "next/navigation";
 
 const profileSchema = z.object({
@@ -73,6 +76,16 @@ export default function SettingsPage() {
   const [deleteConfirmed, setDeleteConfirmed] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+
+  // MFA state
+  const [mfaEnabled, setMfaEnabled] = useState(false);
+  const [isMfaLoading, setIsMfaLoading] = useState(true);
+  const [showMfaModal, setShowMfaModal] = useState(false);
+  const [mfaReauthStep, setMfaReauthStep] = useState<"init" | "otp">("init");
+  const [mfaPassword, setMfaPassword] = useState("");
+  const [mfaOtp, setMfaOtp] = useState("");
+  const [mfaError, setMfaError] = useState("");
+  const [isMfaProcessing, setIsMfaProcessing] = useState(false);
 
   const user = useAppStore((state) => state.authData.user);
   const setAuthData = useAppStore((state) => state.setAuthData);
@@ -104,6 +117,64 @@ export default function SettingsPage() {
   useEffect(() => {
     form.reset(profileDefaults);
   }, [form, profileDefaults]);
+
+  useEffect(() => {
+    async function loadMfaStatus() {
+      try {
+        const aal = await mfaGetAAL();
+        setMfaEnabled(aal.mfa_enabled);
+      } catch (err) {
+        console.error("Failed to load MFA status", err);
+      } finally {
+        setIsMfaLoading(false);
+      }
+    }
+    loadMfaStatus();
+  }, []);
+
+  async function handleMfaToggle(checked: boolean) {
+    if (checked) {
+      // Redirect to enrollment page
+      router.push("/mfa-enroll");
+    } else {
+      // Start disable flow — open re-auth modal
+      setMfaError("");
+      setMfaPassword("");
+      setMfaOtp("");
+      setMfaReauthStep("init");
+      setShowMfaModal(true);
+    }
+  }
+
+  async function onMfaDisableConfirm() {
+    setIsMfaProcessing(true);
+    setMfaError("");
+    try {
+      // 1. Re-authenticate
+      if (mfaReauthStep === "init") {
+        const res = await reauthenticate(needsPassword ? mfaPassword : undefined);
+        if (res.status === "otp_sent") {
+          setMfaReauthStep("otp");
+          setIsMfaProcessing(false);
+          return;
+        }
+      } else {
+        await verifyReauthenticate(mfaOtp);
+      }
+
+      // 2. Disable MFA (after successful re-auth, session is aal2)
+      await mfaDisable();
+      setMfaEnabled(false);
+      setShowMfaModal(false);
+      toast.success("MFA Disabled", {
+        description: "Two-factor authentication has been removed from your account.",
+      });
+    } catch (err: any) {
+      setMfaError(getApiErrorMessage(err));
+    } finally {
+      setIsMfaProcessing(false);
+    }
+  }
 
   async function onProfileSubmit(values: z.infer<typeof profileSchema>) {
     try {
@@ -418,16 +489,36 @@ export default function SettingsPage() {
                   </div>
                   <div className="flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:py-8">
                     <div>
-                      <p className="text-lg font-black text-slate-900">
-                        Two-Factor Authentication
-                      </p>
+                      <div className="flex items-center gap-3">
+                        <p className="text-lg font-black text-slate-900">
+                          Two-Factor Authentication
+                        </p>
+                        {mfaEnabled ? (
+                          <Badge className="bg-emerald-50 text-emerald-600 border-none font-bold text-[10px] uppercase py-1 px-3">
+                            Enabled
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-slate-100 text-slate-400 border-none font-bold text-[10px] uppercase py-1 px-3">
+                            Disabled
+                          </Badge>
+                        )}
+                      </div>
                       <p className="text-sm text-slate-400">
                         Protects your intelligence assets with secondary
                         validation.
                       </p>
                     </div>
-                    <Switch defaultChecked />
+                    {isMfaLoading ? (
+                      <Skeleton className="h-6 w-12 rounded-full" />
+                    ) : (
+                      <Switch
+                        id="mfa-toggle"
+                        checked={mfaEnabled}
+                        onCheckedChange={handleMfaToggle}
+                      />
+                    )}
                   </div>
+
                 </div>
               </div>
             )}
@@ -893,6 +984,107 @@ export default function SettingsPage() {
           </div>
         </div>
       )}
+      {/* ── MFA DISABLE MODAL ── */}
+      {showMfaModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+            {/* Close */}
+            <button
+              onClick={() => setShowMfaModal(false)}
+              className="absolute right-5 top-5 rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Header */}
+            <div className="mb-6 flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100">
+                <ShieldCheck className="text-blue-600" size={22} />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-slate-900">
+                  Confirm MFA Disable
+                </h3>
+                <p className="text-xs text-slate-400">
+                  {mfaReauthStep === "init"
+                    ? "Verify your identity to proceed."
+                    : "Enter the code sent to your email."}
+                </p>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="space-y-5">
+              {mfaReauthStep === "init" ? (
+                <>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    Disabling two-factor authentication makes your account less secure. 
+                    {needsPassword 
+                      ? " Please enter your password to confirm this change."
+                      : " We will send a verification code to your email to confirm this change."}
+                  </p>
+
+                  {needsPassword && (
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                        Confirm with your password
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="Enter your password"
+                        value={mfaPassword}
+                        onChange={(e) => setMfaPassword(e.target.value)}
+                        className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                      />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="space-y-4 text-center">
+                  <p className="text-sm text-slate-600">
+                    A 6-digit code has been sent to your registered email.
+                  </p>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder="000000"
+                    value={mfaOtp}
+                    onChange={(e) => setMfaOtp(e.target.value.replace(/\D/g, ""))}
+                    className="h-14 w-full rounded-xl border-2 border-slate-200 bg-slate-50 text-center text-2xl font-bold tracking-[0.5em] text-slate-900 focus:border-blue-600 outline-none"
+                  />
+                </div>
+              )}
+
+              {/* Error */}
+              {mfaError && (
+                <p className="rounded-xl bg-rose-50 px-4 py-3 text-xs font-semibold text-rose-600">
+                  {mfaError}
+                </p>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowMfaModal(false)}
+                  className="flex-1 rounded-xl font-bold"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={onMfaDisableConfirm}
+                  disabled={isMfaProcessing || (mfaReauthStep === "init" && needsPassword && !mfaPassword) || (mfaReauthStep === "otp" && mfaOtp.length !== 6)}
+                  className="flex-1 rounded-xl bg-blue-600 font-bold text-white hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {isMfaProcessing ? "Processing..." : mfaReauthStep === "init" && !needsPassword ? "Send Code" : "Confirm Disable"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+
   );
 }
