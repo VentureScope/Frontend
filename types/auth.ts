@@ -42,6 +42,26 @@ export interface UserSkillsPayload {
   skills: string[];
 }
 
+export interface Experience {
+  id: string;
+  job_title: string;
+  company: string;
+  start_date: string;
+  end_date: string | null;
+  description: string;
+  skills_used: string[];
+  created_at?: string;
+}
+
+export interface ExperiencePayload {
+  job_title: string;
+  company: string;
+  start_date: string;
+  end_date: string | null;
+  description: string;
+  skills_used: string[];
+}
+
 export interface AuthUser {
   id?: string;
   email?: string;
@@ -49,6 +69,7 @@ export interface AuthUser {
   github_username?: string | null;
   career_interest?: string | null;
   skills?: string[] | null;
+  experiences?: Experience[] | null;
   role?: string;
   is_active?: boolean;
   is_admin?: boolean;

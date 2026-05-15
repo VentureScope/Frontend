@@ -531,11 +531,15 @@ export async function uploadProfilePicture(
   formData.append("file", file);
 
   try {
-    const response = await api.post<ProfilePictureUploadResponse>(path, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
+    const response = await api.post<ProfilePictureUploadResponse>(
+      path,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       },
-    });
+    );
     logRequestSuccess("POST", path, {
       status: response.status,
       hasUrl: !!response.data.profile_picture_url,
@@ -566,6 +570,61 @@ export async function getProfilePictureUrl(): Promise<string> {
     return response.data;
   } catch (error) {
     logRequestError("GET", path, error);
+    throw error;
+  }
+}
+
+// Experience APIs
+import { Experience, ExperiencePayload } from "@/types/auth";
+
+export async function createExperience(
+  payload: ExperiencePayload,
+): Promise<Experience> {
+  const path = "/api/users/me/experiences";
+  try {
+    const response = await api.post<Experience>(path, payload);
+    logRequestSuccess("POST", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("POST", path, error);
+    throw error;
+  }
+}
+
+export async function getExperiences(): Promise<Experience[]> {
+  const path = "/api/users/me/experiences";
+  try {
+    const response = await api.get<Experience[]>(path);
+    logRequestSuccess("GET", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("GET", path, error);
+    throw error;
+  }
+}
+
+export async function updateExperience(
+  experienceId: string,
+  payload: ExperiencePayload,
+): Promise<Experience> {
+  const path = `/api/users/me/experiences/${experienceId}`;
+  try {
+    const response = await api.put<Experience>(path, payload);
+    logRequestSuccess("PUT", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("PUT", path, error);
+    throw error;
+  }
+}
+
+export async function deleteExperience(experienceId: string): Promise<void> {
+  const path = `/api/users/me/experiences/${experienceId}`;
+  try {
+    const response = await api.delete(path);
+    logRequestSuccess("DELETE", path, { status: response.status });
+  } catch (error) {
+    logRequestError("DELETE", path, error);
     throw error;
   }
 }
