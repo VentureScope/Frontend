@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Eye, EyeOff, ArrowRight, TrendingUp, Github } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, TrendingUp, Github, ShieldCheck, Loader2, Smartphone, ChevronRight } from "lucide-react";
 import { AxiosError } from "axios";
 
 import { Button } from "@/components/ui/button";
@@ -20,12 +20,14 @@ import {
   getGoogleOAuthLoginUrl,
   loginUser,
 } from "@/lib/auth-api";
+import { mfaGetAAL } from "@/lib/mfa-api";
 import { useAppStore } from "@/store/useAppStore";
 import { SignInPayload } from "@/types/auth";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid work email"),
   password: z.string().min(1, "Password is required"),
+  remember_me: z.boolean().optional(),
 });
 
 const GOOGLE_OAUTH_SESSION_KEY = "google_oauth_tx";
@@ -37,6 +39,17 @@ export default function SignInPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const [isGithubSubmitting, setIsGithubSubmitting] = useState(false);
+  
+  // MFA In-place state
+  const [step, setStep] = useState<"login" | "mfa">("login");
+  const [mfaSubStep, setMfaSubStep] = useState<"verify" | "select">("verify");
+  const [mfaFactors, setMfaFactors] = useState<any[]>([]);
+  const [selectedFactor, setSelectedFactor] = useState<any | null>(null);
+  const [challengeId, setChallengeId] = useState<string | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
+  const [isVerifyingMfa, setIsVerifyingMfa] = useState(false);
+  const [mfaError, setMfaError] = useState<string | null>(null);
+
   const setAuthData = useAppStore((state) => state.setAuthData);
   const router = useRouter();
 
@@ -45,8 +58,26 @@ export default function SignInPage() {
     defaultValues: {
       email: "",
       password: "",
+      remember_me: false,
     },
   });
+
+  async function selectFactor(factor: any) {
+    setMfaError(null);
+    setIsSubmitting(true);
+    try {
+      const { mfaChallenge } = await import("@/lib/mfa-api");
+      const ch = await mfaChallenge({ factor_id: factor.factor_id });
+      setSelectedFactor(factor);
+      setChallengeId(ch.challenge_id);
+      setMfaSubStep("verify");
+      setMfaCode("");
+    } catch (err) {
+      setMfaError(getApiErrorMessage(err));
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   async function onSubmit(values: SignInPayload) {
     setApiError(null);
@@ -56,6 +87,33 @@ export default function SignInPage() {
       const authResult = await loginUser(values);
       const authSessionData = await buildAuthSessionData(authResult);
       setAuthData(authSessionData);
+
+      // Check MFA requirement
+      try {
+        const { mfaListFactors, mfaChallenge } = await import("@/lib/mfa-api");
+        const aal = await mfaGetAAL();
+        
+        if (aal.current_level === "aal1" && aal.next_level === "aal2") {
+          const factorsRes = await mfaListFactors();
+          console.log("MFA Factors found:", factorsRes.factors.length, factorsRes.factors);
+          setMfaFactors(factorsRes.factors);
+          
+          if (factorsRes.factors.length > 0) {
+            // Auto-select first factor and get challenge
+            const first = factorsRes.factors[0];
+            const ch = await mfaChallenge({ factor_id: first.factor_id });
+            setSelectedFactor(first);
+            setChallengeId(ch.challenge_id);
+            setStep("mfa");
+            setMfaSubStep("verify");
+            setIsSubmitting(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("MFA Check failed", err);
+      }
+
       router.push("/");
     } catch (error) {
       // 403 means email not verified — redirect to OTP verification page
@@ -70,6 +128,28 @@ export default function SignInPage() {
       setApiError(getApiErrorMessage(error));
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function onMfaVerify() {
+    if (!selectedFactor || !challengeId || mfaCode.length !== 6) return;
+    
+    setMfaError(null);
+    setIsVerifyingMfa(true);
+    
+    try {
+      const { mfaVerify } = await import("@/lib/mfa-api");
+      await mfaVerify({
+        factor_id: selectedFactor.factor_id,
+        challenge_id: challengeId,
+        code: mfaCode,
+      });
+      router.push("/");
+    } catch (err) {
+      setMfaError(getApiErrorMessage(err));
+      setMfaCode("");
+    } finally {
+      setIsVerifyingMfa(false);
     }
   }
 
@@ -151,6 +231,7 @@ export default function SignInPage() {
               fill
               className="object-cover opacity-80"
               priority
+              sizes="50vw"
             />
             {/* Subtle Gradient to ensure text always pops! */}
             <div className="absolute inset-0 bg-linear-to-br from-[#020817]/60 via-transparent to-[#020817]/80" />
@@ -224,129 +305,284 @@ export default function SignInPage() {
               </p>
             </div>
 
-            {/* Social Logins */}
-            <div className="flex w-full flex-col gap-3 sm:flex-row text-sm">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onGoogleSignIn}
-                disabled={
-                  isGoogleSubmitting || isGithubSubmitting || isSubmitting
-                }
-                className="flex-1 h-11 gap-2 border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50"
-              >
-                <svg className="h-4 w-4" viewBox="0 0 24 24">
-                  <path
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    fill="#4285F4"
-                  />
-                  <path
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    fill="#34A853"
-                  />
-                  <path
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.27.81-.57z"
-                    fill="#FBBC05"
-                  />
-                  <path
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                    fill="#EA4335"
-                  />
-                </svg>
-                <span className="font-semibold">
-                  {isGoogleSubmitting ? "Connecting..." : "Google"}
-                </span>
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onGithubSignIn}
-                disabled={
-                  isGoogleSubmitting || isGithubSubmitting || isSubmitting
-                }
-                className="flex-1 h-11 gap-2 border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50"
-              >
-                <Github className="h-4 w-4 text-slate-800" />
-                <span className="font-semibold">
-                  {isGithubSubmitting ? "Connecting..." : "GitHub"}
-                </span>
-              </Button>
-            </div>
-
-            {/* Divider */}
-            <div className="relative flex items-center py-1">
-              <div className="grow border-t border-slate-200"></div>
-              <span className="mx-4 shrink text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                Or continue with email
-              </span>
-              <div className="grow border-t border-slate-200"></div>
-            </div>
-
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <Field>
-                <FieldLabel className="text-[13px] font-bold text-slate-800">
-                  Work Email
-                </FieldLabel>
-                <Input
-                  placeholder="name@company.com"
-                  {...form.register("email")}
-                  className="h-11 border-none bg-[#f0f4ff] px-4 ring-offset-0 focus-visible:ring-2 focus-visible:ring-blue-600"
-                />
-                {form.formState.errors.email && (
-                  <FieldError>{form.formState.errors.email.message}</FieldError>
-                )}
-              </Field>
-
-              <Field>
-                <div className="flex items-center justify-between">
-                  <FieldLabel className="text-[13px] font-bold text-slate-800">
-                    Password
-                  </FieldLabel>
-                  <Link
-                    href="/forgot-password"
-                    className="text-[11px] font-bold text-blue-600 hover:underline"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    {...form.register("password")}
-                    className="h-11 border-none bg-[#f0f4ff] px-4 pr-12 ring-offset-0 focus-visible:ring-2 focus-visible:ring-blue-600"
-                  />
-                  <button
+            {step === "login" ? (
+              <>
+                {/* Social Logins */}
+                <div className="flex w-full flex-col gap-3 sm:flex-row text-sm">
+                  <Button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    variant="outline"
+                    onClick={onGoogleSignIn}
+                    disabled={
+                      isGoogleSubmitting || isGithubSubmitting || isSubmitting
+                    }
+                    className="flex-1 h-11 gap-2 border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50"
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
+                    <svg className="h-4 w-4" viewBox="0 0 24 24">
+                      <path
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                        fill="#4285F4"
+                      />
+                      <path
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                        fill="#34A853"
+                      />
+                      <path
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.27.81-.57z"
+                        fill="#FBBC05"
+                      />
+                      <path
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                        fill="#EA4335"
+                      />
+                    </svg>
+                    <span className="font-semibold">
+                      {isGoogleSubmitting ? "Connecting..." : "Google"}
+                    </span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={onGithubSignIn}
+                    disabled={
+                      isGoogleSubmitting || isGithubSubmitting || isSubmitting
+                    }
+                    className="flex-1 h-11 gap-2 border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50"
+                  >
+                    <Github className="h-4 w-4 text-slate-800" />
+                    <span className="font-semibold">
+                      {isGithubSubmitting ? "Connecting..." : "GitHub"}
+                    </span>
+                  </Button>
                 </div>
-                {form.formState.errors.password && (
-                  <FieldError>
-                    {form.formState.errors.password.message}
-                  </FieldError>
+
+                {/* Divider */}
+                <div className="relative flex items-center py-1">
+                  <div className="grow border-t border-slate-200"></div>
+                  <span className="mx-4 shrink text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    Or continue with email
+                  </span>
+                  <div className="grow border-t border-slate-200"></div>
+                </div>
+
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <Field>
+                  <FieldLabel className="text-[13px] font-bold text-slate-800">
+                    Work Email
+                  </FieldLabel>
+                  <Input
+                    placeholder="name@company.com"
+                    {...form.register("email")}
+                    className="h-11 border-none bg-[#f0f4ff] px-4 ring-offset-0 focus-visible:ring-2 focus-visible:ring-blue-600"
+                  />
+                  {form.formState.errors.email && (
+                    <FieldError>{form.formState.errors.email.message}</FieldError>
+                  )}
+                </Field>
+
+                <Field>
+                  <div className="flex items-center justify-between">
+                    <FieldLabel className="text-[13px] font-bold text-slate-800">
+                      Password
+                    </FieldLabel>
+                    <Link
+                      href="/forgot-password"
+                      className="text-[11px] font-bold text-blue-600 hover:underline"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      {...form.register("password")}
+                      className="h-11 border-none bg-[#f0f4ff] px-4 pr-12 ring-offset-0 focus-visible:ring-2 focus-visible:ring-blue-600"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  {form.formState.errors.password && (
+                    <FieldError>
+                      {form.formState.errors.password.message}
+                    </FieldError>
+                  )}
+                </Field>
+
+                <div className="flex items-center space-x-2 py-1">
+                  <input
+                    type="checkbox"
+                    id="remember_me"
+                    {...form.register("remember_me")}
+                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600 cursor-pointer"
+                  />
+                  <label
+                    htmlFor="remember_me"
+                    className="text-sm font-semibold text-slate-700 cursor-pointer select-none"
+                  >
+                    Remember this device (24h)
+                  </label>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="mt-2 h-12 w-full bg-[#1d59db] text-base font-semibold text-white shadow-xl shadow-blue-500/20 hover:bg-[#1748b3]"
+                >
+                  {isSubmitting ? "Signing In..." : "Sign In"}
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+
+                {apiError && (
+                  <p className="text-center text-xs text-red-600">{apiError}</p>
                 )}
-              </Field>
+              </form>
+            </>
+          ) : (
+              <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                {mfaSubStep === "verify" ? (
+                  <>
+                    <div className="text-center sm:text-left space-y-2">
+                      <div className="flex items-center justify-center sm:justify-start">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 mb-2">
+                          <ShieldCheck className="h-6 w-6 text-blue-600" />
+                        </div>
+                      </div>
+                      <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+                        Verify it's you
+                      </h2>
+                      <p className="text-sm text-slate-500 leading-relaxed">
+                        Enter the 6-digit code from your authenticator app{" "}
+                        {selectedFactor?.friendly_name && (
+                          <span className="font-bold text-slate-700">
+                            ({selectedFactor.friendly_name})
+                          </span>
+                        )}
+                      </p>
+                    </div>
 
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="mt-2 h-12 w-full bg-[#1d59db] text-base font-semibold text-white shadow-xl shadow-blue-500/20 hover:bg-[#1748b3]"
-              >
-                {isSubmitting ? "Signing In..." : "Sign In"}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+                    <div className="flex justify-center sm:justify-start gap-2 sm:gap-3">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <input
+                          key={i}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={mfaCode[i] || ""}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, "").slice(-1);
+                            const newCode = mfaCode.split("");
+                            newCode[i] = val;
+                            const full = newCode.join("").slice(0, 6);
+                            setMfaCode(full);
+                            if (val && i < 5) {
+                              (e.target.nextElementSibling as HTMLInputElement)?.focus();
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Backspace" && !mfaCode[i] && i > 0) {
+                              (e.currentTarget.previousElementSibling as HTMLInputElement)?.focus();
+                            }
+                            if (e.key === "Enter" && mfaCode.length === 6 && !isVerifyingMfa) {
+                              onMfaVerify();
+                            }
+                          }}
+                          disabled={isVerifyingMfa}
+                          className="h-13 w-10 sm:h-14 sm:w-12 rounded-xl border-2 border-transparent bg-[#f0f4ff] text-center text-xl sm:text-2xl font-bold text-slate-800 outline-none transition-all focus:border-blue-600 focus:bg-white"
+                        />
+                      ))}
+                    </div>
 
-              {apiError && (
-                <p className="text-center text-xs text-red-600">{apiError}</p>
-              )}
-            </form>
+                    {mfaError && (
+                      <p className="text-center sm:text-left text-xs font-bold text-red-600 bg-red-50 p-3 rounded-lg border border-red-100">
+                        {mfaError}
+                      </p>
+                    )}
+
+                    <Button
+                      onClick={onMfaVerify}
+                      disabled={isVerifyingMfa || mfaCode.length !== 6}
+                      className="h-12 w-full bg-[#1d59db] text-base font-semibold text-white shadow-xl shadow-blue-500/20 hover:bg-[#1748b3]"
+                    >
+                      {isVerifyingMfa ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          Verifying...
+                        </>
+                      ) : (
+                        "Confirm"
+                      )}
+                    </Button>
+
+                    <div className="flex flex-col gap-3">
+                      {mfaFactors.length > 1 && (
+                        <button
+                          onClick={() => setMfaSubStep("select")}
+                          className="w-full text-center text-xs font-bold text-blue-600 hover:underline"
+                        >
+                          Try another way
+                        </button>
+                      )}
+                      <button
+                        onClick={() => setStep("login")}
+                        className="w-full text-center text-xs font-bold text-slate-400 hover:text-slate-600"
+                      >
+                        Back to login
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-center sm:text-left space-y-2">
+                      <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+                        Select method
+                      </h2>
+                      <p className="text-sm text-slate-500 leading-relaxed">
+                        Choose a backup authenticator to continue.
+                      </p>
+                    </div>
+
+                    <div className="space-y-3">
+                      {mfaFactors.map((f, i) => (
+                        <button
+                          key={f.factor_id}
+                          onClick={() => selectFactor(f)}
+                          className="flex w-full items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50 px-5 py-4 text-left transition-all hover:border-blue-300 hover:bg-blue-50"
+                        >
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+                            <Smartphone className="h-5 w-5" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-bold text-slate-900">
+                              {f.friendly_name || `Authenticator ${i + 1}`}
+                            </p>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                              {new Date(f.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <ChevronRight className="h-4 w-4 text-slate-300" />
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => setMfaSubStep("verify")}
+                      className="w-full text-center text-xs font-bold text-slate-400 hover:text-slate-600"
+                    >
+                      Back
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
 
             <p className="text-center text-sm text-slate-600">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link
                 href="/register"
                 className="font-bold text-blue-600 hover:underline"

@@ -11,6 +11,7 @@ export interface RegisterPayload {
 export interface SignInPayload {
   email: string;
   password: string;
+  remember_me?: boolean;
 }
 
 export interface RegisterSuccessResponse {
@@ -55,6 +56,8 @@ export interface AuthUser {
   profile_picture_url?: string | null;
   has_password?: boolean;
   oauth_provider?: string | null;
+  mfa_enabled?: boolean;
+  mfa_enrolled_at?: string | null;
   [key: string]: unknown;
 }
 

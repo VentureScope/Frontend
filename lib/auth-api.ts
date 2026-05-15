@@ -135,6 +135,19 @@ function getMessage(source: unknown): string | null {
   return null;
 }
 
+/**
+ * Re-authentication for sensitive actions.
+ */
+export async function reauthenticate(password?: string): Promise<{ status: "verified" | "otp_sent"; message: string }> {
+  const res = await api.post("/api/auth/reauthenticate", { password });
+  return res.data;
+}
+
+export async function verifyReauthenticate(otp: string): Promise<{ status: "verified"; message: string }> {
+  const res = await api.post("/api/auth/verify-reauthenticate", { otp });
+  return res.data;
+}
+
 export function getApiErrorMessage(error: unknown): string {
   if (error instanceof AxiosError) {
     return (
