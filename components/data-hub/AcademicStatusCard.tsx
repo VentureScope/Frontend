@@ -134,23 +134,23 @@ export default function AcademicStatusCard() {
     latestCGPA >= 3.7
       ? "text-emerald-600"
       : latestCGPA >= 3.0
-        ? "text-blue-600"
+        ? "text-primary"
         : latestCGPA >= 2.0
           ? "text-amber-600"
           : "text-red-500";
 
   const cgpaBgColor =
     latestCGPA >= 3.7
-      ? "bg-emerald-50"
+      ? "bg-emerald-500/15"
       : latestCGPA >= 3.0
-        ? "bg-blue-50"
+        ? "bg-primary/10"
         : latestCGPA >= 2.0
           ? "bg-amber-50"
           : "bg-red-50";
 
   if (loading && !transcript) {
     return (
-      <div className="relative rounded-2xl sm:rounded-[32px] border border-slate-100 bg-white p-6 sm:p-8 shadow-sm">
+      <div className="relative rounded-2xl sm:rounded-[32px] border border-border bg-card p-6 sm:p-8 shadow-sm">
         <div className="flex flex-col gap-6 sm:gap-8">
           {/* Header skeleton */}
           <div className="flex items-center gap-4 sm:gap-6">
@@ -163,7 +163,7 @@ export default function AcademicStatusCard() {
           {/* Stats skeleton */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="space-y-2 p-4 rounded-xl bg-slate-50">
+              <div key={i} className="space-y-2 p-4 rounded-xl bg-muted">
                 <Skeleton className="h-3 w-16" />
                 <Skeleton className="h-6 w-20" />
               </div>
@@ -180,7 +180,7 @@ export default function AcademicStatusCard() {
   }
 
   return (
-    <div className="relative rounded-2xl sm:rounded-[32px] border border-slate-100 bg-white p-6 sm:p-8 shadow-sm">
+    <div className="relative rounded-2xl sm:rounded-[32px] border border-border bg-card p-6 sm:p-8 shadow-sm">
       <div className="flex flex-col gap-6 sm:gap-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -190,16 +190,16 @@ export default function AcademicStatusCard() {
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2 sm:gap-3">
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground">
                   Academic Transcript
                 </h3>
                 {versionLabel && (
-                  <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[10px] sm:text-xs font-semibold text-slate-500">
+                  <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-[10px] sm:text-xs font-semibold text-muted-foreground">
                     {versionLabel}
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-medium text-slate-400">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-medium text-muted-foreground">
                 {isConnected ? (
                   <>
                     <span>Last synced: {formattedDate}</span>
@@ -219,8 +219,8 @@ export default function AcademicStatusCard() {
           {isConnected && (
             <div className="flex flex-wrap items-center gap-2">
               {studentId && (
-                <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-50 border border-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
-                  <Hash className="h-3 w-3 text-slate-400" />
+                <span className="inline-flex items-center gap-1.5 rounded-lg bg-muted border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground">
+                  <Hash className="h-3 w-3 text-muted-foreground" />
                   {studentId.toUpperCase()}
                 </span>
               )}
@@ -245,14 +245,14 @@ export default function AcademicStatusCard() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {/* CGPA */}
             <div className={`rounded-xl ${cgpaBgColor} p-4 sm:p-5`}>
-              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
+              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
                 Cumulative GPA
               </p>
               <div className="flex items-baseline gap-1.5">
                 <p className={`text-2xl sm:text-3xl font-extrabold ${cgpaColor}`}>
                   {latestCGPA.toFixed(2)}
                 </p>
-                <span className="text-xs sm:text-sm font-semibold text-slate-400">
+                <span className="text-xs sm:text-sm font-semibold text-muted-foreground">
                   / {gpaScale.toFixed(1)}
                 </span>
               </div>
@@ -260,36 +260,36 @@ export default function AcademicStatusCard() {
 
             {/* Semester GPA */}
             <div className="rounded-xl bg-indigo-50 p-4 sm:p-5">
-              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
+              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
                 Latest SGPA
               </p>
               <div className="flex items-baseline gap-1.5">
-                <p className="text-2xl sm:text-3xl font-extrabold text-indigo-600">
+                <p className="text-2xl sm:text-3xl font-extrabold text-primary">
                   {latestSGPA.toFixed(2)}
                 </p>
-                <TrendingUp className="h-4 w-4 text-indigo-400" />
+                <TrendingUp className="h-4 w-4 text-[var(--brand-accent)]" />
               </div>
-              <p className="text-[10px] sm:text-xs text-indigo-400 font-medium mt-1 truncate">
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-medium mt-1 truncate">
                 {latestSemester?.semester}
               </p>
             </div>
 
             {/* Credit Hours */}
-            <div className="rounded-xl bg-slate-50 p-4 sm:p-5">
-              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
+            <div className="rounded-xl bg-muted p-4 sm:p-5">
+              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
                 Credit Hours
               </p>
-              <p className="text-2xl sm:text-3xl font-extrabold text-slate-700">
+              <p className="text-2xl sm:text-3xl font-extrabold text-muted-foreground">
                 {totalCreditHours}
               </p>
-              <p className="text-[10px] sm:text-xs text-slate-400 font-medium mt-1">
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-medium mt-1">
                 {completedSemesters} semester{completedSemesters !== 1 ? "s" : ""} completed
               </p>
             </div>
 
             {/* Courses */}
             <div className="rounded-xl bg-amber-50 p-4 sm:p-5">
-              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
+              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
                 Courses Graded
               </p>
               <div className="flex items-baseline gap-1.5">
@@ -304,13 +304,13 @@ export default function AcademicStatusCard() {
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center rounded-xl bg-slate-50 border border-dashed border-slate-200 p-8 sm:p-12">
+          <div className="flex items-center justify-center rounded-xl bg-muted border border-dashed border-border p-8 sm:p-12">
             <div className="text-center space-y-2">
-              <GraduationCap className="h-10 w-10 text-slate-300 mx-auto" />
-              <p className="text-sm font-semibold text-slate-500">
+              <GraduationCap className="h-10 w-10 text-muted-foreground/50 mx-auto" />
+              <p className="text-sm font-semibold text-muted-foreground">
                 No transcript data available
               </p>
-              <p className="text-xs text-slate-400 max-w-xs">
+              <p className="text-xs text-muted-foreground max-w-xs">
                 Use the VentureScope Chrome extension to extract your academic
                 records from the university portal.
               </p>
@@ -323,8 +323,8 @@ export default function AcademicStatusCard() {
           <button
             disabled={!isConnected}
             className={`flex items-center justify-center gap-2 rounded-xl px-4 sm:px-6 py-3 text-xs sm:text-sm font-bold ${isConnected
-              ? "bg-blue-50 text-blue-600 hover:bg-blue-100"
-              : "bg-slate-50 text-slate-400 cursor-not-allowed"
+              ? "bg-primary/10 text-primary hover:bg-primary/15"
+              : "bg-muted text-muted-foreground cursor-not-allowed"
               }`}
           >
             <FileText className="h-4 w-4" /> View Full Transcript

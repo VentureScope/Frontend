@@ -104,18 +104,18 @@ export default function CareerInterests() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-5 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:space-y-6 sm:p-6 lg:p-8">
-        <h3 className="text-lg font-bold text-slate-900 sm:text-xl">
+      <div className="space-y-5 rounded-3xl border border-border bg-card p-5 shadow-sm sm:space-y-6 sm:p-6 lg:p-8">
+        <h3 className="text-lg font-bold text-foreground sm:text-xl">
           Career Interests
         </h3>
-        <p className="text-sm text-slate-400 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           Your interests are synced from your profile and shape personalized
           role recommendations for {profile.firstName}.
         </p>
 
         <div className="flex flex-wrap gap-3">
           {tags.length === 0 && (
-            <span className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-500">
+            <span className="rounded-full border border-border bg-muted px-4 py-2 text-xs font-semibold text-muted-foreground">
               No interests added yet
             </span>
           )}
@@ -123,7 +123,7 @@ export default function CareerInterests() {
           {tags.map((t) => (
             <span
               key={t}
-              className="group flex min-w-0 max-w-full items-center gap-2 rounded-full border border-slate-100 bg-white px-4 py-2 text-xs font-bold text-blue-600 shadow-sm transition-all hover:border-blue-200"
+              className="group flex min-w-0 max-w-full items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold text-primary shadow-sm transition-all hover:border-primary/30"
             >
               <span className="max-w-40 text-left wrap-break-word sm:max-w-56">
                 {t}
@@ -132,7 +132,7 @@ export default function CareerInterests() {
                 type="button"
                 disabled={isSaving}
                 onClick={() => removeTag(t)}
-                className="text-slate-300 hover:text-rose-500"
+                className="text-muted-foreground/50 hover:text-rose-500"
               >
                 <X size={12} />
               </button>
@@ -143,7 +143,7 @@ export default function CareerInterests() {
             <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
               <input
                 autoFocus
-                className="w-full rounded-full border border-blue-200 px-4 py-2 text-xs font-medium outline-none ring-2 ring-blue-50 sm:w-auto"
+                className="w-full rounded-full border border-primary/30 px-4 py-2 text-xs font-medium outline-none ring-2 ring-blue-50 sm:w-auto"
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyDown={(e) => {
@@ -159,7 +159,7 @@ export default function CareerInterests() {
                 onClick={() => {
                   void addTag();
                 }}
-                className="rounded-full bg-blue-600 px-3 py-2 text-[11px] font-bold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-full bg-primary px-3 py-2 text-[11px] font-bold text-white hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Save
               </button>
@@ -169,7 +169,7 @@ export default function CareerInterests() {
               type="button"
               disabled={isSaving}
               onClick={() => setIsAdding(true)}
-              className="flex w-full items-center justify-center gap-1.5 rounded-full border border-dashed border-slate-300 bg-slate-50/50 px-4 py-2 text-xs font-bold text-slate-400 transition-colors hover:bg-slate-50 sm:w-auto"
+              className="flex w-full items-center justify-center gap-1.5 rounded-full border border-dashed border-border bg-muted/50 px-4 py-2 text-xs font-bold text-muted-foreground transition-colors hover:bg-muted sm:w-auto"
             >
               <Plus size={14} />
               Add Interest
@@ -178,11 +178,11 @@ export default function CareerInterests() {
         </div>
       </div>
 
-      <div className="space-y-2 rounded-2xl border border-blue-100 bg-[#eff6ff] p-5 sm:p-6">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
+      <div className="space-y-2 rounded-2xl border border-primary/20 bg-primary/10 p-5 sm:p-6">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-primary">
           Interest Insight
         </p>
-        <p className="text-sm text-slate-600 leading-relaxed">{helperText}</p>
+        <p className="text-sm text-muted-foreground leading-relaxed">{helperText}</p>
       </div>
     </div>
   );

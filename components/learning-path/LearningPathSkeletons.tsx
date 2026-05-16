@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
 function sk(className?: string) {
-  return <Skeleton className={className ?? "bg-slate-100"} />;
+  return <Skeleton className={className ?? "bg-muted"} />;
 }
 
 /** List page: roadmap cards while `GET /api/roadmaps` loads */
@@ -17,7 +17,7 @@ export function LearningPathListSkeleton({ count = 3 }: { count?: number }) {
 
 function PathCardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-sm p-6 sm:p-8">
+    <div className="overflow-hidden rounded-[24px] border border-border bg-card shadow-sm p-6 sm:p-8">
       <div className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 flex-1 items-center gap-5">
           {sk("h-12 w-12 shrink-0 rounded-xl")}
@@ -51,7 +51,7 @@ export function PathCardModulesSkeleton() {
             {[0, 1].map((r) => (
               <div
                 key={r}
-                className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-white p-4"
+                className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4"
               >
                 {sk("h-16 w-16 shrink-0 rounded-xl")}
                 <div className="flex-1 space-y-2">
@@ -72,8 +72,8 @@ export function PathCardModulesSkeleton() {
 /** Standalone roadmap detail page */
 export function RoadmapDetailPageSkeleton() {
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
-      <div className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur-md">
+    <div className="min-h-screen bg-background">
+      <div className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4">
             {sk("h-10 w-10 rounded-full")}
@@ -108,7 +108,7 @@ export function RoadmapDetailPageSkeleton() {
           </div>
         </div>
 
-        <div className="rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm sm:p-12">
+        <div className="rounded-[32px] border border-border bg-card p-8 shadow-sm sm:p-12">
           <RoadmapStepsSkeleton stepCount={3} />
         </div>
       </div>
@@ -131,7 +131,7 @@ function RoadmapStepsSkeleton({ stepCount = 3 }: { stepCount?: number }) {
               {[0, 1].map((r) => (
                 <div
                   key={r}
-                  className="flex items-center justify-between rounded-[24px] border border-slate-100 p-5"
+                  className="flex items-center justify-between rounded-[24px] border border-border p-5"
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-5">
                     {sk("h-20 w-20 shrink-0 rounded-2xl")}
@@ -159,7 +159,7 @@ export function NewRoadmapRolesSkeleton({ count = 4 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="flex items-center justify-between rounded-[24px] border border-slate-50 bg-white p-6"
+          className="flex items-center justify-between rounded-[24px] border border-border bg-card p-6"
         >
           <div className="flex min-w-0 flex-1 items-center gap-6">
             {sk("h-6 w-6 shrink-0 rounded-full")}

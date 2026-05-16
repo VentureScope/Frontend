@@ -38,8 +38,8 @@ const RoleItem = ({
       onClick={() => onSelect(id)}
       className={`group relative flex cursor-pointer items-center justify-between rounded-[24px] border p-6 transition-all duration-200 ${
         isSelected
-          ? "border-blue-100 bg-[#f4f8ff] shadow-sm"
-          : "border-slate-50 bg-white hover:border-slate-200"
+          ? "border-primary/20 bg-[#f4f8ff] shadow-sm"
+          : "border-border bg-card hover:border-border"
       }`}
     >
       <div className="flex items-center gap-6">
@@ -50,7 +50,7 @@ const RoleItem = ({
               <Check size={14} strokeWidth={4} className="text-white" />
             </div>
           ) : (
-            <Circle className="text-slate-300" size={24} strokeWidth={1.5} />
+            <Circle className="text-muted-foreground/50" size={24} strokeWidth={1.5} />
           )}
         </div>
 
@@ -58,8 +58,8 @@ const RoleItem = ({
         <div
           className={`flex h-14 w-14 items-center justify-center rounded-2xl ${
             isSelected
-              ? "bg-blue-100 text-[#2563eb]"
-              : "bg-slate-50 text-slate-500"
+              ? "bg-primary/15 text-primary"
+              : "bg-muted text-muted-foreground"
           }`}
         >
           {getIcon(iconName)}
@@ -68,25 +68,25 @@ const RoleItem = ({
         {/* Content */}
         <div className="space-y-1">
           <div className="flex items-center gap-3">
-            <h3 className="text-xl font-bold text-slate-900">{title}</h3>
+            <h3 className="text-xl font-bold text-foreground">{title}</h3>
             <span
               className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                 badgeType === "high-demand"
                   ? "bg-[#be123c] text-white"
-                  : "bg-[#dcfce7] text-[#166534]"
+                  : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
               }`}
             >
               {badge}
             </span>
           </div>
-          <p className="text-[15px] text-slate-500">{description}</p>
+          <p className="text-[15px] text-muted-foreground">{description}</p>
         </div>
       </div>
 
       {/* Stats */}
       <div className="text-right">
-        <div className="text-2xl font-bold text-slate-900">{count}</div>
-        <div className="text-[12px] font-medium text-slate-400">
+        <div className="text-2xl font-bold text-foreground">{count}</div>
+        <div className="text-[12px] font-medium text-muted-foreground">
           Active Openings
         </div>
       </div>

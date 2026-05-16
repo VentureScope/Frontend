@@ -142,7 +142,7 @@ export default function CVManager() {
 
   if (loading) {
     return (
-      <div className="space-y-6 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
+      <div className="space-y-6 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
         <Skeleton className="h-4 w-40" />
         <Skeleton className="h-16 w-full rounded-2xl" />
         <Skeleton className="h-12 w-full rounded-xl" />
@@ -151,7 +151,7 @@ export default function CVManager() {
   }
 
   return (
-    <div className="space-y-6 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
+    <div className="space-y-6 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
       <input
         ref={fileInputRef}
         type="file"
@@ -161,7 +161,7 @@ export default function CVManager() {
       />
 
       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-2 text-blue-600">
+        <div className="flex items-center gap-2 text-primary">
           <FileText size={18} />
           <span className="text-[10px] font-bold uppercase tracking-widest">
             Curriculum Vitae
@@ -173,7 +173,7 @@ export default function CVManager() {
             void handleRefresh();
           }}
           disabled={isRefreshing}
-          className="inline-flex items-center gap-1.5 text-[11px] font-bold text-blue-600 hover:text-blue-700 disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary hover:text-primary/90 disabled:opacity-60"
         >
           <RefreshCw size={14} className={isRefreshing ? "animate-spin" : ""} />
           Refresh
@@ -181,16 +181,16 @@ export default function CVManager() {
       </div>
 
       {cvUrl ? (
-        <div className="flex flex-col gap-4 rounded-2xl border border-slate-100 bg-slate-50/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 rounded-2xl border border-border bg-muted/50 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm text-blue-600 border border-slate-100">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-sm text-primary border border-border">
               <FileText size={20} />
             </div>
             <div className="min-w-0">
-              <p className="break-all text-sm font-bold text-slate-900">
+              <p className="break-all text-sm font-bold text-foreground">
                 {cvFileName}
               </p>
-              <p className="text-[10px] text-slate-400 uppercase font-bold">
+              <p className="text-[10px] text-muted-foreground uppercase font-bold">
                 Stored in backend
               </p>
             </div>
@@ -200,7 +200,7 @@ export default function CVManager() {
               type="button"
               onClick={onUploadClick}
               disabled={isUploading}
-              className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-600 hover:border-blue-200 hover:text-blue-600 disabled:opacity-60 sm:flex-initial"
+              className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-muted-foreground hover:border-primary/30 hover:text-primary disabled:opacity-60 sm:flex-initial"
             >
               {isUploading ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -213,7 +213,7 @@ export default function CVManager() {
               href={cvUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-600 hover:border-blue-200 hover:text-blue-600 sm:flex-initial"
+              className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-muted-foreground hover:border-primary/30 hover:text-primary sm:flex-initial"
             >
               View
               <ExternalLink size={14} />
@@ -225,28 +225,28 @@ export default function CVManager() {
           type="button"
           onClick={onUploadClick}
           disabled={isUploading}
-          className="group block w-full rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/30 p-6 transition-all hover:border-blue-400 hover:bg-blue-50/30 disabled:cursor-not-allowed disabled:opacity-70 sm:p-8"
+          className="group block w-full rounded-2xl border-2 border-dashed border-border bg-muted/30 p-6 transition-all hover:border-blue-400 hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-70 sm:p-8"
         >
           <div className="flex flex-col items-center text-center">
             {isUploading ? (
-              <Loader2 size={24} className="mb-2 animate-spin text-blue-600" />
+              <Loader2 size={24} className="mb-2 animate-spin text-primary" />
             ) : (
               <Upload
                 size={24}
-                className="mb-2 text-slate-400 group-hover:text-blue-600 transition-colors"
+                className="mb-2 text-muted-foreground group-hover:text-primary transition-colors"
               />
             )}
-            <p className="text-sm font-bold text-slate-600 group-hover:text-slate-900">
+            <p className="text-sm font-bold text-muted-foreground group-hover:text-foreground">
               {isUploading ? "Uploading CV..." : "Upload your CV"}
             </p>
-            <p className="text-[10px] text-slate-400 mt-1">
+            <p className="text-[10px] text-muted-foreground mt-1">
               PDF, DOC, DOCX up to 10MB.
             </p>
           </div>
         </button>
       )}
 
-      <p className="text-[11px] text-slate-400 leading-relaxed italic">
+      <p className="text-[11px] text-muted-foreground leading-relaxed italic">
         * Uploading your CV helps the backend update embeddings and improve
         profile intelligence.
       </p>

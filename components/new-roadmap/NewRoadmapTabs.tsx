@@ -5,13 +5,13 @@ export const EvolutionTabs = ({ activeTab, onTabChange }: { activeTab: string, o
   ];
 
   return (
-    <div className="flex border-b border-slate-100">
+    <div className="flex border-b border-border">
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
           className={`relative px-4 pb-4 text-[15px] font-bold transition-colors ${
-            activeTab === tab.id ? "text-[#2563eb]" : "text-slate-400 hover:text-slate-600"
+            activeTab === tab.id ? "text-primary" : "text-muted-foreground hover:text-muted-foreground"
           }`}
         >
           {tab.label}

@@ -11,9 +11,9 @@ export default function PersonalDetails() {
   const profile = getUserProfileView(user);
 
   return (
-    <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
+    <div className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
       <div className="mb-5 flex items-center justify-between sm:mb-6">
-        <div className="flex items-center gap-2 text-blue-600">
+        <div className="flex items-center gap-2 text-primary">
           <UserCircle size={18} />
           <span className="text-[10px] font-bold uppercase tracking-widest">
             Personal Details
@@ -21,7 +21,7 @@ export default function PersonalDetails() {
         </div>
         <Button
           variant="link"
-          className="h-auto p-0 text-xs font-bold text-blue-600"
+          className="h-auto p-0 text-xs font-bold text-primary"
         >
           Edit
         </Button>
@@ -29,18 +29,18 @@ export default function PersonalDetails() {
 
       <div className="space-y-4">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             Email Address
           </p>
-          <p className="break-all text-sm font-medium text-slate-900">
+          <p className="break-all text-sm font-medium text-foreground">
             {profile.email}
           </p>
         </div>
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             Timezone
           </p>
-          <p className="wrap-break-word text-sm font-medium text-slate-900">
+          <p className="wrap-break-word text-sm font-medium text-foreground">
             {profile.timezone}
           </p>
         </div>

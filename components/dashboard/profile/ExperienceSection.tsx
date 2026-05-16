@@ -146,8 +146,8 @@ export default function ExperienceSection() {
 
   if (loading) {
     return (
-      <div className="relative rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
-        <div className="mb-6 flex items-center gap-2 text-slate-300">
+      <div className="relative rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
+        <div className="mb-6 flex items-center gap-2 text-muted-foreground/50">
           <Skeleton className="h-4 w-4" />
           <Skeleton className="h-3 w-32" />
         </div>
@@ -160,9 +160,9 @@ export default function ExperienceSection() {
   }
 
   return (
-    <div className="relative rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
+    <div className="relative rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
       <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-blue-600">
+        <div className="flex items-center gap-2 text-primary">
           <Briefcase size={18} />
           <span className="text-[10px] font-bold uppercase tracking-widest">
             Experience
@@ -172,7 +172,7 @@ export default function ExperienceSection() {
           <Button
             size="sm"
             variant="outline"
-            className="h-8 gap-1.5 rounded-full px-3 text-xs text-blue-600 border-blue-100 hover:bg-blue-50"
+            className="h-8 gap-1.5 rounded-full px-3 text-xs text-primary border-primary/20 hover:bg-primary/10"
             onClick={() => setIsFormOpen(true)}
           >
             <Plus size={14} />
@@ -184,13 +184,13 @@ export default function ExperienceSection() {
       {isFormOpen ? (
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 rounded-2xl border border-slate-100 bg-slate-50/50 p-4 sm:p-5"
+          className="space-y-4 rounded-2xl border border-border bg-muted/50 p-4 sm:p-5"
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label
                 htmlFor="jobTitle"
-                className="text-xs font-semibold text-slate-600"
+                className="text-xs font-semibold text-muted-foreground"
               >
                 Job Title <span className="text-rose-500">*</span>
               </Label>
@@ -199,14 +199,14 @@ export default function ExperienceSection() {
                 value={jobTitle}
                 onChange={(e) => setJobTitle(e.target.value)}
                 placeholder="Software Engineer"
-                className="bg-white"
+                className="bg-card"
                 required
               />
             </div>
             <div className="space-y-1.5">
               <Label
                 htmlFor="company"
-                className="text-xs font-semibold text-slate-600"
+                className="text-xs font-semibold text-muted-foreground"
               >
                 Company <span className="text-rose-500">*</span>
               </Label>
@@ -215,14 +215,14 @@ export default function ExperienceSection() {
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 placeholder="Tech Corp Inc."
-                className="bg-white"
+                className="bg-card"
                 required
               />
             </div>
             <div className="space-y-1.5">
               <Label
                 htmlFor="startDate"
-                className="text-xs font-semibold text-slate-600"
+                className="text-xs font-semibold text-muted-foreground"
               >
                 Start Date <span className="text-rose-500">*</span>
               </Label>
@@ -231,14 +231,14 @@ export default function ExperienceSection() {
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="bg-white"
+                className="bg-card"
                 required
               />
             </div>
             <div className="space-y-1.5">
               <Label
                 htmlFor="endDate"
-                className="text-xs font-semibold text-slate-600"
+                className="text-xs font-semibold text-muted-foreground"
               >
                 End Date
               </Label>
@@ -247,13 +247,13 @@ export default function ExperienceSection() {
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="bg-white"
+                className="bg-card"
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label
                 htmlFor="description"
-                className="text-xs font-semibold text-slate-600"
+                className="text-xs font-semibold text-muted-foreground"
               >
                 Description
               </Label>
@@ -261,14 +261,14 @@ export default function ExperienceSection() {
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="flex min-h-[80px] w-full rounded-xl border border-input bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex min-h-[80px] w-full rounded-xl border border-input bg-card px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 placeholder="Describe your responsibilities and achievements..."
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label
                 htmlFor="skillsUsed"
-                className="text-xs font-semibold text-slate-600"
+                className="text-xs font-semibold text-muted-foreground"
               >
                 Skills Used (comma separated)
               </Label>
@@ -277,7 +277,7 @@ export default function ExperienceSection() {
                 value={skillsUsed}
                 onChange={(e) => setSkillsUsed(e.target.value)}
                 placeholder="React, Next.js, TypeScript"
-                className="bg-white"
+                className="bg-card"
               />
             </div>
           </div>
@@ -288,7 +288,7 @@ export default function ExperienceSection() {
               size="sm"
               onClick={resetForm}
               disabled={submitting}
-              className="text-slate-600"
+              className="text-muted-foreground"
             >
               Cancel
             </Button>
@@ -296,7 +296,7 @@ export default function ExperienceSection() {
               type="submit"
               size="sm"
               disabled={submitting}
-              className="bg-blue-600 hover:bg-blue-700 text-white min-w-[100px]"
+              className="bg-primary hover:bg-primary/90 text-white min-w-[100px]"
             >
               {submitting ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -309,14 +309,14 @@ export default function ExperienceSection() {
           </div>
         </form>
       ) : experiences.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 py-10">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/50 py-10">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 text-primary">
             <Briefcase size={20} />
           </div>
-          <p className="mb-1 text-sm font-bold text-slate-700">
+          <p className="mb-1 text-sm font-bold text-muted-foreground">
             No experiences listed
           </p>
-          <p className="mb-4 max-w-[250px] text-center text-xs text-slate-500">
+          <p className="mb-4 max-w-[250px] text-center text-xs text-muted-foreground">
             Add your professional background to improve your career insights.
           </p>
         </div>
@@ -325,17 +325,17 @@ export default function ExperienceSection() {
           {experiences.map((exp) => (
             <div
               key={exp.id}
-              className="group relative flex flex-col gap-2 rounded-xl border border-slate-100 p-4 transition-colors hover:border-slate-200 hover:bg-slate-50/50"
+              className="group relative flex flex-col gap-2 rounded-xl border border-border p-4 transition-colors hover:border-border hover:bg-muted/50"
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900">
+                  <h4 className="text-sm font-bold text-foreground">
                     {exp.job_title}
                   </h4>
-                  <p className="text-xs font-semibold text-blue-600 mb-1">
+                  <p className="text-xs font-semibold text-primary mb-1">
                     {exp.company}
                   </p>
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Calendar size={12} />
                     <span>
                       {exp.start_date
@@ -361,7 +361,7 @@ export default function ExperienceSection() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 text-slate-400 hover:text-blue-600"
+                    className="h-7 w-7 text-muted-foreground hover:text-primary"
                     onClick={() => handleEdit(exp)}
                   >
                     <Pencil size={14} />
@@ -369,7 +369,7 @@ export default function ExperienceSection() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 text-slate-400 hover:text-rose-600"
+                    className="h-7 w-7 text-muted-foreground hover:text-rose-600"
                     onClick={() => handleDelete(exp.id)}
                     disabled={deletingId === exp.id}
                   >
@@ -382,7 +382,7 @@ export default function ExperienceSection() {
                 </div>
               </div>
               {exp.description && (
-                <p className="mt-1 text-sm text-slate-600 whitespace-pre-wrap">
+                <p className="mt-1 text-sm text-muted-foreground whitespace-pre-wrap">
                   {exp.description}
                 </p>
               )}
@@ -391,7 +391,7 @@ export default function ExperienceSection() {
                   {exp.skills_used.map((skill, i) => (
                     <span
                       key={i}
-                      className="rounded-md bg-white border border-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-600"
+                      className="rounded-md bg-card border border-border px-2 py-0.5 text-[10px] font-semibold text-muted-foreground"
                     >
                       {skill}
                     </span>

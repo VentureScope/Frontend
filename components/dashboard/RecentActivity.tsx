@@ -4,7 +4,7 @@ export default function RecentActivity() {
       title: "Synced Semester 4 Grades",
       time: "3 HOURS AGO",
       badge: "Academic Hub",
-      color: "bg-blue-600",
+      color: "bg-primary",
     },
     {
       title: "Updated Resume keyword: Python",
@@ -16,17 +16,17 @@ export default function RecentActivity() {
       title: "Completed Module: Data Pre-processing",
       time: "2 DAYS AGO",
       badge: "Learning Path",
-      color: "bg-blue-600",
+      color: "bg-primary",
     },
   ];
 
   return (
-    <div className="rounded-3xl sm:rounded-[40px] border border-slate-100 bg-white p-6 sm:p-8 lg:p-10 shadow-sm relative overflow-hidden">
+    <div className="rounded-3xl sm:rounded-[40px] border border-border bg-card p-6 sm:p-8 lg:p-10 shadow-sm relative overflow-hidden">
       <div className="mb-6 sm:mb-10 flex items-center justify-between">
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground">
           Recent Activity
         </h2>
-        <button className="text-xs sm:text-sm font-bold text-blue-600 hover:underline">
+        <button className="text-xs sm:text-sm font-bold text-primary hover:underline">
           View All
         </button>
       </div>
@@ -37,20 +37,20 @@ export default function RecentActivity() {
               className={`mt-1 sm:mt-0 h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full shrink-0 ${act.color}`}
             />
             <div className="space-y-1 -mt-1 sm:mt-0">
-              <h4 className="font-bold text-sm sm:text-base text-slate-900">
+              <h4 className="font-bold text-sm sm:text-base text-foreground">
                 {act.title}
               </h4>
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <span className="text-[9px] sm:text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                   {act.time}
                 </span>
-                <span className="rounded-full bg-slate-50 px-2 py-0.5 sm:px-3 sm:py-1 text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase">
+                <span className="rounded-full bg-muted px-2 py-0.5 sm:px-3 sm:py-1 text-[9px] sm:text-[10px] font-bold text-muted-foreground uppercase">
                   {act.badge}
                 </span>
               </div>
             </div>
             {i !== activities.length - 1 && (
-              <div className="absolute left-[4.5px] sm:left-[5.5px] top-4 sm:top-6 w-1 h-full -mb-4 bg-slate-100" />
+              <div className="absolute left-[4.5px] sm:left-[5.5px] top-4 sm:top-6 w-1 h-full -mb-4 bg-muted" />
             )}
           </div>
         ))}

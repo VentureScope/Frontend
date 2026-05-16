@@ -23,7 +23,7 @@ export default function ResourceItem({
   onToggle,
 }: ResourceItemProps) {
   const typeColors: Record<ResourceType, string> = {
-    VIDEO: "text-blue-600",
+    VIDEO: "text-primary",
     DOCUMENTATION: "text-rose-600",
     "COURSE MODULE": "text-indigo-600",
     ARTICLE: "text-amber-600",
@@ -36,28 +36,28 @@ export default function ResourceItem({
   return (
     <div
       onClick={() => onToggle && id ? onToggle(id) : undefined}
-      className={`group flex items-center justify-between rounded-2xl border bg-white p-4 transition-all hover:border-blue-200 hover:shadow-md cursor-pointer ${status === "in-progress" ? "border-l-4 border-l-blue-600" : "border-slate-100"}`}
+      className={`group flex items-center justify-between rounded-2xl border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-md cursor-pointer ${status === "in-progress" ? "border-l-4 border-l-primary" : "border-border"}`}
     >
       <div className="flex items-center gap-4">
         {thumbnail ? (
-          <div className="relative h-16 w-24 overflow-hidden rounded-lg border border-slate-100 bg-slate-50">
+          <div className="relative h-16 w-24 overflow-hidden rounded-lg border border-border bg-muted">
             <img
               src={thumbnail}
               className="h-full w-full object-cover opacity-80"
               alt=""
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-card/90 shadow-sm">
                 <Play
                   size={12}
                   fill="currentColor"
-                  className="ml-0.5 text-slate-600"
+                  className="ml-0.5 text-muted-foreground"
                 />
               </div>
             </div>
           </div>
         ) : (
-          <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+          <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <BookOpen size={24} />
           </div>
         )}
@@ -68,8 +68,8 @@ export default function ResourceItem({
           >
             {type}
           </p>
-          <h5 className="text-[15px] font-bold text-slate-900">{title}</h5>
-          <p className="text-[12px] font-medium text-slate-400 break-words">
+          <h5 className="text-[15px] font-bold text-foreground">{title}</h5>
+          <p className="text-[12px] font-medium text-muted-foreground break-words">
             {meta}
           </p>
           {href && (
@@ -77,7 +77,7 @@ export default function ResourceItem({
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline"
+              className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
               onClick={(e) => e.stopPropagation()}
             >
               Open resource <ExternalLink className="h-3 w-3" />
@@ -88,11 +88,11 @@ export default function ResourceItem({
 
       <div className="pr-2 shrink-0">
         {status === "completed" ? (
-          <div className="flex h-6 w-6 items-center justify-center rounded-full border border-blue-100 bg-blue-50">
-            <Check size={14} className="text-blue-600" strokeWidth={3} />
+          <div className="flex h-6 w-6 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
+            <Check size={14} className="text-primary" strokeWidth={3} />
           </div>
         ) : (
-          <Circle size={20} className="text-slate-300" />
+          <Circle size={20} className="text-muted-foreground/50" />
         )}
       </div>
     </div>

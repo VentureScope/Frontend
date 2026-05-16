@@ -123,7 +123,7 @@ export default function NewRoadmapPage() {
   }, [router, selected?.trendName]);
 
   return (
-    <div className="relative min-h-screen bg-white">
+    <div className="relative min-h-screen bg-card">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <svg
           className="absolute right-0 top-0 h-[600px] w-auto opacity-40"
@@ -156,7 +156,7 @@ export default function NewRoadmapPage() {
             {loadingTrends ? (
               <NewRoadmapRolesSkeleton />
             ) : displayedRoles.length === 0 ? (
-              <p className="text-center text-sm text-slate-500">
+              <p className="text-center text-sm text-muted-foreground">
                 {activeTab === "future"
                   ? "Future predicted roles are not available yet."
                   : "No current trending roles available."}

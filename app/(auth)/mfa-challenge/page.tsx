@@ -68,7 +68,7 @@ function OTPInput({
           onChange={(e) => handleChange(e, i)}
           onKeyDown={(e) => handleKey(e, i)}
           disabled={disabled}
-          className="w-12 h-14 rounded-xl border-2 border-slate-200 bg-[#f0f4ff] text-center text-xl font-bold text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-0 transition-colors disabled:opacity-40"
+          className="w-12 h-14 rounded-xl border-2 border-border bg-muted text-center text-xl font-bold text-foreground focus:border-primary focus:outline-none focus:ring-0 transition-colors disabled:opacity-40"
         />
       ))}
     </div>
@@ -184,26 +184,26 @@ function MFAChallengeContent() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      <div className="flex min-h-screen items-center justify-center bg-muted">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-muted p-4">
       <div className="w-full max-w-md">
         {/* Card */}
-        <div className="rounded-3xl bg-white shadow-2xl overflow-hidden">
+        <div className="rounded-3xl bg-card shadow-2xl overflow-hidden">
           {/* Header band */}
-          <div className="bg-[#1d59db] px-8 py-10 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
+          <div className="bg-primary px-8 py-10 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-card/20 backdrop-blur-sm">
               <ShieldCheck className="h-8 w-8 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white">
               Two-Factor Verification
             </h1>
-            <p className="mt-1 text-sm text-blue-100/80">
+            <p className="mt-1 text-sm text-primary-foreground/80">
               {step === "select"
                 ? "Choose an authenticator to continue"
                 : "Enter the 6-digit code from your authenticator app"}
@@ -219,20 +219,20 @@ function MFAChallengeContent() {
                     key={f.factor_id}
                     id={`factor-${i}`}
                     onClick={() => selectFactor(f)}
-                    className="flex w-full items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-left transition-all hover:border-blue-300 hover:bg-blue-50 active:scale-[0.98]"
+                    className="flex w-full items-center gap-4 rounded-2xl border border-border bg-muted px-5 py-4 text-left transition-all hover:border-blue-300 hover:bg-primary/10 active:scale-[0.98]"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
                       <Smartphone className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-bold text-slate-900">
+                      <p className="text-sm font-bold text-foreground">
                         {f.friendly_name ?? `Authenticator ${i + 1}`}
                       </p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-muted-foreground">
                         Added {new Date(f.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-slate-400" />
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </button>
                 ))}
               </div>
@@ -251,7 +251,7 @@ function MFAChallengeContent() {
                   id="mfa-verify-btn"
                   onClick={handleVerify}
                   disabled={code.length !== 6 || verifying}
-                  className="h-12 w-full bg-[#1d59db] text-sm font-bold text-white hover:bg-[#1748b3] shadow-xl shadow-blue-500/20"
+                  className="h-12 w-full bg-primary text-sm font-bold text-white hover:bg-primary/90 shadow-xl shadow-primary/20"
                 >
                   {verifying ? (
                     <>
@@ -267,7 +267,7 @@ function MFAChallengeContent() {
                   <button
                     id="switch-factor-btn"
                     onClick={switchFactor}
-                    className="w-full text-center text-xs text-slate-400 hover:text-blue-600 transition-colors"
+                    className="w-full text-center text-xs text-muted-foreground hover:text-primary transition-colors"
                   >
                     Can&apos;t access your authenticator? Use a backup factor
                   </button>
@@ -293,8 +293,8 @@ export default function MFAChallengePage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-slate-50">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <div className="flex min-h-screen items-center justify-center bg-muted">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       }
     >

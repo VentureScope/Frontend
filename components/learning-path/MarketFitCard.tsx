@@ -4,7 +4,7 @@ export default function MarketFitCard() {
   return (
     <div className="w-full rounded-3xl sm:rounded-[40px] bg-[#1a2436] p-6 sm:p-8 lg:p-10 text-white shadow-2xl shadow-black/40">
       {/* Header Label */}
-      <p className="mb-6 sm:mb-8 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.25em] text-slate-400/80">
+      <p className="mb-6 sm:mb-8 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground/80">
         Market Fit Score
       </p>
 
@@ -13,15 +13,15 @@ export default function MarketFitCard() {
         <span className="text-6xl sm:text-[78px] font-black leading-none tracking-tighter">
           84
         </span>
-        <span className="text-xl sm:text-2xl font-semibold text-slate-500/80">
+        <span className="text-xl sm:text-2xl font-semibold text-muted-foreground/80">
           /100
         </span>
       </div>
 
       {/* Description Text */}
-      <p className="mb-8 sm:mb-10 text-sm sm:text-[15.5px] leading-relaxed text-slate-400">
+      <p className="mb-8 sm:mb-10 text-sm sm:text-[15.5px] leading-relaxed text-muted-foreground">
         Your skills are highly competitive for{" "}
-        <span className="font-bold text-[#a5b4fc] decoration-[#a5b4fc]/30 underline-offset-4 hover:underline cursor-pointer">
+        <span className="font-bold text-[var(--brand-accent)] decoration-[var(--brand-accent)]/30 underline-offset-4 hover:underline cursor-pointer">
           Senior Data Scientist
         </span>{" "}
         roles in Fintech and Logistics.
@@ -32,7 +32,7 @@ export default function MarketFitCard() {
         {/* Technical Match */}
         <div className="space-y-2.5 sm:space-y-3.5">
           <div className="flex justify-between text-xs sm:text-[13px] font-bold">
-            <span className="text-slate-500 font-medium">Technical Match</span>
+            <span className="text-muted-foreground font-medium">Technical Match</span>
             <span className="text-white">92%</span>
           </div>
           <div className="h-1.5 w-full rounded-full bg-slate-800/80 overflow-hidden">
@@ -46,7 +46,7 @@ export default function MarketFitCard() {
         {/* Leadership Index */}
         <div className="space-y-2.5 sm:space-y-3.5">
           <div className="flex justify-between text-xs sm:text-[13px] font-bold">
-            <span className="text-slate-500 font-medium">Leadership Index</span>
+            <span className="text-muted-foreground font-medium">Leadership Index</span>
             <span className="text-white">68%</span>
           </div>
           <div className="h-1.5 w-full rounded-full bg-slate-800/80 overflow-hidden">
@@ -60,7 +60,7 @@ export default function MarketFitCard() {
 
       {/* Footer Section: Gaps Detected */}
       <div className="space-y-4 sm:space-y-5">
-        <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] text-slate-500/80">
+        <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground/80">
           Gaps Detected
         </p>
         <div className="flex flex-wrap gap-2 sm:gap-3">

@@ -1,7 +1,7 @@
 // components/learning-path/ReadinessCard.tsx
 export default function ReadinessCard() {
   return (
-    <div className="flex items-center gap-4 sm:gap-6 rounded-2xl md:rounded-[24px] bg-white p-4 sm:p-6 shadow-sm border border-slate-50">
+    <div className="flex items-center gap-4 sm:gap-6 rounded-2xl md:rounded-[24px] bg-card p-4 sm:p-6 shadow-sm border border-border">
       {/* Circular Progress */}
       <div className="relative flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center shrink-0">
         <svg className="h-full w-full -rotate-90">
@@ -25,16 +25,16 @@ export default function ReadinessCard() {
             strokeLinecap="round"
           />
         </svg>
-        <span className="absolute text-sm sm:text-lg font-black text-slate-900">
+        <span className="absolute text-sm sm:text-lg font-black text-foreground">
           75%
         </span>
       </div>
 
       <div className="space-y-0.5">
-        <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">
+        <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
           Current Readiness
         </p>
-        <h4 className="text-xl sm:text-2xl font-black text-[#1d59db] tracking-tight">
+        <h4 className="text-xl sm:text-2xl font-black text-primary tracking-tight">
           Senior Rank
         </h4>
       </div>

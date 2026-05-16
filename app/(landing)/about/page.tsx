@@ -15,26 +15,26 @@ import { marketingImages } from "@/lib/marketing-images";
 
 export default function AboutPage() {
   return (
-    <div className="bg-white">
+    <div className="bg-card">
       {/* HERO SECTION */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-24 lg:px-8">
         <div className="grid items-center gap-10 sm:gap-16 lg:grid-cols-2">
           <div className="space-y-6 sm:space-y-8 text-center lg:text-left">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 leading-[1.1]">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
               Empowering the <br />
-              <span className="text-blue-600">Next Generation</span> of <br />
+              <span className="text-primary">Next Generation</span> of <br />
               Ethiopian Tech.
             </h1>
-            <p className="max-w-lg mx-auto lg:mx-0 text-base sm:text-lg text-slate-500 leading-relaxed">
+            <p className="max-w-lg mx-auto lg:mx-0 text-base sm:text-lg text-muted-foreground leading-relaxed">
               VentureScope is the intelligence layer bridging the gap between
               academic potential and global employability for Ethiopia's rising
               tech talent.
             </p>
             <div className="flex flex-wrap justify-center lg:justify-start gap-3 sm:gap-4">
-              <div className="flex flex-1 sm:flex-none justify-center items-center gap-2 rounded-full bg-blue-50 px-4 py-2 sm:py-1.5 text-[10px] font-bold uppercase tracking-widest text-blue-700 border border-blue-100">
+              <div className="flex flex-1 sm:flex-none justify-center items-center gap-2 rounded-full bg-primary/10 px-4 py-2 sm:py-1.5 text-[10px] font-bold uppercase tracking-widest text-primary border border-primary/20">
                 <CheckCircle className="h-3 w-3 shrink-0" /> Verified Skills
               </div>
-              <div className="flex flex-1 sm:flex-none justify-center items-center gap-2 rounded-full bg-blue-50 px-4 py-2 sm:py-1.5 text-[10px] font-bold uppercase tracking-widest text-blue-700 border border-blue-100">
+              <div className="flex flex-1 sm:flex-none justify-center items-center gap-2 rounded-full bg-primary/10 px-4 py-2 sm:py-1.5 text-[10px] font-bold uppercase tracking-widest text-primary border border-primary/20">
                 <Zap className="h-3 w-3 shrink-0" /> Real-time Data
               </div>
             </div>
@@ -57,28 +57,28 @@ export default function AboutPage() {
       <AboutMarketInsights />
 
       {/* MISSION SECTION */}
-      <section className="bg-slate-50/50 py-16 sm:py-24">
+      <section className="bg-muted/50 py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 grid gap-8 sm:gap-12 lg:gap-16 lg:grid-cols-5">
           <div className="lg:col-span-2 text-center lg:text-left">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 sm:mb-6">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 sm:mb-6">
               Our Mission
             </h2>
-            <p className="text-lg sm:text-xl font-medium text-slate-500 italic leading-relaxed">
+            <p className="text-lg sm:text-xl font-medium text-muted-foreground italic leading-relaxed">
               "We believe talent is universal, but opportunity is not. We are
               here to change that narrative for every Ethiopian graduate."
             </p>
           </div>
           <div className="lg:col-span-3 space-y-6 sm:space-y-8 pt-0 sm:pt-2">
-            <h3 className="text-lg sm:text-xl font-bold text-slate-900 text-center lg:text-left">
+            <h3 className="text-lg sm:text-xl font-bold text-foreground text-center lg:text-left">
               Bridging the Academic Gap
             </h3>
-            <p className="text-sm sm:text-base text-slate-500 leading-relaxed text-center lg:text-left">
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed text-center lg:text-left">
               Every year, thousands of brilliant minds graduate from Ethiopian
               universities. Yet, a significant gap remains between their
               academic achievements and the specific requirements of the global
               tech industry.
             </p>
-            <p className="text-sm sm:text-base text-slate-500 leading-relaxed text-center lg:text-left">
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed text-center lg:text-left">
               VentureScope provides the infrastructure to map these achievements
               into actionable career pathways. By quantifying skills and
               predicting potential, we ensure that no talent goes unnoticed and
@@ -91,10 +91,10 @@ export default function AboutPage() {
       {/* BENTO GRID */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24 lg:px-8">
         <div className="text-center mb-10 sm:mb-16 space-y-3 sm:space-y-4">
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
             The Intelligence Layer
           </h2>
-          <p className="text-sm sm:text-base text-slate-500">
+          <p className="text-sm sm:text-base text-muted-foreground">
             How we use data to transform career scouting and recruitment.
           </p>
         </div>
@@ -106,11 +106,11 @@ export default function AboutPage() {
               <Terminal size={180} />
             </div>
             <div className="relative z-10">
-              <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/10 mb-4">
+              <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-card/10 mb-4">
                 <Terminal size={24} />
               </span>
               <h3 className="text-2xl font-bold mb-2">GitHub Analytics</h3>
-              <p className="text-slate-400 text-sm max-w-md leading-relaxed">
+              <p className="text-muted-foreground text-sm max-w-md leading-relaxed">
                 We analyze real-world contributions, repository velocity, and
                 code quality to verify technical proficiency beyond the CV.
               </p>
@@ -118,13 +118,13 @@ export default function AboutPage() {
           </div>
 
           {/* AI Matching Card */}
-          <div className="rounded-[32px] bg-blue-600 p-8 text-white flex flex-col justify-between">
+          <div className="rounded-[32px] bg-primary p-8 text-white flex flex-col justify-between">
             <div>
-              <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 mb-4">
+              <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-card/20 mb-4">
                 <Sparkles size={24} />
               </span>
               <h3 className="text-2xl font-bold mb-2">AI-Powered Matching</h3>
-              <p className="text-blue-100 text-sm leading-relaxed">
+              <p className="text-primary-foreground/80 text-sm leading-relaxed">
                 Predictive algorithms that connect graduates with the roles
                 where they are most likely to excel.
               </p>
@@ -132,15 +132,15 @@ export default function AboutPage() {
           </div>
 
           {/* eStudent Data Card */}
-          <div className="rounded-[32px] bg-blue-50 p-8 flex flex-col justify-between">
+          <div className="rounded-[32px] bg-primary/10 p-8 flex flex-col justify-between">
             <div>
-              <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-200 mb-4">
-                <Award size={24} className="text-blue-700" />
+              <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/30 mb-4">
+                <Award size={24} className="text-primary" />
               </span>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">
+              <h3 className="text-2xl font-bold text-foreground mb-2">
                 eStudent Data
               </h3>
-              <p className="text-slate-500 text-sm leading-relaxed">
+              <p className="text-muted-foreground text-sm leading-relaxed">
                 Aggregating academic performance and institutional records to
                 build a foundational profile.
               </p>
@@ -148,7 +148,7 @@ export default function AboutPage() {
           </div>
 
           {/* Market Trends Card */}
-          <div className="md:col-span-2 rounded-[32px] border border-slate-100 shadow-sm p-1 overflow-hidden relative group min-h-[280px]">
+          <div className="md:col-span-2 rounded-[32px] border border-border shadow-sm p-1 overflow-hidden relative group min-h-[280px]">
             <MarketingPhoto
               src={marketingImages.aboutMarketTrends.src}
               alt={marketingImages.aboutMarketTrends.alt}
@@ -191,9 +191,9 @@ export default function AboutPage() {
               },
             ].map((item, i) => (
               <div key={i} className="space-y-4">
-                <item.icon className="h-8 w-8 text-blue-500" />
+                <item.icon className="h-8 w-8 text-primary" />
                 <h3 className="text-xl font-bold">{item.title}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">
+                <p className="text-white/70 text-sm leading-relaxed">
                   {item.desc}
                 </p>
               </div>
@@ -205,12 +205,12 @@ export default function AboutPage() {
       {/* VALUES SECTION */}
       <section className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8">
         <div className="flex flex-col justify-between items-center sm:items-start md:items-end gap-4 sm:gap-6 mb-10 sm:mb-12 md:flex-row text-center sm:text-left">
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
             The Values Driving Us
           </h2>
           <Button
             variant="outline"
-            className="w-full sm:w-auto rounded-full bg-blue-50 text-blue-600 border-none font-bold hover:bg-blue-100"
+            className="w-full sm:w-auto rounded-full bg-primary/10 text-primary border-none font-bold hover:bg-primary/15"
           >
             Join the Movement
           </Button>
@@ -237,21 +237,21 @@ export default function AboutPage() {
           ].map((v, i) => (
             <div
               key={i}
-              className="rounded-2xl bg-white p-8 border border-slate-100 shadow-sm transition-shadow hover:shadow-md"
+              className="rounded-2xl bg-card p-8 border border-border shadow-sm transition-shadow hover:shadow-md"
             >
-              <h3 className="font-bold text-slate-900 mb-2">{v.t}</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">{v.d}</p>
+              <h3 className="font-bold text-foreground mb-2">{v.t}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">{v.d}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* VISIONARIES SECTION */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24 lg:px-8 text-center bg-slate-50/50 rounded-3xl sm:rounded-[60px] mb-16 sm:mb-24">
-        <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-3 sm:mb-4">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24 lg:px-8 text-center bg-muted/50 rounded-3xl sm:rounded-[60px] mb-16 sm:mb-24">
+        <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-3 sm:mb-4">
           Our Visionaries
         </h2>
-        <p className="text-sm sm:text-base text-slate-500 max-w-2xl mx-auto mb-10 sm:mb-16">
+        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto mb-10 sm:mb-16">
           A multidisciplinary team of engineers, educators, and data scientists
           committed to Ethiopia's digital future.
         </p>
@@ -285,16 +285,16 @@ export default function AboutPage() {
             },
           ].map((t, i) => (
             <div key={i} className="space-y-3 sm:space-y-4">
-              <div className="mx-auto h-32 w-32 sm:h-44 sm:w-44 rounded-full overflow-hidden border-4 sm:border-[6px] border-white shadow-xl">
+              <div className="mx-auto h-32 w-32 sm:h-44 sm:w-44 rounded-full overflow-hidden border-4 sm:border-[6px] border-background shadow-xl">
                 <img
                   src={t.img}
-                  className="h-full w-full object-cover bg-slate-200"
+                  className="h-full w-full object-cover bg-muted"
                   alt={t.name}
                 />
               </div>
               <div>
-                <p className="font-bold text-slate-900">{t.name}</p>
-                <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">
+                <p className="font-bold text-foreground">{t.name}</p>
+                <p className="text-[10px] font-bold text-primary uppercase tracking-widest">
                   {t.role}
                 </p>
               </div>

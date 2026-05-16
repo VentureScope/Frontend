@@ -141,7 +141,7 @@ export default function GitHubCard() {
 
   if (loading && !data) {
     return (
-      <div className="flex h-full flex-col justify-between rounded-2xl sm:rounded-[32px] border border-slate-100 bg-white p-6 sm:p-8 lg:p-10 shadow-sm relative">
+      <div className="flex h-full flex-col justify-between rounded-2xl sm:rounded-[32px] border border-border bg-card p-6 sm:p-8 lg:p-10 shadow-sm relative">
         <div className="space-y-6 sm:space-y-10">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4 sm:gap-5">
@@ -159,7 +159,7 @@ export default function GitHubCard() {
             <Skeleton className="h-20 sm:h-24 w-full rounded-xl sm:rounded-2xl" />
           </div>
         </div>
-        <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-slate-50 pt-4 sm:pt-6 gap-4">
+        <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-border pt-4 sm:pt-6 gap-4">
           <div className="space-y-1 sm:space-y-2 w-full sm:w-auto flex justify-between sm:block">
             <Skeleton className="h-3 w-16 sm:w-20" />
             <Skeleton className="h-4 w-24 sm:w-32" />
@@ -171,7 +171,7 @@ export default function GitHubCard() {
   }
 
   return (
-    <div className="flex h-full flex-col justify-between rounded-2xl sm:rounded-[32px] border border-slate-100 bg-white p-6 sm:p-8 lg:p-10 shadow-sm relative">
+    <div className="flex h-full flex-col justify-between rounded-2xl sm:rounded-[32px] border border-border bg-card p-6 sm:p-8 lg:p-10 shadow-sm relative">
       <div className="space-y-6 sm:space-y-10">
         <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
           <div className="flex items-center gap-4 sm:gap-5">
@@ -179,10 +179,10 @@ export default function GitHubCard() {
               <Github className="h-6 w-6 sm:h-8 sm:w-8" />
             </div>
             <div>
-              <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+              <h3 className="text-lg sm:text-xl font-bold text-foreground">
                 GitHub Integration
               </h3>
-              <p className="text-xs sm:text-sm text-slate-500">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {isConnected
                   ? `Connected as @${displayUsername}`
                   : "Syncing technical contributions"}
@@ -190,12 +190,12 @@ export default function GitHubCard() {
             </div>
           </div>
           {isConnected ? (
-            <span className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 sm:px-3 py-1 text-[9px] sm:text-[10px] font-bold text-emerald-600 self-start">
+            <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2 sm:px-3 py-1 text-[9px] sm:text-[10px] font-bold text-emerald-700 dark:text-emerald-400 self-start">
               <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               CONNECTED
             </span>
           ) : (
-            <span className="flex items-center gap-1.5 rounded-full bg-slate-100 px-2 sm:px-3 py-1 text-[9px] sm:text-[10px] font-bold text-slate-500 self-start">
+            <span className="flex items-center gap-1.5 rounded-full bg-muted px-2 sm:px-3 py-1 text-[9px] sm:text-[10px] font-bold text-muted-foreground self-start">
               <div className="h-1.5 w-1.5 rounded-full bg-slate-400" />
               DISCONNECTED
             </span>
@@ -214,17 +214,17 @@ export default function GitHubCard() {
               key={s.label}
               className={`rounded-xl sm:rounded-2xl p-4 sm:p-6 border flex sm:block items-center justify-between sm:justify-start ${
                 isConnected
-                  ? "bg-blue-50/50 border-blue-100/50"
-                  : "bg-slate-50 border-slate-100"
+                  ? "bg-primary/10 border-primary/20/50"
+                  : "bg-muted border-border"
               }`}
             >
               <p
-                className={`text-2xl sm:text-3xl font-bold ${isConnected ? "text-blue-700" : "text-slate-400"}`}
+                className={`text-2xl sm:text-3xl font-bold ${isConnected ? "text-primary" : "text-muted-foreground"}`}
               >
                 {s.value}
               </p>
               <p
-                className={`mt-0 sm:mt-1 text-[9px] font-bold uppercase tracking-widest ${isConnected ? "text-blue-500/70" : "text-slate-400"}`}
+                className={`mt-0 sm:mt-1 text-[9px] font-bold uppercase tracking-widest ${isConnected ? "text-primary/70" : "text-muted-foreground"}`}
               >
                 {s.label}
               </p>
@@ -233,12 +233,12 @@ export default function GitHubCard() {
         </div>
       </div>
 
-      <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-between border-t border-slate-50 pt-4 sm:pt-6 gap-4 sm:gap-0">
+      <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-between border-t border-border pt-4 sm:pt-6 gap-4 sm:gap-0">
         <div className="w-full sm:w-auto flex justify-between sm:block">
-          <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             Last Synced
           </p>
-          <p className="text-[10px] sm:text-xs font-medium text-slate-600">
+          <p className="text-[10px] sm:text-xs font-medium text-muted-foreground">
             {formattedDate}
           </p>
         </div>
@@ -247,7 +247,7 @@ export default function GitHubCard() {
           disabled={syncing || loading}
           className={`group flex items-center justify-center w-full sm:w-auto gap-2 text-xs sm:text-sm font-bold transition-all ${
             isConnected
-              ? "text-blue-600 bg-blue-50 sm:bg-transparent py-3 sm:py-0 rounded-xl sm:rounded-none hover:text-blue-700"
+              ? "text-primary bg-primary/10 sm:bg-transparent py-3 sm:py-0 rounded-xl sm:rounded-none hover:text-primary/90"
               : "px-4 py-3 sm:py-2 bg-slate-900 text-white rounded-xl sm:rounded-lg hover:bg-slate-800"
           } ${syncing || loading ? "opacity-50 cursor-not-allowed" : ""}`}
         >

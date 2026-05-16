@@ -21,7 +21,7 @@ function careerToRole(c: TrendingCareer, i: number): Role {
       ? "bg-red-100 text-red-700"
       : demand === "EMERGING"
         ? "bg-purple-100 text-purple-700"
-        : "bg-blue-100 text-blue-700";
+        : "bg-primary/15 text-primary";
   const icons = ["☁️", "</> ", "📊", "🧠", "🎨", "🛡️"];
   return {
     id: `live-${i}-${c.name.slice(0, 24)}`,
@@ -78,12 +78,12 @@ export default function Step1RoleSelection() {
 
   return (
     <div className="w-full flex justify-center">
-      <div className="w-full bg-white rounded-3xl shadow-sm border border-slate-200">
-        <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-8 sm:px-8 flex items-start gap-4 rounded-t-3xl">
+      <div className="w-full bg-card rounded-3xl shadow-sm border border-border">
+        <div className="sticky top-0 bg-card border-b border-border px-6 py-8 sm:px-8 flex items-start gap-4 rounded-t-3xl">
           <button
             type="button"
             onClick={() => closeFlow()}
-            className="flex-shrink-0 mt-1 p-2 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200"
+            className="flex-shrink-0 mt-1 p-2 hover:bg-muted rounded-lg transition-colors border border-border"
           >
             <span className="sr-only">Go back</span>
             <svg
@@ -96,19 +96,19 @@ export default function Step1RoleSelection() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="text-slate-600"
+              className="text-muted-foreground"
             >
               <path d="m15 18-6-6 6-6" />
             </svg>
           </button>
           <div className="flex-1">
-            <p className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2">
+            <p className="text-xs font-bold uppercase tracking-widest text-primary mb-2">
               Step 1 of 4
             </p>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
+            <h2 className="text-2xl sm:text-3xl font-black text-foreground">
               Select Target Role
             </h2>
-            <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
               Pick a role that matches where you want to go next. Suggestions reflect
               current market demand.
             </p>
@@ -116,27 +116,27 @@ export default function Step1RoleSelection() {
           <button
             type="button"
             onClick={() => closeFlow()}
-            className="flex-shrink-0 mt-1 p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            className="flex-shrink-0 mt-1 p-2 hover:bg-muted rounded-lg transition-colors"
           >
-            <X className="w-5 h-5 text-slate-400" />
+            <X className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
 
-        <div className="px-6 py-6 sm:px-8 border-b border-slate-100">
+        <div className="px-6 py-6 sm:px-8 border-b border-border">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search for any professional role..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full bg-muted border border-border rounded-2xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         </div>
 
         <div className="px-6 py-8 sm:px-8">
-          <h3 className="text-sm font-bold text-slate-900 mb-6 flex items-center gap-2">
+          <h3 className="text-sm font-bold text-foreground mb-6 flex items-center gap-2">
             <span className="inline-block">Trending Roles</span>
             <span className="text-xs font-bold text-red-600">
               Live market data
@@ -144,7 +144,7 @@ export default function Step1RoleSelection() {
           </h3>
 
           {loading ? (
-            <div className="flex justify-center py-16 text-slate-500 gap-2">
+            <div className="flex justify-center py-16 text-muted-foreground gap-2">
               <Loader2 className="h-6 w-6 animate-spin" />
               Loading roles…
             </div>
@@ -155,7 +155,7 @@ export default function Step1RoleSelection() {
                   key={role.id}
                   type="button"
                   onClick={() => handleSelectRole(role)}
-                  className="text-left p-6 bg-gradient-to-br from-slate-50 to-slate-100 hover:from-blue-50 hover:to-slate-100 border border-slate-200 hover:border-blue-300 rounded-2xl transition-all hover:shadow-md active:scale-98"
+                  className="text-left p-6 bg-gradient-to-br from-slate-50 to-slate-100 hover:from-blue-50 hover:to-slate-100 border border-border hover:border-blue-300 rounded-2xl transition-all hover:shadow-md active:scale-98"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="text-3xl">{role.icon}</div>
@@ -165,10 +165,10 @@ export default function Step1RoleSelection() {
                       {role.demand}
                     </span>
                   </div>
-                  <h4 className="text-lg font-bold text-slate-900 mb-2">
+                  <h4 className="text-lg font-bold text-foreground mb-2">
                     {role.title}
                   </h4>
-                  <p className="text-sm text-slate-600 mb-4">{role.description}</p>
+                  <p className="text-sm text-muted-foreground mb-4">{role.description}</p>
                   <div className="flex items-center gap-2 text-xs font-semibold text-green-600">
                     <TrendingUp className="w-4 h-4" />
                     <span>+{role.trend}% signal</span>
@@ -176,7 +176,7 @@ export default function Step1RoleSelection() {
                 </button>
               ))}
               {filteredRoles.length === 0 && (
-                <p className="text-sm text-slate-500 col-span-full text-center py-8">
+                <p className="text-sm text-muted-foreground col-span-full text-center py-8">
                   No roles match your search.
                 </p>
               )}

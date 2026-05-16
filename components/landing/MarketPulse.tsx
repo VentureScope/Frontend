@@ -66,11 +66,11 @@ export default function MarketPulse() {
   return (
     <section className="relative overflow-hidden py-20 sm:py-28">
       <div
-        className="pointer-events-none absolute inset-0 bg-linear-to-b from-blue-50/80 via-white to-slate-50/50"
+        className="pointer-events-none absolute inset-0 bg-linear-to-b from-primary/10 via-background to-muted/50"
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-blue-200/30 blur-3xl"
+        className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-primary/30/30 blur-3xl"
         aria-hidden
       />
       <div
@@ -79,27 +79,27 @@ export default function MarketPulse() {
       />
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-6 sm:p-10 shadow-sm backdrop-blur-sm">
+        <div className="rounded-3xl border border-border/80 bg-card/90 p-6 sm:p-10 shadow-sm backdrop-blur-sm">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl space-y-4">
-              <span className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-blue-700">
+              <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
                 <Radio className="h-3 w-3" />
                 Live market pulse
               </span>
-              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 leading-tight">
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground leading-tight">
                 Ethiopia Tech Market Pulse
               </h2>
-              <p className="text-base text-slate-500 leading-relaxed">
+              <p className="text-base text-muted-foreground leading-relaxed">
                 Hiring signals from VentureScope—see which skills and roles are
                 gaining traction across the tech economy.
               </p>
               {headline && !loading && (
-                <p className="text-sm text-slate-600 leading-relaxed rounded-xl bg-slate-50 border border-slate-100 px-4 py-3">
+                <p className="text-sm text-muted-foreground leading-relaxed rounded-xl bg-muted border border-border px-4 py-3">
                   {headline}
                 </p>
               )}
               {usingFallback && !loading && (
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-muted-foreground">
                   Showing sample market data while live feeds reconnect.
                 </p>
               )}
@@ -107,7 +107,7 @@ export default function MarketPulse() {
             <Button
               asChild
               size="lg"
-              className="h-12 shrink-0 rounded-full bg-[#1d59db] px-7 font-semibold shadow-lg shadow-blue-200/60 hover:bg-blue-700"
+              className="h-12 shrink-0 rounded-full bg-primary px-7 font-semibold shadow-lg shadow-primary/20/60 hover:bg-primary/90"
             >
               <Link href="/market-insight" className="gap-2">
                 Full market report
@@ -122,7 +122,7 @@ export default function MarketPulse() {
             ) : (
               <div className="grid gap-5 lg:grid-cols-12 lg:items-stretch">
                 <div className="lg:col-span-5 flex">
-                  <div className="flex-1 rounded-2xl border border-slate-100 bg-slate-50/50 p-5 sm:p-6">
+                  <div className="flex-1 rounded-2xl border border-border bg-muted/50 p-5 sm:p-6">
                     <SkillDemandPanel
                       skills={skills}
                       loading={false}
@@ -133,7 +133,7 @@ export default function MarketPulse() {
                 </div>
 
                 <div className="lg:col-span-4 flex">
-                  <div className="flex-1 rounded-2xl border border-slate-100 bg-slate-50/50 p-5 sm:p-6">
+                  <div className="flex-1 rounded-2xl border border-border bg-muted/50 p-5 sm:p-6">
                     <TrendingRolesPanel
                       careers={trending}
                       loading={false}

@@ -3,7 +3,7 @@ import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 export default function AtsAnalytics() {
   return (
-    <div className="space-y-7 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:space-y-10 sm:p-7 lg:rounded-[40px] lg:p-10">
+    <div className="space-y-7 rounded-3xl border border-border bg-card p-5 shadow-sm sm:space-y-10 sm:p-7 lg:rounded-[40px] lg:p-10">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8 lg:gap-10">
         {/* ATS Score Circle */}
         <div className="relative flex h-24 w-24 shrink-0 items-center justify-center sm:h-28 sm:w-28">
@@ -29,17 +29,17 @@ export default function AtsAnalytics() {
             />
           </svg>
           <div className="absolute flex flex-col items-center">
-            <span className="text-2xl font-black text-slate-900 sm:text-3xl">
+            <span className="text-2xl font-black text-foreground sm:text-3xl">
               88
             </span>
-            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
               ATS Score
             </span>
           </div>
         </div>
 
         <div className="w-full flex-1 space-y-3 sm:space-y-4">
-          <h3 className="text-lg font-bold text-slate-900">
+          <h3 className="text-lg font-bold text-foreground">
             Critical Suggestions
           </h3>
           <div className="space-y-2">
@@ -49,7 +49,7 @@ export default function AtsAnalytics() {
                 Missing keyword: "Stakeholder Management"
               </span>
             </div>
-            <div className="flex items-start gap-2 text-[13px] font-bold text-blue-600">
+            <div className="flex items-start gap-2 text-[13px] font-bold text-primary">
               <CheckCircle2 size={16} className="mt-0.5 shrink-0" />
               <span className="wrap-break-word">
                 Quantifiable results found (40% increase)
@@ -60,12 +60,12 @@ export default function AtsAnalytics() {
       </div>
 
       <div className="space-y-3">
-        <div className="flex justify-between gap-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 sm:text-[11px]">
+        <div className="flex justify-between gap-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground sm:text-[11px]">
           <span>Keyword Density</span>
           <span>Optimal (4.2%)</span>
         </div>
-        <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
-          <div className="h-full w-[80%] bg-blue-600 rounded-full" />
+        <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+          <div className="h-full w-[80%] bg-primary rounded-full" />
         </div>
       </div>
     </div>

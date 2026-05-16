@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useEffect } from "react";
 import { Bot, Paperclip, ArrowUp, Mic } from "lucide-react";
@@ -28,9 +28,9 @@ export default function ChatInterface() {
 
   if (!activeSession) {
     return (
-      <div className="flex flex-col h-full items-center justify-center p-6 text-slate-500">
-        <Bot size={48} className="text-blue-200 mb-4" />
-        <h2 className="text-xl font-bold text-slate-700">
+      <div className="flex flex-col h-full items-center justify-center p-6 text-muted-foreground">
+        <Bot size={48} className="text-primary/30 mb-4" />
+        <h2 className="text-xl font-bold text-foreground">
           VentureScope Advisor
         </h2>
         <p className="text-sm mt-2 max-w-md text-center">
@@ -43,16 +43,16 @@ export default function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full relative">
-      <div className="flex items-center justify-between p-4 shrink-0 sm:p-6 border-b border-slate-100 bg-white/50">
+      <div className="flex items-center justify-between p-4 shrink-0 sm:p-6 border-b border-border bg-card/50">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+          <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
             <Bot size={16} />
           </div>
           <div className="truncate">
-            <h3 className="font-bold text-sm text-slate-900 truncate">
+            <h3 className="font-bold text-sm text-foreground truncate">
               {activeSession.title}
             </h3>
-            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-medium truncate">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium truncate">
               {isConnecting ? "Connecting..." : "Connected"}
             </p>
           </div>
@@ -68,7 +68,7 @@ export default function ChatInterface() {
               className={`flex gap-3 sm:gap-4 md:max-w-3xl ${isUser ? "justify-end ml-auto" : ""}`}
             >
               {!isUser && (
-                <div className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 rounded-lg bg-blue-600 flex items-center justify-center text-white mt-1">
+                <div className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 rounded-lg bg-primary flex items-center justify-center text-primary-foreground mt-1">
                   <Bot size={20} className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
               )}
@@ -78,8 +78,8 @@ export default function ChatInterface() {
                 <div
                   className={`rounded-2xl p-4 sm:p-6 leading-relaxed shadow-sm ${
                     isUser
-                      ? "rounded-tr-none bg-blue-600 text-white shadow-blue-500/10"
-                      : "rounded-tl-none bg-blue-50/50 border border-blue-100/30 text-slate-700"
+                      ? "rounded-tr-none bg-primary text-primary-foreground shadow-primary/10"
+                      : "rounded-tl-none bg-primary/10 border border-primary/20 text-muted-foreground"
                   }`}
                 >
                   <div className="whitespace-pre-wrap text-sm wrap-break-word">
@@ -88,7 +88,7 @@ export default function ChatInterface() {
                 </div>
               </div>
               {isUser && (
-                <div className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 rounded-full border border-slate-200 overflow-hidden bg-slate-100 mt-1">
+                <div className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 rounded-full border border-border overflow-hidden bg-muted mt-1">
                   <img
                     src="https://api.dicebear.com/7.x/avataaars/svg?seed=User"
                     alt="User"
@@ -102,15 +102,15 @@ export default function ChatInterface() {
 
         {isTyping && (
           <div className="flex gap-3 sm:gap-4 md:max-w-3xl">
-            <div className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 rounded-lg bg-blue-600 flex items-center justify-center text-white mt-1">
+            <div className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 rounded-lg bg-primary flex items-center justify-center text-primary-foreground mt-1">
               <Bot size={20} className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div className="space-y-2 sm:space-y-4 w-full">
-              <div className="rounded-2xl p-4 sm:p-6 leading-relaxed shadow-sm rounded-tl-none bg-blue-50/50 border border-blue-100/30 text-slate-700 w-fit">
+              <div className="rounded-2xl p-4 sm:p-6 leading-relaxed shadow-sm rounded-tl-none bg-primary/10 border border-primary/20 text-muted-foreground w-fit">
                 <div className="flex space-x-1 items-center justify-center h-4">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-600 rounded-full animate-bounce"></div>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full animate-bounce"></div>
                 </div>
               </div>
             </div>
@@ -119,9 +119,9 @@ export default function ChatInterface() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-3 sm:p-6 lg:p-10 border-t border-slate-100 bg-white">
+      <div className="p-3 sm:p-6 lg:p-10 border-t border-border bg-card">
         <div className="mx-auto max-w-4xl flex items-center gap-2 sm:gap-4">
-          <button className="text-slate-400 hover:text-slate-600 p-1.5 sm:p-2 transition-colors shrink-0">
+          <button className="text-muted-foreground hover:text-foreground p-1.5 sm:p-2 transition-colors shrink-0">
             <Paperclip className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5" />
           </button>
           <div className="relative flex-1 min-w-0">
@@ -134,17 +134,17 @@ export default function ChatInterface() {
               placeholder={
                 isConnecting ? "Connecting..." : "Ask your advisor..."
               }
-              className="w-full h-12 sm:h-14 bg-slate-50 border-none rounded-xl sm:rounded-2xl px-4 sm:px-6 pr-12 sm:pr-14 text-xs sm:text-sm text-slate-700 focus:ring-2 focus:ring-blue-100 outline-none disabled:opacity-50"
+              className="w-full h-12 sm:h-14 bg-muted border-none rounded-xl sm:rounded-2xl px-4 sm:px-6 pr-12 sm:pr-14 text-xs sm:text-sm text-foreground focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50"
             />
             <button
               onClick={handleSend}
               disabled={isConnecting || !input.trim()}
-              className="absolute right-1 sm:right-2 top-1 sm:top-2 h-10 w-10 bg-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center text-white hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:bg-blue-400 shrink-0"
+              className="absolute right-1 sm:right-2 top-1 sm:top-2 h-10 w-10 bg-primary rounded-lg sm:rounded-xl flex items-center justify-center text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:bg-primary/50 shrink-0"
             >
               <ArrowUp size={18} className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
-          <button className="text-slate-400 hover:text-slate-600 p-1.5 sm:p-2 transition-colors shrink-0">
+          <button className="text-muted-foreground hover:text-foreground p-1.5 sm:p-2 transition-colors shrink-0">
             <Mic className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5" />
           </button>
         </div>

@@ -98,20 +98,20 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div 
-        className="relative w-full max-w-md overflow-hidden rounded-[32px] bg-white shadow-2xl animate-in zoom-in-95 duration-300"
+        className="relative w-full max-w-md overflow-hidden rounded-[32px] bg-card shadow-2xl animate-in zoom-in-95 duration-300"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button 
           onClick={onClose}
-          className="absolute right-6 top-6 z-10 rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+          className="absolute right-6 top-6 z-10 rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-muted-foreground transition-colors"
         >
           <X size={20} />
         </button>
 
         {/* Header */}
-        <div className="bg-[#1d59db] px-8 py-10 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
+        <div className="bg-primary px-8 py-10 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-card/20 backdrop-blur-sm">
             <ShieldCheck className="h-8 w-8 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-white">
@@ -131,7 +131,7 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
             <div className="space-y-6">
               <Field>
                 <FieldLabel className="w-full">
-                  <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                  <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
                     Authenticator Name
                   </FieldTitle>
                   <Input 
@@ -143,7 +143,7 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
                         startEnrollment();
                       }
                     }}
-                    className="h-12 rounded-xl bg-slate-50 border-none font-bold px-4 text-slate-900"
+                    className="h-12 rounded-xl bg-muted border-none font-bold px-4 text-foreground"
                     autoFocus
                   />
                 </FieldLabel>
@@ -151,7 +151,7 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
               <Button 
                 onClick={startEnrollment}
                 disabled={isLoading || !friendlyName.trim()}
-                className="h-12 w-full rounded-xl bg-[#1d59db] font-bold text-white shadow-lg hover:bg-blue-700"
+                className="h-12 w-full rounded-xl bg-primary font-bold text-white shadow-lg hover:bg-primary/90"
               >
                 {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Continue Setup"}
               </Button>
@@ -161,7 +161,7 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
           {/* STEP 2: QR CODE */}
           {step === "qr" && enrollData && (
             <div className="flex flex-col items-center space-y-6">
-              <div className="rounded-2xl border-2 border-slate-100 p-4 bg-white shadow-inner">
+              <div className="rounded-2xl border-2 border-border p-4 bg-card shadow-inner">
                 <Image 
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(enrollData.totp_uri)}`}
                   alt="MFA QR Code"
@@ -172,16 +172,16 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
               </div>
               
               <div className="w-full space-y-3">
-                <p className="text-center text-xs font-medium text-slate-400">
+                <p className="text-center text-xs font-medium text-muted-foreground">
                   Can&apos;t scan? Enter the secret manually:
                 </p>
-                <div className="flex items-center gap-2 rounded-xl bg-slate-50 p-2 border border-slate-100">
-                  <code className="flex-1 px-3 text-sm font-mono font-bold text-slate-600 overflow-hidden text-ellipsis">
+                <div className="flex items-center gap-2 rounded-xl bg-muted p-2 border border-border">
+                  <code className="flex-1 px-3 text-sm font-mono font-bold text-muted-foreground overflow-hidden text-ellipsis">
                     {enrollData.secret}
                   </code>
                   <button 
                     onClick={copySecret}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-white shadow-sm border border-slate-200 text-slate-500 hover:text-blue-600"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-card shadow-sm border border-border text-muted-foreground hover:text-primary"
                   >
                     {copied ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
                   </button>
@@ -190,7 +190,7 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
 
               <Button 
                 onClick={() => setStep("verify")}
-                className="h-12 w-full rounded-xl bg-[#1d59db] font-bold text-white shadow-lg hover:bg-blue-700"
+                className="h-12 w-full rounded-xl bg-primary font-bold text-white shadow-lg hover:bg-primary/90"
               >
                 I&apos;ve Scanned the Code
               </Button>
@@ -202,7 +202,7 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
             <div className="space-y-6">
               <div className="text-center">
                 <Smartphone className="mx-auto mb-4 h-12 w-12 text-blue-100" />
-                <p className="text-sm font-medium text-slate-600">
+                <p className="text-sm font-medium text-muted-foreground">
                   Enter the 6-digit code from your app
                 </p>
               </div>
@@ -222,14 +222,14 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
                     handleVerify();
                   }
                 }}
-                className="h-14 rounded-xl border-2 border-blue-100 bg-[#f0f4ff] text-center text-2xl font-bold tracking-[0.5em] text-slate-900 focus:border-blue-600 focus:bg-white transition-all"
+                className="h-14 rounded-xl border-2 border-primary/20 bg-muted text-center text-2xl font-bold tracking-[0.5em] text-foreground focus:border-primary focus:bg-card transition-all"
                 autoFocus
               />
 
               <Button 
                 onClick={handleVerify}
                 disabled={isLoading || otpCode.length !== 6}
-                className="h-12 w-full rounded-xl bg-[#1d59db] font-bold text-white shadow-lg hover:bg-blue-700"
+                className="h-12 w-full rounded-xl bg-primary font-bold text-white shadow-lg hover:bg-primary/90"
               >
                 {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Verify & Enable"}
               </Button>
@@ -243,8 +243,8 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
                 <CheckCircle2 size={48} />
               </div>
               <div className="text-center space-y-2">
-                <h3 className="text-xl font-bold text-slate-900">MFA is Active</h3>
-                <p className="text-sm text-slate-500 leading-relaxed px-4">
+                <h3 className="text-xl font-bold text-foreground">MFA is Active</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed px-4">
                   Your account security has been upgraded. You will be asked for a code on your next sign-in.
                 </p>
               </div>

@@ -16,14 +16,14 @@ export default function AdvisorTipCard() {
 
       {/* Content */}
       <div className="relative z-10 flex h-full flex-col justify-end p-6 pb-8 sm:p-10 sm:pb-12">
-        <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/20 text-blue-400 backdrop-blur-md border border-blue-400/20 shrink-0">
+        <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-[var(--brand-accent)] backdrop-blur-md border border-[var(--brand-accent)]/20 shrink-0">
           <Lightbulb className="h-5 w-5" />
         </div>
 
         <h3 className="mb-2 text-lg sm:text-xl font-black text-white tracking-tight">
           Pro Advisor Tip
         </h3>
-        <p className="text-sm sm:text-[15px] font-medium italic leading-relaxed text-slate-300">
+        <p className="text-sm sm:text-[15px] font-medium italic leading-relaxed text-muted-foreground/50">
           "For Senior roles, recruiters prioritize 'System Thinking' over raw
           coding speed. Focus on how your models impact the bottom line."
         </p>

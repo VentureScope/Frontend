@@ -9,20 +9,20 @@ const skills = [
 
 export default function InDemandSkills() {
   return (
-    <div className="rounded-[28px] sm:rounded-[32px] border border-slate-100 bg-white p-6 sm:p-8 shadow-sm">
-      <h3 className="mb-6 sm:mb-8 text-lg sm:text-xl font-bold text-[#0f172a]">
+    <div className="rounded-[28px] sm:rounded-[32px] border border-border bg-card p-6 sm:p-8 shadow-sm">
+      <h3 className="mb-6 sm:mb-8 text-lg sm:text-xl font-bold text-foreground">
         In-Demand Skills
       </h3>
       <div className="space-y-6 sm:space-y-8">
         {skills.map((s) => (
           <div key={s.name} className="space-y-2 sm:space-y-3">
             <div className="flex justify-between text-xs sm:text-sm font-bold">
-              <span className="text-slate-800">{s.name}</span>
-              <span className="text-blue-600">{s.match} Match</span>
+              <span className="text-foreground">{s.name}</span>
+              <span className="text-primary">{s.match} Match</span>
             </div>
-            <div className="h-1.5 sm:h-2 w-full overflow-hidden rounded-full bg-slate-100">
+            <div className="h-1.5 sm:h-2 w-full overflow-hidden rounded-full bg-muted">
               <div
-                className="h-full bg-blue-600 transition-all"
+                className="h-full bg-primary transition-all"
                 style={{ width: `${s.val}%` }}
               />
             </div>

@@ -150,11 +150,11 @@ export default function LearningPathPage() {
   const getIcon = (iconName: string) => {
     switch (iconName) {
       case "BarChart3":
-        return <BarChart3 className="h-5 w-5 text-blue-600" />;
+        return <BarChart3 className="h-5 w-5 text-primary" />;
       case "Cloud":
-        return <Cloud className="h-5 w-5 text-blue-600" />;
+        return <Cloud className="h-5 w-5 text-primary" />;
       default:
-        return <BarChart3 className="h-5 w-5 text-blue-600" />;
+        return <BarChart3 className="h-5 w-5 text-primary" />;
     }
   };
 
@@ -187,7 +187,7 @@ export default function LearningPathPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] pb-20">
+    <div className="min-h-screen bg-background pb-20">
       <div className="mx-auto max-w-6xl px-4 pt-12 sm:px-6 lg:px-8">
         <HeaderSection />
         <TabNavigation
@@ -199,13 +199,13 @@ export default function LearningPathPage() {
         {loading ? (
           <LearningPathListSkeleton />
         ) : filteredPaths.length === 0 ? (
-          <p className="mt-10 text-center text-sm text-slate-500">
+          <p className="mt-10 text-center text-sm text-muted-foreground">
             {activeTabId === FUTURE_PREDICTIONS_TAB
               ? "No future-prediction roadmaps yet. Generate one from a predicted role."
               : "No current-trend roadmaps yet."}{" "}
             <button
               type="button"
-              className="text-blue-600 underline"
+              className="text-primary underline"
               onClick={() =>
                 router.push("/dashboard/learning-path/new-roadmap")
               }

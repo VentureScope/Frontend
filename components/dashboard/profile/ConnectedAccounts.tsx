@@ -50,20 +50,20 @@ export default function ConnectedAccounts() {
 
   if (loading) {
     return (
-      <div className="relative rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
-        <div className="mb-6 flex items-center gap-2 text-slate-300">
+      <div className="relative rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
+        <div className="mb-6 flex items-center gap-2 text-muted-foreground/50">
           <Skeleton className="h-4 w-4" />
           <Skeleton className="h-3 w-32" />
         </div>
         <div className="space-y-3">
-          <div className="flex flex-col gap-2 rounded-xl border border-slate-100 bg-slate-50/50 p-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2 rounded-xl border border-border bg-muted/50 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <Skeleton className="h-4 w-4 rounded-full" />
               <Skeleton className="h-4 w-24" />
             </div>
             <Skeleton className="h-4 w-12" />
           </div>
-          <div className="flex flex-col gap-2 rounded-xl border border-slate-100 bg-slate-50/50 p-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2 rounded-xl border border-border bg-muted/50 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <Skeleton className="h-4 w-4 rounded-full" />
               <Skeleton className="h-4 w-24" />
@@ -76,8 +76,8 @@ export default function ConnectedAccounts() {
   }
 
   return (
-    <div className="relative rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
-      <div className="mb-6 flex items-center gap-2 text-blue-600">
+    <div className="relative rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
+      <div className="mb-6 flex items-center gap-2 text-primary">
         <Share2 size={18} />
         <span className="text-[10px] font-bold uppercase tracking-widest">
           Connected Accounts
@@ -90,32 +90,32 @@ export default function ConnectedAccounts() {
           className={
             "flex flex-col gap-2 rounded-xl border p-3 sm:flex-row sm:items-center sm:justify-between " +
             (hasGithub
-              ? "bg-[#f4f7ff] border-blue-100"
-              : "bg-slate-50/50 border-slate-100")
+              ? "bg-primary/5 border-primary/20"
+              : "bg-muted/50 border-border")
           }
         >
           <div className="flex min-w-0 items-center gap-3">
             <Github
               size={18}
-              className={hasGithub ? "text-blue-600" : "text-slate-600"}
+              className={hasGithub ? "text-primary" : "text-muted-foreground"}
             />
             <span
               className={
                 "min-w-0 break-all text-sm font-bold " +
-                (hasGithub ? "text-slate-900" : "text-slate-700")
+                (hasGithub ? "text-foreground" : "text-muted-foreground")
               }
             >
               {hasGithub ? `GitHub (@${githubUsername})` : "GitHub"}
             </span>
           </div>
           {hasGithub ? (
-            <span className="self-start rounded-md bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600 sm:self-auto">
+            <span className="self-start rounded-md bg-emerald-500/15 px-2 py-1 text-[9px] font-bold text-emerald-700 dark:text-emerald-400 sm:self-auto">
               LINKED
             </span>
           ) : (
             <Link
               href="/dashboard/settings"
-              className="self-start text-[10px] font-bold text-blue-600 hover:underline sm:self-auto"
+              className="self-start text-[10px] font-bold text-primary hover:underline sm:self-auto"
             >
               CONNECT
             </Link>
@@ -127,32 +127,32 @@ export default function ConnectedAccounts() {
           className={
             "flex flex-col gap-2 rounded-xl border p-3 sm:flex-row sm:items-center sm:justify-between " +
             (hasAcademic
-              ? "bg-[#eff6ff] border-blue-100"
-              : "bg-slate-50/50 border-slate-100")
+              ? "bg-primary/10 border-primary/20"
+              : "bg-muted/50 border-border")
           }
         >
           <div className="flex items-center gap-3">
             <GraduationCap
               size={18}
-              className={hasAcademic ? "text-blue-600" : "text-slate-400"}
+              className={hasAcademic ? "text-primary" : "text-muted-foreground"}
             />
             <span
               className={
                 "text-sm font-bold " +
-                (hasAcademic ? "text-slate-900" : "text-slate-700")
+                (hasAcademic ? "text-foreground" : "text-muted-foreground")
               }
             >
               Academic Portal
             </span>
           </div>
           {hasAcademic ? (
-            <span className="self-start rounded-md bg-emerald-50 px-2 py-1 text-[9px] font-bold tracking-widest text-emerald-600 sm:self-auto">
+            <span className="self-start rounded-md bg-emerald-500/15 px-2 py-1 text-[9px] font-bold tracking-widest text-emerald-700 dark:text-emerald-400 sm:self-auto">
               SYNCED
             </span>
           ) : (
             <Link
               href="/dashboard/settings"
-              className="self-start text-[10px] font-bold text-blue-600 hover:underline sm:self-auto"
+              className="self-start text-[10px] font-bold text-primary hover:underline sm:self-auto"
             >
               CONNECT
             </Link>

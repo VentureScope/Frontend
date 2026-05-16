@@ -303,15 +303,15 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] px-4 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-10 xl:px-12">
+    <div className="min-h-screen bg-background px-4 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-10 xl:px-12">
       <div className="mx-auto max-w-6xl space-y-8 sm:space-y-10 lg:space-y-12">
         {/* --- GLOBAL HEADER --- */}
         <header className="flex flex-col justify-between gap-5 sm:gap-6 md:flex-row md:items-end">
           <div className="space-y-2">
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#1d59db]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">
               Command Center
             </p>
-            <h1 className="text-3xl font-black tracking-tight text-[#0f172a] sm:text-4xl lg:text-5xl">
+            <h1 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl lg:text-5xl">
               Settings
             </h1>
           </div>
@@ -320,14 +320,14 @@ export default function SettingsPage() {
               onClick={() => form.reset(profileDefaults)}
               disabled={activeTab !== "profile" || form.formState.isSubmitting}
               variant="outline"
-              className="h-12 w-full rounded-2xl border-slate-200 bg-white px-6 font-bold text-slate-500 hover:bg-slate-50 sm:h-14 sm:w-auto sm:px-10"
+              className="h-12 w-full rounded-2xl border-border bg-card px-6 font-bold text-muted-foreground hover:bg-muted sm:h-14 sm:w-auto sm:px-10"
             >
               Discard
             </Button>
             <Button
               onClick={form.handleSubmit(onProfileSubmit)}
               disabled={activeTab !== "profile" || form.formState.isSubmitting}
-              className="h-12 w-full rounded-2xl bg-[#1d59db] px-6 font-bold text-white shadow-xl shadow-blue-500/20 transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:h-14 sm:w-auto sm:px-12"
+              className="h-12 w-full rounded-2xl bg-primary px-6 font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 sm:h-14 sm:w-auto sm:px-12"
             >
               {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
             </Button>
@@ -344,14 +344,14 @@ export default function SettingsPage() {
                 className={cn(
                   "flex w-full items-center gap-3 rounded-2xl border border-transparent px-4 py-3 text-left text-sm font-bold transition-all sm:px-5 sm:py-4 lg:gap-4 lg:px-6 lg:py-5",
                   activeTab === item.id
-                    ? "bg-white text-[#1d59db] shadow-sm border-slate-100"
-                    : "text-slate-400 hover:text-slate-600 hover:bg-slate-50",
+                    ? "bg-card text-primary shadow-sm border-border"
+                    : "text-muted-foreground hover:text-muted-foreground hover:bg-muted",
                 )}
               >
                 <item.icon
                   size={20}
                   className={
-                    activeTab === item.id ? "text-[#1d59db]" : "text-slate-300"
+                    activeTab === item.id ? "text-primary" : "text-muted-foreground/50"
                   }
                 />
                 {item.label}
@@ -364,25 +364,25 @@ export default function SettingsPage() {
             {/* 1. PROFILE IDENTITY */}
             {activeTab === "profile" && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-10">
+                <div className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-10">
                   <div className="mb-8 flex flex-col gap-6 sm:mb-10 sm:gap-8 md:flex-row md:items-center lg:mb-12 lg:gap-10">
                     <div className="relative group">
-                      <div className="h-28 w-28 overflow-hidden rounded-full border-[6px] border-white bg-slate-100 shadow-2xl ring-1 ring-slate-100 sm:h-32 sm:w-32 lg:h-36 lg:w-36">
+                      <div className="h-28 w-28 overflow-hidden rounded-full border-[6px] border-background bg-muted shadow-2xl ring-1 ring-border sm:h-32 sm:w-32 lg:h-36 lg:w-36">
                         <img
                           src={profile.avatarUrl}
                           alt={profile.fullName}
                           className="h-full w-full object-cover"
                         />
                       </div>
-                      <button className="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-blue-600 text-white shadow-lg transition-transform hover:scale-110 hover:bg-blue-700 sm:h-11 sm:w-11">
+                      <button className="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full border-4 border-background bg-primary text-white shadow-lg transition-transform hover:scale-110 hover:bg-primary/90 sm:h-11 sm:w-11">
                         <Camera size={18} />
                       </button>
                     </div>
                     <div className="space-y-2">
-                      <h3 className="text-2xl font-black text-[#0f172a] sm:text-3xl">
+                      <h3 className="text-2xl font-black text-foreground sm:text-3xl">
                         Public Identity
                       </h3>
-                      <p className="text-slate-400 max-w-sm leading-relaxed">
+                      <p className="text-muted-foreground max-w-sm leading-relaxed">
                         This data informs your market alignment scores and
                         career-fit recommendations.
                       </p>
@@ -395,12 +395,12 @@ export default function SettingsPage() {
                   >
                     <Field>
                       <FieldLabel className="w-full">
-                        <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                        <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
                           Full Name
                         </FieldTitle>
                         <Input
                           {...form.register("fullName")}
-                          className="h-14 rounded-2xl bg-slate-50 border-none font-bold px-6 text-slate-900"
+                          className="h-14 rounded-2xl bg-muted border-none font-bold px-6 text-foreground"
                         />
                       </FieldLabel>
                       <FieldError errors={[form.formState.errors.fullName]} />
@@ -408,17 +408,17 @@ export default function SettingsPage() {
 
                     <Field>
                       <FieldLabel className="w-full">
-                        <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                        <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
                           Current Role
                         </FieldTitle>
                         <div className="relative">
                           <Briefcase
-                            className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"
+                            className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground"
                             size={18}
                           />
                           <Input
                             {...form.register("role")}
-                            className="h-14 w-full rounded-2xl bg-slate-50 border-none font-bold pl-14 pr-6 text-slate-900"
+                            className="h-14 w-full rounded-2xl bg-muted border-none font-bold pl-14 pr-6 text-foreground"
                           />
                         </div>
                       </FieldLabel>
@@ -427,17 +427,17 @@ export default function SettingsPage() {
 
                     <Field>
                       <FieldLabel className="w-full">
-                        <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                        <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
                           Location / Timezone
                         </FieldTitle>
                         <div className="relative">
                           <MapPin
-                            className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"
+                            className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground"
                             size={18}
                           />
                           <Input
                             {...form.register("location")}
-                            className="h-14 w-full rounded-2xl bg-slate-50 border-none font-bold pl-14 pr-6 text-slate-900"
+                            className="h-14 w-full rounded-2xl bg-muted border-none font-bold pl-14 pr-6 text-foreground"
                           />
                         </div>
                       </FieldLabel>
@@ -446,17 +446,17 @@ export default function SettingsPage() {
 
                     <Field>
                       <FieldLabel className="w-full">
-                        <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                        <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
                           Portfolio URL
                         </FieldTitle>
                         <div className="relative">
                           <ExternalLink
-                            className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"
+                            className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground"
                             size={18}
                           />
                           <Input
                             {...form.register("portfolio")}
-                            className="h-14 w-full rounded-2xl bg-slate-50 border-none font-bold pl-14 pr-6 text-slate-900"
+                            className="h-14 w-full rounded-2xl bg-muted border-none font-bold pl-14 pr-6 text-foreground"
                           />
                         </div>
                       </FieldLabel>
@@ -465,14 +465,14 @@ export default function SettingsPage() {
                   </form>
                 </div>
 
-                <div className="divide-y divide-slate-50 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-10">
+                <div className="divide-y divide-border rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-10">
                   <div className="py-6 sm:py-8">
                     <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <p className="text-lg font-black text-slate-900">
+                        <p className="text-lg font-black text-foreground">
                           Account Password
                         </p>
-                        <p className="text-sm text-slate-400">
+                        <p className="text-sm text-muted-foreground">
                           Keep your credentials up to date.
                         </p>
                       </div>
@@ -488,7 +488,7 @@ export default function SettingsPage() {
                     </div>
 
                     {isChangingPassword && (
-                      <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 sm:p-6">
+                      <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-border bg-muted p-4 sm:p-6">
                         {passwordError && (
                           <div className="text-rose-500 text-sm font-bold bg-rose-50 p-3 rounded-lg">
                             {passwordError}
@@ -496,35 +496,35 @@ export default function SettingsPage() {
                         )}
                         <Field>
                           <FieldLabel className="w-full">
-                            <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                            <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
                               Current Password
                             </FieldTitle>
                             <Input
                               type="password"
                               value={currPassword}
                               onChange={(e) => setCurrPassword(e.target.value)}
-                              className="h-12 rounded-xl bg-white border border-slate-200 font-bold px-4"
+                              className="h-12 rounded-xl bg-card border border-border font-bold px-4"
                             />
                           </FieldLabel>
                         </Field>
 
                         <Field>
                           <FieldLabel className="w-full">
-                            <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                            <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
                               New Password
                             </FieldTitle>
                             <Input
                               type="password"
                               value={newPassword}
                               onChange={(e) => setNewPassword(e.target.value)}
-                              className="h-12 rounded-xl bg-white border border-slate-200 font-bold px-4"
+                              className="h-12 rounded-xl bg-card border border-border font-bold px-4"
                             />
                           </FieldLabel>
                         </Field>
 
                         <Button
                           onClick={onPasswordSubmit}
-                          className="h-12 mt-2 w-full md:w-auto rounded-xl bg-[#1d59db] font-bold"
+                          className="h-12 mt-2 w-full md:w-auto rounded-xl bg-primary font-bold"
                         >
                           Confirm Password Change
                         </Button>
@@ -534,7 +534,7 @@ export default function SettingsPage() {
                   <div className="flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:py-8">
                     <div>
                       <div className="flex items-center gap-3">
-                        <p className="text-lg font-black text-slate-900">
+                        <p className="text-lg font-black text-foreground">
                           Two-Factor Authentication
                         </p>
                         {mfaEnabled ? (
@@ -542,12 +542,12 @@ export default function SettingsPage() {
                             Enabled
                           </Badge>
                         ) : (
-                          <Badge className="bg-slate-100 text-slate-400 border-none font-bold text-[10px] uppercase py-1 px-3">
+                          <Badge className="bg-muted text-muted-foreground border-none font-bold text-[10px] uppercase py-1 px-3">
                             Disabled
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-slate-400">
+                      <p className="text-sm text-muted-foreground">
                         Protects your intelligence assets with secondary
                         validation.
                       </p>
@@ -567,13 +567,13 @@ export default function SettingsPage() {
                   {mfaEnabled && mfaFactors.length > 0 && (
                     <div className="mt-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
                           Registered Devices
                         </h4>
                         <button 
                           onClick={() => setShowMfaEnrollModal(true)}
                           disabled={mfaFactors.length >= 3}
-                          className="text-[10px] font-bold uppercase tracking-widest text-blue-600 hover:underline disabled:text-slate-300 disabled:no-underline"
+                          className="text-[10px] font-bold uppercase tracking-widest text-primary hover:underline disabled:text-muted-foreground/50 disabled:no-underline"
                         >
                           {mfaFactors.length >= 3 ? "Limit Reached (Max 3)" : "+ Add Backup Authenticator"}
                         </button>
@@ -582,30 +582,30 @@ export default function SettingsPage() {
                         {mfaFactors.map((f, i) => (
                           <div 
                             key={f.factor_id}
-                            className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/50 p-4 transition-colors hover:bg-slate-50"
+                            className="flex items-center justify-between rounded-2xl border border-border bg-muted/50 p-4 transition-colors hover:bg-muted"
                           >
                             <div className="flex items-center gap-4">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm text-slate-400">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-sm text-muted-foreground">
                                 <Smartphone size={20} />
                               </div>
                               <div>
-                                <p className="text-sm font-bold text-slate-900">
+                                <p className="text-sm font-bold text-foreground">
                                   {f.friendly_name || `Authenticator ${i + 1}`}
                                 </p>
-                                <p className="text-[10px] text-slate-400 font-medium">
+                                <p className="text-[10px] text-muted-foreground font-medium">
                                   Added {new Date(f.created_at).toLocaleDateString()}
                                 </p>
                               </div>
                             </div>
                             <div className="flex items-center gap-3">
                               {mfaFactors.length > 1 && (
-                                <Badge className="bg-white text-slate-400 border border-slate-200 font-bold text-[9px] uppercase px-2 py-0.5">
+                                <Badge className="bg-card text-muted-foreground border border-border font-bold text-[9px] uppercase px-2 py-0.5">
                                   Active
                                 </Badge>
                               )}
                               <button 
                                 onClick={() => onUnenrollClick(f.factor_id)}
-                                className="rounded-lg p-2 text-slate-300 hover:bg-rose-50 hover:text-rose-500 transition-colors"
+                                className="rounded-lg p-2 text-muted-foreground/50 hover:bg-rose-50 hover:text-rose-500 transition-colors"
                                 title="Remove Authenticator"
                               >
                                 <Trash2 size={16} />
@@ -623,30 +623,30 @@ export default function SettingsPage() {
             {/* 2. INTELLIGENCE SOURCES */}
             {activeTab === "intelligence" && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex flex-col gap-5 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-12 xl:flex-row xl:items-center xl:justify-between">
+                <div className="flex flex-col gap-5 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-12 xl:flex-row xl:items-center xl:justify-between">
                   <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
                     <div className="flex h-16 w-16 items-center justify-center rounded-full border-[6px] border-emerald-50 text-xl font-black text-emerald-500 sm:h-20 sm:w-20 sm:text-2xl">
                       98%
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-[#0f172a] sm:text-2xl">
+                      <h3 className="text-xl font-black text-foreground sm:text-2xl">
                         Intelligence Sync Health
                       </h3>
-                      <p className="text-slate-400 font-medium">
+                      <p className="text-muted-foreground font-medium">
                         All data hooks are currently optimized and active.
                       </p>
                     </div>
                   </div>
                   <Button
                     variant="outline"
-                    className="h-11 w-full gap-3 rounded-xl border-blue-100 px-5 font-bold text-blue-600 sm:h-12 sm:w-auto sm:px-8"
+                    className="h-11 w-full gap-3 rounded-xl border-primary/20 px-5 font-bold text-primary sm:h-12 sm:w-auto sm:px-8"
                   >
                     <RefreshCw size={18} /> Force Data Refresh
                   </Button>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2">
-                  <div className="flex min-h-64 flex-col justify-between rounded-3xl border-2 border-blue-100 bg-white p-5 sm:p-8 lg:rounded-[40px] lg:p-10">
+                  <div className="flex min-h-64 flex-col justify-between rounded-3xl border-2 border-primary/20 bg-card p-5 sm:p-8 lg:rounded-[40px] lg:p-10">
                     <div className="flex items-start justify-between">
                       <div className="h-16 w-16 rounded-[20px] bg-slate-900 flex items-center justify-center text-white">
                         <Github size={32} />
@@ -656,10 +656,10 @@ export default function SettingsPage() {
                       </Badge>
                     </div>
                     <div className="space-y-2">
-                      <h4 className="text-lg font-black text-[#0f172a] sm:text-xl">
+                      <h4 className="text-lg font-black text-foreground sm:text-xl">
                         GitHub Contributions
                       </h4>
-                      <p className="text-sm text-slate-400 leading-relaxed">
+                      <p className="text-sm text-muted-foreground leading-relaxed">
                         Mapping repositories and commit patterns to technical
                         benchmarks.
                       </p>
@@ -669,24 +669,24 @@ export default function SettingsPage() {
                     </div>
                   </div>
 
-                  <div className="flex min-h-64 flex-col justify-between rounded-3xl border border-dashed border-slate-100 bg-white p-5 opacity-60 transition-opacity hover:opacity-100 sm:p-8 lg:rounded-[40px] lg:p-10">
+                  <div className="flex min-h-64 flex-col justify-between rounded-3xl border border-dashed border-border bg-card p-5 opacity-60 transition-opacity hover:opacity-100 sm:p-8 lg:rounded-[40px] lg:p-10">
                     <div className="flex items-start justify-between">
-                      <div className="h-16 w-16 rounded-[20px] bg-slate-50 flex items-center justify-center text-slate-300">
+                      <div className="h-16 w-16 rounded-[20px] bg-muted flex items-center justify-center text-muted-foreground/50">
                         <GraduationCap size={32} />
                       </div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
                         Available
                       </span>
                     </div>
                     <div className="space-y-4">
-                      <h4 className="text-lg font-black text-slate-400 sm:text-xl">
+                      <h4 className="text-lg font-black text-muted-foreground sm:text-xl">
                         University Transcript Hub
                       </h4>
-                      <p className="text-sm text-slate-400 leading-relaxed">
+                      <p className="text-sm text-muted-foreground leading-relaxed">
                         Authorized academic portals to verify degrees and GPA
                         scores.
                       </p>
-                      <Button className="h-11 w-full rounded-xl bg-[#1d59db] font-bold sm:h-12">
+                      <Button className="h-11 w-full rounded-xl bg-primary font-bold sm:h-12">
                         Connect Portal
                       </Button>
                     </div>
@@ -698,30 +698,30 @@ export default function SettingsPage() {
             {/* 3. AI ADVISOR TUNING */}
             {activeTab === "ai-advisor" && (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="space-y-8 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:space-y-10 sm:p-8 lg:rounded-[40px] lg:space-y-12 lg:p-12">
+                <div className="space-y-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:space-y-10 sm:p-8 lg:rounded-[40px] lg:space-y-12 lg:p-12">
                   <div className="space-y-3">
-                    <h3 className="text-2xl font-black text-[#0f172a] sm:text-3xl">
+                    <h3 className="text-2xl font-black text-foreground sm:text-3xl">
                       Advisor Personality
                     </h3>
-                    <p className="text-base text-slate-400 sm:text-lg">
+                    <p className="text-base text-muted-foreground sm:text-lg">
                       Calibrate the intelligence engine to your specific
                       professional appetite.
                     </p>
                   </div>
 
                   <div className="space-y-8 sm:space-y-10 lg:space-y-12">
-                    <div className="space-y-6 rounded-3xl border border-slate-100 bg-slate-50 p-5 sm:space-y-8 sm:p-8 lg:rounded-[32px] lg:p-10">
+                    <div className="space-y-6 rounded-3xl border border-border bg-muted p-5 sm:space-y-8 sm:p-8 lg:rounded-[32px] lg:p-10">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                         <div>
-                          <p className="text-[11px] font-bold uppercase tracking-widest text-[#1d59db] mb-2">
+                          <p className="text-[11px] font-bold uppercase tracking-widest text-primary mb-2">
                             Career Goal Aggression
                           </p>
-                          <p className="text-sm text-slate-400 max-w-sm">
+                          <p className="text-sm text-muted-foreground max-w-sm">
                             How aggressive should AI be in suggesting high-risk
                             pivots?
                           </p>
                         </div>
-                        <span className="text-lg font-black text-[#0f172a]">
+                        <span className="text-lg font-black text-foreground">
                           High Growth
                         </span>
                       </div>
@@ -734,23 +734,23 @@ export default function SettingsPage() {
                     </div>
 
                     <div className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 md:gap-8">
-                      <div className="flex items-center justify-between gap-4 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
+                      <div className="flex items-center justify-between gap-4 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
                         <div className="space-y-1">
-                          <p className="font-bold text-[#0f172a]">
+                          <p className="font-bold text-foreground">
                             Direct & Analytical Tone
                           </p>
-                          <p className="text-xs text-slate-400">
+                          <p className="text-xs text-muted-foreground">
                             Focus on data points over encouragement.
                           </p>
                         </div>
                         <Switch defaultChecked />
                       </div>
-                      <div className="flex items-center justify-between gap-4 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
+                      <div className="flex items-center justify-between gap-4 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
                         <div className="space-y-1">
-                          <p className="font-bold text-[#0f172a]">
+                          <p className="font-bold text-foreground">
                             Global Benchmarking
                           </p>
-                          <p className="text-xs text-slate-400">
+                          <p className="text-xs text-muted-foreground">
                             Compare against US/EU markets.
                           </p>
                         </div>
@@ -766,28 +766,28 @@ export default function SettingsPage() {
             {activeTab === "privacy" && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="relative overflow-hidden rounded-3xl bg-[#020617] p-5 text-white shadow-2xl sm:p-8 lg:rounded-[40px] lg:p-12 xl:p-16">
-                  <div className="absolute top-0 right-0 h-64 w-64 bg-blue-600/10 blur-[100px]" />
+                  <div className="absolute top-0 right-0 h-64 w-64 bg-primary/10 blur-[100px]" />
                   <div className="relative z-10 space-y-7 sm:space-y-8 lg:space-y-10">
                     <div className="space-y-4">
                       <h3 className="text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">
                         Intelligence Anonymization
                       </h3>
-                      <p className="max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg">
+                      <p className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
                         When enabled, your data is scrubbed of all PII
                         (Personally Identifiable Information) before being
                         mapped to global trend analysis.
                       </p>
                     </div>
-                    <div className="flex flex-col gap-5 rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:p-8 lg:rounded-[32px] lg:p-10">
+                    <div className="flex flex-col gap-5 rounded-3xl border border-white/10 bg-card/5 p-5 backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:p-8 lg:rounded-[32px] lg:p-10">
                       <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600/20 text-blue-400 sm:h-16 sm:w-16">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/20 text-[var(--brand-accent)] sm:h-16 sm:w-16">
                           <EyeOff size={32} />
                         </div>
                         <div>
                           <p className="text-lg font-black sm:text-xl">
                             Privacy Shield Mode
                           </p>
-                          <p className="text-sm text-slate-400 font-medium">
+                          <p className="text-sm text-muted-foreground font-medium">
                             Hide identity from global recruitment pools.
                           </p>
                         </div>
@@ -797,8 +797,8 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="space-y-8 rounded-3xl border border-slate-100 bg-white p-5 sm:p-8 lg:rounded-[40px] lg:p-12 lg:space-y-10">
-                  <h4 className="text-lg font-black text-slate-900 sm:text-xl">
+                <div className="space-y-8 rounded-3xl border border-border bg-card p-5 sm:p-8 lg:rounded-[40px] lg:p-12 lg:space-y-10">
+                  <h4 className="text-lg font-black text-foreground sm:text-xl">
                     Data Management
                   </h4>
                   <div className="flex flex-col gap-4 rounded-3xl border border-rose-100 bg-rose-50/50 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-8">
@@ -826,12 +826,12 @@ export default function SettingsPage() {
             {/* 5. SUBSCRIPTION & BILLING */}
             {activeTab === "billing" && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="group relative overflow-hidden rounded-3xl bg-[#1d59db] p-5 text-white shadow-2xl sm:p-8 lg:rounded-[40px] lg:p-12">
-                  <div className="absolute top-0 right-0 h-64 w-64 bg-white/10 blur-[100px] transition-all group-hover:scale-125" />
+                <div className="group relative overflow-hidden rounded-3xl bg-primary p-5 text-white shadow-2xl sm:p-8 lg:rounded-[40px] lg:p-12">
+                  <div className="absolute top-0 right-0 h-64 w-64 bg-card/10 blur-[100px] transition-all group-hover:scale-125" />
                   <div className="relative z-10 flex flex-col justify-between gap-12 md:flex-row md:items-center">
                     <div className="space-y-6">
                       <div className="flex items-center gap-4">
-                        <Badge className="bg-white/20 border-white/30 font-black tracking-[0.2em] uppercase text-[10px] py-2 px-4 backdrop-blur-md">
+                        <Badge className="bg-card/20 border-white/30 font-black tracking-[0.2em] uppercase text-[10px] py-2 px-4 backdrop-blur-md">
                           Gold Tier
                         </Badge>
                         <p className="text-xs font-bold text-blue-100/60 uppercase tracking-widest">
@@ -859,51 +859,51 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2">
-                  <div className="flex flex-col justify-between rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-12">
-                    <h4 className="mb-7 text-lg font-black text-slate-900 sm:mb-10 sm:text-xl">
+                  <div className="flex flex-col justify-between rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-12">
+                    <h4 className="mb-7 text-lg font-black text-foreground sm:mb-10 sm:text-xl">
                       Payment Method
                     </h4>
-                    <div className="flex items-center gap-4 rounded-[24px] border border-slate-100 bg-slate-50 p-4 sm:gap-6 sm:p-6">
-                      <div className="flex h-12 w-14 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 sm:w-16">
+                    <div className="flex items-center gap-4 rounded-[24px] border border-border bg-muted p-4 sm:gap-6 sm:p-6">
+                      <div className="flex h-12 w-14 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground sm:w-16">
                         <CardIcon size={28} />
                       </div>
                       <div>
-                        <p className="text-base font-black text-slate-800 sm:text-lg">
+                        <p className="text-base font-black text-foreground sm:text-lg">
                           •••• 4242
                         </p>
-                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
                           Expires 12/26
                         </p>
                       </div>
                     </div>
                     <Button
                       variant="link"
-                      className="mt-7 h-auto justify-start p-0 text-xs font-bold uppercase tracking-widest text-[#1d59db] sm:mt-10"
+                      className="mt-7 h-auto justify-start p-0 text-xs font-bold uppercase tracking-widest text-primary sm:mt-10"
                     >
                       Update Billing Data
                     </Button>
                   </div>
 
-                  <div className="space-y-8 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-12 lg:space-y-10">
-                    <h4 className="text-lg font-black text-slate-900 sm:text-xl">
+                  <div className="space-y-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-12 lg:space-y-10">
+                    <h4 className="text-lg font-black text-foreground sm:text-xl">
                       Allocation Stats
                     </h4>
                     <div className="space-y-8">
                       <div className="space-y-3">
-                        <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                        <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
                           <span>AI Advisor Usage</span>
-                          <span className="text-slate-900">85% Used</span>
+                          <span className="text-foreground">85% Used</span>
                         </div>
-                        <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden">
-                          <div className="h-full w-[85%] bg-[#1d59db] rounded-full shadow-[0_0_12px_rgba(29,89,219,0.3)]" />
+                        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                          <div className="h-full w-[85%] bg-primary rounded-full shadow-[0_0_12px_rgba(29,89,219,0.3)]" />
                         </div>
                       </div>
                       <div className="space-y-3">
-                        <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                        <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
                           <span>Market Syncs</span>
-                          <span className="text-slate-900">Unlimited</span>
+                          <span className="text-foreground">Unlimited</span>
                         </div>
-                        <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden">
+                        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                           <div className="h-full w-full bg-emerald-500 rounded-full" />
                         </div>
                       </div>
@@ -911,8 +911,8 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-12">
-                  <h4 className="mb-7 text-lg font-black text-slate-900 sm:mb-10 sm:text-xl lg:mb-12">
+                <div className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-12">
+                  <h4 className="mb-7 text-lg font-black text-foreground sm:mb-10 sm:text-xl lg:mb-12">
                     Invoice History
                   </h4>
                   <div className="space-y-2">
@@ -938,23 +938,23 @@ export default function SettingsPage() {
                     ].map((inv, idx) => (
                       <div
                         key={idx}
-                        className="group flex flex-col gap-4 border-b border-slate-50 py-5 last:border-none sm:flex-row sm:items-center sm:justify-between sm:py-6"
+                        className="group flex flex-col gap-4 border-b border-border py-5 last:border-none sm:flex-row sm:items-center sm:justify-between sm:py-6"
                       >
                         <div className="flex items-center gap-4 sm:gap-6">
-                          <div className="flex h-11 w-11 items-center justify-center rounded-[18px] bg-slate-50 text-slate-400 transition-colors group-hover:bg-[#1d59db] group-hover:text-white sm:h-12 sm:w-12">
+                          <div className="flex h-11 w-11 items-center justify-center rounded-[18px] bg-muted text-muted-foreground transition-colors group-hover:bg-primary group-hover:text-white sm:h-12 sm:w-12">
                             <Download size={20} />
                           </div>
                           <div>
-                            <p className="font-black text-slate-900">
+                            <p className="font-black text-foreground">
                               {inv.date}
                             </p>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                               {inv.id}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center justify-between gap-4 sm:justify-end sm:gap-10">
-                          <span className="text-base font-black text-slate-900 sm:text-lg">
+                          <span className="text-base font-black text-foreground sm:text-lg">
                             {inv.amt}
                           </span>
                           <Badge className="bg-emerald-50 text-emerald-600 border-none font-bold text-[10px] uppercase py-1.5 px-4 rounded-lg">
@@ -974,11 +974,11 @@ export default function SettingsPage() {
       {/* ── DELETE ACCOUNT MODAL ── */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+          <div className="relative w-full max-w-md rounded-3xl bg-card p-8 shadow-2xl">
             {/* Close */}
             <button
               onClick={() => setShowDeleteModal(false)}
-              className="absolute right-5 top-5 rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              className="absolute right-5 top-5 rounded-xl p-2 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
             >
               <X size={18} />
             </button>
@@ -989,10 +989,10 @@ export default function SettingsPage() {
                 <AlertTriangle className="text-rose-600" size={22} />
               </div>
               <div>
-                <h3 className="text-lg font-black text-slate-900">
+                <h3 className="text-lg font-black text-foreground">
                   Delete Account
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-muted-foreground">
                   This action cannot be undone.
                 </p>
               </div>
@@ -1000,7 +1000,7 @@ export default function SettingsPage() {
 
             {/* Body */}
             <div className="space-y-5">
-              <p className="text-sm text-slate-600 leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Your account will be deactivated. All synced data and AI
                 intelligence history will be removed. Contact support within
                 30 days to restore your account.
@@ -1009,7 +1009,7 @@ export default function SettingsPage() {
               {/* Password field — only for email/password accounts */}
               {needsPassword && (
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                     Confirm with your password
                   </label>
                   <div className="relative">
@@ -1018,12 +1018,12 @@ export default function SettingsPage() {
                       placeholder="Enter your password"
                       value={deletePassword}
                       onChange={(e) => setDeletePassword(e.target.value)}
-                      className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 pr-12 text-sm font-medium text-slate-900 outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+                      className="h-12 w-full rounded-xl border border-border bg-muted px-4 pr-12 text-sm font-medium text-foreground outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
                     />
                     <button
                       type="button"
                       onClick={() => setShowDeletePassword(!showDeletePassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
                     >
                       {showDeletePassword ? (
                         <EyeOff size={16} />
@@ -1084,25 +1084,25 @@ export default function SettingsPage() {
       {/* ── MFA DISABLE MODAL ── */}
       {showMfaModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+          <div className="relative w-full max-w-md rounded-3xl bg-card p-8 shadow-2xl">
             {/* Close */}
             <button
               onClick={() => setShowMfaModal(false)}
-              className="absolute right-5 top-5 rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              className="absolute right-5 top-5 rounded-xl p-2 text-muted-foreground hover:bg-muted hover:text-muted-foreground"
             >
               <X size={18} />
             </button>
 
             {/* Header */}
             <div className="mb-6 flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100">
-                <ShieldCheck className="text-blue-600" size={22} />
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15">
+                <ShieldCheck className="text-primary" size={22} />
               </div>
               <div>
-                <h3 className="text-lg font-black text-slate-900">
+                <h3 className="text-lg font-black text-foreground">
                   {mfaMode === "disable" ? "Confirm MFA Disable" : "Confirm Removal"}
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-muted-foreground">
                   {mfaReauthStep === "init"
                     ? "Verify your identity to proceed."
                     : "Enter the code sent to your email."}
@@ -1114,7 +1114,7 @@ export default function SettingsPage() {
             <div className="space-y-5">
               {mfaReauthStep === "init" ? (
                 <>
-                  <p className="text-sm text-slate-600 leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {mfaMode === "disable" 
                       ? "Disabling two-factor authentication makes your account less secure." 
                       : "Removing this authenticator device will restrict your backup options."}
@@ -1125,7 +1125,7 @@ export default function SettingsPage() {
 
                   {needsPassword && (
                     <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                      <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                         Confirm with your password
                       </label>
                       <input
@@ -1133,14 +1133,14 @@ export default function SettingsPage() {
                         placeholder="Enter your password"
                         value={mfaPassword}
                         onChange={(e) => setMfaPassword(e.target.value)}
-                        className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                        className="h-12 w-full rounded-xl border border-border bg-muted px-4 text-sm font-medium text-foreground outline-none focus:border-blue-400 focus:ring-2 focus:ring-primary/20"
                       />
                     </div>
                   )}
                 </>
               ) : (
                 <div className="space-y-4 text-center">
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-muted-foreground">
                     A 6-digit code has been sent to your registered email.
                   </p>
                   <input
@@ -1150,7 +1150,7 @@ export default function SettingsPage() {
                     placeholder="000000"
                     value={mfaOtp}
                     onChange={(e) => setMfaOtp(e.target.value.replace(/\D/g, ""))}
-                    className="h-14 w-full rounded-xl border-2 border-slate-200 bg-slate-50 text-center text-2xl font-bold tracking-[0.5em] text-slate-900 focus:border-blue-600 outline-none"
+                    className="h-14 w-full rounded-xl border-2 border-border bg-muted text-center text-2xl font-bold tracking-[0.5em] text-foreground focus:border-primary outline-none"
                   />
                 </div>
               )}
@@ -1174,7 +1174,7 @@ export default function SettingsPage() {
                 <Button
                   onClick={onMfaActionConfirm}
                   disabled={isMfaProcessing || (mfaReauthStep === "init" && needsPassword && !mfaPassword) || (mfaReauthStep === "otp" && mfaOtp.length !== 6)}
-                  className="flex-1 rounded-xl bg-blue-600 font-bold text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="flex-1 rounded-xl bg-primary font-bold text-white hover:bg-primary/90 disabled:opacity-50"
                 >
                   {isMfaProcessing ? "Processing..." : mfaReauthStep === "init" && !needsPassword ? "Send Code" : mfaMode === "disable" ? "Confirm Disable" : "Confirm Removal"}
                 </Button>

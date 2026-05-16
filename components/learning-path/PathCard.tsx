@@ -20,56 +20,56 @@ export const PathCard = ({
   isDetailLoading?: boolean;
 }) => {
   return (
-    <div className="overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-sm transition-all">
+    <div className="overflow-hidden rounded-[24px] border border-border bg-card shadow-sm transition-all">
       {/* Card Header */}
       <div className="flex items-center justify-between p-6 sm:p-8 cursor-pointer" onClick={() => onToggleExpand(path.id)}>
         <div className="flex items-center gap-5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
             {path.icon}
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-900 hover:text-blue-600 transition-colors" onClick={(e) => { e.stopPropagation(); onViewDetails(path.id); }}>{path.title}</h3>
-            <p className="text-sm font-medium text-slate-400">Focus: {path.focus}</p>
+            <h3 className="text-xl font-bold text-foreground hover:text-primary transition-colors" onClick={(e) => { e.stopPropagation(); onViewDetails(path.id); }}>{path.title}</h3>
+            <p className="text-sm font-medium text-muted-foreground">Focus: {path.focus}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-10">
           <div className="hidden w-64 md:block">
             <div className="mb-2 flex justify-between text-[11px] font-bold">
-              <span className="text-slate-400">Progress</span>
-              <span className="text-blue-600">{path.progress}% Complete</span>
+              <span className="text-muted-foreground">Progress</span>
+              <span className="text-primary">{path.progress}% Complete</span>
             </div>
-            <div className="h-2 w-full rounded-full bg-slate-100">
+            <div className="h-2 w-full rounded-full bg-muted">
               <div
-                className="h-full rounded-full bg-blue-600 transition-all duration-500"
+                className="h-full rounded-full bg-primary transition-all duration-500"
                 style={{ width: `${path.progress}%` }}
               />
             </div>
           </div>
           {isExpanded ? (
-            <ChevronUp className="h-6 w-6 text-slate-400 cursor-pointer" />
+            <ChevronUp className="h-6 w-6 text-muted-foreground cursor-pointer" />
           ) : (
-            <ChevronDown className="h-6 w-6 text-slate-400 cursor-pointer" />
+            <ChevronDown className="h-6 w-6 text-muted-foreground cursor-pointer" />
           )}
         </div>
       </div>
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="bg-[#fcfdff] border-t border-slate-50 p-6 sm:p-10">
+        <div className="bg-muted/40 border-t border-border p-6 sm:p-10">
           {isDetailLoading && path.modules.length === 0 ? (
             <PathCardModulesSkeleton />
           ) : (
           <div className="relative space-y-12">
             {/* Vertical Connecting Line */}
-            <div className="absolute left-[15px] top-4 bottom-0 w-[1px] bg-blue-100" />
+            <div className="absolute left-[15px] top-4 bottom-0 w-[1px] bg-primary/20" />
 
             {path.modules.map((module: any, index: number) => (
               <div key={module.id} className="relative pl-12">
-                <div className={`absolute left-0 top-0 flex h-8 w-8 items-center justify-center rounded-full ring-8 ring-[#fcfdff] ${module.status === 'completed' ? 'bg-blue-600 text-white' : 'border-2 border-blue-600 bg-white text-blue-600 font-bold text-sm'}`}>
+                <div className={`absolute left-0 top-0 flex h-8 w-8 items-center justify-center rounded-full ring-8 ring-background ${module.status === 'completed' ? 'bg-primary text-white' : 'border-2 border-primary bg-card text-primary font-bold text-sm'}`}>
                   {module.status === 'completed' ? <Check size={16} strokeWidth={3} /> : index + 1}
                 </div>
-                <h4 className="mb-6 text-lg font-bold text-slate-900">
+                <h4 className="mb-6 text-lg font-bold text-foreground">
                   {module.title}
                 </h4>
 

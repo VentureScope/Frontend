@@ -50,7 +50,7 @@ function getStrength(password: string): StrengthInfo {
   const passed = PASSWORD_REQUIREMENTS.filter((r) => r.test(password)).length;
 
   if (password.length === 0) {
-    return { level: 0, label: "", color: "bg-slate-200", textColor: "text-slate-400" };
+    return { level: 0, label: "", color: "bg-muted", textColor: "text-muted-foreground" };
   }
   if (passed <= 1) {
     return { level: 1, label: "Weak", color: "bg-red-500", textColor: "text-red-500" };
@@ -59,7 +59,7 @@ function getStrength(password: string): StrengthInfo {
     return { level: 2, label: "Fair", color: "bg-amber-500", textColor: "text-amber-500" };
   }
   if (passed === 3 || passed === 4) {
-    return { level: 3, label: "Good", color: "bg-blue-500", textColor: "text-blue-500" };
+    return { level: 3, label: "Good", color: "bg-primary/100", textColor: "text-primary" };
   }
   return { level: 4, label: "Strong", color: "bg-emerald-500", textColor: "text-emerald-500" };
 }
@@ -177,10 +177,10 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 p-4 sm:p-8">
-      <div className="flex w-full max-w-5xl overflow-hidden rounded-2xl sm:rounded-3xl bg-white shadow-2xl">
+    <div className="flex min-h-screen w-full items-center justify-center bg-muted p-4 sm:p-8">
+      <div className="flex w-full max-w-5xl overflow-hidden rounded-2xl sm:rounded-3xl bg-card shadow-2xl">
         {/* ── LEFT SIDE ── */}
-        <section className="relative hidden w-1/2 flex-col justify-between bg-[#1d59db] p-8 shrink-0 lg:flex">
+        <section className="relative hidden w-1/2 flex-col justify-between bg-primary p-8 shrink-0 lg:flex">
           <div className="space-y-6">
             {/* Logo */}
             <div className="flex items-center gap-3 text-white">
@@ -201,7 +201,7 @@ export default function RegisterPage() {
               <h1 className="text-4xl font-bold leading-[1.1] text-white">
                 The Intelligence Layer for Your Next Move.
               </h1>
-              <p className="text-sm text-blue-100/90 leading-relaxed">
+              <p className="text-sm text-primary-foreground/80/90 leading-relaxed">
                 Join 20,000+ professionals and HR leaders using data-driven
                 insights to navigate career transitions with absolute clarity.
               </p>
@@ -209,7 +209,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Testimonial Card */}
-          <div className="rounded-xl bg-white/20 p-6 backdrop-blur-md border border-white/20">
+          <div className="rounded-xl bg-card/20 p-6 backdrop-blur-md border border-background/20">
             <div className="mb-3 flex gap-1">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -224,18 +224,18 @@ export default function RegisterPage() {
               elite.&quot;
             </p>
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 overflow-hidden rounded-full border-2 border-white/50">
+              <div className="h-8 w-8 overflow-hidden rounded-full border-2 border-background/50">
                 <img
                   src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah"
                   alt="Sarah Jenkins"
-                  className="h-full w-full object-cover bg-blue-200"
+                  className="h-full w-full object-cover bg-primary/30"
                 />
               </div>
               <div>
                 <p className="text-xs font-bold text-white uppercase tracking-wider">
                   Sarah Jenkins
                 </p>
-                <p className="text-[10px] text-blue-100 uppercase tracking-widest opacity-80">
+                <p className="text-[10px] text-primary-foreground/80 uppercase tracking-widest opacity-80">
                   Director of Talent, Innovate Corp
                 </p>
               </div>
@@ -244,13 +244,13 @@ export default function RegisterPage() {
         </section>
 
         {/* ── RIGHT SIDE ── */}
-        <section className="flex flex-1 flex-col items-center justify-center bg-white px-6 py-10 sm:px-12 lg:px-16">
+        <section className="flex flex-1 flex-col items-center justify-center bg-card px-6 py-10 sm:px-12 lg:px-16">
           <div className="w-full max-w-sm sm:max-w-md space-y-5">
             <div className="space-y-1 text-center sm:text-left">
-              <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+              <h2 className="text-2xl font-bold tracking-tight text-foreground">
                 Create your account
               </h2>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-muted-foreground">
                 Start your intelligence-led career journey today.
               </p>
             </div>
@@ -264,13 +264,13 @@ export default function RegisterPage() {
 
               {/* Full Name */}
               <Field>
-                <FieldLabel className="text-xs font-bold text-slate-800">
+                <FieldLabel className="text-xs font-bold text-foreground">
                   Full Name
                 </FieldLabel>
                 <Input
                   placeholder="Enter your full name"
                   {...form.register("full_name")}
-                  className="h-10 text-sm border-none bg-[#f0f4ff] px-3 focus-visible:ring-2 focus-visible:ring-blue-600"
+                  className="h-10 text-sm border-none bg-muted px-3 focus-visible:ring-2 focus-visible:ring-primary"
                 />
                 {form.formState.errors.full_name && (
                   <FieldError className="text-[10px]">
@@ -281,13 +281,13 @@ export default function RegisterPage() {
 
               {/* Career Interest */}
               <Field>
-                <FieldLabel className="text-xs font-bold text-slate-800">
+                <FieldLabel className="text-xs font-bold text-foreground">
                   Career Interest
                 </FieldLabel>
                 <Input
                   placeholder="e.g. Data Science, Product Management"
                   {...form.register("career_interest")}
-                  className="h-10 text-sm border-none bg-[#f0f4ff] px-3 focus-visible:ring-2 focus-visible:ring-blue-600"
+                  className="h-10 text-sm border-none bg-muted px-3 focus-visible:ring-2 focus-visible:ring-primary"
                 />
                 {form.formState.errors.career_interest && (
                   <FieldError className="text-[10px]">
@@ -298,13 +298,13 @@ export default function RegisterPage() {
 
               {/* Work Email */}
               <Field>
-                <FieldLabel className="text-xs font-bold text-slate-800">
+                <FieldLabel className="text-xs font-bold text-foreground">
                   Work Email
                 </FieldLabel>
                 <Input
                   placeholder="name@company.com"
                   {...form.register("email")}
-                  className="h-10 text-sm border-none bg-[#f0f4ff] px-3 focus-visible:ring-2 focus-visible:ring-blue-600"
+                  className="h-10 text-sm border-none bg-muted px-3 focus-visible:ring-2 focus-visible:ring-primary"
                 />
                 {form.formState.errors.email && (
                   <FieldError className="text-[10px]">
@@ -315,7 +315,7 @@ export default function RegisterPage() {
 
               {/* Password + Strength */}
               <Field>
-                <FieldLabel className="text-xs font-bold text-slate-800">
+                <FieldLabel className="text-xs font-bold text-foreground">
                   Password
                 </FieldLabel>
                 <div className="relative">
@@ -323,12 +323,12 @@ export default function RegisterPage() {
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     {...form.register("password")}
-                    className="h-10 text-sm border-none bg-[#f0f4ff] px-3 pr-10 focus-visible:ring-2 focus-visible:ring-blue-600"
+                    className="h-10 text-sm border-none bg-muted px-3 pr-10 focus-visible:ring-2 focus-visible:ring-primary"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -345,7 +345,7 @@ export default function RegisterPage() {
                           className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
                             strength.level >= seg
                               ? strength.color
-                              : "bg-slate-200"
+                              : "bg-muted"
                           }`}
                         />
                       ))}
@@ -366,7 +366,7 @@ export default function RegisterPage() {
                           <li
                             key={req.label}
                             className={`flex items-center gap-1.5 text-[10px] transition-colors ${
-                              met ? "text-emerald-600" : "text-slate-400"
+                              met ? "text-emerald-600" : "text-muted-foreground"
                             }`}
                           >
                             {met ? (
@@ -391,7 +391,7 @@ export default function RegisterPage() {
 
               {/* Confirm Password */}
               <Field>
-                <FieldLabel className="text-xs font-bold text-slate-800">
+                <FieldLabel className="text-xs font-bold text-foreground">
                   Confirm Password
                 </FieldLabel>
                 <div className="relative">
@@ -399,12 +399,12 @@ export default function RegisterPage() {
                     type={showConfirm ? "text" : "password"}
                     placeholder="••••••••"
                     {...form.register("confirmPassword")}
-                    className="h-10 text-sm border-none bg-[#f0f4ff] px-3 pr-10 focus-visible:ring-2 focus-visible:ring-blue-600"
+                    className="h-10 text-sm border-none bg-muted px-3 pr-10 focus-visible:ring-2 focus-visible:ring-primary"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirm(!showConfirm)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
                   >
                     {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -419,7 +419,7 @@ export default function RegisterPage() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-10 w-full bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700"
+                className="h-10 w-full bg-primary text-sm font-semibold text-white hover:bg-primary/90"
               >
                 {isSubmitting ? "Creating Account..." : "Create Account"}
               </Button>
@@ -430,11 +430,11 @@ export default function RegisterPage() {
 
               {/* Divider */}
               <div className="relative py-2 flex items-center">
-                <div className="grow border-t border-slate-200"></div>
-                <span className="mx-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 bg-white px-1">
+                <div className="grow border-t border-border"></div>
+                <span className="mx-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground bg-card px-1">
                   Or continue with
                 </span>
-                <div className="grow border-t border-slate-200"></div>
+                <div className="grow border-t border-border"></div>
               </div>
 
               {/* Social Options */}
@@ -444,7 +444,7 @@ export default function RegisterPage() {
                   variant="outline"
                   onClick={onGoogleSignIn}
                   disabled={isGoogleSubmitting || isGithubSubmitting || isSubmitting}
-                  className="h-10 flex-1 border-slate-200 bg-white text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50 gap-2"
+                  className="h-10 flex-1 border-border bg-card text-xs font-bold text-muted-foreground shadow-sm hover:bg-muted gap-2"
                 >
                   <svg className="h-3.5 w-3.5" viewBox="0 0 24 24">
                     <path
@@ -471,9 +471,9 @@ export default function RegisterPage() {
                   variant="outline"
                   onClick={onGithubSignIn}
                   disabled={isGoogleSubmitting || isGithubSubmitting || isSubmitting}
-                  className="h-10 flex-1 border-slate-200 bg-white text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50 gap-2"
+                  className="h-10 flex-1 border-border bg-card text-xs font-bold text-muted-foreground shadow-sm hover:bg-muted gap-2"
                 >
-                  <Github className="h-3.5 w-3.5 text-slate-800" />
+                  <Github className="h-3.5 w-3.5 text-foreground" />
                   {isGithubSubmitting ? "Connecting..." : "GitHub"}
                 </Button>
               </div>
@@ -481,22 +481,22 @@ export default function RegisterPage() {
 
             {/* Footer Links */}
             <div className="space-y-3 text-center text-[11px]">
-              <p className="text-slate-600">
+              <p className="text-muted-foreground">
                 Already have an account?{" "}
                 <Link
                   href="/sign-in"
-                  className="font-semibold text-blue-600 hover:underline"
+                  className="font-semibold text-primary hover:underline"
                 >
                   Sign In to Workspace
                 </Link>
               </p>
-              <p className="leading-relaxed text-slate-400 px-6">
+              <p className="leading-relaxed text-muted-foreground px-6">
                 By signing up, you agree to our{" "}
-                <Link href="#" className="underline decoration-slate-300">
+                <Link href="#" className="underline decoration-border">
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link href="#" className="underline decoration-slate-300">
+                <Link href="#" className="underline decoration-border">
                   Privacy Policy
                 </Link>
                 .

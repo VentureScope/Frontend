@@ -71,14 +71,14 @@ export default function ProfileIntelligence() {
 
   if (loading) {
     return (
-      <div className="relative rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-7 lg:rounded-[32px] lg:p-10">
+      <div className="relative rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-7 lg:rounded-[32px] lg:p-10">
         <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
           <Skeleton className="h-6 w-48" />
           <Skeleton className="h-4 w-32" />
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* GitHub Card Skeleton */}
-          <div className="flex flex-col gap-3 rounded-3xl border border-slate-100 p-4 sm:p-5">
+          <div className="flex flex-col gap-3 rounded-3xl border border-border p-4 sm:p-5">
             <div className="flex items-center gap-4">
               <Skeleton className="h-12 w-12 rounded-2xl" />
               <div className="space-y-2">
@@ -88,7 +88,7 @@ export default function ProfileIntelligence() {
             </div>
           </div>
           {/* Academic Card Skeleton */}
-          <div className="flex flex-col gap-3 rounded-3xl border border-slate-100 p-4 sm:p-5">
+          <div className="flex flex-col gap-3 rounded-3xl border border-border p-4 sm:p-5">
             <div className="flex items-center gap-4">
               <Skeleton className="h-12 w-12 rounded-2xl" />
               <div className="space-y-2">
@@ -103,12 +103,12 @@ export default function ProfileIntelligence() {
   }
 
   return (
-    <div className="relative rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-7 lg:rounded-[32px] lg:p-10">
+    <div className="relative rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-7 lg:rounded-[32px] lg:p-10">
       <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="text-xl font-bold text-slate-900">
+        <h3 className="text-xl font-bold text-foreground">
           Profile Intelligence
         </h3>
-        <span className="text-xs font-bold text-slate-400 sm:text-right">
+        <span className="text-xs font-bold text-muted-foreground sm:text-right">
           Last synced:{" "}
           {github?.synced_at || transcript?.created_at
             ? new Date(
@@ -134,8 +134,8 @@ export default function ProfileIntelligence() {
           className={
             "flex flex-col gap-3 rounded-3xl p-4 sm:p-5 md:flex-row md:items-center md:justify-between " +
             (isGithubConnected
-              ? "bg-[#f4f7ff]"
-              : "bg-slate-50 border border-slate-100")
+              ? "bg-primary/5"
+              : "bg-muted border border-border")
           }
         >
           <div className="flex min-w-0 items-center gap-3 sm:gap-4">
@@ -143,8 +143,8 @@ export default function ProfileIntelligence() {
               className={
                 "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl shadow-sm sm:h-12 sm:w-12 " +
                 (isGithubConnected
-                  ? "bg-white text-blue-600"
-                  : "bg-white text-slate-400")
+                  ? "bg-card text-primary"
+                  : "bg-card text-muted-foreground")
               }
             >
               <Code2 size={24} />
@@ -153,12 +153,12 @@ export default function ProfileIntelligence() {
               <h4
                 className={
                   "wrap-break-word text-sm font-bold " +
-                  (isGithubConnected ? "text-slate-900" : "text-slate-500")
+                  (isGithubConnected ? "text-foreground" : "text-muted-foreground")
                 }
               >
                 GitHub Analytics
               </h4>
-              <p className="wrap-break-word text-[11px] font-medium text-slate-500">
+              <p className="wrap-break-word text-[11px] font-medium text-muted-foreground">
                 {isGithubConnected
                   ? `${totalRepos} Repositories, ${totalCommits} Commits`
                   : "Not Connected"}
@@ -167,7 +167,7 @@ export default function ProfileIntelligence() {
           </div>
           {isGithubConnected && (
             <CheckCircle2
-              className="self-start text-blue-600 md:self-auto"
+              className="self-start text-primary md:self-auto"
               size={20}
             />
           )}
@@ -178,8 +178,8 @@ export default function ProfileIntelligence() {
           className={
             "flex flex-col gap-3 rounded-3xl p-4 sm:p-5 md:flex-row md:items-center md:justify-between " +
             (isAcademicConnected
-              ? "border-2 border-blue-100 bg-white"
-              : "border-2 border-slate-100 bg-slate-50")
+              ? "border-2 border-primary/20 bg-card"
+              : "border-2 border-border bg-muted")
           }
         >
           <div className="flex min-w-0 items-center gap-3 sm:gap-4">
@@ -187,8 +187,8 @@ export default function ProfileIntelligence() {
               className={
                 "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl sm:h-12 sm:w-12 " +
                 (isAcademicConnected
-                  ? "bg-[#eff6ff] text-blue-600"
-                  : "bg-slate-100 text-slate-400")
+                  ? "bg-primary/10 text-primary"
+                  : "bg-muted text-muted-foreground")
               }
             >
               <GraduationCap size={24} />
@@ -197,12 +197,12 @@ export default function ProfileIntelligence() {
               <h4
                 className={
                   "wrap-break-word text-sm font-bold " +
-                  (isAcademicConnected ? "text-slate-900" : "text-slate-500")
+                  (isAcademicConnected ? "text-foreground" : "text-muted-foreground")
                 }
               >
                 eStudent Sync
               </h4>
-              <p className="wrap-break-word text-[11px] font-medium text-slate-500">
+              <p className="wrap-break-word text-[11px] font-medium text-muted-foreground">
                 {isAcademicConnected
                   ? `GPA: ${latestCGPA?.toFixed(2) || "N/A"}/${gpaScale.toFixed(1)}, Synced`
                   : "No Academic Records"}
@@ -211,7 +211,7 @@ export default function ProfileIntelligence() {
           </div>
           {isAcademicConnected && (
             <CheckCircle2
-              className="self-start text-blue-600 md:self-auto"
+              className="self-start text-primary md:self-auto"
               size={20}
             />
           )}

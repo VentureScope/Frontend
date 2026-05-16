@@ -5,7 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { logoutUser } from "@/lib/auth-api";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -85,7 +86,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-40 border-b border-slate-100 bg-white/80 backdrop-blur-md">
+      <nav className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
@@ -96,7 +97,7 @@ export default function Navbar() {
               height={28}
               className="h-7 w-7 object-contain"
             />
-            <span className="text-xl font-bold tracking-tight text-slate-900">
+            <span className="text-xl font-bold tracking-tight text-foreground">
               VentureScope
             </span>
           </Link>
@@ -114,8 +115,8 @@ export default function Navbar() {
                   }}
                   className={`text-sm transition-colors ${
                     isActive
-                      ? "font-bold text-blue-600"
-                      : "font-medium text-slate-500 hover:text-blue-600"
+                      ? "font-bold text-primary"
+                      : "font-medium text-muted-foreground hover:text-primary"
                   }`}
                 >
                   {link.name}
@@ -125,7 +126,7 @@ export default function Navbar() {
 
             {/* Animated Sliding Underline for Desktop */}
             <span
-              className="absolute -bottom-1 h-0.75 rounded-full bg-blue-600 transition-all duration-500 ease-in-out"
+              className="absolute -bottom-1 h-0.75 rounded-full bg-primary transition-all duration-500 ease-in-out"
               style={{
                 left: `${indicatorStyle.left}px`,
                 width: `${indicatorStyle.width}px`,
@@ -136,12 +137,13 @@ export default function Navbar() {
 
           {/* Desktop Actions */}
           <div className="hidden items-center gap-4 md:flex">
+            <ThemeToggle />
             {isAuthenticated ? (
               <>
                 <Button
                   asChild
                   variant="outline"
-                  className="rounded-full border-slate-200 px-6 font-bold text-slate-700 hover:bg-slate-50"
+                  className="rounded-full border-border px-6 font-bold text-foreground hover:bg-muted"
                 >
                   <Link href="/dashboard">Dashboard</Link>
                 </Button>
@@ -149,7 +151,7 @@ export default function Navbar() {
                   type="button"
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  className="rounded-full bg-[#1d59db] px-6 font-bold text-white hover:bg-blue-700"
+                  className="rounded-full bg-primary px-6 font-bold text-white hover:bg-primary/90"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   {isLoggingOut ? "Logging out..." : "Logout"}
@@ -159,13 +161,13 @@ export default function Navbar() {
               <>
                 <Link
                   href="/sign-in"
-                  className="text-sm font-bold text-slate-700 hover:text-blue-600"
+                  className="text-sm font-bold text-foreground hover:text-primary"
                 >
                   Sign In
                 </Link>
                 <Button
                   asChild
-                  className="bg-[#1d59db] font-bold hover:bg-blue-700 rounded-full px-6"
+                  className="bg-primary font-bold hover:bg-primary/90 rounded-full px-6"
                 >
                   <Link href="/register">Get Started</Link>
                 </Button>
@@ -175,7 +177,7 @@ export default function Navbar() {
 
           {/* Mobile Menu Toggle */}
           <button
-            className="md:hidden text-slate-900 focus:outline-none p-2 -mr-2"
+            className="md:hidden text-foreground focus:outline-none p-2 -mr-2"
             onClick={() => setIsMobileMenuOpen(true)}
             aria-label="Open Mobile Menu"
           >
@@ -194,11 +196,11 @@ export default function Navbar() {
 
       {/* Mobile Sidebar Slide-out */}
       <div
-        className={`fixed top-0 right-0 z-50 flex h-dvh w-4/5 max-w-sm flex-col bg-white shadow-2xl transition-transform duration-500 ease-in-out md:hidden ${
+        className={`fixed top-0 right-0 z-50 flex h-dvh w-4/5 max-w-sm flex-col bg-card shadow-2xl transition-transform duration-500 ease-in-out md:hidden ${
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between p-6 border-b border-slate-50">
+        <div className="flex items-center justify-between p-6 border-b border-border">
           <Link
             href="/"
             className="flex items-center gap-2"
@@ -211,13 +213,13 @@ export default function Navbar() {
               height={24}
               className="h-6 w-6 object-contain"
             />
-            <span className="font-bold tracking-tight text-slate-900">
+            <span className="font-bold tracking-tight text-foreground">
               VentureScope
             </span>
           </Link>
           <button
             onClick={() => setIsMobileMenuOpen(false)}
-            className="rounded-full bg-slate-100 p-2 text-slate-600 hover:bg-slate-200 transition-colors"
+            className="rounded-full bg-muted p-2 text-muted-foreground hover:bg-muted/80 transition-colors"
             aria-label="Close Mobile Menu"
           >
             <X className="h-5 w-5 shrink-0" />
@@ -235,8 +237,8 @@ export default function Navbar() {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`text-lg transition-colors flex items-center ${
                     isActive
-                      ? "font-bold text-blue-600"
-                      : "font-medium text-slate-600 hover:text-blue-600"
+                      ? "font-bold text-primary"
+                      : "font-medium text-muted-foreground hover:text-primary"
                   }`}
                 >
                   {link.name}
@@ -245,13 +247,18 @@ export default function Navbar() {
             })}
           </div>
 
-          <div className="mt-10 flex flex-col gap-4 border-t border-slate-100 pt-8">
+          <div className="mt-6 flex items-center justify-between">
+            <span className="text-sm font-medium text-muted-foreground">Theme</span>
+            <ThemeToggle variant="pill" />
+          </div>
+
+          <div className="mt-8 flex flex-col gap-4 border-t border-border pt-8">
             {isAuthenticated ? (
               <>
                 <Button
                   asChild
                   variant="outline"
-                  className="w-full justify-center rounded-full border-slate-200 py-6 text-base font-bold text-slate-700 hover:bg-slate-50"
+                  className="w-full justify-center rounded-full border-border py-6 text-base font-bold text-foreground hover:bg-muted"
                 >
                   <Link
                     href="/dashboard"
@@ -264,7 +271,7 @@ export default function Navbar() {
                   type="button"
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  className="w-full justify-center rounded-full bg-[#1d59db] py-6 text-base font-bold text-white hover:bg-blue-700"
+                  className="w-full justify-center rounded-full bg-primary py-6 text-base font-bold text-white hover:bg-primary/90"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   {isLoggingOut ? "Logging out..." : "Logout"}
@@ -275,7 +282,7 @@ export default function Navbar() {
                 <Button
                   asChild
                   variant="outline"
-                  className="w-full justify-center rounded-full border-slate-200 py-6 text-base font-bold text-slate-700 hover:bg-slate-50"
+                  className="w-full justify-center rounded-full border-border py-6 text-base font-bold text-foreground hover:bg-muted"
                 >
                   <Link
                     href="/sign-in"
@@ -286,7 +293,7 @@ export default function Navbar() {
                 </Button>
                 <Button
                   asChild
-                  className="w-full justify-center rounded-full bg-[#1d59db] py-6 text-base font-bold text-white hover:bg-blue-700"
+                  className="w-full justify-center rounded-full bg-primary py-6 text-base font-bold text-white hover:bg-primary/90"
                 >
                   <Link
                     href="/register"

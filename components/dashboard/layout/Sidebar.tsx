@@ -77,7 +77,7 @@ export default function Sidebar({
         onClick={onClose}
       />
       <aside
-        className={`fixed left-0 top-0 h-full w-64 border-r border-slate-100 bg-white flex flex-col z-50 transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+        className={`fixed left-0 top-0 h-full w-64 border-r border-border bg-sidebar flex flex-col z-50 transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
         <div className="p-8 flex items-center justify-between">
           <Link
@@ -93,10 +93,10 @@ export default function Sidebar({
               className="h-8 w-8 object-contain"
             />
             <div>
-              <h2 className="text-xl font-bold tracking-tight text-slate-900 leading-none">
+              <h2 className="text-xl font-bold tracking-tight text-sidebar-foreground leading-none">
                 VentureScope
               </h2>
-              <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-slate-400 mt-1">
+              <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-muted-foreground mt-1">
                 Intelligence Layer
               </p>
             </div>
@@ -114,13 +114,13 @@ export default function Sidebar({
                 onClick={onClose}
                 className={`flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-medium transition-all ${
                   active
-                    ? "bg-blue-50 text-blue-600"
-                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                    ? "bg-sidebar-accent text-primary"
+                    : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"
                 }`}
               >
                 <item.icon
                   size={20}
-                  className={active ? "text-blue-600" : "text-slate-400"}
+                  className={active ? "text-primary" : "text-muted-foreground"}
                 />
                 {item.name}
               </Link>
@@ -136,7 +136,7 @@ export default function Sidebar({
               handleLogout();
             }}
             disabled={isLoggingOut}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1d59db] py-4 text-sm font-bold text-white shadow-xl shadow-blue-600/20 transition-colors hover:bg-blue-700"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-sm font-bold text-primary-foreground shadow-xl shadow-primary/20 transition-colors hover:bg-primary/90"
           >
             <LogOut size={16} className="shrink-0" />
             {isLoggingOut ? "Logging out..." : "Logout"}

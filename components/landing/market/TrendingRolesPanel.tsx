@@ -35,26 +35,26 @@ export function TrendingRolesPanel({
       className={
         compact
           ? "space-y-4 h-full flex flex-col"
-          : "rounded-2xl sm:rounded-3xl bg-blue-50/50 p-6 sm:p-8 lg:p-10 border border-blue-100"
+          : "rounded-2xl sm:rounded-3xl bg-primary/10 p-6 sm:p-8 lg:p-10 border border-primary/20"
       }
     >
       <div>
         <h2
           className={
             compact
-              ? "text-base font-bold text-slate-900"
-              : "text-lg sm:text-xl font-bold text-slate-900"
+              ? "text-base font-bold text-foreground"
+              : "text-lg sm:text-xl font-bold text-foreground"
           }
         >
           {title}
         </h2>
         {!compact && (
-          <p className="mt-2 text-xs sm:text-sm text-slate-500">
+          <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
             Top {limit} roles by hiring volume in the last 30 days.
           </p>
         )}
         {insight && !loading && (
-          <p className="mt-3 text-sm text-slate-600 leading-relaxed border-l-2 border-blue-500 pl-3">
+          <p className="mt-3 text-sm text-muted-foreground leading-relaxed border-l-2 border-blue-500 pl-3">
             {insight}
           </p>
         )}
@@ -64,11 +64,11 @@ export function TrendingRolesPanel({
         {loading ? (
           <TrendingRolesSkeleton rows={limit} />
         ) : topCareers.length === 0 ? (
-          <p className="text-sm text-slate-500">No trending roles yet.</p>
+          <p className="text-sm text-muted-foreground">No trending roles yet.</p>
         ) : (
           topCareers.map((role, i) => {
             const colors = [
-              "bg-blue-600 text-white",
+              "bg-primary text-white",
               "bg-violet-600 text-white",
               "bg-emerald-600 text-white",
             ];
@@ -80,8 +80,8 @@ export function TrendingRolesPanel({
                 key={`${role.name}-${i}`}
                 className={
                   compact
-                    ? "flex items-center gap-3 rounded-xl border border-slate-100 bg-white p-3 shadow-sm"
-                    : "flex flex-col sm:flex-row sm:items-center justify-between bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100 gap-3"
+                    ? "flex items-center gap-3 rounded-xl border border-border bg-card p-3 shadow-sm"
+                    : "flex flex-col sm:flex-row sm:items-center justify-between bg-card p-4 sm:p-5 rounded-2xl shadow-sm border border-border gap-3"
                 }
               >
                 <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -91,10 +91,10 @@ export function TrendingRolesPanel({
                     {i + 1}
                   </div>
                   <div className="min-w-0">
-                    <p className="font-semibold text-slate-900 text-sm truncate">
+                    <p className="font-semibold text-foreground text-sm truncate">
                       {role.name}
                     </p>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       {formatCompactNumber(role.job_count)} open roles ·{" "}
                       {formatCompactNumber(role.company_count)} hiring
                     </p>
@@ -109,19 +109,19 @@ export function TrendingRolesPanel({
                           ? "bg-emerald-50 text-emerald-700"
                           : growth.tone === "down"
                             ? "bg-rose-50 text-rose-700"
-                            : "bg-slate-100 text-slate-600"
+                            : "bg-muted text-muted-foreground"
                       }`}
                     >
                       {growth.label}
                     </span>
                     <div className="flex items-center gap-1.5">
-                      <div className="w-12 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                      <div className="w-12 bg-muted rounded-full h-1.5 overflow-hidden">
                         <div
-                          className="bg-blue-600 h-1.5 rounded-full"
+                          className="bg-primary h-1.5 rounded-full"
                           style={{ width: `${volume}%` }}
                         />
                       </div>
-                      <span className="font-bold text-blue-600 text-[10px] w-7 text-right">
+                      <span className="font-bold text-primary text-[10px] w-7 text-right">
                         {volume}%
                       </span>
                     </div>

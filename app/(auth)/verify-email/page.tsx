@@ -22,8 +22,8 @@ export default function VerifyEmailPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-slate-50">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <div className="flex min-h-screen items-center justify-center bg-muted">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       }
     >
@@ -200,10 +200,10 @@ function VerifyEmailContent() {
     : "";
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 p-4 sm:p-8">
-      <div className="flex w-full max-w-5xl overflow-hidden rounded-2xl sm:rounded-3xl bg-white shadow-2xl">
+    <div className="flex min-h-screen w-full items-center justify-center bg-muted p-4 sm:p-8">
+      <div className="flex w-full max-w-5xl overflow-hidden rounded-2xl sm:rounded-3xl bg-card shadow-2xl">
         {/* LEFT SIDE - BRANDING */}
-        <section className="relative hidden w-1/2 flex-col justify-between bg-[#1d59db] p-8 shrink-0 lg:flex">
+        <section className="relative hidden w-1/2 flex-col justify-between bg-primary p-8 shrink-0 lg:flex">
           <div className="space-y-6">
             {/* Logo */}
             <div className="flex items-center gap-3 text-white">
@@ -224,7 +224,7 @@ function VerifyEmailContent() {
               <h1 className="text-4xl font-bold leading-[1.1] text-white">
                 One Last Step to Unlock Your Intelligence Dashboard.
               </h1>
-              <p className="text-sm text-blue-100/90 leading-relaxed">
+              <p className="text-sm text-primary-foreground/80/90 leading-relaxed">
                 We&apos;ve sent a verification code to your email. Enter it
                 below to activate your account and start making data-driven
                 career decisions.
@@ -233,21 +233,21 @@ function VerifyEmailContent() {
           </div>
 
           {/* Security Info Card */}
-          <div className="rounded-xl bg-white/20 p-6 backdrop-blur-md border border-white/20">
+          <div className="rounded-xl bg-card/20 p-6 backdrop-blur-md border border-background/20">
             <div className="flex items-center gap-3 mb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-card/20">
                 <ShieldCheck className="h-5 w-5 text-white" />
               </div>
               <div>
                 <p className="text-sm font-bold text-white">
                   Secure Verification
                 </p>
-                <p className="text-[11px] text-blue-100/80">
+                <p className="text-[11px] text-primary-foreground/80/80">
                   Your code expires in 10 minutes
                 </p>
               </div>
             </div>
-            <p className="text-xs text-blue-100/70 leading-relaxed">
+            <p className="text-xs text-primary-foreground/80/70 leading-relaxed">
               We use one-time verification codes to protect your account. Never
               share your code with anyone — VentureScope will never ask for it
               outside of this page.
@@ -256,12 +256,12 @@ function VerifyEmailContent() {
         </section>
 
         {/* RIGHT SIDE - OTP FORM */}
-        <section className="flex flex-1 flex-col items-center justify-center bg-white px-6 py-10 sm:px-12 lg:px-16">
+        <section className="flex flex-1 flex-col items-center justify-center bg-card px-6 py-10 sm:px-12 lg:px-16">
           <div className="w-full max-w-sm sm:max-w-md space-y-6">
             {/* Back link */}
             <Link
               href="/register"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-700 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-muted-foreground transition-colors"
             >
               <ArrowLeft size={14} />
               Back to registration
@@ -270,16 +270,16 @@ function VerifyEmailContent() {
             {/* Header */}
             <div className="space-y-2 text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 mb-2">
-                  <Mail className="h-6 w-6 text-blue-600" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 mb-2">
+                  <Mail className="h-6 w-6 text-primary" />
                 </div>
               </div>
-              <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+              <h2 className="text-2xl font-bold tracking-tight text-foreground">
                 Check your email
               </h2>
-              <p className="text-sm text-slate-500 leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 We&apos;ve sent a 6-digit verification code to{" "}
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-muted-foreground">
                   {maskedEmail}
                 </span>
               </p>
@@ -303,12 +303,12 @@ function VerifyEmailContent() {
                   disabled={isVerifying}
                   autoComplete="one-time-code"
                   className={`
-                    h-13 w-11 sm:h-14 sm:w-12 rounded-xl border-2 bg-[#f0f4ff] text-center
-                    text-xl sm:text-2xl font-bold text-slate-800
+                    h-13 w-11 sm:h-14 sm:w-12 rounded-xl border-2 bg-muted text-center
+                    text-xl sm:text-2xl font-bold text-foreground
                     outline-none transition-all duration-200
-                    focus:border-blue-600 focus:ring-4 focus:ring-blue-100 focus:bg-white
+                    focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-card
                     disabled:opacity-50 disabled:cursor-not-allowed
-                    ${otp[index] ? "border-blue-400 bg-blue-50/50" : "border-transparent"}
+                    ${otp[index] ? "border-blue-400 bg-primary/10" : "border-transparent"}
                     ${apiError ? "border-red-300 focus:border-red-500 focus:ring-red-100" : ""}
                   `}
                 />
@@ -333,7 +333,7 @@ function VerifyEmailContent() {
             <Button
               onClick={() => handleVerify()}
               disabled={isVerifying || otp.join("").length !== OTP_LENGTH}
-              className="h-11 w-full bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+              className="h-11 w-full bg-primary text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
             >
               {isVerifying ? (
                 <>
@@ -347,7 +347,7 @@ function VerifyEmailContent() {
 
             {/* Resend Section */}
             <div className="text-center space-y-2">
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-muted-foreground">
                 Didn&apos;t receive the code?
               </p>
               <button
@@ -357,8 +357,8 @@ function VerifyEmailContent() {
                   inline-flex items-center gap-1.5 text-xs font-bold transition-colors
                   ${
                     cooldown > 0 || isResending
-                      ? "text-slate-400 cursor-not-allowed"
-                      : "text-blue-600 hover:text-blue-700 cursor-pointer"
+                      ? "text-muted-foreground cursor-not-allowed"
+                      : "text-primary hover:text-primary/90 cursor-pointer"
                   }
                 `}
               >
@@ -376,11 +376,11 @@ function VerifyEmailContent() {
 
             {/* Footer */}
             <div className="pt-2 text-center">
-              <p className="text-[11px] text-slate-400 leading-relaxed">
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
                 Having trouble?{" "}
                 <Link
                   href="/sign-in"
-                  className="font-semibold text-blue-600 hover:underline"
+                  className="font-semibold text-primary hover:underline"
                 >
                   Try signing in
                 </Link>{" "}

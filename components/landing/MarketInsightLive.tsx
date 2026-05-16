@@ -105,32 +105,32 @@ export default function MarketInsightLive() {
   }, [token]);
 
   return (
-    <div className="bg-slate-50/50 pb-24">
+    <div className="bg-muted/50 pb-24">
       <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8 sm:pt-16 lg:px-8">
         <div className="flex flex-col justify-between gap-6 sm:gap-8 md:flex-row md:items-end">
           <div className="space-y-3 sm:space-y-4 text-center md:text-left">
-            <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-blue-700">
+            <span className="inline-flex items-center rounded-full bg-primary/15 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
               Live market intelligence
             </span>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground">
               Market Insights
             </h1>
-            <p className="max-w-xl mx-auto md:mx-0 text-base sm:text-lg text-slate-500 leading-relaxed">
+            <p className="max-w-xl mx-auto md:mx-0 text-base sm:text-lg text-muted-foreground leading-relaxed">
               Understand what employers are hiring for right now—trending roles,
               in-demand skills, and where opportunities cluster across Ethiopia&apos;s
               tech economy.
             </p>
           </div>
 
-          <div className="flex items-center justify-center md:justify-start gap-4 rounded-2xl bg-white p-4 shadow-sm border border-slate-100">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
-              <RefreshCw className="h-5 w-5 text-blue-600" />
+          <div className="flex items-center justify-center md:justify-start gap-4 rounded-2xl bg-card p-4 shadow-sm border border-border">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+              <RefreshCw className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                 Last refreshed
               </p>
-              <p className="font-bold text-slate-900">
+              <p className="font-bold text-foreground">
                 {loading
                   ? "Updating…"
                   : updatedAt
@@ -181,7 +181,7 @@ export default function MarketInsightLive() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-16 lg:px-8">
-        <div className="rounded-3xl sm:rounded-[40px] bg-linear-to-b from-slate-50 to-white border border-slate-100 p-8 sm:p-12 lg:p-24 text-center relative overflow-hidden">
+        <div className="rounded-3xl sm:rounded-[40px] bg-linear-to-b from-muted to-background border border-border p-8 sm:p-12 lg:p-24 text-center relative overflow-hidden">
           <div
             className="absolute inset-0 opacity-[0.4]"
             style={{
@@ -190,10 +190,10 @@ export default function MarketInsightLive() {
             }}
           />
           <div className="relative z-10 space-y-6 sm:space-y-10">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 max-w-2xl mx-auto leading-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground max-w-2xl mx-auto leading-tight">
               Turn insights into a career plan
             </h2>
-            <p className="text-slate-500 text-sm sm:text-lg max-w-xl mx-auto">
+            <p className="text-muted-foreground text-sm sm:text-lg max-w-xl mx-auto">
               Use VentureScope to generate learning roadmaps, tailored resumes,
               and profile-based job matches—all grounded in the same market data
               you see here.
@@ -201,14 +201,14 @@ export default function MarketInsightLive() {
             <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-4">
               <Button
                 asChild
-                className="h-12 sm:h-14 w-full sm:w-auto px-6 sm:px-10 rounded-xl bg-blue-600 font-bold hover:bg-blue-700"
+                className="h-12 sm:h-14 w-full sm:w-auto px-6 sm:px-10 rounded-xl bg-primary font-bold hover:bg-primary/90"
               >
                 <Link href="/register">Get started free</Link>
               </Button>
               <Button
                 asChild
                 variant="outline"
-                className="h-12 sm:h-14 w-full sm:w-auto px-6 sm:px-10 rounded-xl border-slate-200 bg-white font-bold text-slate-700 hover:bg-slate-50"
+                className="h-12 sm:h-14 w-full sm:w-auto px-6 sm:px-10 rounded-xl border-border bg-card font-bold text-muted-foreground hover:bg-muted"
               >
                 <Link href="/sign-in">Sign in</Link>
               </Button>

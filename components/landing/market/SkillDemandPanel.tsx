@@ -9,8 +9,8 @@ import {
 } from "@/lib/job-market-insights";
 
 const BAR_COLORS = [
-  "bg-blue-800",
-  "bg-blue-600",
+  "bg-primary",
+  "bg-primary",
   "bg-indigo-600",
   "bg-sky-500",
   "bg-violet-500",
@@ -39,26 +39,26 @@ export function SkillDemandPanel({
       className={
         compact
           ? "space-y-4"
-          : "rounded-2xl sm:rounded-3xl bg-white p-6 sm:p-8 lg:p-10 shadow-sm border border-slate-100"
+          : "rounded-2xl sm:rounded-3xl bg-card p-6 sm:p-8 lg:p-10 shadow-sm border border-border"
       }
     >
       <div className={compact ? "" : "mb-6 sm:mb-8"}>
         <h2
           className={
             compact
-              ? "text-base font-bold text-slate-900"
-              : "text-lg sm:text-xl font-bold text-slate-900"
+              ? "text-base font-bold text-foreground"
+              : "text-lg sm:text-xl font-bold text-foreground"
           }
         >
           {title}
         </h2>
         {!compact && (
-          <p className="mt-2 text-xs sm:text-sm text-slate-500 leading-relaxed">
+          <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
             Top {limit} skills by relative demand in indexed postings.
           </p>
         )}
         {insight && !loading && (
-          <p className="mt-3 text-sm text-slate-600 leading-relaxed border-l-2 border-blue-500 pl-3">
+          <p className="mt-3 text-sm text-muted-foreground leading-relaxed border-l-2 border-blue-500 pl-3">
             {insight}
           </p>
         )}
@@ -67,23 +67,23 @@ export function SkillDemandPanel({
       {loading ? (
         <SkillDemandSkeleton rows={limit} />
       ) : bars.length === 0 ? (
-        <p className="text-sm text-slate-500">No skill demand data available yet.</p>
+        <p className="text-sm text-muted-foreground">No skill demand data available yet.</p>
       ) : (
         <div className={compact ? "space-y-4" : "space-y-5"}>
           {bars.map((skill, i) => (
             <div key={skill.name} className="space-y-1.5">
               <div className="flex justify-between items-center gap-2 text-sm">
-                <span className="font-medium text-slate-800 flex items-center gap-2 min-w-0">
-                  <span className="shrink-0 text-[10px] font-bold text-slate-400 w-5">
+                <span className="font-medium text-foreground flex items-center gap-2 min-w-0">
+                  <span className="shrink-0 text-[10px] font-bold text-muted-foreground w-5">
                     #{skill.rank}
                   </span>
                   <span className="truncate">{skill.name}</span>
                 </span>
-                <span className="text-blue-600 font-bold shrink-0 text-xs">
+                <span className="text-primary font-bold shrink-0 text-xs">
                   {skill.width}% demand
                 </span>
               </div>
-              <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                 <div
                   className={`h-2 rounded-full transition-all duration-700 ${BAR_COLORS[i % BAR_COLORS.length]}`}
                   style={{ width: `${skill.width}%` }}

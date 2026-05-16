@@ -219,8 +219,8 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 p-4 sm:p-8">
-      <div className="flex w-full max-w-5xl overflow-hidden rounded-2xl sm:rounded-3xl bg-white shadow-2xl">
+    <div className="flex min-h-screen w-full items-center justify-center bg-muted p-4 sm:p-8">
+      <div className="flex w-full max-w-5xl overflow-hidden rounded-2xl sm:rounded-3xl bg-card shadow-2xl">
         {/* --- LEFT SIDE: BRANDING & VISUALS (Hidden on mobile/tablet for focus) --- */}
         <section className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-[#020817] p-10 shrink-0 lg:flex">
           {/* Background Image Effect */}
@@ -257,7 +257,7 @@ export default function SignInPage() {
               <h1 className="text-5xl font-bold leading-[1.1] tracking-tight text-white">
                 The Intelligence Layer for Your Career Journey.
               </h1>
-              <p className="text-lg text-slate-400 leading-relaxed max-w-md">
+              <p className="text-lg text-muted-foreground leading-relaxed max-w-md">
                 Join thousands of professionals using data-driven insights to
                 navigate the next chapter of their careers.
               </p>
@@ -265,14 +265,14 @@ export default function SignInPage() {
           </div>
 
           {/* Data Card (The Progress Visual) */}
-          <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
+          <div className="relative z-10 w-full max-w-sm rounded-2xl border border-background/10 bg-card/10 p-6 backdrop-blur-xl">
             <div className="flex items-start justify-between mb-4">
               <div className="flex gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
                   <TrendingUp className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                     Market Insights
                   </p>
                   <p className="font-bold text-slate-100">
@@ -280,27 +280,27 @@ export default function SignInPage() {
                   </p>
                 </div>
               </div>
-              <span className="text-3xl font-bold text-blue-500">94%</span>
+              <span className="text-3xl font-bold text-primary">94%</span>
             </div>
             {/* Progress Bar */}
-            <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
-              <div className="h-full w-[94%] bg-blue-600" />
+            <div className="h-2 w-full overflow-hidden rounded-full bg-card/10">
+              <div className="h-full w-[94%] bg-primary" />
             </div>
           </div>
 
-          <div className="relative z-10 text-sm text-slate-500">
+          <div className="relative z-10 text-sm text-muted-foreground">
             © 2026 VentureScope Intelligence. All rights reserved.
           </div>
         </section>
 
         {/* --- RIGHT SIDE: LOGIN FORM (Centered in its container) --- */}
-        <section className="flex flex-1 flex-col items-center justify-center bg-white px-6 py-10 sm:px-12 lg:px-16">
+        <section className="flex flex-1 flex-col items-center justify-center bg-card px-6 py-10 sm:px-12 lg:px-16">
           <div className="w-full max-w-sm sm:max-w-md space-y-6 bg-transparent">
             <div className="space-y-1.5 text-center sm:text-left">
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900">
+              <h2 className="text-3xl font-bold tracking-tight text-foreground">
                 Welcome back
               </h2>
-              <p className="text-slate-500 text-[15px]">
+              <p className="text-muted-foreground text-[15px]">
                 Enter your credentials to access your intelligence dashboard.
               </p>
             </div>
@@ -316,7 +316,7 @@ export default function SignInPage() {
                     disabled={
                       isGoogleSubmitting || isGithubSubmitting || isSubmitting
                     }
-                    className="flex-1 h-11 gap-2 border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50"
+                    className="flex-1 h-11 gap-2 border-border bg-card text-muted-foreground shadow-sm hover:bg-muted"
                   >
                     <svg className="h-4 w-4" viewBox="0 0 24 24">
                       <path
@@ -347,9 +347,9 @@ export default function SignInPage() {
                     disabled={
                       isGoogleSubmitting || isGithubSubmitting || isSubmitting
                     }
-                    className="flex-1 h-11 gap-2 border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50"
+                    className="flex-1 h-11 gap-2 border-border bg-card text-muted-foreground shadow-sm hover:bg-muted"
                   >
-                    <Github className="h-4 w-4 text-slate-800" />
+                    <Github className="h-4 w-4 text-foreground" />
                     <span className="font-semibold">
                       {isGithubSubmitting ? "Connecting..." : "GitHub"}
                     </span>
@@ -358,22 +358,22 @@ export default function SignInPage() {
 
                 {/* Divider */}
                 <div className="relative flex items-center py-1">
-                  <div className="grow border-t border-slate-200"></div>
-                  <span className="mx-4 shrink text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  <div className="grow border-t border-border"></div>
+                  <span className="mx-4 shrink text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                     Or continue with email
                   </span>
-                  <div className="grow border-t border-slate-200"></div>
+                  <div className="grow border-t border-border"></div>
                 </div>
 
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <Field>
-                  <FieldLabel className="text-[13px] font-bold text-slate-800">
+                  <FieldLabel className="text-[13px] font-bold text-foreground">
                     Work Email
                   </FieldLabel>
                   <Input
                     placeholder="name@company.com"
                     {...form.register("email")}
-                    className="h-11 border-none bg-[#f0f4ff] px-4 ring-offset-0 focus-visible:ring-2 focus-visible:ring-blue-600"
+                    className="h-11 border-none bg-muted px-4 ring-offset-0 focus-visible:ring-2 focus-visible:ring-primary"
                   />
                   {form.formState.errors.email && (
                     <FieldError>{form.formState.errors.email.message}</FieldError>
@@ -382,12 +382,12 @@ export default function SignInPage() {
 
                 <Field>
                   <div className="flex items-center justify-between">
-                    <FieldLabel className="text-[13px] font-bold text-slate-800">
+                    <FieldLabel className="text-[13px] font-bold text-foreground">
                       Password
                     </FieldLabel>
                     <Link
                       href="/forgot-password"
-                      className="text-[11px] font-bold text-blue-600 hover:underline"
+                      className="text-[11px] font-bold text-primary hover:underline"
                     >
                       Forgot password?
                     </Link>
@@ -397,12 +397,12 @@ export default function SignInPage() {
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
                       {...form.register("password")}
-                      className="h-11 border-none bg-[#f0f4ff] px-4 pr-12 ring-offset-0 focus-visible:ring-2 focus-visible:ring-blue-600"
+                      className="h-11 border-none bg-muted px-4 pr-12 ring-offset-0 focus-visible:ring-2 focus-visible:ring-primary"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -419,11 +419,11 @@ export default function SignInPage() {
                     type="checkbox"
                     id="remember_me"
                     {...form.register("remember_me")}
-                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600 cursor-pointer"
+                    className="h-4 w-4 rounded border-border text-primary focus:ring-blue-600 cursor-pointer"
                   />
                   <label
                     htmlFor="remember_me"
-                    className="text-sm font-semibold text-slate-700 cursor-pointer select-none"
+                    className="text-sm font-semibold text-muted-foreground cursor-pointer select-none"
                   >
                     Remember this device (24h)
                   </label>
@@ -432,7 +432,7 @@ export default function SignInPage() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="mt-2 h-12 w-full bg-[#1d59db] text-base font-semibold text-white shadow-xl shadow-blue-500/20 hover:bg-[#1748b3]"
+                  className="mt-2 h-12 w-full bg-primary text-base font-semibold text-white shadow-xl shadow-primary/20 hover:bg-primary/90"
                 >
                   {isSubmitting ? "Signing In..." : "Sign In"}
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -449,17 +449,17 @@ export default function SignInPage() {
                   <>
                     <div className="text-center sm:text-left space-y-2">
                       <div className="flex items-center justify-center sm:justify-start">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 mb-2">
-                          <ShieldCheck className="h-6 w-6 text-blue-600" />
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 mb-2">
+                          <ShieldCheck className="h-6 w-6 text-primary" />
                         </div>
                       </div>
-                      <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+                      <h2 className="text-2xl font-bold tracking-tight text-foreground">
                         Verify it's you
                       </h2>
-                      <p className="text-sm text-slate-500 leading-relaxed">
+                      <p className="text-sm text-muted-foreground leading-relaxed">
                         Enter the 6-digit code from your authenticator app{" "}
                         {selectedFactor?.friendly_name && (
-                          <span className="font-bold text-slate-700">
+                          <span className="font-bold text-muted-foreground">
                             ({selectedFactor.friendly_name})
                           </span>
                         )}
@@ -493,7 +493,7 @@ export default function SignInPage() {
                             }
                           }}
                           disabled={isVerifyingMfa}
-                          className="h-13 w-10 sm:h-14 sm:w-12 rounded-xl border-2 border-transparent bg-[#f0f4ff] text-center text-xl sm:text-2xl font-bold text-slate-800 outline-none transition-all focus:border-blue-600 focus:bg-white"
+                          className="h-13 w-10 sm:h-14 sm:w-12 rounded-xl border-2 border-transparent bg-muted text-center text-xl sm:text-2xl font-bold text-foreground outline-none transition-all focus:border-primary focus:bg-card"
                         />
                       ))}
                     </div>
@@ -507,7 +507,7 @@ export default function SignInPage() {
                     <Button
                       onClick={onMfaVerify}
                       disabled={isVerifyingMfa || mfaCode.length !== 6}
-                      className="h-12 w-full bg-[#1d59db] text-base font-semibold text-white shadow-xl shadow-blue-500/20 hover:bg-[#1748b3]"
+                      className="h-12 w-full bg-primary text-base font-semibold text-white shadow-xl shadow-primary/20 hover:bg-primary/90"
                     >
                       {isVerifyingMfa ? (
                         <>
@@ -523,14 +523,14 @@ export default function SignInPage() {
                       {mfaFactors.length > 1 && (
                         <button
                           onClick={() => setMfaSubStep("select")}
-                          className="w-full text-center text-xs font-bold text-blue-600 hover:underline"
+                          className="w-full text-center text-xs font-bold text-primary hover:underline"
                         >
                           Try another way
                         </button>
                       )}
                       <button
                         onClick={() => setStep("login")}
-                        className="w-full text-center text-xs font-bold text-slate-400 hover:text-slate-600"
+                        className="w-full text-center text-xs font-bold text-muted-foreground hover:text-muted-foreground"
                       >
                         Back to login
                       </button>
@@ -539,10 +539,10 @@ export default function SignInPage() {
                 ) : (
                   <>
                     <div className="text-center sm:text-left space-y-2">
-                      <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+                      <h2 className="text-2xl font-bold tracking-tight text-foreground">
                         Select method
                       </h2>
-                      <p className="text-sm text-slate-500 leading-relaxed">
+                      <p className="text-sm text-muted-foreground leading-relaxed">
                         Choose a backup authenticator to continue.
                       </p>
                     </div>
@@ -552,27 +552,27 @@ export default function SignInPage() {
                         <button
                           key={f.factor_id}
                           onClick={() => selectFactor(f)}
-                          className="flex w-full items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50 px-5 py-4 text-left transition-all hover:border-blue-300 hover:bg-blue-50"
+                          className="flex w-full items-center gap-4 rounded-2xl border border-border bg-muted px-5 py-4 text-left transition-all hover:border-blue-300 hover:bg-primary/10"
                         >
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
                             <Smartphone className="h-5 w-5" />
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-bold text-slate-900">
+                            <p className="text-sm font-bold text-foreground">
                               {f.friendly_name || `Authenticator ${i + 1}`}
                             </p>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
                               {new Date(f.created_at).toLocaleDateString()}
                             </p>
                           </div>
-                          <ChevronRight className="h-4 w-4 text-slate-300" />
+                          <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                         </button>
                       ))}
                     </div>
 
                     <button
                       onClick={() => setMfaSubStep("verify")}
-                      className="w-full text-center text-xs font-bold text-slate-400 hover:text-slate-600"
+                      className="w-full text-center text-xs font-bold text-muted-foreground hover:text-muted-foreground"
                     >
                       Back
                     </button>
@@ -581,11 +581,11 @@ export default function SignInPage() {
               </div>
             )}
 
-            <p className="text-center text-sm text-slate-600">
+            <p className="text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{" "}
               <Link
                 href="/register"
-                className="font-bold text-blue-600 hover:underline"
+                className="font-bold text-primary hover:underline"
               >
                 Start for free
               </Link>

@@ -6,7 +6,7 @@ const suggestedSkills = ["Data Visualization", "TypeScript"];
 export default function SkillMatrix() {
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-bold text-slate-900">
+      <h3 className="text-lg font-bold text-foreground">
         Skill Intelligence Matrix
       </h3>
 
@@ -15,12 +15,12 @@ export default function SkillMatrix() {
         {activeSkills.map((skill) => (
           <div
             key={skill}
-            className="flex max-w-full items-center gap-2 rounded-full border border-blue-100 bg-[#eff6ff] px-4 py-2 text-[13px] font-bold text-[#1d59db]"
+            className="flex max-w-full items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-[13px] font-bold text-primary"
           >
             <span className="wrap-break-word">{skill}</span>
             <X
               size={14}
-              className="shrink-0 cursor-pointer hover:text-blue-800"
+              className="shrink-0 cursor-pointer hover:text-primary/80"
             />
           </div>
         ))}
@@ -29,7 +29,7 @@ export default function SkillMatrix() {
         {suggestedSkills.map((skill) => (
           <div
             key={skill}
-            className="flex max-w-full items-center gap-2 rounded-full border border-rose-100 bg-[#fff1f2] px-4 py-2 text-[13px] font-bold text-[#e11d48]"
+            className="flex max-w-full items-center gap-2 rounded-full border border-destructive/20 bg-destructive/10 px-4 py-2 text-[13px] font-bold text-destructive"
           >
             <span className="wrap-break-word">{skill}</span>
             <Plus
@@ -40,9 +40,9 @@ export default function SkillMatrix() {
         ))}
       </div>
 
-      <p className="text-xs font-medium text-slate-400">
+      <p className="text-xs font-medium text-muted-foreground">
         Highlighted skills match{" "}
-        <span className="text-slate-600 font-bold">85%</span> of your target job
+        <span className="text-muted-foreground font-bold">85%</span> of your target job
         description.
       </p>
     </div>

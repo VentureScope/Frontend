@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
 function sk(className?: string) {
-  return <Skeleton className={className ?? "bg-slate-100"} />;
+  return <Skeleton className={className ?? "bg-muted"} />;
 }
 
 export function SkillDemandSkeleton({ rows = 5 }: { rows?: number }) {
@@ -26,7 +26,7 @@ export function TrendingRolesSkeleton({ rows = 3 }: { rows?: number }) {
       {Array.from({ length: rows }).map((_, i) => (
         <div
           key={i}
-          className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/80 p-3"
+          className="flex items-center gap-3 rounded-xl border border-border bg-muted/80 p-3"
         >
           {sk("h-10 w-10 shrink-0 rounded-xl")}
           <div className="flex-1 space-y-2">
@@ -64,7 +64,7 @@ export function CategoryJobsSkeleton({ count = 4 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 space-y-3"
+          className="rounded-2xl border border-border bg-muted/80 p-4 space-y-3"
         >
           {sk("h-4 w-full")}
           {sk("h-3 w-2/3")}
@@ -81,7 +81,7 @@ export function ProfileMatchesSkeleton({ rows = 3 }: { rows?: number }) {
       {Array.from({ length: rows }).map((_, i) => (
         <div
           key={i}
-          className="rounded-xl border border-slate-100 bg-white p-4 flex justify-between gap-3"
+          className="rounded-xl border border-border bg-card p-4 flex justify-between gap-3"
         >
           <div className="flex-1 space-y-2">
             {sk("h-4 w-40")}
@@ -97,15 +97,15 @@ export function ProfileMatchesSkeleton({ rows = 3 }: { rows?: number }) {
 export function MarketPulseGridSkeleton() {
   return (
     <div className="grid gap-5 lg:grid-cols-12">
-      <div className="lg:col-span-5 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+      <div className="lg:col-span-5 rounded-2xl border border-border bg-card p-6 shadow-sm">
         {sk("h-5 w-40 mb-6")}
         <SkillDemandSkeleton />
       </div>
-      <div className="lg:col-span-4 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+      <div className="lg:col-span-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
         {sk("h-5 w-36 mb-6")}
         <TrendingRolesSkeleton rows={3} />
       </div>
-      <div className="lg:col-span-3 rounded-2xl bg-[#1d59db] p-6 shadow-sm min-h-[240px]">
+      <div className="lg:col-span-3 rounded-2xl bg-primary p-6 shadow-sm min-h-[240px]">
         <MarketStatsSkeleton />
       </div>
     </div>

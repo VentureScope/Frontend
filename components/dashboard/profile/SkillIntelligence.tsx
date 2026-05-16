@@ -290,7 +290,7 @@ export default function SkillIntelligence() {
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               key={index}
-              className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm space-y-4"
+              className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4"
             >
               <Skeleton className="h-3 w-16" />
               <Skeleton className="h-8 w-24" />
@@ -306,24 +306,24 @@ export default function SkillIntelligence() {
     <div className="space-y-6 pt-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
-          <h2 className="text-xl font-bold text-slate-900 sm:text-2xl">
+          <h2 className="text-xl font-bold text-foreground sm:text-2xl">
             Skill Intelligence
           </h2>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-muted-foreground">
             Current proficiency vs. Industry benchmarks
           </p>
         </div>
         <Link
           href="/dashboard/data-hub"
-          className="w-full rounded-xl bg-blue-600 px-4 py-2 text-center text-xs font-bold text-white shadow-lg shadow-blue-200 transition-colors hover:bg-blue-700 sm:w-auto"
+          className="w-full rounded-xl bg-primary px-4 py-2 text-center text-xs font-bold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90 sm:w-auto"
         >
           Update Data Sources
         </Link>
       </div>
 
-      <div className="space-y-3 rounded-2xl border border-slate-100 bg-white p-5 sm:p-6">
+      <div className="space-y-3 rounded-2xl border border-border bg-card p-5 sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
             Your Skills
           </h3>
           <div className="flex items-center gap-2">
@@ -332,20 +332,20 @@ export default function SkillIntelligence() {
                 Unsaved
               </span>
             )}
-            <span className="rounded-md bg-slate-100 px-2 py-1 text-[10px] font-bold text-slate-500">
+            <span className="rounded-md bg-muted px-2 py-1 text-[10px] font-bold text-muted-foreground">
               Editable
             </span>
           </div>
         </div>
 
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted-foreground">
           Add skills you want to highlight. These are separate from GitHub
           synced skills.
         </p>
 
         <div className="flex flex-wrap gap-2">
           {draftUserSkills.length === 0 && (
-            <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-500">
+            <span className="rounded-full border border-border bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground">
               No manual skills added yet
             </span>
           )}
@@ -353,7 +353,7 @@ export default function SkillIntelligence() {
           {draftUserSkills.map((skill) => (
             <span
               key={skill}
-              className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700"
+              className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary"
             >
               <span className="wrap-break-word">{skill}</span>
               <button
@@ -362,7 +362,7 @@ export default function SkillIntelligence() {
                 onClick={() => {
                   handleRemoveSkill(skill);
                 }}
-                className="text-blue-400 hover:text-rose-500 disabled:opacity-60"
+                className="text-[var(--brand-accent)] hover:text-rose-500 disabled:opacity-60"
                 aria-label={`Remove ${skill}`}
               >
                 <X size={12} />
@@ -381,7 +381,7 @@ export default function SkillIntelligence() {
               }
             }}
             placeholder="Add a skill"
-            className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 outline-none ring-blue-100 transition-all focus:border-blue-300 focus:ring-2 sm:w-64"
+            className="w-full rounded-xl border border-border px-3 py-2 text-sm text-muted-foreground outline-none ring-blue-100 transition-all focus:border-blue-300 focus:ring-2 sm:w-64"
           />
           <button
             type="button"
@@ -389,7 +389,7 @@ export default function SkillIntelligence() {
             onClick={() => {
               handleAddSkill();
             }}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Plus size={14} />
             Add Skill
@@ -411,7 +411,7 @@ export default function SkillIntelligence() {
             type="button"
             disabled={!hasUnsavedSkillChanges || isSavingSkills}
             onClick={handleResetSkills}
-            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center rounded-xl border border-border bg-card px-4 py-2 text-xs font-bold text-muted-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
           >
             Reset
           </button>
@@ -419,14 +419,14 @@ export default function SkillIntelligence() {
       </div>
 
       <div className="space-y-2">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
           GitHub Synced Skills
         </h3>
-        <p className="text-xs font-semibold text-slate-500">{signalSource}</p>
+        <p className="text-xs font-semibold text-muted-foreground">{signalSource}</p>
       </div>
 
       {githubSkills.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 p-6 text-sm text-slate-500">
+        <div className="rounded-2xl border border-dashed border-border bg-muted/60 p-6 text-sm text-muted-foreground">
           No GitHub skill data available yet. Sync your GitHub account from the
           Data Hub.
         </div>
@@ -436,9 +436,9 @@ export default function SkillIntelligence() {
         {githubSkills.slice(0, displayCount).map((s, idx) => (
           <div
             key={`github-${s.label}-${idx}`}
-            className={`flex h-full flex-col rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition-all hover:shadow-md sm:p-6 border-l-4 ${
+            className={`flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md sm:p-6 border-l-4 ${
               s.color === "blue"
-                ? "border-l-blue-600"
+                ? "border-l-primary"
                 : s.color === "rose"
                   ? "border-l-rose-500"
                   : s.color === "indigo"
@@ -447,7 +447,7 @@ export default function SkillIntelligence() {
             }`}
           >
             <div className="mb-4 flex flex-col items-start gap-1.5">
-              <h4 className="w-full truncate text-base font-semibold leading-snug text-slate-900">
+              <h4 className="w-full truncate text-base font-semibold leading-snug text-foreground">
                 {s.label}
               </h4>
               <span
@@ -455,8 +455,8 @@ export default function SkillIntelligence() {
                   s.status === "Needs Depth"
                     ? "bg-rose-50 text-rose-500"
                     : s.status === "Steady" || s.status === "Growing"
-                      ? "bg-slate-100 text-slate-500"
-                      : "bg-emerald-50 text-emerald-500"
+                      ? "bg-muted text-muted-foreground"
+                      : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
                 }`}
               >
                 {s.status}
@@ -464,23 +464,23 @@ export default function SkillIntelligence() {
             </div>
             <div className="mt-auto space-y-3 pt-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Level
                 </span>
-                <span className="text-sm font-bold text-slate-700">
+                <span className="text-sm font-bold text-muted-foreground">
                   {s.level}
                 </span>
               </div>
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                   <span>Proficiency</span>
                   <span>{s.pct}%</span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                   <div
                     className={`h-full transition-all duration-500 ${
                       s.color === "blue"
-                        ? "bg-blue-600"
+                        ? "bg-primary"
                         : s.color === "rose"
                           ? "bg-rose-500"
                           : s.color === "indigo"
@@ -501,7 +501,7 @@ export default function SkillIntelligence() {
           {displayCount < githubSkills.length && (
             <button
               onClick={() => setDisplayCount((prev) => prev + 4)}
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-50"
+              className="rounded-xl border border-border bg-card px-4 py-2 text-xs font-bold text-muted-foreground transition-colors hover:bg-muted"
             >
               View More
             </button>
@@ -509,7 +509,7 @@ export default function SkillIntelligence() {
           {displayCount > 4 && (
             <button
               onClick={() => setDisplayCount(4)}
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-50"
+              className="rounded-xl border border-border bg-card px-4 py-2 text-xs font-bold text-muted-foreground transition-colors hover:bg-muted"
             >
               Compress
             </button>

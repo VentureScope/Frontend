@@ -5,31 +5,31 @@ export default function TopHiringCompanies() {
       cat: "Telecommunications",
       count: 342,
       init: "S",
-      bg: "bg-blue-50 text-blue-600",
+      bg: "bg-primary/10 text-primary",
     },
     {
       name: "Ethio Telecom",
       cat: "Infrastructure",
       count: 218,
       init: "E",
-      bg: "bg-blue-50 text-blue-600",
+      bg: "bg-primary/10 text-primary",
     },
     {
       name: "CBE Tech Hub",
       cat: "FinTech",
       count: 156,
       init: "C",
-      bg: "bg-blue-50 text-blue-600",
+      bg: "bg-primary/10 text-primary",
     },
   ];
 
   return (
-    <div className="rounded-[28px] sm:rounded-[32px] border border-slate-100 bg-white p-6 sm:p-8 shadow-sm">
+    <div className="rounded-[28px] sm:rounded-[32px] border border-border bg-card p-6 sm:p-8 shadow-sm">
       <div className="mb-6 sm:mb-8 flex items-end justify-between gap-4">
-        <h3 className="text-lg sm:text-xl font-bold text-[#0f172a]">
+        <h3 className="text-lg sm:text-xl font-bold text-foreground">
           Top Hiring Companies
         </h3>
-        <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right leading-none shrink-0">
+        <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-muted-foreground text-right leading-none shrink-0">
           Ethiopia
           <br />
           Market
@@ -45,15 +45,15 @@ export default function TopHiringCompanies() {
                 {c.init}
               </div>
               <div className="min-w-0 pr-2">
-                <p className="font-bold text-sm sm:text-base text-slate-900 leading-tight sm:leading-none mb-0.5 sm:mb-1 truncate">
+                <p className="font-bold text-sm sm:text-base text-foreground leading-tight sm:leading-none mb-0.5 sm:mb-1 truncate">
                   {c.name}
                 </p>
-                <p className="text-[10px] font-medium text-slate-400 truncate">
+                <p className="text-[10px] font-medium text-muted-foreground truncate">
                   {c.cat}
                 </p>
               </div>
             </div>
-            <span className="text-xs sm:text-sm font-bold text-slate-900 shrink-0">
+            <span className="text-xs sm:text-sm font-bold text-foreground shrink-0">
               {c.count}
             </span>
           </div>

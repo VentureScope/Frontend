@@ -8,7 +8,7 @@ export default function LandingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="min-h-screen bg-white font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-700">
+    <main className="min-h-screen bg-background font-sans text-foreground selection:bg-primary/20 selection:text-primary">
       <Navbar />
       {children}
       <Footer />

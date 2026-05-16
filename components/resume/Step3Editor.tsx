@@ -93,30 +93,30 @@ export default function Step3Editor() {
   }, [selectedRole]);
 
   return (
-    <div className="flex flex-col bg-slate-50 rounded-3xl border border-slate-200 overflow-hidden h-[calc(100vh-150px)] min-h-[600px]">
+    <div className="flex flex-col bg-muted rounded-3xl border border-border overflow-hidden h-[calc(100vh-150px)] min-h-[600px]">
       {/* Header */}
-      <div className="bg-white border-b border-slate-100 px-4 sm:px-6 lg:px-8 py-4">
+      <div className="bg-card border-b border-border px-4 sm:px-6 lg:px-8 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setStep("step2")}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
               title="Back to highlights"
             >
-              <ArrowLeft className="w-5 h-5 text-slate-600" />
+              <ArrowLeft className="w-5 h-5 text-muted-foreground" />
             </button>
             <div>
-              <h1 className="text-lg font-bold text-slate-900">
+              <h1 className="text-lg font-bold text-foreground">
                 Resume Editor
               </h1>
-              <p className="text-sm text-slate-500">{selectedRole}</p>
+              <p className="text-sm text-muted-foreground">{selectedRole}</p>
             </div>
           </div>
           <button
             onClick={() => closeFlow()}
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-muted rounded-lg transition-colors"
           >
-            <X className="w-5 h-5 text-slate-400" />
+            <X className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
       </div>
@@ -124,21 +124,21 @@ export default function Step3Editor() {
       {/* Main Content */}
       <div className="flex flex-1 min-h-[600px] overflow-hidden">
         {/* Left Sidebar: ATS Analysis & Workflow */}
-        <div className="w-full sm:w-72 lg:w-80 border-r border-slate-100 overflow-y-auto bg-white p-6">
+        <div className="w-full sm:w-72 lg:w-80 border-r border-border overflow-y-auto bg-card p-6">
           {/* ATS Analysis Section */}
           <div className="mb-8">
-            <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">
               AI Analysis
             </p>
             <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6">
               <div className="text-center">
-                <div className="w-20 h-20 mx-auto bg-white rounded-full border-4 border-blue-600 flex items-center justify-center mb-4">
-                  <span className="text-3xl font-black text-blue-600">88</span>
+                <div className="w-20 h-20 mx-auto bg-card rounded-full border-4 border-primary flex items-center justify-center mb-4">
+                  <span className="text-3xl font-black text-primary">88</span>
                 </div>
-                <p className="text-sm font-bold text-slate-900 mb-3">
+                <p className="text-sm font-bold text-foreground mb-3">
                   ATS Match Score
                 </p>
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   Your profile ranks in the top 5% for Senior DevOps positions
                   in North America.
                 </p>
@@ -147,16 +147,16 @@ export default function Step3Editor() {
               <div className="mt-6 space-y-4">
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                    <label className="text-xs font-bold text-slate-700">
+                    <label className="text-xs font-bold text-muted-foreground">
                       Keyword Density
                     </label>
-                    <span className="text-xs font-bold text-blue-600">
+                    <span className="text-xs font-bold text-primary">
                       High
                     </span>
                   </div>
-                  <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-blue-600 rounded-full"
+                      className="h-full bg-primary rounded-full"
                       style={{ width: "85%" }}
                     />
                   </div>
@@ -164,16 +164,16 @@ export default function Step3Editor() {
 
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                    <label className="text-xs font-bold text-slate-700">
+                    <label className="text-xs font-bold text-muted-foreground">
                       Formatting Compatibility
                     </label>
-                    <span className="text-xs font-bold text-blue-600">
+                    <span className="text-xs font-bold text-primary">
                       Optimal
                     </span>
                   </div>
-                  <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-blue-600 rounded-full"
+                      className="h-full bg-primary rounded-full"
                       style={{ width: "92%" }}
                     />
                   </div>
@@ -184,31 +184,31 @@ export default function Step3Editor() {
 
           {/* Editor Workflow */}
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">
               Editor Workflow
             </p>
             <div className="space-y-3">
               {WORKFLOW_ITEMS.map((item) => (
                 <button
                   key={item.id}
-                  className="w-full flex items-center gap-3 p-4 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-4 bg-muted hover:bg-muted rounded-lg transition-colors text-left"
                 >
                   <div
                     className={`flex-shrink-0 ${
-                      item.completed ? "text-blue-600" : "text-slate-400"
+                      item.completed ? "text-primary" : "text-muted-foreground"
                     }`}
                   >
                     {item.completed ? <CheckCircle2 size={20} /> : item.icon}
                   </div>
                   <span
                     className={`text-sm font-medium ${
-                      item.completed ? "text-slate-900" : "text-slate-600"
+                      item.completed ? "text-foreground" : "text-muted-foreground"
                     }`}
                   >
                     {item.label}
                   </span>
                   {item.completed && (
-                    <span className="ml-auto text-xs text-blue-600 font-bold">
+                    <span className="ml-auto text-xs text-primary font-bold">
                       ✓
                     </span>
                   )}
@@ -222,7 +222,7 @@ export default function Step3Editor() {
         <div className="flex-1 overflow-y-auto p-6 lg:p-8 flex flex-col items-center">
           <div className="w-full max-w-4xl">
             {genLoading ? (
-              <div className="flex flex-col items-center justify-center py-24 gap-3 text-slate-500">
+              <div className="flex flex-col items-center justify-center py-24 gap-3 text-muted-foreground">
                 <Loader2 className="h-10 w-10 animate-spin" />
                 <p className="text-sm font-medium">
                   Generating your resume…
@@ -245,8 +245,8 @@ export default function Step3Editor() {
 
             {/* Export Settings */}
             {showExportSettings && (
-              <div className="mt-6 p-6 bg-blue-50 rounded-2xl border border-blue-200">
-                <h3 className="font-bold text-slate-900 mb-4">
+              <div className="mt-6 p-6 bg-primary/10 rounded-2xl border border-primary/30">
+                <h3 className="font-bold text-foreground mb-4">
                   Export Settings
                 </h3>
                 <div className="space-y-3">
@@ -257,7 +257,7 @@ export default function Step3Editor() {
                       defaultChecked
                       className="accent-blue-600"
                     />
-                    <span className="text-sm font-medium text-slate-700">
+                    <span className="text-sm font-medium text-muted-foreground">
                       PDF (ATS Optimized)
                     </span>
                   </label>
@@ -267,7 +267,7 @@ export default function Step3Editor() {
                       name="export"
                       className="accent-blue-600"
                     />
-                    <span className="text-sm font-medium text-slate-700">
+                    <span className="text-sm font-medium text-muted-foreground">
                       Interactive Portfolio
                     </span>
                   </label>

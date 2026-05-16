@@ -97,7 +97,7 @@ export default function NewResumePage() {
   }, [router, selected?.targetRole]);
 
   return (
-    <div className="relative min-h-screen bg-white">
+    <div className="relative min-h-screen bg-card">
       <div className="relative z-10 mx-auto max-w-6xl px-4 pt-8 pb-20 sm:px-6 lg:px-8">
         <NewResumeHeader
           onGenerate={handleGenerate}
@@ -108,7 +108,7 @@ export default function NewResumePage() {
           {loadingTrends ? (
             <NewRoadmapRolesSkeleton />
           ) : roles.length === 0 ? (
-            <p className="text-center text-sm text-slate-500">
+            <p className="text-center text-sm text-muted-foreground">
               No current trending roles available.
             </p>
           ) : (

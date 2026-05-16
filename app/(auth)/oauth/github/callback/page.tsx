@@ -132,12 +132,12 @@ function GithubCallbackContent() {
   }, [router, searchParams, setAuthData]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white p-4">
+    <div className="flex min-h-screen items-center justify-center bg-card p-4">
       <div className="glass-panel w-full max-w-md p-8 text-center pt-10 px-8 pb-10">
         <div className="mb-6 flex justify-center">
           {status === "processing" && (
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-50/50">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
             </div>
           )}
           {status === "success" && (
@@ -176,13 +176,13 @@ function GithubCallbackContent() {
           )}
         </div>
 
-        <h2 className="mb-2 text-2xl font-black text-slate-900">
+        <h2 className="mb-2 text-2xl font-black text-foreground">
           {status === "processing" && "Connecting to GitHub..."}
           {status === "success" && "GitHub Connected!"}
           {status === "error" && "Connection Failed"}
         </h2>
 
-        <p className="text-sm text-slate-500 font-medium">
+        <p className="text-sm text-muted-foreground font-medium">
           {status === "processing" && "Please wait while we verify your credentials."}
           {status === "success" && "Redirecting you back securely..."}
           {status === "error" && (errorMessage || "An unexpected error occurred during GitHub login.")}
@@ -191,7 +191,7 @@ function GithubCallbackContent() {
         {status === "error" && (
           <button
             onClick={() => router.push("/sign-in")}
-            className="mt-8 w-full rounded-xl bg-slate-900 py-3.5 text-sm font-bold text-white transition-all hover:bg-slate-800"
+            className="mt-8 w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90"
           >
             Back to Sign In
           </button>
@@ -204,9 +204,9 @@ function GithubCallbackContent() {
 export default function GithubOAuthCallback() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-white p-4">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-50/50">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-card p-4">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
         </div>
       </div>
     }>

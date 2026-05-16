@@ -4,6 +4,8 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeSync } from "@/components/theme-sync";
 
 const manrope = Manrope({
   variable: "--font-sans",
@@ -26,13 +28,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${manrope.variable} ${geistMono.variable} font-sans antialiased`}
       >
-        <Analytics />
-        {children}
-        <Toaster />
+        <ThemeProvider>
+          <ThemeSync />
+          <Analytics />
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

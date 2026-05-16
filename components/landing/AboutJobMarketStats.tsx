@@ -38,36 +38,36 @@ export function AboutJobMarketStats() {
   }, []);
 
   return (
-    <div className="absolute -bottom-4 -left-2 sm:-bottom-5 sm:-left-5 rounded-xl sm:rounded-2xl bg-white p-4 sm:p-6 shadow-xl border border-slate-100 max-w-[11rem] sm:max-w-xs">
+    <div className="absolute -bottom-4 -left-2 sm:-bottom-5 sm:-left-5 rounded-xl sm:rounded-2xl bg-card p-4 sm:p-6 shadow-xl border border-border max-w-[11rem] sm:max-w-xs">
       {loading ? (
         <div className="space-y-2 py-1">
-          <Skeleton className="h-7 w-16 bg-slate-100" />
-          <Skeleton className="h-3 w-full bg-slate-100" />
-          <Skeleton className="h-3 w-4/5 bg-slate-100" />
+          <Skeleton className="h-7 w-16 bg-muted" />
+          <Skeleton className="h-3 w-full bg-muted" />
+          <Skeleton className="h-3 w-4/5 bg-muted" />
         </div>
       ) : stats ? (
         <>
-          <p className="text-xl sm:text-2xl font-bold text-slate-900">
+          <p className="text-xl sm:text-2xl font-bold text-foreground">
             {formatCompactNumber(stats.total_jobs)}+
           </p>
-          <p className="text-[9px] sm:text-[10px] text-slate-500 leading-snug mt-1">
+          <p className="text-[9px] sm:text-[10px] text-muted-foreground leading-snug mt-1">
             roles tracked across Ethiopia&apos;s tech hiring market
           </p>
-          <div className="mt-3 pt-3 border-t border-slate-100 space-y-1.5">
-            <p className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-600">
-              <Building2 className="h-3 w-3 text-blue-600" />
+          <div className="mt-3 pt-3 border-t border-border space-y-1.5">
+            <p className="flex items-center gap-1.5 text-[10px] font-semibold text-muted-foreground">
+              <Building2 className="h-3 w-3 text-primary" />
               {formatCompactNumber(stats.unique_companies)} employers
             </p>
-            <p className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-600">
-              <Briefcase className="h-3 w-3 text-blue-600" />
+            <p className="flex items-center gap-1.5 text-[10px] font-semibold text-muted-foreground">
+              <Briefcase className="h-3 w-3 text-primary" />
               {stats.unique_categories} role categories
             </p>
           </div>
         </>
       ) : (
         <>
-          <p className="text-xl sm:text-2xl font-bold text-slate-900">10k+</p>
-          <p className="text-[9px] sm:text-[10px] text-slate-500 leading-tight">
+          <p className="text-xl sm:text-2xl font-bold text-foreground">10k+</p>
+          <p className="text-[9px] sm:text-[10px] text-muted-foreground leading-tight">
             Profiles analyzed across the Ethiopian tech ecosystem.
           </p>
         </>

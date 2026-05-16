@@ -12,18 +12,18 @@ export default function IntelligenceLayerSummary() {
       </div>
 
       {/* Radial Glow for Depth */}
-      <div className="absolute -bottom-10 -right-10 h-64 w-64 rounded-full bg-blue-600/30 blur-[80px]" />
+      <div className="absolute -bottom-10 -right-10 h-64 w-64 rounded-full bg-primary/30 blur-[80px]" />
 
       <div className="relative z-10 space-y-4 sm:space-y-6">
         <div className="flex items-center gap-2">
-          <div className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse shrink-0" />
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400 wrap-break-word">
+          <div className="h-1.5 w-1.5 rounded-full bg-[var(--brand-accent)] animate-pulse shrink-0" />
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--brand-accent)] wrap-break-word">
             Intelligence Layer
           </p>
         </div>
 
         <p className="text-lg sm:text-xl font-bold leading-relaxed tracking-tight text-white/90">
-          Forecasting model <span className="text-blue-400">FR5.5</span>{" "}
+          Forecasting model <span className="text-[var(--brand-accent)]">FR5.5</span>{" "}
           estimates a{" "}
           <span className="underline decoration-blue-500/50 underline-offset-4">
             22% increase
@@ -32,7 +32,7 @@ export default function IntelligenceLayerSummary() {
         </p>
 
         <div className="pt-2 sm:pt-4">
-          <div className="h-1 w-12 rounded-full bg-blue-500/50" />
+          <div className="h-1 w-12 rounded-full bg-primary/100/50" />
         </div>
       </div>
     </div>

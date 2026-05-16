@@ -52,8 +52,8 @@ export default function ForgotPasswordPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-slate-50">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <div className="flex min-h-screen items-center justify-center bg-muted">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       }
     >
@@ -263,8 +263,8 @@ function ForgotPasswordContent() {
 
   // ──────────────────────────── Render ────────────────────────────
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 p-4 sm:p-8">
-      <div className="flex w-full max-w-5xl overflow-hidden rounded-2xl sm:rounded-3xl bg-white shadow-2xl">
+    <div className="flex min-h-screen w-full items-center justify-center bg-muted p-4 sm:p-8">
+      <div className="flex w-full max-w-5xl overflow-hidden rounded-2xl sm:rounded-3xl bg-card shadow-2xl">
         {/* LEFT SIDE – BRANDING */}
         <section className="relative hidden w-1/2 flex-col justify-between bg-[#020817] p-8 shrink-0 lg:flex overflow-hidden">
           {/* Background Image */}
@@ -301,7 +301,7 @@ function ForgotPasswordContent() {
                   ? "You're All Set."
                   : "Reset Your Password."}
               </h1>
-              <p className="text-sm text-slate-300 leading-relaxed">
+              <p className="text-sm text-muted-foreground/50 leading-relaxed">
                 {step === "success"
                   ? "Your password has been updated. You can now sign in with your new credentials."
                   : "Don't worry — it happens to the best of us. We'll send you a code to verify your identity and set a new password."}
@@ -310,39 +310,39 @@ function ForgotPasswordContent() {
           </div>
 
           {/* Security card */}
-          <div className="relative z-10 rounded-xl bg-white/10 p-6 backdrop-blur-md border border-white/10">
+          <div className="relative z-10 rounded-xl bg-card/10 p-6 backdrop-blur-md border border-background/10">
             <div className="flex items-center gap-3 mb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-card/20">
                 <ShieldCheck className="h-5 w-5 text-white" />
               </div>
               <div>
                 <p className="text-sm font-bold text-white">
                   Secure Reset
                 </p>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-muted-foreground">
                   Your code expires in 10 minutes
                 </p>
               </div>
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               We use one-time codes to verify your identity. Never share your
               code with anyone — VentureScope will never ask for it outside
               of this page.
             </p>
           </div>
 
-          <div className="relative z-10 text-sm text-slate-500">
+          <div className="relative z-10 text-sm text-muted-foreground">
             © 2026 VentureScope Intelligence. All rights reserved.
           </div>
         </section>
 
         {/* RIGHT SIDE – FORM */}
-        <section className="flex flex-1 flex-col items-center justify-center bg-white px-6 py-10 sm:px-12 lg:px-16">
+        <section className="flex flex-1 flex-col items-center justify-center bg-card px-6 py-10 sm:px-12 lg:px-16">
           <div className="w-full max-w-sm sm:max-w-md space-y-6">
             {/* Back link */}
             <Link
               href="/sign-in"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-700 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-muted-foreground transition-colors"
             >
               <ArrowLeft size={14} />
               Back to sign in
@@ -353,14 +353,14 @@ function ForgotPasswordContent() {
               <>
                 <div className="space-y-2 text-center sm:text-left">
                   <div className="flex items-center justify-center sm:justify-start">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 mb-2">
-                      <KeyRound className="h-6 w-6 text-blue-600" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 mb-2">
+                      <KeyRound className="h-6 w-6 text-primary" />
                     </div>
                   </div>
-                  <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+                  <h2 className="text-2xl font-bold tracking-tight text-foreground">
                     Forgot your password?
                   </h2>
-                  <p className="text-sm text-slate-500 leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     Enter the email address associated with your account and
                     we&apos;ll send you a 6-digit code to reset your password.
                   </p>
@@ -371,13 +371,13 @@ function ForgotPasswordContent() {
                   className="space-y-4"
                 >
                   <Field>
-                    <FieldLabel className="text-[13px] font-bold text-slate-800">
+                    <FieldLabel className="text-[13px] font-bold text-foreground">
                       Email Address
                     </FieldLabel>
                     <Input
                       placeholder="name@company.com"
                       {...emailForm.register("email")}
-                      className="h-11 border-none bg-[#f0f4ff] px-4 ring-offset-0 focus-visible:ring-2 focus-visible:ring-blue-600"
+                      className="h-11 border-none bg-muted px-4 ring-offset-0 focus-visible:ring-2 focus-visible:ring-primary"
                     />
                     {emailForm.formState.errors.email && (
                       <FieldError>
@@ -389,7 +389,7 @@ function ForgotPasswordContent() {
                   <Button
                     type="submit"
                     disabled={isRequesting}
-                    className="h-11 w-full bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                    className="h-11 w-full bg-primary text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
                   >
                     {isRequesting ? (
                       <>
@@ -420,16 +420,16 @@ function ForgotPasswordContent() {
               <>
                 <div className="space-y-2 text-center sm:text-left">
                   <div className="flex items-center justify-center sm:justify-start">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 mb-2">
-                      <KeyRound className="h-6 w-6 text-blue-600" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 mb-2">
+                      <KeyRound className="h-6 w-6 text-primary" />
                     </div>
                   </div>
-                  <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+                  <h2 className="text-2xl font-bold tracking-tight text-foreground">
                     Enter reset code
                   </h2>
-                  <p className="text-sm text-slate-500 leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     We&apos;ve sent a 6-digit code to{" "}
-                    <span className="font-semibold text-slate-700">
+                    <span className="font-semibold text-muted-foreground">
                       {maskedEmail}
                     </span>
                   </p>
@@ -453,12 +453,12 @@ function ForgotPasswordContent() {
                       disabled={isVerifying}
                       autoComplete="one-time-code"
                       className={`
-                        h-13 w-11 sm:h-14 sm:w-12 rounded-xl border-2 bg-[#f0f4ff] text-center
-                        text-xl sm:text-2xl font-bold text-slate-800
+                        h-13 w-11 sm:h-14 sm:w-12 rounded-xl border-2 bg-muted text-center
+                        text-xl sm:text-2xl font-bold text-foreground
                         outline-none transition-all duration-200
-                        focus:border-blue-600 focus:ring-4 focus:ring-blue-100 focus:bg-white
+                        focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-card
                         disabled:opacity-50 disabled:cursor-not-allowed
-                        ${otp[index] ? "border-blue-400 bg-blue-50/50" : "border-transparent"}
+                        ${otp[index] ? "border-blue-400 bg-primary/10" : "border-transparent"}
                         ${apiError ? "border-red-300 focus:border-red-500 focus:ring-red-100" : ""}
                       `}
                     />
@@ -485,7 +485,7 @@ function ForgotPasswordContent() {
                 <Button
                   onClick={handleOtpContinue}
                   disabled={otp.join("").length !== OTP_LENGTH}
-                  className="h-11 w-full bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="h-11 w-full bg-primary text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
                 >
                   Continue
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -493,7 +493,7 @@ function ForgotPasswordContent() {
 
                 {/* Resend */}
                 <div className="text-center space-y-2">
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-muted-foreground">
                     Didn&apos;t receive the code?
                   </p>
                   <button
@@ -503,8 +503,8 @@ function ForgotPasswordContent() {
                       inline-flex items-center gap-1.5 text-xs font-bold transition-colors
                       ${
                         cooldown > 0 || isResending
-                          ? "text-slate-400 cursor-not-allowed"
-                          : "text-blue-600 hover:text-blue-700 cursor-pointer"
+                          ? "text-muted-foreground cursor-not-allowed"
+                          : "text-primary hover:text-primary/90 cursor-pointer"
                       }
                     `}
                   >
@@ -527,14 +527,14 @@ function ForgotPasswordContent() {
               <>
                 <div className="space-y-2 text-center sm:text-left">
                   <div className="flex items-center justify-center sm:justify-start">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 mb-2">
-                      <KeyRound className="h-6 w-6 text-blue-600" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 mb-2">
+                      <KeyRound className="h-6 w-6 text-primary" />
                     </div>
                   </div>
-                  <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+                  <h2 className="text-2xl font-bold tracking-tight text-foreground">
                     Set a new password
                   </h2>
-                  <p className="text-sm text-slate-500 leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     Choose a strong password that you haven&apos;t used before.
                     Must be at least 8 characters.
                   </p>
@@ -545,7 +545,7 @@ function ForgotPasswordContent() {
                   className="space-y-4"
                 >
                   <Field>
-                    <FieldLabel className="text-[13px] font-bold text-slate-800">
+                    <FieldLabel className="text-[13px] font-bold text-foreground">
                       New Password
                     </FieldLabel>
                     <div className="relative">
@@ -553,12 +553,12 @@ function ForgotPasswordContent() {
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
                         {...passwordForm.register("password")}
-                        className="h-11 border-none bg-[#f0f4ff] px-4 pr-12 ring-offset-0 focus-visible:ring-2 focus-visible:ring-blue-600"
+                        className="h-11 border-none bg-muted px-4 pr-12 ring-offset-0 focus-visible:ring-2 focus-visible:ring-primary"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
                       >
                         {showPassword ? (
                           <EyeOff size={18} />
@@ -575,7 +575,7 @@ function ForgotPasswordContent() {
                   </Field>
 
                   <Field>
-                    <FieldLabel className="text-[13px] font-bold text-slate-800">
+                    <FieldLabel className="text-[13px] font-bold text-foreground">
                       Confirm Password
                     </FieldLabel>
                     <div className="relative">
@@ -583,12 +583,12 @@ function ForgotPasswordContent() {
                         type={showConfirm ? "text" : "password"}
                         placeholder="••••••••"
                         {...passwordForm.register("confirmPassword")}
-                        className="h-11 border-none bg-[#f0f4ff] px-4 pr-12 ring-offset-0 focus-visible:ring-2 focus-visible:ring-blue-600"
+                        className="h-11 border-none bg-muted px-4 pr-12 ring-offset-0 focus-visible:ring-2 focus-visible:ring-primary"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirm(!showConfirm)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
                       >
                         {showConfirm ? (
                           <EyeOff size={18} />
@@ -607,7 +607,7 @@ function ForgotPasswordContent() {
                   <Button
                     type="submit"
                     disabled={isVerifying}
-                    className="h-11 w-full bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                    className="h-11 w-full bg-primary text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
                   >
                     {isVerifying ? (
                       <>
@@ -639,10 +639,10 @@ function ForgotPasswordContent() {
                       <CheckCircle2 className="h-8 w-8 text-emerald-500" />
                     </div>
                   </div>
-                  <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+                  <h2 className="text-2xl font-bold tracking-tight text-foreground">
                     Password updated!
                   </h2>
-                  <p className="text-sm text-slate-500 leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     Your password has been reset successfully. You can now
                     sign in with your new password.
                   </p>
@@ -650,7 +650,7 @@ function ForgotPasswordContent() {
 
                 <Button
                   onClick={() => router.push("/sign-in")}
-                  className="h-11 w-full bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700"
+                  className="h-11 w-full bg-primary text-sm font-semibold text-white hover:bg-primary/90"
                 >
                   Sign In
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -661,11 +661,11 @@ function ForgotPasswordContent() {
             {/* Footer */}
             {step !== "success" && (
               <div className="pt-2 text-center">
-                <p className="text-[11px] text-slate-400 leading-relaxed">
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
                   Remember your password?{" "}
                   <Link
                     href="/sign-in"
-                    className="font-semibold text-blue-600 hover:underline"
+                    className="font-semibold text-primary hover:underline"
                   >
                     Sign in instead
                   </Link>

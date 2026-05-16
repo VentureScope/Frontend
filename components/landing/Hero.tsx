@@ -8,23 +8,23 @@ export default function Hero() {
   const { src, alt } = marketingImages.landingHero;
 
   return (
-    <section className="relative overflow-hidden bg-linear-to-b from-blue-50/50 via-white to-white pb-20 pt-20 lg:pb-32 lg:pt-32">
+    <section className="relative overflow-hidden bg-linear-to-b from-primary/10 via-background to-background pb-20 pt-20 lg:pb-32 lg:pt-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="grid items-center gap-16 lg:grid-cols-2">
           <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 rounded-full bg-blue-100/50 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-blue-700 border border-blue-200/50">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/15 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-primary border border-primary/30">
               <Sparkles className="h-3 w-3" />
               The Intelligence Layer
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold leading-[1.1] tracking-tight text-slate-900">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold leading-[1.1] tracking-tight text-foreground">
               Navigating Tech Careers in{" "}
-              <span className="text-blue-600 underline decoration-blue-100 decoration-4 sm:decoration-8 underline-offset-4 sm:underline-offset-8">
+              <span className="text-primary underline decoration-primary/30 decoration-4 sm:decoration-8 underline-offset-4 sm:underline-offset-8">
                 Ethiopia.
               </span>
             </h1>
 
-            <p className="max-w-lg text-base sm:text-lg leading-relaxed text-slate-500">
+            <p className="max-w-lg text-base sm:text-lg leading-relaxed text-muted-foreground">
               Data-driven career guidance for the next generation of Ethiopian
               tech leaders. Bridge the gap between education and global
               employability.
@@ -34,7 +34,7 @@ export default function Hero() {
               <Button
                 asChild
                 size="lg"
-                className="h-14 w-full sm:w-auto rounded-full bg-[#1d59db] px-8 font-bold hover:bg-blue-700 shadow-lg shadow-blue-200"
+                className="h-14 w-full sm:w-auto rounded-full bg-primary px-8 font-bold hover:bg-primary/90 shadow-lg shadow-primary/20"
               >
                 <Link href="/register" className="flex justify-center w-full">
                   Join the Beta <ArrowRight className="ml-2 h-4 w-4" />
@@ -43,7 +43,7 @@ export default function Hero() {
               <Button
                 size="lg"
                 variant="secondary"
-                className="h-14 w-full sm:w-auto rounded-full bg-blue-50 px-8 font-bold text-blue-700 hover:bg-blue-100"
+                className="h-14 w-full sm:w-auto rounded-full bg-primary/10 px-8 font-bold text-primary hover:bg-primary/15"
                 asChild
               >
                 <Link href="/market-insight">Explore Trends</Link>
@@ -53,10 +53,10 @@ export default function Hero() {
 
           <div className="relative mx-auto w-full max-w-135 lg:mr-0">
             <div
-              className="absolute -inset-4 rounded-[40px] bg-linear-to-tr from-blue-600/20 to-transparent blur-2xl"
+              className="absolute -inset-4 rounded-[40px] bg-linear-to-tr from-primary/20 to-transparent blur-2xl"
               aria-hidden
             />
-            <div className="relative aspect-square overflow-hidden rounded-[32px] border-4 border-white shadow-2xl">
+            <div className="relative aspect-square overflow-hidden rounded-[32px] border-4 border-background shadow-2xl">
               <MarketingPhoto src={src} alt={alt} priority className="object-cover" />
             </div>
           </div>

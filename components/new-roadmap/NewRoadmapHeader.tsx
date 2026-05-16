@@ -14,7 +14,7 @@ export const NewRoadmapHeader = ({
       <div className="flex items-center justify-between">
         <Link
           href="/dashboard/learning-path"
-          className="flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
+          className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft size={18} />
           Back to Hub
@@ -23,7 +23,7 @@ export const NewRoadmapHeader = ({
           type="button"
           disabled={!onGenerate || isGenerating}
           onClick={onGenerate}
-          className="h-11 rounded-full bg-[#2563eb] px-8 font-semibold text-white hover:bg-blue-700 shadow-md disabled:opacity-60"
+          className="h-11 rounded-full bg-[#2563eb] px-8 font-semibold text-white hover:bg-primary/90 shadow-md disabled:opacity-60"
         >
           {isGenerating ? (
             <>
@@ -37,13 +37,13 @@ export const NewRoadmapHeader = ({
       </div>
 
       <div className="max-w-2xl space-y-4">
-        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#2563eb]">
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
           Strategic Intelligence
         </p>
-        <h1 className="text-[52px] font-bold leading-tight tracking-tight text-[#0f172a]">
+        <h1 className="text-[52px] font-bold leading-tight tracking-tight text-foreground">
           Design Your Next Evolution
         </h1>
-        <p className="text-[17px] leading-relaxed text-slate-500">
+        <p className="text-[17px] leading-relaxed text-muted-foreground">
           Select a target role to generate a personalized, data-backed learning
           roadmap. Our AI analyzes millions of career trajectories to map your
           optimal path.

@@ -27,12 +27,12 @@ export function ProfileMatchesPanel({
 
   if (!signedIn) {
     return (
-      <div className="mt-8 rounded-2xl border border-dashed border-blue-200 bg-blue-50/40 p-6 text-center">
-        <Sparkles className="h-8 w-8 text-blue-500 mx-auto mb-3" />
-        <h3 className="text-sm font-bold text-slate-900">
+      <div className="mt-8 rounded-2xl border border-dashed border-primary/30 bg-primary/10/40 p-6 text-center">
+        <Sparkles className="h-8 w-8 text-primary mx-auto mb-3" />
+        <h3 className="text-sm font-bold text-foreground">
           Personalized job matches
         </h3>
-        <p className="text-xs text-slate-600 mt-2 max-w-md mx-auto leading-relaxed">
+        <p className="text-xs text-muted-foreground mt-2 max-w-md mx-auto leading-relaxed">
           Sign in to see openings ranked against your skills, education, and
           GitHub activity—not just generic listings.
         </p>
@@ -44,18 +44,18 @@ export function ProfileMatchesPanel({
   }
 
   return (
-    <div className="mt-8 rounded-2xl border border-blue-100 bg-blue-50/60 p-5 sm:p-6">
-      <h3 className="text-sm font-bold text-slate-900 mb-1">
+    <div className="mt-8 rounded-2xl border border-primary/20 bg-primary/10/60 p-5 sm:p-6">
+      <h3 className="text-sm font-bold text-foreground mb-1">
         Matched to your profile
       </h3>
       {insight && !loading && (
-        <p className="text-xs text-slate-600 mb-4 leading-relaxed">{insight}</p>
+        <p className="text-xs text-muted-foreground mb-4 leading-relaxed">{insight}</p>
       )}
 
       {loading ? (
         <ProfileMatchesSkeleton rows={limit} />
       ) : topMatches.length === 0 ? (
-        <p className="text-xs text-slate-600 leading-relaxed">
+        <p className="text-xs text-muted-foreground leading-relaxed">
           Complete your profile and connect GitHub to unlock ranked matches.
         </p>
       ) : (
@@ -65,26 +65,26 @@ export function ProfileMatchesPanel({
             return (
               <li
                 key={m.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl bg-white p-4 border border-slate-100"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl bg-card p-4 border border-border"
               >
                 <div className="min-w-0">
-                  <p className="font-semibold text-sm text-slate-900 truncate">
+                  <p className="font-semibold text-sm text-foreground truncate">
                     {m.job_title}
                   </p>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {m.company_name}
                     {m.city ? ` · ${m.city}` : ""}
                     {m.job_type ? ` · ${m.job_type}` : ""}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <div className="w-16 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                  <div className="w-16 h-1.5 rounded-full bg-muted overflow-hidden">
                     <div
-                      className="h-full bg-blue-600 rounded-full"
+                      className="h-full bg-primary rounded-full"
                       style={{ width: `${fit.pct}%` }}
                     />
                   </div>
-                  <span className="text-[10px] font-bold text-blue-600 w-20 text-right">
+                  <span className="text-[10px] font-bold text-primary w-20 text-right">
                     {fit.label}
                   </span>
                 </div>

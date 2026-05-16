@@ -47,15 +47,15 @@ export default function ResumeListingPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
-      <div className="border-b border-slate-200 bg-white px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
+    <div className="min-h-screen bg-background">
+      <div className="border-b border-border bg-card px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex-1">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">
                 Resume Builder
               </h1>
-              <p className="mt-2 text-sm sm:text-base text-slate-600">
+              <p className="mt-2 text-sm sm:text-base text-muted-foreground">
                 Construct your professional narrative using AI-optimized
                 <br className="hidden sm:block" />
                 frameworks. Our curator ensures your experience aligns with
@@ -67,7 +67,7 @@ export default function ResumeListingPage() {
               onClick={() =>
                 router.push("/dashboard/resume-builder/new-resume")
               }
-              className="flex items-center gap-2 rounded-full bg-blue-600 px-6 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base font-semibold text-white shadow-md hover:bg-blue-700 transition-colors whitespace-nowrap"
+              className="flex items-center gap-2 rounded-full bg-primary px-6 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base font-semibold text-white shadow-md hover:bg-primary/90 transition-colors whitespace-nowrap"
             >
               <span>+</span>
               Create New CV
@@ -81,22 +81,22 @@ export default function ResumeListingPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Search resumes…"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-lg bg-slate-50 pl-10 pr-4 py-2.5 text-sm border border-slate-200 placeholder-slate-500 focus:border-blue-500 focus:bg-white focus:outline-none"
+                  className="w-full rounded-lg bg-muted pl-10 pr-4 py-2.5 text-sm border border-border placeholder:text-muted-foreground focus:border-primary focus:bg-card focus:outline-none"
                 />
               </div>
             </div>
             <button
               type="button"
-              className="rounded-lg bg-slate-100 p-2.5 hover:bg-slate-200 transition-colors"
+              className="rounded-lg bg-muted p-2.5 hover:bg-muted/80 transition-colors"
             >
               <svg
-                className="h-5 w-5 text-slate-600"
+                className="h-5 w-5 text-muted-foreground"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -111,14 +111,14 @@ export default function ResumeListingPage() {
             </button>
           </div>
 
-          <div className="mt-6 flex gap-6 border-b border-slate-200">
+          <div className="mt-6 flex gap-6 border-b border-border">
             <button
               type="button"
               onClick={() => setActiveTab("my-resumes")}
               className={`pb-3 text-sm font-semibold transition-colors ${
                 activeTab === "my-resumes"
-                  ? "border-b-2 border-blue-600 text-blue-600"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "border-b-2 border-primary text-primary"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               My Resumes
@@ -128,8 +128,8 @@ export default function ResumeListingPage() {
               onClick={() => setActiveTab("analytics")}
               className={`pb-3 text-sm font-semibold transition-colors ${
                 activeTab === "analytics"
-                  ? "border-b-2 border-blue-600 text-blue-600"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "border-b-2 border-primary text-primary"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               Analytics
@@ -145,12 +145,12 @@ export default function ResumeListingPage() {
                   {filteredResumes.map((resume) => (
                     <div
                       key={resume.id}
-                      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow"
+                      className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm hover:shadow-md transition-shadow"
                     >
                       <div className="flex flex-col sm:flex-row gap-4 p-4 sm:p-6">
                         <div className="flex-shrink-0 w-full sm:w-32 lg:w-40">
                           <div className="aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center">
-                            <div className="text-slate-400 text-xs text-center px-2">
+                            <div className="text-muted-foreground text-xs text-center px-2">
                               Resume Preview
                             </div>
                           </div>
@@ -164,43 +164,43 @@ export default function ResumeListingPage() {
                                   RECENT
                                 </div>
                               )}
-                              <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+                              <h3 className="text-lg sm:text-xl font-bold text-foreground">
                                 {resume.title}
                               </h3>
-                              <p className="text-sm text-slate-600">
+                              <p className="text-sm text-muted-foreground">
                                 {resume.company}
                               </p>
-                              <p className="text-xs text-slate-500 mt-1">
+                              <p className="text-xs text-muted-foreground mt-1">
                                 Last updated {resume.lastUpdated}
                               </p>
                               {resume.tags.length > 0 && (
-                                <p className="text-xs text-slate-600 mt-2">
+                                <p className="text-xs text-muted-foreground mt-2">
                                   {resume.tags.join(" · ")}
                                 </p>
                               )}
                             </div>
                             <button
                               type="button"
-                              className="p-1.5 hover:bg-slate-100 rounded transition-colors"
+                              className="p-1.5 hover:bg-muted rounded transition-colors"
                             >
-                              <MoreVertical className="h-5 w-5 text-slate-400" />
+                              <MoreVertical className="h-5 w-5 text-muted-foreground" />
                             </button>
                           </div>
 
                           <div className="mt-4 grid grid-cols-2 gap-4">
                             <div>
-                              <p className="text-xs font-semibold text-slate-600 uppercase">
+                              <p className="text-xs font-semibold text-muted-foreground uppercase">
                                 Match Score
                               </p>
-                              <p className="mt-1 text-2xl font-bold text-blue-600">
+                              <p className="mt-1 text-2xl font-bold text-primary">
                                 {resume.matchScore}%
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs font-semibold text-slate-600 uppercase">
+                              <p className="text-xs font-semibold text-muted-foreground uppercase">
                                 ATS Optimization
                               </p>
-                              <p className="mt-1 text-base font-bold text-slate-900">
+                              <p className="mt-1 text-base font-bold text-foreground">
                                 {resume.atsStatus || "Pending"}
                               </p>
                             </div>
@@ -214,7 +214,7 @@ export default function ResumeListingPage() {
                                   `/dashboard/resume-builder/${resume.id}`,
                                 )
                               }
-                              className="flex-1 rounded-lg border border-slate-300 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                              className="flex-1 rounded-lg border border-border py-2 text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors"
                             >
                               View
                             </button>
@@ -225,7 +225,7 @@ export default function ResumeListingPage() {
                                   `/dashboard/resume-builder/${resume.id}`,
                                 )
                               }
-                              className="flex-1 rounded-lg bg-blue-600 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                              className="flex-1 rounded-lg bg-primary py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
                             >
                               Edit
                             </button>
@@ -236,11 +236,11 @@ export default function ResumeListingPage() {
                   ))}
 
                   {filteredResumes.length === 0 && (
-                    <div className="text-center py-12 text-slate-500">
+                    <div className="text-center py-12 text-muted-foreground">
                       No resumes yet.{" "}
                       <button
                         type="button"
-                        className="text-blue-600 underline"
+                        className="text-primary underline"
                         onClick={() =>
                           router.push("/dashboard/resume-builder/new-resume")
                         }
@@ -251,20 +251,20 @@ export default function ResumeListingPage() {
                   )}
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-slate-900 p-6 text-white shadow-sm h-fit">
+                <div className="rounded-2xl border border-border bg-slate-900 p-6 text-white shadow-sm h-fit">
                   <h3 className="font-bold">Impact Analysis</h3>
-                  <p className="mt-2 text-xs text-slate-400">
+                  <p className="mt-2 text-xs text-muted-foreground">
                     Live scoring uses your generated resume payload (skills,
                     highlights, trending tags).
                   </p>
                   <div className="mt-4 space-y-3">
                     <div>
-                      <p className="text-xs font-semibold text-slate-400">
+                      <p className="text-xs font-semibold text-muted-foreground">
                         Visibility Factor
                       </p>
                       <div className="mt-1 flex items-center justify-between">
                         <div className="h-2 w-full rounded-full bg-slate-700 mr-2">
-                          <div className="h-full w-3/4 rounded-full bg-blue-500" />
+                          <div className="h-full w-3/4 rounded-full bg-primary/100" />
                         </div>
                         <span className="text-xs font-semibold text-green-400">
                           +12%

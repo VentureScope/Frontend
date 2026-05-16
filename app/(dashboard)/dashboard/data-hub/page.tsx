@@ -12,13 +12,13 @@ export default function DataHubPage() {
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       {/* Header Section */}
       <header className="mb-8 sm:mb-12 space-y-2 sm:space-y-3">
-        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600">
+        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
           Intelligence Source
         </span>
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
           Data Onboarding Hub
         </h1>
-        <p className="max-w-2xl text-base sm:text-lg leading-relaxed text-slate-500">
+        <p className="max-w-2xl text-base sm:text-lg leading-relaxed text-muted-foreground">
           Centralize your professional identity. Sync your technical projects
           and academic achievements to unlock precision career matching.
         </p>

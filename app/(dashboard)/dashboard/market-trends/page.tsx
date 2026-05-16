@@ -7,14 +7,14 @@ import IntelligenceLayerSummary from "@/components/market/IntelligenceLayerSumma
 
 export default function MarketTrendsPage() {
   return (
-    <div className="min-h-screen bg-slate-50/30 p-4 sm:p-8 lg:p-12">
+    <div className="min-h-screen bg-muted/30 p-4 sm:p-8 lg:p-12">
       <div className="mx-auto max-w-7xl space-y-6 sm:space-y-10">
         {/* Page Header */}
         <header className="space-y-2">
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#0f172a]">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
             Market Trends & Forecasting
           </h1>
-          <p className="text-base sm:text-lg text-slate-500">
+          <p className="text-base sm:text-lg text-muted-foreground">
             Real-time career intelligence and AI-driven growth projections for
             Ethiopia's tech ecosystem.
           </p>

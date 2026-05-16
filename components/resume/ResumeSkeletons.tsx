@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
 function sk(className?: string) {
-  return <Skeleton className={className ?? "bg-slate-100"} />;
+  return <Skeleton className={className ?? "bg-muted"} />;
 }
 
 export function ResumeListSkeleton({ count = 2 }: { count?: number }) {
@@ -11,7 +11,7 @@ export function ResumeListSkeleton({ count = 2 }: { count?: number }) {
         {Array.from({ length: count }).map((_, i) => (
           <div
             key={i}
-            className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-6"
+            className="overflow-hidden rounded-2xl border border-border bg-card p-6"
           >
             <div className="flex flex-col gap-4 sm:flex-row">
               {sk("aspect-[3/4] w-full sm:w-32 rounded-lg")}
