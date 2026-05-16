@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   User,
   Briefcase,
@@ -12,13 +12,19 @@ import {
   X,
   BarChart3,
   CheckCircle2,
+  Loader2,
 } from "lucide-react";
 import ResumePreview from "./ResumePreview";
 import { useResumeBuilderStore } from "@/store/useResumeBuilderStore";
+import { generateResume } from "@/lib/resume-api";
+import { generatedResumeToListingResume } from "@/lib/map-generated-resume-to-ui";
+import type { Resume } from "@/app/(dashboard)/dashboard/resume-builder/mockData";
+import { mockResumes } from "@/app/(dashboard)/dashboard/resume-builder/mockData";
+import { toast } from "sonner";
 
 interface WorkflowItem {
   id: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   completed: boolean;
 }
@@ -53,6 +59,38 @@ const WORKFLOW_ITEMS: WorkflowItem[] = [
 export default function Step3Editor() {
   const { selectedRole, setStep, closeFlow } = useResumeBuilderStore();
   const [showExportSettings, setShowExportSettings] = useState(false);
+  const [previewResume, setPreviewResume] = useState<Resume | null>(null);
+  const [genLoading, setGenLoading] = useState(true);
+
+  useEffect(() => {
+    if (!selectedRole) {
+      setPreviewResume(mockResumes[0]);
+      setGenLoading(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setGenLoading(true);
+      try {
+        const out = await generateResume(selectedRole);
+        if (!cancelled) {
+          setPreviewResume(generatedResumeToListingResume(out));
+        }
+      } catch {
+        if (!cancelled) {
+          toast.error("Could not generate resume from API.");
+          setPreviewResume(mockResumes[0]);
+        }
+      } finally {
+        if (!cancelled) {
+          setGenLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedRole]);
 
   return (
     <div className="flex flex-col bg-slate-50 rounded-3xl border border-slate-200 overflow-hidden h-[calc(100vh-150px)] min-h-[600px]">
@@ -183,7 +221,16 @@ export default function Step3Editor() {
         {/* Right Content: Resume Preview */}
         <div className="flex-1 overflow-y-auto p-6 lg:p-8 flex flex-col items-center">
           <div className="w-full max-w-4xl">
-            <ResumePreview />
+            {genLoading ? (
+              <div className="flex flex-col items-center justify-center py-24 gap-3 text-slate-500">
+                <Loader2 className="h-10 w-10 animate-spin" />
+                <p className="text-sm font-medium">
+                  Generating your resume…
+                </p>
+              </div>
+            ) : (
+              <ResumePreview resume={previewResume ?? mockResumes[0]} />
+            )}
 
             {/* Action Buttons */}
             <div className="mt-8 flex gap-4 justify-center">

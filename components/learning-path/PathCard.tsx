@@ -4,8 +4,21 @@ import {
   Check,
 } from "lucide-react";
 import ResourceItem from "./ResourceItem";
+import { PathCardModulesSkeleton } from "./LearningPathSkeletons";
 
-export const PathCard = ({ path, isExpanded, onToggleExpand, onViewDetails }: any) => {
+export const PathCard = ({
+  path,
+  isExpanded,
+  onToggleExpand,
+  onViewDetails,
+  isDetailLoading,
+}: {
+  path: any;
+  isExpanded: boolean;
+  onToggleExpand: (id: string) => void;
+  onViewDetails: (id: string) => void;
+  isDetailLoading?: boolean;
+}) => {
   return (
     <div className="overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-sm transition-all">
       {/* Card Header */}
@@ -44,6 +57,9 @@ export const PathCard = ({ path, isExpanded, onToggleExpand, onViewDetails }: an
       {/* Expanded Content */}
       {isExpanded && (
         <div className="bg-[#fcfdff] border-t border-slate-50 p-6 sm:p-10">
+          {isDetailLoading && path.modules.length === 0 ? (
+            <PathCardModulesSkeleton />
+          ) : (
           <div className="relative space-y-12">
             {/* Vertical Connecting Line */}
             <div className="absolute left-[15px] top-4 bottom-0 w-[1px] bg-blue-100" />
@@ -67,6 +83,7 @@ export const PathCard = ({ path, isExpanded, onToggleExpand, onViewDetails }: an
                       meta={resource.meta}
                       status={resource.status}
                       thumbnail={resource.thumbnail}
+                      url={resource.url}
                       onToggle={() => path.onToggleResource && path.onToggleResource(module.id, resource.id)}
                     />
                   ))}
@@ -74,6 +91,7 @@ export const PathCard = ({ path, isExpanded, onToggleExpand, onViewDetails }: an
               </div>
             ))}
           </div>
+          )}
         </div>
       )}
     </div>

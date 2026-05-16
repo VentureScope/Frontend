@@ -1,128 +1,163 @@
-import { BarChart3, Activity } from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { ArrowUpRight, Radio } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  getInDemandSkills,
+  getJobStats,
+  getTrendingCareers,
+} from "@/lib/jobs-api";
+import type { InDemandSkill, JobStats, TrendingCareer } from "@/types/jobs";
+import { SkillDemandPanel } from "@/components/landing/market/SkillDemandPanel";
+import { TrendingRolesPanel } from "@/components/landing/market/TrendingRolesPanel";
+import { MarketStatsPanel } from "@/components/landing/market/MarketStatsPanel";
+import { MARKET_TOP_K, statsInsight } from "@/lib/job-market-insights";
+import { getMarketPulseFallbackData } from "@/lib/market-pulse-fallback";
+import { MarketPulseGridSkeleton } from "@/components/landing/market/MarketPulseSkeletons";
+
+const HOME_TRENDING_LIMIT = 3;
 
 export default function MarketPulse() {
-  return (
-    <section className="py-16 sm:py-24 bg-slate-50/50">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mb-8 sm:mb-12 flex flex-col justify-between gap-4 sm:gap-6 md:flex-row md:items-end">
-          <div className="space-y-2 text-center md:text-left">
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">
-              Ethiopia Tech Market Pulse
-            </h2>
-            <p className="text-sm sm:text-base text-slate-500">
-              Real-time intelligence from our ecosystem trackers. Data refreshed
-              every 24 hours.
-            </p>
-          </div>
-          <Button className="bg-blue-600 rounded-full px-6 font-bold w-full md:w-auto">
-            Detailed Trends <Activity className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
+  const [skills, setSkills] = useState<InDemandSkill[]>([]);
+  const [trending, setTrending] = useState<TrendingCareer[]>([]);
+  const [stats, setStats] = useState<JobStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [usingFallback, setUsingFallback] = useState(false);
 
-        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {/* Skill Demand Card */}
-          <div className="rounded-2xl bg-white p-6 sm:p-8 shadow-sm border border-slate-100">
-            <div className="mb-8 flex items-center justify-between">
-              <h3 className="font-bold text-slate-900">
-                Emerging Skill Demand
-              </h3>
-              <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700">
-                Live Data
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setUsingFallback(false);
+      try {
+        const [sk, tr, st] = await Promise.all([
+          getInDemandSkills({ limit: MARKET_TOP_K.skills }),
+          getTrendingCareers({ limit: HOME_TRENDING_LIMIT, period: 30 }),
+          getJobStats(),
+        ]);
+        if (!cancelled) {
+          setSkills(sk);
+          setTrending(tr);
+          setStats(st);
+        }
+      } catch {
+        if (!cancelled) {
+          const fallback = getMarketPulseFallbackData();
+          setSkills(fallback.skills);
+          setTrending(fallback.trending);
+          setStats(fallback.stats);
+          setUsingFallback(true);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const headline = stats && !loading ? statsInsight(stats) : null;
+
+  return (
+    <section className="relative overflow-hidden py-20 sm:py-28">
+      <div
+        className="pointer-events-none absolute inset-0 bg-linear-to-b from-blue-50/80 via-white to-slate-50/50"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-blue-200/30 blur-3xl"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-indigo-100/40 blur-3xl"
+        aria-hidden
+      />
+
+      <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-6 sm:p-10 shadow-sm backdrop-blur-sm">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl space-y-4">
+              <span className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-blue-700">
+                <Radio className="h-3 w-3" />
+                Live market pulse
               </span>
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 leading-tight">
+                Ethiopia Tech Market Pulse
+              </h2>
+              <p className="text-base text-slate-500 leading-relaxed">
+                Hiring signals from VentureScope—see which skills and roles are
+                gaining traction across the tech economy.
+              </p>
+              {headline && !loading && (
+                <p className="text-sm text-slate-600 leading-relaxed rounded-xl bg-slate-50 border border-slate-100 px-4 py-3">
+                  {headline}
+                </p>
+              )}
+              {usingFallback && !loading && (
+                <p className="text-xs text-slate-400">
+                  Showing sample market data while live feeds reconnect.
+                </p>
+              )}
             </div>
-            <div className="space-y-6">
-              {[
-                {
-                  name: "Python & AI Implementation",
-                  val: "75%",
-                  color: "bg-blue-800",
-                  inc: "+28%",
-                },
-                {
-                  name: "Cloud Architecture (AWS/Azure)",
-                  val: "45%",
-                  color: "bg-blue-400",
-                  inc: "+14%",
-                },
-                {
-                  name: "FinTech & Blockchain",
-                  val: "85%",
-                  color: "bg-rose-500",
-                  inc: "+42%",
-                },
-              ].map((s, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="flex justify-between text-xs font-bold text-slate-600 uppercase tracking-tight">
-                    <span>{s.name}</span>
-                    <span className="text-blue-600">{s.inc}</span>
-                  </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                    <div
-                      className={`h-full ${s.color}`}
-                      style={{ width: s.val }}
+            <Button
+              asChild
+              size="lg"
+              className="h-12 shrink-0 rounded-full bg-[#1d59db] px-7 font-semibold shadow-lg shadow-blue-200/60 hover:bg-blue-700"
+            >
+              <Link href="/market-insight" className="gap-2">
+                Full market report
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+
+          <div className="mt-10">
+            {loading ? (
+              <MarketPulseGridSkeleton />
+            ) : (
+              <div className="grid gap-5 lg:grid-cols-12 lg:items-stretch">
+                <div className="lg:col-span-5 flex">
+                  <div className="flex-1 rounded-2xl border border-slate-100 bg-slate-50/50 p-5 sm:p-6">
+                    <SkillDemandPanel
+                      skills={skills}
+                      loading={false}
+                      compact
+                      title="In-demand skills"
                     />
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          {/* Hiring Hubs Card */}
-          <div className="rounded-2xl bg-white p-6 sm:p-8 shadow-sm border border-slate-100">
-            <h3 className="mb-6 sm:mb-8 font-bold text-slate-900">
-              Top Hiring Hubs
-            </h3>
-            <div className="space-y-6">
-              {[
-                {
-                  name: "Safaricom ET",
-                  sub: "42 Openings",
-                  init: "S",
-                  color: "bg-blue-100 text-blue-600",
-                },
-                {
-                  name: "Ethio Telecom",
-                  sub: "18 Openings",
-                  init: "E",
-                  color: "bg-purple-100 text-purple-600",
-                },
-                {
-                  name: "Chapa Financials",
-                  sub: "12 Openings",
-                  init: "C",
-                  color: "bg-emerald-100 text-emerald-600",
-                },
-              ].map((h, i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-lg font-bold ${h.color}`}
-                  >
-                    {h.init}
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-900 leading-none mb-1">
-                      {h.name}
-                    </p>
-                    <p className="text-xs text-slate-500">{h.sub}</p>
+                <div className="lg:col-span-4 flex">
+                  <div className="flex-1 rounded-2xl border border-slate-100 bg-slate-50/50 p-5 sm:p-6">
+                    <TrendingRolesPanel
+                      careers={trending}
+                      loading={false}
+                      compact
+                      limit={HOME_TRENDING_LIMIT}
+                      showGrowth={false}
+                      showInsight={false}
+                      title="Trending careers"
+                    />
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          {/* Match Score Card */}
-          <div className="flex flex-col justify-between rounded-2xl bg-blue-700 p-6 sm:p-8 text-white shadow-xl shadow-blue-200">
-            <BarChart3 className="h-8 w-8 text-blue-200 mb-6 sm:mb-0" />
-            <div className="space-y-2">
-              <p className="text-xs sm:text-sm font-medium text-blue-100">
-                Avg. Match Score
-              </p>
-              <h4 className="text-5xl sm:text-6xl font-bold">64%</h4>
-              <p className="text-xs text-blue-200/80 leading-relaxed pt-2">
-                Local talent readiness index vs. industry needs.
-              </p>
-            </div>
+                <div className="lg:col-span-3 flex">
+                  <div className="flex-1 w-full">
+                    <MarketStatsPanel
+                      stats={stats}
+                      loading={false}
+                      showCta={false}
+                      variant="hero"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

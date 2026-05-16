@@ -5,10 +5,13 @@ import {
   Sparkles,
   Award,
   Users,
-  Globe,
   Terminal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AboutJobMarketStats } from "@/components/landing/AboutJobMarketStats";
+import { AboutMarketInsights } from "@/components/landing/AboutMarketInsights";
+import { MarketingPhoto } from "@/components/landing/MarketingPhoto";
+import { marketingImages } from "@/lib/marketing-images";
 
 export default function AboutPage() {
   return (
@@ -38,25 +41,20 @@ export default function AboutPage() {
           </div>
 
           <div className="relative mt-8 lg:mt-0 px-2 sm:px-0">
-            <div className="aspect-4/3 overflow-hidden rounded-2xl sm:rounded-[32px] shadow-2xl">
-              <img
-                src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80&w=800"
-                alt="Ethiopian tech team"
-                className="h-full w-full object-cover"
+            <div className="relative aspect-4/3 overflow-hidden rounded-2xl sm:rounded-[32px] shadow-2xl">
+              <MarketingPhoto
+                src={marketingImages.aboutHero.src}
+                alt={marketingImages.aboutHero.alt}
+                priority
+                sizes="(max-width: 1024px) 100vw, 560px"
               />
             </div>
-            {/* Stat Floating Card */}
-            <div className="absolute -bottom-4 -left-2 sm:-bottom-5 sm:-left-5 rounded-xl sm:rounded-2xl bg-white p-4 sm:p-6 shadow-xl border border-slate-100 max-w-40 sm:max-w-50">
-              <p className="text-xl sm:text-2xl font-bold text-slate-900">
-                10k+
-              </p>
-              <p className="text-[9px] sm:text-[10px] text-slate-500 leading-tight">
-                Profiles analyzed across the Ethiopian tech ecosystem.
-              </p>
-            </div>
+            <AboutJobMarketStats />
           </div>
         </div>
       </section>
+
+      <AboutMarketInsights />
 
       {/* MISSION SECTION */}
       <section className="bg-slate-50/50 py-16 sm:py-24">
@@ -150,11 +148,12 @@ export default function AboutPage() {
           </div>
 
           {/* Market Trends Card */}
-          <div className="md:col-span-2 rounded-[32px] border border-slate-100 shadow-sm p-1 overflow-hidden relative group">
-            <img
-              src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800"
-              className="w-full h-full object-cover rounded-[31px] transition-transform duration-700 group-hover:scale-110"
-              alt="Market trends"
+          <div className="md:col-span-2 rounded-[32px] border border-slate-100 shadow-sm p-1 overflow-hidden relative group min-h-[280px]">
+            <MarketingPhoto
+              src={marketingImages.aboutMarketTrends.src}
+              alt={marketingImages.aboutMarketTrends.alt}
+              sizes="(max-width: 768px) 100vw, 66vw"
+              className="object-cover rounded-[31px] transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-linear-to-t from-slate-900/80 to-transparent p-10 flex flex-col justify-end">
               <h3 className="text-xl font-bold text-white">Market Trends</h3>

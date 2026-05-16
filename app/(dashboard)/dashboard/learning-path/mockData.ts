@@ -1,5 +1,11 @@
 export type ResourceStatus = "completed" | "in-progress" | "locked";
-export type ResourceType = "VIDEO" | "DOCUMENTATION" | "COURSE MODULE";
+export type ResourceType =
+  | "VIDEO"
+  | "DOCUMENTATION"
+  | "COURSE MODULE"
+  | "ARTICLE"
+  | "PROJECT"
+  | "BOOK";
 
 export interface Resource {
   id: string;
@@ -8,6 +14,8 @@ export interface Resource {
   meta: string;
   status: ResourceStatus;
   thumbnail?: string;
+  /** External link when provided by the roadmap API */
+  url?: string | null;
 }
 
 export interface Module {
@@ -26,6 +34,12 @@ export interface LearningPath {
   iconName: string;
   isExpanded: boolean;
   modules: Module[];
+  /** From API `RoadmapListItem.status` when applicable */
+  roadmapStatus?: string;
+  /** ISO timestamp from API for sorting */
+  createdAt?: string;
+  /** From API `RoadmapListItem.trend_name` / `RoadmapOut.trend_name` */
+  trendName?: string | null;
 }
 
 export const learningPathsData: LearningPath[] = [

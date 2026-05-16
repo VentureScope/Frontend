@@ -1,26 +1,66 @@
 "use client";
 
-import React from "react";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import ResumePreview from "@/components/resume/ResumePreview";
-import { mockResumes } from "../mockData";
+import { getResume } from "@/lib/resume-api";
+import { generatedResumeToListingResume } from "@/lib/map-generated-resume-to-ui";
+import type { Resume } from "../mockData";
+import { ResumeDetailSkeleton } from "@/components/resume/ResumeSkeletons";
+import { toast } from "sonner";
 
 export default function ResumeDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = React.use(params);
-  
-  const resume = mockResumes.find(r => r.id === id);
+  const { id } = use(params);
+  const [resume, setResume] = useState<Resume | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const api = await getResume(id);
+        if (!cancelled) {
+          setResume(generatedResumeToListingResume(api));
+        }
+      } catch {
+        if (!cancelled) {
+          toast.error("Could not load resume.");
+          setResume(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f8fafc] p-4 sm:p-6 lg:p-8">
+        <ResumeDetailSkeleton />
+      </div>
+    );
+  }
 
   if (!resume) {
     return (
       <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold text-slate-900">Resume Not Found</h1>
-        <Link href="/dashboard/resume-builder" className="mt-4 text-blue-600 hover:underline">
-          Go back to Resume Builder
+        <h1 className="text-2xl font-bold text-slate-900">Resume not found</h1>
+        <Link
+          href="/dashboard/resume-builder"
+          className="mt-4 text-blue-600 hover:underline"
+        >
+          Back to Resume Builder
         </Link>
       </div>
     );
@@ -37,11 +77,9 @@ export default function ResumeDetailPage({
             <ArrowLeft size={20} />
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-slate-900">
-              {resume.title}
-            </h1>
+            <h1 className="text-xl font-bold text-slate-900">{resume.title}</h1>
             <p className="text-sm font-medium text-slate-400">
-              {resume.company}
+              Updated {resume.lastUpdated}
             </p>
           </div>
         </div>

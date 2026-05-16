@@ -77,6 +77,7 @@ export const RoadmapDetailView = ({ path }: any) => {
                       meta={resource.meta}
                       status={resource.status}
                       thumbnail={resource.thumbnail}
+                      url={resource.url}
                       onToggle={() => path.onToggleResource && path.onToggleResource(module.id, resource.id)}
                     />
                   ))}

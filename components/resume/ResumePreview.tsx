@@ -1,8 +1,12 @@
 "use client";
 
-import React from "react";
 import { Settings2, Download } from "lucide-react";
 import { mockResumes, Resume } from "@/app/(dashboard)/dashboard/resume-builder/mockData";
+
+function resumeMetaLine(resume: Resume): string {
+  const parts = [resume.company, ...resume.tags].filter(Boolean);
+  return parts.slice(0, 4).join(" · ") || "Professional profile";
+}
 
 export default function ResumePreview({ resume = mockResumes[0] }: { resume?: Resume }) {
   if (!resume) return null;
@@ -14,18 +18,12 @@ export default function ResumePreview({ resume = mockResumes[0] }: { resume?: Re
         {/* Header Section */}
         <div className="space-y-4 text-center sm:space-y-6">
           <h2 className="wrap-break-word text-2xl font-black uppercase leading-tight tracking-tight text-[#0f172a] sm:text-3xl lg:text-[38px] lg:leading-none">
-            User Name
+            {resume.title}
           </h2>
           <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 sm:gap-x-4 sm:text-[11px]">
-            <span className="wrap-break-word text-center">user@example.com</span>
-            <div className="hidden h-1 w-1 rounded-full bg-slate-300 sm:block" />
-            <span className="wrap-break-word text-center">
-              Professional Profile
+            <span className="wrap-break-word text-center max-w-md">
+              {resumeMetaLine(resume)}
             </span>
-            <div className="hidden h-1 w-1 rounded-full bg-slate-300 sm:block" />
-            <div className="text-center">
-              <span className="wrap-break-word">San Francisco, CA</span>
-            </div>
           </div>
         </div>
 

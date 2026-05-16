@@ -1,12 +1,14 @@
-import { Play, BookOpen, Check, Circle } from "lucide-react";
+import { Play, BookOpen, Check, Circle, ExternalLink } from "lucide-react";
+import type { ResourceType } from "@/app/(dashboard)/dashboard/learning-path/mockData";
 
 interface ResourceItemProps {
   id?: string;
-  type: "VIDEO" | "DOCUMENTATION" | "COURSE MODULE";
+  type: ResourceType;
   title: string;
   meta: string;
   status: "completed" | "in-progress" | "locked";
   thumbnail?: string;
+  url?: string | null;
   onToggle?: (id: string) => void;
 }
 
@@ -17,13 +19,19 @@ export default function ResourceItem({
   meta,
   status,
   thumbnail,
+  url,
   onToggle,
 }: ResourceItemProps) {
-  const typeColors = {
+  const typeColors: Record<ResourceType, string> = {
     VIDEO: "text-blue-600",
     DOCUMENTATION: "text-rose-600",
-    "COURSE MODULE": "text-blue-600",
+    "COURSE MODULE": "text-indigo-600",
+    ARTICLE: "text-amber-600",
+    PROJECT: "text-emerald-600",
+    BOOK: "text-violet-600",
   };
+
+  const href = url && /^https?:\/\//i.test(url.trim()) ? url.trim() : null;
 
   return (
     <div
@@ -54,18 +62,31 @@ export default function ResourceItem({
           </div>
         )}
 
-        <div>
+        <div className="min-w-0 flex-1">
           <p
             className={`text-[10px] font-bold tracking-widest ${typeColors[type]}`}
           >
             {type}
           </p>
           <h5 className="text-[15px] font-bold text-slate-900">{title}</h5>
-          <p className="text-[12px] font-medium text-slate-400">{meta}</p>
+          <p className="text-[12px] font-medium text-slate-400 break-words">
+            {meta}
+          </p>
+          {href && (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Open resource <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
         </div>
       </div>
 
-      <div className="pr-2">
+      <div className="pr-2 shrink-0">
         {status === "completed" ? (
           <div className="flex h-6 w-6 items-center justify-center rounded-full border border-blue-100 bg-blue-50">
             <Check size={14} className="text-blue-600" strokeWidth={3} />
