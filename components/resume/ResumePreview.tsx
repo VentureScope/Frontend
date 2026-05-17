@@ -51,9 +51,6 @@ export default function ResumePreview({ resume = mockResumes[0] }: { resume?: Re
                 <span className="wrap-break-word text-foreground">
                   {skill}
                 </span>
-                <span className="text-muted-foreground font-medium">
-                  Expert
-                </span>
               </div>
             ))}
           </div>
