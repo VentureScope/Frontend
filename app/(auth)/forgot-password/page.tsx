@@ -264,9 +264,9 @@ function ForgotPasswordContent() {
   // ──────────────────────────── Render ────────────────────────────
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-muted p-4 sm:p-8">
-      <div className="flex w-full max-w-5xl overflow-hidden rounded-2xl sm:rounded-3xl bg-card shadow-2xl">
+      <div className="flex w-full max-w-5xl overflow-hidden rounded-lg sm:rounded-xl bg-card shadow-2xl">
         {/* LEFT SIDE – BRANDING */}
-        <section className="relative hidden w-1/2 flex-col justify-between bg-[#020817] p-8 shrink-0 lg:flex overflow-hidden">
+        <section className="relative hidden w-1/2 flex-col justify-between bg-foreground p-8 shrink-0 lg:flex overflow-hidden">
           {/* Background Image */}
           <div className="absolute inset-0 z-0">
             <Image
@@ -276,12 +276,12 @@ function ForgotPasswordContent() {
               className="object-cover opacity-60"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-br from-[#020817]/70 via-transparent to-[#020817]/90" />
+            <div className="absolute inset-0 bg-gradient-to-br from-foreground/70 via-transparent to-foreground/90" />
           </div>
 
           <div className="relative z-10 space-y-6">
             {/* Logo */}
-            <div className="flex items-center gap-3 text-white">
+            <div className="flex items-center gap-3 text-background">
               <Image
                 src="/logo.png"
                 alt="VentureScope Logo"
@@ -296,7 +296,7 @@ function ForgotPasswordContent() {
 
             {/* Headline */}
             <div className="max-w-md space-y-4">
-              <h1 className="text-4xl font-bold leading-[1.1] text-white">
+              <h1 className="text-4xl font-bold leading-[1.1] text-background">
                 {step === "success"
                   ? "You're All Set."
                   : "Reset Your Password."}
@@ -313,10 +313,10 @@ function ForgotPasswordContent() {
           <div className="relative z-10 rounded-xl bg-card/10 p-6 backdrop-blur-md border border-background/10">
             <div className="flex items-center gap-3 mb-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-card/20">
-                <ShieldCheck className="h-5 w-5 text-white" />
+                <ShieldCheck className="h-5 w-5 text-background" />
               </div>
               <div>
-                <p className="text-sm font-bold text-white">
+                <p className="text-sm font-bold text-background">
                   Secure Reset
                 </p>
                 <p className="text-[11px] text-muted-foreground">
@@ -353,7 +353,7 @@ function ForgotPasswordContent() {
               <>
                 <div className="space-y-2 text-center sm:text-left">
                   <div className="flex items-center justify-center sm:justify-start">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 mb-2">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted mb-2">
                       <KeyRound className="h-6 w-6 text-primary" />
                     </div>
                   </div>
@@ -389,7 +389,7 @@ function ForgotPasswordContent() {
                   <Button
                     type="submit"
                     disabled={isRequesting}
-                    className="h-11 w-full bg-primary text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
+                    className="h-11 w-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                   >
                     {isRequesting ? (
                       <>
@@ -405,8 +405,8 @@ function ForgotPasswordContent() {
                   </Button>
 
                   {apiError && (
-                    <div className="rounded-lg bg-red-50 border border-red-100 px-4 py-3 text-center">
-                      <p className="text-xs font-medium text-red-600">
+                    <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-center">
+                      <p className="text-xs font-medium text-destructive">
                         {apiError}
                       </p>
                     </div>
@@ -420,7 +420,7 @@ function ForgotPasswordContent() {
               <>
                 <div className="space-y-2 text-center sm:text-left">
                   <div className="flex items-center justify-center sm:justify-start">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 mb-2">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted mb-2">
                       <KeyRound className="h-6 w-6 text-primary" />
                     </div>
                   </div>
@@ -458,8 +458,8 @@ function ForgotPasswordContent() {
                         outline-none transition-all duration-200
                         focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-card
                         disabled:opacity-50 disabled:cursor-not-allowed
-                        ${otp[index] ? "border-blue-400 bg-primary/10" : "border-transparent"}
-                        ${apiError ? "border-red-300 focus:border-red-500 focus:ring-red-100" : ""}
+                        ${otp[index] ? "border-primary bg-muted" : "border-transparent"}
+                        ${apiError ? "border-destructive/40 focus:border-destructive focus:ring-destructive/20" : ""}
                       `}
                     />
                   ))}
@@ -467,15 +467,15 @@ function ForgotPasswordContent() {
 
                 {/* Messages */}
                 {apiError && (
-                  <div className="rounded-lg bg-red-50 border border-red-100 px-4 py-3 text-center">
-                    <p className="text-xs font-medium text-red-600">
+                  <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-center">
+                    <p className="text-xs font-medium text-destructive">
                       {apiError}
                     </p>
                   </div>
                 )}
                 {successMessage && (
-                  <div className="rounded-lg bg-emerald-50 border border-emerald-100 px-4 py-3 text-center">
-                    <p className="text-xs font-medium text-emerald-600">
+                  <div className="rounded-lg bg-success/10 border border-success/20 px-4 py-3 text-center">
+                    <p className="text-xs font-medium text-success">
                       {successMessage}
                     </p>
                   </div>
@@ -485,7 +485,7 @@ function ForgotPasswordContent() {
                 <Button
                   onClick={handleOtpContinue}
                   disabled={otp.join("").length !== OTP_LENGTH}
-                  className="h-11 w-full bg-primary text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
+                  className="h-11 w-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                 >
                   Continue
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -527,7 +527,7 @@ function ForgotPasswordContent() {
               <>
                 <div className="space-y-2 text-center sm:text-left">
                   <div className="flex items-center justify-center sm:justify-start">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 mb-2">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted mb-2">
                       <KeyRound className="h-6 w-6 text-primary" />
                     </div>
                   </div>
@@ -607,7 +607,7 @@ function ForgotPasswordContent() {
                   <Button
                     type="submit"
                     disabled={isVerifying}
-                    className="h-11 w-full bg-primary text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
+                    className="h-11 w-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                   >
                     {isVerifying ? (
                       <>
@@ -620,8 +620,8 @@ function ForgotPasswordContent() {
                   </Button>
 
                   {apiError && (
-                    <div className="rounded-lg bg-red-50 border border-red-100 px-4 py-3 text-center">
-                      <p className="text-xs font-medium text-red-600">
+                    <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-center">
+                      <p className="text-xs font-medium text-destructive">
                         {apiError}
                       </p>
                     </div>
@@ -635,8 +635,8 @@ function ForgotPasswordContent() {
               <>
                 <div className="space-y-4 text-center">
                   <div className="flex justify-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
-                      <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
+                      <CheckCircle2 className="h-8 w-8 text-success" />
                     </div>
                   </div>
                   <h2 className="text-2xl font-bold tracking-tight text-foreground">
@@ -650,7 +650,7 @@ function ForgotPasswordContent() {
 
                 <Button
                   onClick={() => router.push("/sign-in")}
-                  className="h-11 w-full bg-primary text-sm font-semibold text-white hover:bg-primary/90"
+                  className="h-11 w-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90"
                 >
                   Sign In
                   <ArrowRight className="ml-2 h-4 w-4" />

@@ -220,9 +220,9 @@ export default function SignInPage() {
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-muted p-4 sm:p-8">
-      <div className="flex w-full max-w-5xl overflow-hidden rounded-2xl sm:rounded-3xl bg-card shadow-2xl">
+      <div className="flex w-full max-w-5xl overflow-hidden rounded-lg sm:rounded-xl bg-card shadow-2xl">
         {/* --- LEFT SIDE: BRANDING & VISUALS (Hidden on mobile/tablet for focus) --- */}
-        <section className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-[#020817] p-10 shrink-0 lg:flex">
+        <section className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-foreground p-10 shrink-0 lg:flex">
           {/* Background Image Effect */}
           <div className="absolute inset-0 z-0">
             <Image
@@ -234,12 +234,12 @@ export default function SignInPage() {
               sizes="50vw"
             />
             {/* Subtle Gradient to ensure text always pops! */}
-            <div className="absolute inset-0 bg-linear-to-br from-[#020817]/60 via-transparent to-[#020817]/80" />
+            <div className="absolute inset-0 bg-linear-to-br from-foreground/60 via-transparent to-foreground/80" />
           </div>
 
           <div className="relative z-10 space-y-8">
             {/* Logo */}
-            <div className="flex items-center gap-3 text-white">
+            <div className="flex items-center gap-3 text-background">
               <Image
                 src="/logo.png"
                 alt="VentureScope Logo"
@@ -254,7 +254,7 @@ export default function SignInPage() {
 
             {/* Hero Content */}
             <div className="max-w-xl space-y-4">
-              <h1 className="text-5xl font-bold leading-[1.1] tracking-tight text-white">
+              <h1 className="text-5xl font-bold leading-[1.1] tracking-tight text-background">
                 The Intelligence Layer for Your Career Journey.
               </h1>
               <p className="text-lg text-muted-foreground leading-relaxed max-w-md">
@@ -265,26 +265,26 @@ export default function SignInPage() {
           </div>
 
           {/* Data Card (The Progress Visual) */}
-          <div className="relative z-10 w-full max-w-sm rounded-2xl border border-background/10 bg-card/10 p-6 backdrop-blur-xl">
+          <div className="relative z-10 w-full max-w-sm rounded-lg border border-background/10 bg-card/10 p-6 backdrop-blur-xl">
             <div className="flex items-start justify-between mb-4">
               <div className="flex gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-                  <TrendingUp className="h-6 w-6 text-white" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-md border border-border bg-muted">
+                  <TrendingUp className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                     Market Insights
                   </p>
-                  <p className="font-bold text-slate-100">
+                  <p className="font-bold text-background/90">
                     Role Alignment Score
                   </p>
                 </div>
               </div>
-              <span className="text-3xl font-bold text-primary">94%</span>
+              <span className="text-3xl font-bold text-foreground">94%</span>
             </div>
             {/* Progress Bar */}
             <div className="h-2 w-full overflow-hidden rounded-full bg-card/10">
-              <div className="h-full w-[94%] bg-primary" />
+              <div className="h-full w-[94%] bg-foreground/60" />
             </div>
           </div>
 
@@ -419,7 +419,7 @@ export default function SignInPage() {
                     type="checkbox"
                     id="remember_me"
                     {...form.register("remember_me")}
-                    className="h-4 w-4 rounded border-border text-primary focus:ring-blue-600 cursor-pointer"
+                    className="h-4 w-4 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
                   />
                   <label
                     htmlFor="remember_me"
@@ -432,14 +432,14 @@ export default function SignInPage() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="mt-2 h-12 w-full bg-primary text-base font-semibold text-white shadow-xl shadow-primary/20 hover:bg-primary/90"
+                  className="mt-2 h-12 w-full bg-primary text-base font-semibold text-primary-foreground  hover:bg-primary/90"
                 >
                   {isSubmitting ? "Signing In..." : "Sign In"}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
 
                 {apiError && (
-                  <p className="text-center text-xs text-red-600">{apiError}</p>
+                  <p className="text-center text-xs text-destructive">{apiError}</p>
                 )}
               </form>
             </>
@@ -449,7 +449,7 @@ export default function SignInPage() {
                   <>
                     <div className="text-center sm:text-left space-y-2">
                       <div className="flex items-center justify-center sm:justify-start">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 mb-2">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted mb-2">
                           <ShieldCheck className="h-6 w-6 text-primary" />
                         </div>
                       </div>
@@ -499,7 +499,7 @@ export default function SignInPage() {
                     </div>
 
                     {mfaError && (
-                      <p className="text-center sm:text-left text-xs font-bold text-red-600 bg-red-50 p-3 rounded-lg border border-red-100">
+                      <p className="text-center sm:text-left text-xs font-bold text-destructive bg-destructive/10 p-3 rounded-lg border border-destructive/20">
                         {mfaError}
                       </p>
                     )}
@@ -507,7 +507,7 @@ export default function SignInPage() {
                     <Button
                       onClick={onMfaVerify}
                       disabled={isVerifyingMfa || mfaCode.length !== 6}
-                      className="h-12 w-full bg-primary text-base font-semibold text-white shadow-xl shadow-primary/20 hover:bg-primary/90"
+                      className="h-12 w-full bg-primary text-base font-semibold text-primary-foreground  hover:bg-primary/90"
                     >
                       {isVerifyingMfa ? (
                         <>
@@ -552,9 +552,9 @@ export default function SignInPage() {
                         <button
                           key={f.factor_id}
                           onClick={() => selectFactor(f)}
-                          className="flex w-full items-center gap-4 rounded-2xl border border-border bg-muted px-5 py-4 text-left transition-all hover:border-blue-300 hover:bg-primary/10"
+                          className="flex w-full items-center gap-4 rounded-lg border border-border bg-muted px-5 py-4 text-left transition-all hover:border-primary/40 hover:bg-muted"
                         >
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-primary">
                             <Smartphone className="h-5 w-5" />
                           </div>
                           <div className="flex-1">
@@ -596,3 +596,4 @@ export default function SignInPage() {
     </div>
   );
 }
+

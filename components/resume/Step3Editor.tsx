@@ -93,7 +93,7 @@ export default function Step3Editor() {
   }, [selectedRole]);
 
   return (
-    <div className="flex flex-col bg-muted rounded-3xl border border-border overflow-hidden h-[calc(100vh-150px)] min-h-[600px]">
+    <div className="flex flex-col bg-muted rounded-xl border border-border overflow-hidden h-[calc(100vh-150px)] min-h-[600px]">
       {/* Header */}
       <div className="bg-card border-b border-border px-4 sm:px-6 lg:px-8 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -130,10 +130,10 @@ export default function Step3Editor() {
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">
               AI Analysis
             </p>
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6">
+            <div className="rounded-lg bg-muted p-6">
               <div className="text-center">
-                <div className="w-20 h-20 mx-auto bg-card rounded-full border-4 border-primary flex items-center justify-center mb-4">
-                  <span className="text-3xl font-black text-primary">88</span>
+                <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full border-4 border-primary bg-card">
+                  <span className="text-3xl font-semibold text-primary">88</span>
                 </div>
                 <p className="text-sm font-bold text-foreground mb-3">
                   ATS Match Score
@@ -236,7 +236,7 @@ export default function Step3Editor() {
             <div className="mt-8 flex gap-4 justify-center">
               <button
                 onClick={() => setShowExportSettings(!showExportSettings)}
-                className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-full font-bold hover:bg-slate-800 transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-foreground px-6 py-3 font-semibold text-background transition-colors hover:bg-foreground/90"
               >
                 <Download size={18} />
                 Export PDF
@@ -245,7 +245,7 @@ export default function Step3Editor() {
 
             {/* Export Settings */}
             {showExportSettings && (
-              <div className="mt-6 p-6 bg-primary/10 rounded-2xl border border-primary/30">
+              <div className="mt-6 p-6 bg-muted rounded-lg border border-border">
                 <h3 className="font-bold text-foreground mb-4">
                   Export Settings
                 </h3>
@@ -255,7 +255,7 @@ export default function Step3Editor() {
                       type="radio"
                       name="export"
                       defaultChecked
-                      className="accent-blue-600"
+                      className="accent-primary"
                     />
                     <span className="text-sm font-medium text-muted-foreground">
                       PDF (ATS Optimized)
@@ -265,7 +265,7 @@ export default function Step3Editor() {
                     <input
                       type="radio"
                       name="export"
-                      className="accent-blue-600"
+                      className="accent-primary"
                     />
                     <span className="text-sm font-medium text-muted-foreground">
                       Interactive Portfolio

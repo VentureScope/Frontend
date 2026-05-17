@@ -15,7 +15,7 @@ export default function SkillMatrix() {
         {activeSkills.map((skill) => (
           <div
             key={skill}
-            className="flex max-w-full items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-[13px] font-bold text-primary"
+            className="flex max-w-full items-center gap-2 rounded-full border border-border bg-muted px-4 py-2 text-[13px] font-bold text-primary"
           >
             <span className="wrap-break-word">{skill}</span>
             <X
@@ -34,7 +34,7 @@ export default function SkillMatrix() {
             <span className="wrap-break-word">{skill}</span>
             <Plus
               size={14}
-              className="shrink-0 cursor-pointer hover:text-rose-800"
+              className="shrink-0 cursor-pointer hover:text-destructive/80"
             />
           </div>
         ))}

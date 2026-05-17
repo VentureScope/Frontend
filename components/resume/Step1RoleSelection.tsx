@@ -18,10 +18,10 @@ function careerToRole(c: TrendingCareer, i: number): Role {
   }
   const demandColor =
     demand === "HIGH DEMAND"
-      ? "bg-red-100 text-red-700"
+      ? "bg-muted text-secondary"
       : demand === "EMERGING"
-        ? "bg-purple-100 text-purple-700"
-        : "bg-primary/15 text-primary";
+        ? "bg-muted text-accent"
+        : "bg-success/15 text-success";
   const icons = ["☁️", "</> ", "📊", "🧠", "🎨", "🛡️"];
   return {
     id: `live-${i}-${c.name.slice(0, 24)}`,
@@ -78,7 +78,7 @@ export default function Step1RoleSelection() {
 
   return (
     <div className="w-full flex justify-center">
-      <div className="w-full bg-card rounded-3xl shadow-sm border border-border">
+      <div className="w-full bg-card rounded-xl shadow-sm border border-border">
         <div className="sticky top-0 bg-card border-b border-border px-6 py-8 sm:px-8 flex items-start gap-4 rounded-t-3xl">
           <button
             type="button"
@@ -102,10 +102,8 @@ export default function Step1RoleSelection() {
             </svg>
           </button>
           <div className="flex-1">
-            <p className="text-xs font-bold uppercase tracking-widest text-primary mb-2">
-              Step 1 of 4
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-black text-foreground">
+            <p className="text-label mb-2 text-primary">Step 1 of 4</p>
+            <h2 className="text-2xl font-semibold text-foreground sm:text-3xl">
               Select Target Role
             </h2>
             <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
@@ -130,7 +128,7 @@ export default function Step1RoleSelection() {
               placeholder="Search for any professional role..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-muted border border-border rounded-2xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-border bg-muted py-3 pr-4 pl-12 text-sm focus:border-primary focus:ring-1 focus:ring-ring/20 focus:outline-none"
             />
           </div>
         </div>
@@ -138,9 +136,7 @@ export default function Step1RoleSelection() {
         <div className="px-6 py-8 sm:px-8">
           <h3 className="text-sm font-bold text-foreground mb-6 flex items-center gap-2">
             <span className="inline-block">Trending Roles</span>
-            <span className="text-xs font-bold text-red-600">
-              Live market data
-            </span>
+            <span className="text-label text-secondary">Live market data</span>
           </h3>
 
           {loading ? (
@@ -155,7 +151,7 @@ export default function Step1RoleSelection() {
                   key={role.id}
                   type="button"
                   onClick={() => handleSelectRole(role)}
-                  className="text-left p-6 bg-gradient-to-br from-slate-50 to-slate-100 hover:from-blue-50 hover:to-slate-100 border border-border hover:border-blue-300 rounded-2xl transition-all hover:shadow-md active:scale-98"
+                  className="rounded-lg border border-border bg-muted/50 p-6 text-left transition-all hover:border-primary/40 hover:bg-primary/5 hover:shadow-md active:scale-[0.98]"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="text-3xl">{role.icon}</div>
@@ -169,7 +165,7 @@ export default function Step1RoleSelection() {
                     {role.title}
                   </h4>
                   <p className="text-sm text-muted-foreground mb-4">{role.description}</p>
-                  <div className="flex items-center gap-2 text-xs font-semibold text-green-600">
+                  <div className="flex items-center gap-2 text-xs font-medium text-success">
                     <TrendingUp className="w-4 h-4" />
                     <span>+{role.trend}% signal</span>
                   </div>

@@ -308,26 +308,22 @@ export default function SettingsPage() {
         {/* --- GLOBAL HEADER --- */}
         <header className="flex flex-col justify-between gap-5 sm:gap-6 md:flex-row md:items-end">
           <div className="space-y-2">
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">
-              Command Center
-            </p>
-            <h1 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-              Settings
-            </h1>
+            <p className="text-label text-primary">Command Center</p>
+            <h1 className="text-h1 text-foreground">Settings</h1>
           </div>
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4">
             <Button
               onClick={() => form.reset(profileDefaults)}
               disabled={activeTab !== "profile" || form.formState.isSubmitting}
               variant="outline"
-              className="h-12 w-full rounded-2xl border-border bg-card px-6 font-bold text-muted-foreground hover:bg-muted sm:h-14 sm:w-auto sm:px-10"
+              className="h-12 w-full rounded-lg border-border bg-card px-6 font-bold text-muted-foreground hover:bg-muted sm:h-14 sm:w-auto sm:px-10"
             >
               Discard
             </Button>
             <Button
               onClick={form.handleSubmit(onProfileSubmit)}
               disabled={activeTab !== "profile" || form.formState.isSubmitting}
-              className="h-12 w-full rounded-2xl bg-primary px-6 font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 sm:h-14 sm:w-auto sm:px-12"
+              className="h-12 w-full rounded-lg bg-primary px-6 font-medium text-primary-foreground  transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 sm:h-14 sm:w-auto sm:px-12"
             >
               {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
             </Button>
@@ -342,10 +338,10 @@ export default function SettingsPage() {
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-2xl border border-transparent px-4 py-3 text-left text-sm font-bold transition-all sm:px-5 sm:py-4 lg:gap-4 lg:px-6 lg:py-5",
+                  "flex w-full items-center gap-3 rounded-r-xl border-l-2 px-4 py-3 text-left text-btn transition-all sm:px-5 sm:py-4 lg:gap-4 lg:pl-5 lg:pr-6 lg:py-4",
                   activeTab === item.id
-                    ? "bg-card text-primary shadow-sm border-border"
-                    : "text-muted-foreground hover:text-muted-foreground hover:bg-muted",
+                    ? "border-primary bg-muted font-medium text-foreground"
+                    : "border-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
                 <item.icon
@@ -364,7 +360,7 @@ export default function SettingsPage() {
             {/* 1. PROFILE IDENTITY */}
             {activeTab === "profile" && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-10">
+                <div className="rounded-xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-xl lg:p-10">
                   <div className="mb-8 flex flex-col gap-6 sm:mb-10 sm:gap-8 md:flex-row md:items-center lg:mb-12 lg:gap-10">
                     <div className="relative group">
                       <div className="h-28 w-28 overflow-hidden rounded-full border-[6px] border-background bg-muted shadow-2xl ring-1 ring-border sm:h-32 sm:w-32 lg:h-36 lg:w-36">
@@ -374,12 +370,12 @@ export default function SettingsPage() {
                           className="h-full w-full object-cover"
                         />
                       </div>
-                      <button className="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full border-4 border-background bg-primary text-white shadow-lg transition-transform hover:scale-110 hover:bg-primary/90 sm:h-11 sm:w-11">
+                      <button className="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full border-4 border-background bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-110 hover:bg-primary/90 sm:h-11 sm:w-11">
                         <Camera size={18} />
                       </button>
                     </div>
                     <div className="space-y-2">
-                      <h3 className="text-2xl font-black text-foreground sm:text-3xl">
+                      <h3 className="text-2xl font-semibold text-foreground sm:text-3xl">
                         Public Identity
                       </h3>
                       <p className="text-muted-foreground max-w-sm leading-relaxed">
@@ -400,7 +396,7 @@ export default function SettingsPage() {
                         </FieldTitle>
                         <Input
                           {...form.register("fullName")}
-                          className="h-14 rounded-2xl bg-muted border-none font-bold px-6 text-foreground"
+                          className="h-14 rounded-lg bg-muted border-none font-bold px-6 text-foreground"
                         />
                       </FieldLabel>
                       <FieldError errors={[form.formState.errors.fullName]} />
@@ -418,7 +414,7 @@ export default function SettingsPage() {
                           />
                           <Input
                             {...form.register("role")}
-                            className="h-14 w-full rounded-2xl bg-muted border-none font-bold pl-14 pr-6 text-foreground"
+                            className="h-14 w-full rounded-lg bg-muted border-none font-bold pl-14 pr-6 text-foreground"
                           />
                         </div>
                       </FieldLabel>
@@ -437,7 +433,7 @@ export default function SettingsPage() {
                           />
                           <Input
                             {...form.register("location")}
-                            className="h-14 w-full rounded-2xl bg-muted border-none font-bold pl-14 pr-6 text-foreground"
+                            className="h-14 w-full rounded-lg bg-muted border-none font-bold pl-14 pr-6 text-foreground"
                           />
                         </div>
                       </FieldLabel>
@@ -456,7 +452,7 @@ export default function SettingsPage() {
                           />
                           <Input
                             {...form.register("portfolio")}
-                            className="h-14 w-full rounded-2xl bg-muted border-none font-bold pl-14 pr-6 text-foreground"
+                            className="h-14 w-full rounded-lg bg-muted border-none font-bold pl-14 pr-6 text-foreground"
                           />
                         </div>
                       </FieldLabel>
@@ -465,11 +461,11 @@ export default function SettingsPage() {
                   </form>
                 </div>
 
-                <div className="divide-y divide-border rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-10">
+                <div className="divide-y divide-border rounded-xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-xl lg:p-10">
                   <div className="py-6 sm:py-8">
                     <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <p className="text-lg font-black text-foreground">
+                        <p className="text-lg font-semibold text-foreground">
                           Account Password
                         </p>
                         <p className="text-sm text-muted-foreground">
@@ -488,9 +484,9 @@ export default function SettingsPage() {
                     </div>
 
                     {isChangingPassword && (
-                      <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-border bg-muted p-4 sm:p-6">
+                      <div className="mt-6 flex flex-col gap-4 rounded-lg border border-border bg-muted p-4 sm:p-6">
                         {passwordError && (
-                          <div className="text-rose-500 text-sm font-bold bg-rose-50 p-3 rounded-lg">
+                          <div className="rounded-lg bg-destructive/10 p-3 text-sm font-medium text-destructive">
                             {passwordError}
                           </div>
                         )}
@@ -534,11 +530,11 @@ export default function SettingsPage() {
                   <div className="flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:py-8">
                     <div>
                       <div className="flex items-center gap-3">
-                        <p className="text-lg font-black text-foreground">
+                        <p className="text-lg font-semibold text-foreground">
                           Two-Factor Authentication
                         </p>
                         {mfaEnabled ? (
-                          <Badge className="bg-emerald-50 text-emerald-600 border-none font-bold text-[10px] uppercase py-1 px-3">
+                          <Badge className="border-none bg-success/15 text-success text-label py-1 px-3">
                             Enabled
                           </Badge>
                         ) : (
@@ -582,7 +578,7 @@ export default function SettingsPage() {
                         {mfaFactors.map((f, i) => (
                           <div 
                             key={f.factor_id}
-                            className="flex items-center justify-between rounded-2xl border border-border bg-muted/50 p-4 transition-colors hover:bg-muted"
+                            className="flex items-center justify-between rounded-lg border border-border bg-muted/50 p-4 transition-colors hover:bg-muted"
                           >
                             <div className="flex items-center gap-4">
                               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-sm text-muted-foreground">
@@ -605,7 +601,7 @@ export default function SettingsPage() {
                               )}
                               <button 
                                 onClick={() => onUnenrollClick(f.factor_id)}
-                                className="rounded-lg p-2 text-muted-foreground/50 hover:bg-rose-50 hover:text-rose-500 transition-colors"
+                                className="rounded-lg p-2 text-muted-foreground/50 transition-colors hover:bg-destructive/10 hover:text-destructive"
                                 title="Remove Authenticator"
                               >
                                 <Trash2 size={16} />
@@ -623,13 +619,13 @@ export default function SettingsPage() {
             {/* 2. INTELLIGENCE SOURCES */}
             {activeTab === "intelligence" && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex flex-col gap-5 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-12 xl:flex-row xl:items-center xl:justify-between">
+                <div className="flex flex-col gap-5 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-xl lg:p-12 xl:flex-row xl:items-center xl:justify-between">
                   <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full border-[6px] border-emerald-50 text-xl font-black text-emerald-500 sm:h-20 sm:w-20 sm:text-2xl">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full border-[6px] border-success/20 text-xl font-semibold text-success sm:h-20 sm:w-20 sm:text-2xl">
                       98%
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-foreground sm:text-2xl">
+                      <h3 className="text-xl font-semibold text-foreground sm:text-2xl">
                         Intelligence Sync Health
                       </h3>
                       <p className="text-muted-foreground font-medium">
@@ -639,37 +635,37 @@ export default function SettingsPage() {
                   </div>
                   <Button
                     variant="outline"
-                    className="h-11 w-full gap-3 rounded-xl border-primary/20 px-5 font-bold text-primary sm:h-12 sm:w-auto sm:px-8"
+                    className="h-11 w-full gap-3 rounded-xl border-border px-5 font-bold text-primary sm:h-12 sm:w-auto sm:px-8"
                   >
                     <RefreshCw size={18} /> Force Data Refresh
                   </Button>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2">
-                  <div className="flex min-h-64 flex-col justify-between rounded-3xl border-2 border-primary/20 bg-card p-5 sm:p-8 lg:rounded-[40px] lg:p-10">
+                  <div className="flex min-h-64 flex-col justify-between rounded-xl border-2 border-border bg-card p-5 sm:p-8 lg:rounded-xl lg:p-10">
                     <div className="flex items-start justify-between">
-                      <div className="h-16 w-16 rounded-[20px] bg-slate-900 flex items-center justify-center text-white">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-[20px] bg-foreground text-background">
                         <Github size={32} />
                       </div>
-                      <Badge className="bg-emerald-50 text-emerald-600 font-black tracking-widest uppercase border-none py-1.5 px-4 text-[10px]">
+                      <Badge className="bg-success/15 text-success font-semibold tracking-widest uppercase border-none py-1.5 px-4 text-[10px]">
                         Connected
                       </Badge>
                     </div>
                     <div className="space-y-2">
-                      <h4 className="text-lg font-black text-foreground sm:text-xl">
+                      <h4 className="text-lg font-semibold text-foreground sm:text-xl">
                         GitHub Contributions
                       </h4>
                       <p className="text-sm text-muted-foreground leading-relaxed">
                         Mapping repositories and commit patterns to technical
                         benchmarks.
                       </p>
-                      <button className="text-xs font-bold text-rose-500 uppercase tracking-widest hover:underline pt-2">
+                      <button className="text-label pt-2 text-destructive hover:underline">
                         Disconnect Source
                       </button>
                     </div>
                   </div>
 
-                  <div className="flex min-h-64 flex-col justify-between rounded-3xl border border-dashed border-border bg-card p-5 opacity-60 transition-opacity hover:opacity-100 sm:p-8 lg:rounded-[40px] lg:p-10">
+                  <div className="flex min-h-64 flex-col justify-between rounded-xl border border-dashed border-border bg-card p-5 opacity-60 transition-opacity hover:opacity-100 sm:p-8 lg:rounded-xl lg:p-10">
                     <div className="flex items-start justify-between">
                       <div className="h-16 w-16 rounded-[20px] bg-muted flex items-center justify-center text-muted-foreground/50">
                         <GraduationCap size={32} />
@@ -679,7 +675,7 @@ export default function SettingsPage() {
                       </span>
                     </div>
                     <div className="space-y-4">
-                      <h4 className="text-lg font-black text-muted-foreground sm:text-xl">
+                      <h4 className="text-lg font-semibold text-muted-foreground sm:text-xl">
                         University Transcript Hub
                       </h4>
                       <p className="text-sm text-muted-foreground leading-relaxed">
@@ -698,9 +694,9 @@ export default function SettingsPage() {
             {/* 3. AI ADVISOR TUNING */}
             {activeTab === "ai-advisor" && (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="space-y-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:space-y-10 sm:p-8 lg:rounded-[40px] lg:space-y-12 lg:p-12">
+                <div className="space-y-8 rounded-xl border border-border bg-card p-5 shadow-sm sm:space-y-10 sm:p-8 lg:rounded-xl lg:space-y-12 lg:p-12">
                   <div className="space-y-3">
-                    <h3 className="text-2xl font-black text-foreground sm:text-3xl">
+                    <h3 className="text-2xl font-semibold text-foreground sm:text-3xl">
                       Advisor Personality
                     </h3>
                     <p className="text-base text-muted-foreground sm:text-lg">
@@ -710,7 +706,7 @@ export default function SettingsPage() {
                   </div>
 
                   <div className="space-y-8 sm:space-y-10 lg:space-y-12">
-                    <div className="space-y-6 rounded-3xl border border-border bg-muted p-5 sm:space-y-8 sm:p-8 lg:rounded-[32px] lg:p-10">
+                    <div className="space-y-6 rounded-xl border border-border bg-muted p-5 sm:space-y-8 sm:p-8 lg:rounded-xl lg:p-10">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                           <p className="text-[11px] font-bold uppercase tracking-widest text-primary mb-2">
@@ -721,7 +717,7 @@ export default function SettingsPage() {
                             pivots?
                           </p>
                         </div>
-                        <span className="text-lg font-black text-foreground">
+                        <span className="text-lg font-semibold text-foreground">
                           High Growth
                         </span>
                       </div>
@@ -734,7 +730,7 @@ export default function SettingsPage() {
                     </div>
 
                     <div className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 md:gap-8">
-                      <div className="flex items-center justify-between gap-4 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
+                      <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
                         <div className="space-y-1">
                           <p className="font-bold text-foreground">
                             Direct & Analytical Tone
@@ -745,7 +741,7 @@ export default function SettingsPage() {
                         </div>
                         <Switch defaultChecked />
                       </div>
-                      <div className="flex items-center justify-between gap-4 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
+                      <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
                         <div className="space-y-1">
                           <p className="font-bold text-foreground">
                             Global Benchmarking
@@ -765,11 +761,11 @@ export default function SettingsPage() {
             {/* 4. PRIVACY & SECURITY */}
             {activeTab === "privacy" && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="relative overflow-hidden rounded-3xl bg-[#020617] p-5 text-white shadow-2xl sm:p-8 lg:rounded-[40px] lg:p-12 xl:p-16">
-                  <div className="absolute top-0 right-0 h-64 w-64 bg-primary/10 blur-[100px]" />
+                <div className="relative overflow-hidden rounded-xl border border-border bg-foreground p-5 text-background shadow-2xl sm:p-8 lg:rounded-xl lg:p-12 xl:p-16">
+                  <div className="absolute top-0 right-0 h-64 w-64 bg-muted blur-[100px]" />
                   <div className="relative z-10 space-y-7 sm:space-y-8 lg:space-y-10">
                     <div className="space-y-4">
-                      <h3 className="text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">
+                      <h3 className="text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl">
                         Intelligence Anonymization
                       </h3>
                       <p className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
@@ -778,13 +774,13 @@ export default function SettingsPage() {
                         mapped to global trend analysis.
                       </p>
                     </div>
-                    <div className="flex flex-col gap-5 rounded-3xl border border-white/10 bg-card/5 p-5 backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:p-8 lg:rounded-[32px] lg:p-10">
+                    <div className="flex flex-col gap-5 rounded-xl border border-white/10 bg-card/5 p-5 backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:p-8 lg:rounded-xl lg:p-10">
                       <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/20 text-[var(--brand-accent)] sm:h-16 sm:w-16">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary/20 text-accent sm:h-16 sm:w-16">
                           <EyeOff size={32} />
                         </div>
                         <div>
-                          <p className="text-lg font-black sm:text-xl">
+                          <p className="text-lg font-semibold sm:text-xl">
                             Privacy Shield Mode
                           </p>
                           <p className="text-sm text-muted-foreground font-medium">
@@ -797,15 +793,15 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="space-y-8 rounded-3xl border border-border bg-card p-5 sm:p-8 lg:rounded-[40px] lg:p-12 lg:space-y-10">
-                  <h4 className="text-lg font-black text-foreground sm:text-xl">
+                <div className="space-y-8 rounded-xl border border-border bg-card p-5 sm:p-8 lg:rounded-xl lg:p-12 lg:space-y-10">
+                  <h4 className="text-lg font-semibold text-foreground sm:text-xl">
                     Data Management
                   </h4>
-                  <div className="flex flex-col gap-4 rounded-3xl border border-rose-100 bg-rose-50/50 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+                  <div className="flex flex-col gap-4 rounded-xl border border-destructive/20 bg-destructive/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-8">
                     <div className="flex items-center gap-4 text-rose-600 sm:gap-6">
                       <ShieldAlert size={28} />
                       <div>
-                        <p className="font-black">Purge Personal History</p>
+                        <p className="font-semibold">Purge Personal History</p>
                         <p className="text-sm text-rose-400 font-medium italic">
                           Permanently delete all synced intelligence sources.
                         </p>
@@ -826,32 +822,32 @@ export default function SettingsPage() {
             {/* 5. SUBSCRIPTION & BILLING */}
             {activeTab === "billing" && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="group relative overflow-hidden rounded-3xl bg-primary p-5 text-white shadow-2xl sm:p-8 lg:rounded-[40px] lg:p-12">
+                <div className="group relative overflow-hidden rounded-xl bg-primary p-5 text-primary-foreground shadow-2xl sm:p-8 lg:rounded-xl lg:p-12">
                   <div className="absolute top-0 right-0 h-64 w-64 bg-card/10 blur-[100px] transition-all group-hover:scale-125" />
                   <div className="relative z-10 flex flex-col justify-between gap-12 md:flex-row md:items-center">
                     <div className="space-y-6">
                       <div className="flex items-center gap-4">
-                        <Badge className="bg-card/20 border-white/30 font-black tracking-[0.2em] uppercase text-[10px] py-2 px-4 backdrop-blur-md">
+                        <Badge className="bg-card/20 border-white/30 font-semibold tracking-[0.2em] uppercase text-[10px] py-2 px-4 backdrop-blur-md">
                           Gold Tier
                         </Badge>
-                        <p className="text-xs font-bold text-blue-100/60 uppercase tracking-widest">
+                        <p className="text-label text-primary-foreground/70">
                           Active Member
                         </p>
                       </div>
-                      <h3 className="text-3xl font-black tracking-tighter sm:text-4xl lg:text-5xl">
+                      <h3 className="text-3xl font-semibold tracking-tighter sm:text-4xl lg:text-5xl">
                         Intelligence Pro
                       </h3>
-                      <p className="max-w-sm text-base leading-relaxed text-blue-100/80 sm:text-lg">
+                      <p className="max-w-sm text-base leading-relaxed text-primary-foreground/80 sm:text-lg">
                         Unlimited AI Advisor access, real-time Ethiopia market
                         maps, and automated career pathing.
                       </p>
                     </div>
                     <div className="space-y-2 text-left md:text-right">
-                      <p className="text-5xl font-black tracking-tighter sm:text-6xl lg:text-7xl">
+                      <p className="text-5xl font-semibold tracking-tighter sm:text-6xl lg:text-7xl">
                         $29
-                        <span className="text-2xl text-blue-200/50">/mo</span>
+                        <span className="text-2xl text-primary-foreground/50">/mo</span>
                       </p>
-                      <p className="text-[11px] font-bold uppercase tracking-widest text-blue-100/60">
+                      <p className="text-label text-primary-foreground/70">
                         Next: Feb 12, 2024
                       </p>
                     </div>
@@ -859,8 +855,8 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2">
-                  <div className="flex flex-col justify-between rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-12">
-                    <h4 className="mb-7 text-lg font-black text-foreground sm:mb-10 sm:text-xl">
+                  <div className="flex flex-col justify-between rounded-xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-xl lg:p-12">
+                    <h4 className="mb-7 text-lg font-semibold text-foreground sm:mb-10 sm:text-xl">
                       Payment Method
                     </h4>
                     <div className="flex items-center gap-4 rounded-[24px] border border-border bg-muted p-4 sm:gap-6 sm:p-6">
@@ -868,7 +864,7 @@ export default function SettingsPage() {
                         <CardIcon size={28} />
                       </div>
                       <div>
-                        <p className="text-base font-black text-foreground sm:text-lg">
+                        <p className="text-base font-semibold text-foreground sm:text-lg">
                           •••• 4242
                         </p>
                         <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
@@ -884,8 +880,8 @@ export default function SettingsPage() {
                     </Button>
                   </div>
 
-                  <div className="space-y-8 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-12 lg:space-y-10">
-                    <h4 className="text-lg font-black text-foreground sm:text-xl">
+                  <div className="space-y-8 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-xl lg:p-12 lg:space-y-10">
+                    <h4 className="text-lg font-semibold text-foreground sm:text-xl">
                       Allocation Stats
                     </h4>
                     <div className="space-y-8">
@@ -895,7 +891,7 @@ export default function SettingsPage() {
                           <span className="text-foreground">85% Used</span>
                         </div>
                         <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                          <div className="h-full w-[85%] bg-primary rounded-full shadow-[0_0_12px_rgba(29,89,219,0.3)]" />
+                          <div className="h-full w-[85%] rounded-lg bg-primary shadow-[0_0_12px] " />
                         </div>
                       </div>
                       <div className="space-y-3">
@@ -904,15 +900,15 @@ export default function SettingsPage() {
                           <span className="text-foreground">Unlimited</span>
                         </div>
                         <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                          <div className="h-full w-full bg-emerald-500 rounded-full" />
+                          <div className="h-full w-full rounded-full bg-success" />
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-[40px] lg:p-12">
-                  <h4 className="mb-7 text-lg font-black text-foreground sm:mb-10 sm:text-xl lg:mb-12">
+                <div className="rounded-xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:rounded-xl lg:p-12">
+                  <h4 className="mb-7 text-lg font-semibold text-foreground sm:mb-10 sm:text-xl lg:mb-12">
                     Invoice History
                   </h4>
                   <div className="space-y-2">
@@ -941,11 +937,11 @@ export default function SettingsPage() {
                         className="group flex flex-col gap-4 border-b border-border py-5 last:border-none sm:flex-row sm:items-center sm:justify-between sm:py-6"
                       >
                         <div className="flex items-center gap-4 sm:gap-6">
-                          <div className="flex h-11 w-11 items-center justify-center rounded-[18px] bg-muted text-muted-foreground transition-colors group-hover:bg-primary group-hover:text-white sm:h-12 sm:w-12">
+                          <div className="flex h-11 w-11 items-center justify-center rounded-[18px] bg-muted text-muted-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground sm:h-12 sm:w-12">
                             <Download size={20} />
                           </div>
                           <div>
-                            <p className="font-black text-foreground">
+                            <p className="font-semibold text-foreground">
                               {inv.date}
                             </p>
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
@@ -954,10 +950,10 @@ export default function SettingsPage() {
                           </div>
                         </div>
                         <div className="flex items-center justify-between gap-4 sm:justify-end sm:gap-10">
-                          <span className="text-base font-black text-foreground sm:text-lg">
+                          <span className="text-base font-semibold text-foreground sm:text-lg">
                             {inv.amt}
                           </span>
-                          <Badge className="bg-emerald-50 text-emerald-600 border-none font-bold text-[10px] uppercase py-1.5 px-4 rounded-lg">
+                          <Badge className="bg-success/15 text-success border-none font-bold text-[10px] uppercase py-1.5 px-4 rounded-lg">
                             Success
                           </Badge>
                         </div>
@@ -974,7 +970,7 @@ export default function SettingsPage() {
       {/* ── DELETE ACCOUNT MODAL ── */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-md rounded-3xl bg-card p-8 shadow-2xl">
+          <div className="relative w-full max-w-md rounded-xl bg-card p-8 shadow-2xl">
             {/* Close */}
             <button
               onClick={() => setShowDeleteModal(false)}
@@ -985,11 +981,11 @@ export default function SettingsPage() {
 
             {/* Header */}
             <div className="mb-6 flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-rose-100">
                 <AlertTriangle className="text-rose-600" size={22} />
               </div>
               <div>
-                <h3 className="text-lg font-black text-foreground">
+                <h3 className="text-lg font-semibold text-foreground">
                   Delete Account
                 </h3>
                 <p className="text-xs text-muted-foreground">
@@ -1036,7 +1032,7 @@ export default function SettingsPage() {
               )}
 
               {/* Confirmation checkbox */}
-              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-rose-100 bg-rose-50/60 p-4">
+              <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-destructive/20 bg-destructive/5 p-4">
                 <input
                   type="checkbox"
                   checked={deleteConfirmed}
@@ -1051,7 +1047,7 @@ export default function SettingsPage() {
 
               {/* Error */}
               {deleteError && (
-                <p className="rounded-xl bg-rose-50 px-4 py-3 text-xs font-semibold text-rose-600">
+                <p className="rounded-xl bg-destructive/10 px-4 py-3 text-xs font-semibold text-destructive">
                   {deleteError}
                 </p>
               )}
@@ -1072,7 +1068,7 @@ export default function SettingsPage() {
                     isDeletingAccount ||
                     (needsPassword && !deletePassword)
                   }
-                  className="flex-1 rounded-xl bg-rose-600 font-bold text-white hover:bg-rose-700 disabled:opacity-50"
+                  className="flex-1 rounded-xl bg-destructive font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
                 >
                   {isDeletingAccount ? "Deleting..." : "Delete My Account"}
                 </Button>
@@ -1084,7 +1080,7 @@ export default function SettingsPage() {
       {/* ── MFA DISABLE MODAL ── */}
       {showMfaModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-md rounded-3xl bg-card p-8 shadow-2xl">
+          <div className="relative w-full max-w-md rounded-xl bg-card p-8 shadow-2xl">
             {/* Close */}
             <button
               onClick={() => setShowMfaModal(false)}
@@ -1095,11 +1091,11 @@ export default function SettingsPage() {
 
             {/* Header */}
             <div className="mb-6 flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted">
                 <ShieldCheck className="text-primary" size={22} />
               </div>
               <div>
-                <h3 className="text-lg font-black text-foreground">
+                <h3 className="text-lg font-semibold text-foreground">
                   {mfaMode === "disable" ? "Confirm MFA Disable" : "Confirm Removal"}
                 </h3>
                 <p className="text-xs text-muted-foreground">
@@ -1133,7 +1129,7 @@ export default function SettingsPage() {
                         placeholder="Enter your password"
                         value={mfaPassword}
                         onChange={(e) => setMfaPassword(e.target.value)}
-                        className="h-12 w-full rounded-xl border border-border bg-muted px-4 text-sm font-medium text-foreground outline-none focus:border-blue-400 focus:ring-2 focus:ring-primary/20"
+                        className="h-12 w-full rounded-xl border border-border bg-muted px-4 text-sm font-medium text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-ring/20"
                       />
                     </div>
                   )}
@@ -1157,7 +1153,7 @@ export default function SettingsPage() {
 
               {/* Error */}
               {mfaError && (
-                <p className="rounded-xl bg-rose-50 px-4 py-3 text-xs font-semibold text-rose-600">
+                <p className="rounded-xl bg-destructive/10 px-4 py-3 text-xs font-semibold text-destructive">
                   {mfaError}
                 </p>
               )}
@@ -1174,7 +1170,7 @@ export default function SettingsPage() {
                 <Button
                   onClick={onMfaActionConfirm}
                   disabled={isMfaProcessing || (mfaReauthStep === "init" && needsPassword && !mfaPassword) || (mfaReauthStep === "otp" && mfaOtp.length !== 6)}
-                  className="flex-1 rounded-xl bg-primary font-bold text-white hover:bg-primary/90 disabled:opacity-50"
+                  className="flex-1 rounded-xl bg-primary font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                 >
                   {isMfaProcessing ? "Processing..." : mfaReauthStep === "init" && !needsPassword ? "Send Code" : mfaMode === "disable" ? "Confirm Disable" : "Confirm Removal"}
                 </Button>

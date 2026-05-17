@@ -132,29 +132,29 @@ export default function AcademicStatusCard() {
   // Determine CGPA status color
   const cgpaColor =
     latestCGPA >= 3.7
-      ? "text-emerald-600"
+      ? "text-success"
       : latestCGPA >= 3.0
         ? "text-primary"
         : latestCGPA >= 2.0
-          ? "text-amber-600"
-          : "text-red-500";
+          ? "text-secondary"
+          : "text-destructive";
 
   const cgpaBgColor =
     latestCGPA >= 3.7
-      ? "bg-emerald-500/15"
+      ? "bg-success/15"
       : latestCGPA >= 3.0
-        ? "bg-primary/10"
+        ? "bg-muted"
         : latestCGPA >= 2.0
-          ? "bg-amber-50"
-          : "bg-red-50";
+          ? "bg-secondary/10"
+          : "bg-destructive/10";
 
   if (loading && !transcript) {
     return (
-      <div className="relative rounded-2xl sm:rounded-[32px] border border-border bg-card p-6 sm:p-8 shadow-sm">
+      <div className="relative rounded-lg sm:rounded-xl border border-border bg-card p-6 sm:p-8 shadow-sm">
         <div className="flex flex-col gap-6 sm:gap-8">
           {/* Header skeleton */}
           <div className="flex items-center gap-4 sm:gap-6">
-            <Skeleton className="h-12 w-12 sm:h-16 sm:w-16 rounded-xl sm:rounded-2xl shrink-0" />
+            <Skeleton className="h-12 w-12 sm:h-16 sm:w-16 rounded-xl sm:rounded-lg shrink-0" />
             <div className="space-y-1 sm:space-y-2 flex-1">
               <Skeleton className="h-5 sm:h-6 w-32 sm:w-48" />
               <Skeleton className="h-3 sm:h-4 w-24 sm:w-32" />
@@ -180,12 +180,12 @@ export default function AcademicStatusCard() {
   }
 
   return (
-    <div className="relative rounded-2xl sm:rounded-[32px] border border-border bg-card p-6 sm:p-8 shadow-sm">
+    <div className="relative rounded-lg sm:rounded-xl border border-border bg-card p-6 sm:p-8 shadow-sm">
       <div className="flex flex-col gap-6 sm:gap-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-4 sm:gap-6">
-            <div className="flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-xl sm:rounded-2xl bg-rose-50 text-rose-500 shrink-0">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted text-accent sm:h-16 sm:w-16 sm:rounded-lg">
               <GraduationCap className="h-6 w-6 sm:h-8 sm:w-8" />
             </div>
             <div className="space-y-1">
@@ -203,12 +203,12 @@ export default function AcademicStatusCard() {
                 {isConnected ? (
                   <>
                     <span>Last synced: {formattedDate}</span>
-                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <div className="h-1.5 w-1.5 rounded-full bg-success" />
                   </>
                 ) : (
                   <>
                     <span>No extraction yet</span>
-                    <div className="h-1.5 w-1.5 rounded-full bg-slate-300" />
+                    <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" />
                   </>
                 )}
               </div>
@@ -225,13 +225,13 @@ export default function AcademicStatusCard() {
                 </span>
               )}
               {yearLevel && (
-                <span className="inline-flex items-center gap-1.5 rounded-lg bg-violet-50 border border-violet-100 px-3 py-1.5 text-xs font-semibold text-violet-600">
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-accent/20 bg-accent/10 px-3 py-1.5 text-xs font-semibold text-accent">
                   <Award className="h-3 w-3" />
                   {yearLevel}
                 </span>
               )}
               {academicYear && (
-                <span className="inline-flex items-center gap-1.5 rounded-lg bg-sky-50 border border-sky-100 px-3 py-1.5 text-xs font-semibold text-sky-600">
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted px-3 py-1.5 text-xs font-semibold text-primary">
                   <Calendar className="h-3 w-3" />
                   {academicYear}
                 </span>
@@ -259,7 +259,7 @@ export default function AcademicStatusCard() {
             </div>
 
             {/* Semester GPA */}
-            <div className="rounded-xl bg-indigo-50 p-4 sm:p-5">
+            <div className="rounded-xl bg-accent/10 p-4 sm:p-5">
               <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
                 Latest SGPA
               </p>
@@ -267,7 +267,7 @@ export default function AcademicStatusCard() {
                 <p className="text-2xl sm:text-3xl font-extrabold text-primary">
                   {latestSGPA.toFixed(2)}
                 </p>
-                <TrendingUp className="h-4 w-4 text-[var(--brand-accent)]" />
+                <TrendingUp className="h-4 w-4 text-accent" />
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground font-medium mt-1 truncate">
                 {latestSemester?.semester}
@@ -288,17 +288,17 @@ export default function AcademicStatusCard() {
             </div>
 
             {/* Courses */}
-            <div className="rounded-xl bg-amber-50 p-4 sm:p-5">
-              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+            <div className="rounded-xl bg-secondary/10 p-4 sm:p-5">
+              <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-muted-foreground sm:text-[10px]">
                 Courses Graded
               </p>
               <div className="flex items-baseline gap-1.5">
-                <p className="text-2xl sm:text-3xl font-extrabold text-amber-600">
+                <p className="text-2xl font-extrabold text-secondary sm:text-3xl">
                   {totalGradedCourses}
                 </p>
-                <BookOpen className="h-4 w-4 text-amber-400" />
+                <BookOpen className="h-4 w-4 text-secondary/70" />
               </div>
-              <p className="text-[10px] sm:text-xs text-amber-400 font-medium mt-1">
+              <p className="mt-1 text-[10px] font-medium text-secondary/80 sm:text-xs">
                 Across all semesters
               </p>
             </div>
@@ -323,13 +323,13 @@ export default function AcademicStatusCard() {
           <button
             disabled={!isConnected}
             className={`flex items-center justify-center gap-2 rounded-xl px-4 sm:px-6 py-3 text-xs sm:text-sm font-bold ${isConnected
-              ? "bg-primary/10 text-primary hover:bg-primary/15"
+              ? "bg-muted text-primary hover:bg-muted"
               : "bg-muted text-muted-foreground cursor-not-allowed"
               }`}
           >
             <FileText className="h-4 w-4" /> View Full Transcript
           </button>
-          <button className="flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 sm:px-6 py-3 text-xs sm:text-sm font-bold text-white hover:bg-slate-800">
+          <button className="flex items-center justify-center gap-2 rounded-xl bg-foreground px-4 py-3 text-xs font-bold text-background hover:bg-foreground/90 sm:px-6 sm:text-sm">
             <UploadCloud className="h-4 w-4" /> Update Records
           </button>
         </div>

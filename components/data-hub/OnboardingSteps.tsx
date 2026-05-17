@@ -27,10 +27,10 @@ export default function OnboardingSteps() {
       {steps.map((step) => (
         <div
           key={step.number}
-          className="group relative flex flex-col gap-6 rounded-[32px] bg-card p-10 shadow-sm border border-border transition-all hover:shadow-md hover:border-primary/20"
+          className="group relative flex flex-col gap-6 rounded-xl bg-card p-10 shadow-sm border border-border transition-all hover:shadow-md hover:border-border"
         >
           {/* Large Step Number */}
-          <span className="text-5xl font-black tracking-tighter text-primary/10 group-hover:text-primary/20 transition-colors">
+          <span className="text-5xl font-semibold tracking-tighter text-primary/10 transition-colors group-hover:text-primary/20">
             {step.number}
           </span>
 
@@ -42,7 +42,7 @@ export default function OnboardingSteps() {
           </div>
 
           {/* Subtle Accent Line */}
-          <div className="absolute bottom-0 left-10 right-10 h-1 rounded-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute bottom-0 left-10 right-10 h-1 rounded-lg bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
       ))}
     </section>

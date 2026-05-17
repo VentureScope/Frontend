@@ -50,7 +50,7 @@ export default function ConnectedAccounts() {
 
   if (loading) {
     return (
-      <div className="relative rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
+      <div className="relative rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
         <div className="mb-6 flex items-center gap-2 text-muted-foreground/50">
           <Skeleton className="h-4 w-4" />
           <Skeleton className="h-3 w-32" />
@@ -76,12 +76,10 @@ export default function ConnectedAccounts() {
   }
 
   return (
-    <div className="relative rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
+    <div className="relative rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
       <div className="mb-6 flex items-center gap-2 text-primary">
         <Share2 size={18} />
-        <span className="text-[10px] font-bold uppercase tracking-widest">
-          Connected Accounts
-        </span>
+        <span className="text-label">Connected Accounts</span>
       </div>
 
       <div className="space-y-3">
@@ -90,7 +88,7 @@ export default function ConnectedAccounts() {
           className={
             "flex flex-col gap-2 rounded-xl border p-3 sm:flex-row sm:items-center sm:justify-between " +
             (hasGithub
-              ? "bg-primary/5 border-primary/20"
+              ? "bg-primary/5 border-border"
               : "bg-muted/50 border-border")
           }
         >
@@ -109,7 +107,7 @@ export default function ConnectedAccounts() {
             </span>
           </div>
           {hasGithub ? (
-            <span className="self-start rounded-md bg-emerald-500/15 px-2 py-1 text-[9px] font-bold text-emerald-700 dark:text-emerald-400 sm:self-auto">
+            <span className="text-label self-start rounded-md bg-success/15 px-2 py-1 text-success sm:self-auto">
               LINKED
             </span>
           ) : (
@@ -127,7 +125,7 @@ export default function ConnectedAccounts() {
           className={
             "flex flex-col gap-2 rounded-xl border p-3 sm:flex-row sm:items-center sm:justify-between " +
             (hasAcademic
-              ? "bg-primary/10 border-primary/20"
+              ? "bg-muted border-border"
               : "bg-muted/50 border-border")
           }
         >
@@ -146,7 +144,7 @@ export default function ConnectedAccounts() {
             </span>
           </div>
           {hasAcademic ? (
-            <span className="self-start rounded-md bg-emerald-500/15 px-2 py-1 text-[9px] font-bold tracking-widest text-emerald-700 dark:text-emerald-400 sm:self-auto">
+            <span className="text-label self-start rounded-md bg-success/15 px-2 py-1 text-success sm:self-auto">
               SYNCED
             </span>
           ) : (

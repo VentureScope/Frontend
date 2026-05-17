@@ -27,7 +27,7 @@ export function ProfileMatchesPanel({
 
   if (!signedIn) {
     return (
-      <div className="mt-8 rounded-2xl border border-dashed border-primary/30 bg-primary/10/40 p-6 text-center">
+      <div className="mt-8 rounded-lg border border-dashed border-border bg-muted/40 p-6 text-center">
         <Sparkles className="h-8 w-8 text-primary mx-auto mb-3" />
         <h3 className="text-sm font-bold text-foreground">
           Personalized job matches
@@ -36,7 +36,7 @@ export function ProfileMatchesPanel({
           Sign in to see openings ranked against your skills, education, and
           GitHub activity—not just generic listings.
         </p>
-        <Button asChild className="mt-4 rounded-full" size="sm">
+        <Button asChild className="mt-4 rounded-lg" size="sm">
           <Link href="/sign-in">Sign in for matches</Link>
         </Button>
       </div>
@@ -44,7 +44,7 @@ export function ProfileMatchesPanel({
   }
 
   return (
-    <div className="mt-8 rounded-2xl border border-primary/20 bg-primary/10/60 p-5 sm:p-6">
+    <div className="mt-8 rounded-lg border border-border bg-muted/60 p-5 sm:p-6">
       <h3 className="text-sm font-bold text-foreground mb-1">
         Matched to your profile
       </h3>

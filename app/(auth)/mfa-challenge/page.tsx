@@ -194,13 +194,13 @@ function MFAChallengeContent() {
     <div className="flex min-h-screen items-center justify-center bg-muted p-4">
       <div className="w-full max-w-md">
         {/* Card */}
-        <div className="rounded-3xl bg-card shadow-2xl overflow-hidden">
+        <div className="rounded-xl bg-card shadow-2xl overflow-hidden">
           {/* Header band */}
-          <div className="bg-primary px-8 py-10 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-card/20 backdrop-blur-sm">
-              <ShieldCheck className="h-8 w-8 text-white" />
+          <div className="border-b border-border bg-muted px-8 py-10 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-card/20 backdrop-blur-sm">
+              <ShieldCheck className="h-8 w-8 text-primary-foreground" />
             </div>
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-2xl font-bold text-primary-foreground">
               Two-Factor Verification
             </h1>
             <p className="mt-1 text-sm text-primary-foreground/80">
@@ -219,9 +219,9 @@ function MFAChallengeContent() {
                     key={f.factor_id}
                     id={`factor-${i}`}
                     onClick={() => selectFactor(f)}
-                    className="flex w-full items-center gap-4 rounded-2xl border border-border bg-muted px-5 py-4 text-left transition-all hover:border-blue-300 hover:bg-primary/10 active:scale-[0.98]"
+                    className="flex w-full items-center gap-4 rounded-lg border border-border bg-muted px-5 py-4 text-left transition-all hover:border-primary/40 hover:bg-muted active:scale-[0.98]"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-primary">
                       <Smartphone className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
@@ -251,7 +251,7 @@ function MFAChallengeContent() {
                   id="mfa-verify-btn"
                   onClick={handleVerify}
                   disabled={code.length !== 6 || verifying}
-                  className="h-12 w-full bg-primary text-sm font-bold text-white hover:bg-primary/90 shadow-xl shadow-primary/20"
+                  className="h-12 w-full bg-primary text-sm font-bold text-primary-foreground hover:bg-primary/90 "
                 >
                   {verifying ? (
                     <>
@@ -277,9 +277,9 @@ function MFAChallengeContent() {
 
             {/* Error */}
             {error && (
-              <div className="flex items-start gap-3 rounded-xl bg-red-50 border border-red-100 px-4 py-3">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-                <p className="text-xs text-red-700">{error}</p>
+              <div className="flex items-start gap-3 rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-3">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+                <p className="text-xs text-destructive">{error}</p>
               </div>
             )}
           </div>

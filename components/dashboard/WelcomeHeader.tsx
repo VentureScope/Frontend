@@ -1,6 +1,5 @@
 "use client";
 
-// components/dashboard/WelcomeHeader.tsx
 import { getUserProfileView } from "@/lib/user-profile";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -9,23 +8,20 @@ export default function WelcomeHeader() {
   const profile = getUserProfileView(user);
 
   return (
-    <div className="flex flex-col h-full justify-center gap-4 sm:gap-6">
+    <div className="flex h-full flex-col justify-center gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 lg:flex-col lg:items-start">
       <div className="space-y-3 sm:space-y-4">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
+        <h1 className="text-h1 text-foreground">
           Welcome back, {profile.firstName}
         </h1>
-        <p className="max-w-md text-base sm:text-lg leading-relaxed text-muted-foreground">
+        <p className="max-w-md text-body text-muted-foreground">
           You are currently focused on {profile.careerInterest}. We are tracking
           opportunities aligned with your {profile.role.toLowerCase()} journey.
         </p>
       </div>
 
-      {/* Readiness Score Badge */}
-      <div className="flex h-24 w-24 sm:h-32 sm:w-32 flex-col items-center justify-center rounded-3xl sm:rounded-[32px] bg-primary/10 text-center mt-2 sm:mt-0">
-        <span className="text-4xl sm:text-5xl font-bold text-primary">84</span>
-        <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[var(--brand-accent)]">
-          Readiness Score
-        </span>
+      <div className="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-md border border-border bg-card text-center sm:h-28 sm:w-28">
+        <span className="text-4xl font-semibold text-foreground sm:text-5xl">84</span>
+        <span className="text-label mt-1 text-muted-foreground">Readiness</span>
       </div>
     </div>
   );

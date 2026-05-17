@@ -21,7 +21,7 @@ export function CategoryJobsPanel({
     .map((row, i) => parseCategoryJob(row, i));
 
   return (
-    <div className="rounded-2xl sm:rounded-3xl bg-card p-6 sm:p-8 lg:p-10 border border-border shadow-sm">
+    <div className="rounded-lg sm:rounded-xl bg-card p-6 sm:p-8 lg:p-10 border border-border shadow-sm">
       <h2 className="text-lg sm:text-xl font-bold text-foreground">
         Open roles in {categoryName ?? "this category"}
       </h2>
@@ -47,7 +47,7 @@ export function CategoryJobsPanel({
           parsed.map((job) => (
             <article
               key={job.id}
-              className="p-4 sm:p-5 rounded-2xl bg-muted/80 border border-border hover:border-primary/20 hover:bg-primary/10 transition-colors"
+              className="p-4 sm:p-5 rounded-lg bg-muted/80 border border-border hover:border-border hover:bg-muted transition-colors"
             >
               <h3 className="font-bold text-foreground text-sm leading-snug">
                 {job.title}
@@ -65,7 +65,7 @@ export function CategoryJobsPanel({
                     </span>
                   )}
                   {job.jobType && (
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 font-bold text-primary uppercase tracking-wide">
+                    <span className="rounded-lg bg-muted px-2 py-0.5 font-bold text-primary uppercase tracking-wide">
                       {job.jobType}
                     </span>
                   )}

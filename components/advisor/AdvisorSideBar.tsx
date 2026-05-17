@@ -105,7 +105,7 @@ export default function AdvisorSideBar() {
             <div
               key={session.id}
               className={`group flex items-center justify-between w-full p-3 rounded-xl border transition-all text-left ${activeSessionId === session.id
-                ? "border-primary/30 bg-primary/10"
+                ? "border-border bg-muted"
                 : "border-transparent hover:border-border hover:bg-muted"
                 }`}
             >
@@ -130,7 +130,7 @@ export default function AdvisorSideBar() {
 
               <button
                 onClick={() => deleteSession(session.id)}
-                className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-red-500 transition-opacity"
+                className="p-1 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
               >
                 <Trash2 size={14} />
               </button>
@@ -164,9 +164,9 @@ export default function AdvisorSideBar() {
             <button
               key={i}
               onClick={() => handleQuickAction(action.label)}
-              className="group flex flex-col items-start gap-4 w-full p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all text-left"
+              className="group flex flex-col items-start gap-4 w-full p-4 rounded-xl border border-border hover:border-border hover:bg-muted transition-all text-left"
             >
-              <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary/15">
+              <div className="h-8 w-8 rounded-lg bg-muted text-primary flex items-center justify-center group-hover:bg-muted">
                 <action.icon size={16} />
               </div>
               <p className="text-xs font-bold text-foreground leading-snug">
@@ -178,18 +178,18 @@ export default function AdvisorSideBar() {
       </div>
 
       {/* Advisor Info Card */}
-      <div className="mt-auto rounded-[32px] bg-[#020617] p-8 text-white relative overflow-hidden">
+      <div className="relative mt-auto overflow-hidden rounded-xl bg-foreground p-8 text-background">
         {/* Glow effect */}
         <div className="absolute top-0 right-0 h-32 w-32 bg-primary/20 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 space-y-6">
           <h3 className="text-xl font-bold">VentureScope Advisor</h3>
-          <p className="text-xs text-muted-foreground leading-relaxed">
+          <p className="text-xs leading-relaxed text-background/70">
             Leveraging GPT-4 Turbo and vector embeddings of over 2M job
             descriptions.
           </p>
-          <div className="flex items-center gap-2 text-[10px] font-bold tracking-widest text-[var(--brand-accent)] uppercase">
-            <div className="h-1.5 w-1.5 rounded-full bg-[var(--brand-accent)] shadow-[0_0_8px_rgba(96,165,250,0.8)]" />
+          <div className="flex items-center gap-2 text-label text-accent">
+            <div className="h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_8px_var(--accent)]" />
             System Operational
           </div>
         </div>
@@ -197,8 +197,8 @@ export default function AdvisorSideBar() {
 
       {/* New Chat Modal */}
       {isModalOpen && typeof window !== "undefined" && createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/20 backdrop-blur-sm p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-card p-6 shadow-xl animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-foreground/20 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-lg bg-card p-6 shadow-xl animate-in fade-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-foreground">Start New Chat</h3>
               <button
@@ -221,7 +221,7 @@ export default function AdvisorSideBar() {
                   placeholder="e.g. Resume Review"
                   value={newChatTitle}
                   onChange={(e) => setNewChatTitle(e.target.value)}
-                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-ring/20"
                 />
               </div>
               <div className="flex justify-end gap-3 pt-2">

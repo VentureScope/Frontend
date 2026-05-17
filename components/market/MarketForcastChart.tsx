@@ -1,5 +1,7 @@
 import React from "react";
 
+const FORECAST_COLOR = "var(--secondary)";
+
 const MarketForecastChart = () => {
   const data = [
     { month: "JAN", percent: 42, color: "#E5EEFF", type: "past" },
@@ -15,7 +17,7 @@ const MarketForecastChart = () => {
   const maxPercent = 100;
 
   return (
-    <div className="w-full rounded-[28px] sm:rounded-[32px] border border-border bg-card p-4 sm:p-6 md:p-10 shadow-sm overflow-hidden">
+    <div className="w-full rounded-lg sm:rounded-xl border border-border bg-card p-4 sm:p-6 md:p-10 shadow-sm overflow-hidden">
       {/* Header Section */}
       <div className="mb-6 sm:mb-8 md:mb-12 flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div className="space-y-1">
@@ -28,7 +30,7 @@ const MarketForecastChart = () => {
         </div>
 
         <div className="flex items-center gap-1 rounded-full bg-muted p-1 sm:p-1.5 self-start md:self-auto shrink-0 w-fit">
-          <button className="rounded-full bg-primary/15 px-4 sm:px-5 py-1 sm:py-1.5 text-xs sm:text-[13px] font-bold text-primary shadow-sm transition-all whitespace-nowrap">
+          <button className="rounded-lg bg-muted px-4 sm:px-5 py-1 sm:py-1.5 text-xs sm:text-[13px] font-bold text-primary shadow-sm transition-all whitespace-nowrap">
             Quarterly
           </button>
           <button className="px-4 sm:px-5 py-1 sm:py-1.5 text-xs sm:text-[13px] font-bold text-muted-foreground hover:text-muted-foreground transition-colors whitespace-nowrap">
@@ -74,7 +76,7 @@ const MarketForecastChart = () => {
                     <div
                       className={`text-[11px] font-bold mb-2 transition-opacity opacity-0 group-hover:opacity-100 ${
                         item.type === "forecast"
-                          ? "text-[#b0002d]"
+                          ? "text-secondary"
                           : "text-muted-foreground"
                       }`}
                       style={{ opacity: 1 }}
@@ -105,7 +107,7 @@ const MarketForecastChart = () => {
                             className="absolute top-0 left-0 w-full h-0.75 pointer-events-none"
                             style={{
                               background:
-                                "repeating-linear-gradient(90deg, #b0002d, #b0002d 6px, transparent 6px, transparent 12px)",
+                                `repeating-linear-gradient(90deg, ${FORECAST_COLOR}, ${FORECAST_COLOR} 6px, transparent 6px, transparent 12px)`,
                               borderTopLeftRadius: idx === 0 ? "8px" : "0",
                               borderTopRightRadius:
                                 idx === data.length - 1 ? "8px" : "0",
@@ -119,7 +121,7 @@ const MarketForecastChart = () => {
                     <div
                       className={`mt-3 text-[11px] font-bold tracking-wide uppercase ${
                         item.type === "forecast"
-                          ? "text-[#b0002d]"
+                          ? "text-secondary"
                           : "text-muted-foreground"
                       }`}
                     >
@@ -129,7 +131,7 @@ const MarketForecastChart = () => {
                     {/* AI Forecast label above JUN bar */}
                     {item.month === "JUN" && (
                       <div className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
-                        <span className="text-[10px] font-black tracking-widest text-[#b0002d] uppercase bg-card/90 px-2 py-0.5 rounded-full shadow-sm">
+                        <span className="rounded-full bg-card/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-secondary shadow-sm">
                           AI Forecast
                         </span>
                       </div>
@@ -143,7 +145,7 @@ const MarketForecastChart = () => {
       </div>
 
       {/* X-axis baseline */}
-      <div className="w-full h-px bg-slate-200 mt-1" />
+      <div className="mt-1 h-px w-full bg-border" />
 
       {/* Legend / Footer */}
       <div className="flex flex-wrap justify-between items-center mt-6 pt-4 border-t border-border text-xs text-muted-foreground">
@@ -155,8 +157,8 @@ const MarketForecastChart = () => {
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-sm bg-[#F2D8DD]"></div>
             <span>AI Forecast</span>
-            <div className="w-4 h-px bg-[#b0002d] border-t border-dashed border-[#b0002d] ml-1"></div>
-            <span className="text-[10px] text-[#b0002d] ml-0.5">
+            <div className="ml-1 h-px w-4 border-t border-dashed border-secondary" />
+            <span className="ml-0.5 text-[10px] text-secondary">
               dashed edge
             </span>
           </div>

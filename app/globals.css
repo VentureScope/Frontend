@@ -5,9 +5,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -25,6 +26,9 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -39,106 +43,232 @@
   --color-card: var(--card);
   --color-brand: var(--brand);
   --color-brand-accent: var(--brand-accent);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
   --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+  --radius-2xl: calc(var(--radius) + 6px);
+  --radius-3xl: calc(var(--radius) + 8px);
+  --radius-4xl: calc(var(--radius) + 12px);
+  --text-h1: 2.25rem;
+  --text-label: 0.75rem;
+  --text-body: 0.9375rem;
+  --text-button: 0.875rem;
 }
 
-/* VentureScope brand */
+/*
+ * Executive dashboard reference — muted accents, charcoal surfaces,
+ * hairline borders (~1px), 4–6px corner radius. No neon status colors.
+ */
 :root {
-  --brand: #2f65f1;
-  --brand-accent: #60a5fa;
-  --radius: 0.625rem;
+  --brand: #4a6b5a;
+  --brand-accent: #5c6578;
+  --radius: 0.375rem;
 
-  /* Light: soft blue surfaces, navy typography */
-  --background: #f4f7fc;
-  --foreground: #0f172a;
+  --background: #f7f7f7;
+  --foreground: #111111;
   --card: #ffffff;
-  --card-foreground: #0f172a;
+  --card-foreground: #111111;
   --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #2f65f1;
+  --popover-foreground: #111111;
+
+  --primary: #4a6b5a;
   --primary-foreground: #ffffff;
-  --secondary: #e8eef9;
-  --secondary-foreground: #1e293b;
-  --muted: #e8eef9;
-  --muted-foreground: #64748b;
-  --accent: #dbeafe;
-  --accent-foreground: #1e3a8a;
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: #dbe4f0;
-  --input: #dbe4f0;
-  --ring: #2f65f1;
-  --chart-1: #2f65f1;
-  --chart-2: #60a5fa;
-  --chart-3: #38bdf8;
-  --chart-4: #818cf8;
-  --chart-5: #a78bfa;
+  --secondary: #8a7348;
+  --secondary-foreground: #ffffff;
+  --muted: #f0f0f0;
+  --muted-foreground: #6b6b6b;
+  --accent: #5c6578;
+  --accent-foreground: #ffffff;
+
+  --success: #4a6b5a;
+  --warning: #8a7348;
+  --destructive: #9e5d5d;
+  --destructive-foreground: #ffffff;
+
+  --border: #e8e8e8;
+  --input: #dddddd;
+  --ring: #4a6b5a;
+
+  --chart-1: #4a6b5a;
+  --chart-2: #8a7348;
+  --chart-3: #5c6578;
+  --chart-4: #6b8f7a;
+  --chart-5: #9e5d5d;
+
   --sidebar: #ffffff;
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: #2f65f1;
+  --sidebar-foreground: #111111;
+  --sidebar-primary: #4a6b5a;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e8eef9;
-  --sidebar-accent-foreground: #1e293b;
-  --sidebar-border: #dbe4f0;
-  --sidebar-ring: #2f65f1;
+  --sidebar-accent: #f0f0f0;
+  --sidebar-accent-foreground: #6b6b6b;
+  --sidebar-border: #e8e8e8;
+  --sidebar-ring: #4a6b5a;
 }
 
-/* Dark: executive navy / midnight surfaces, off-white type */
 .dark {
-  --brand: #2f65f1;
-  --brand-accent: #60a5fa;
-  --background: #070b14;
-  --foreground: #f1f5f9;
-  --card: #0f1628;
-  --card-foreground: #f8fafc;
-  --popover: #0f1628;
-  --popover-foreground: #f8fafc;
-  --primary: #2f65f1;
-  --primary-foreground: #ffffff;
-  --secondary: #151f35;
-  --secondary-foreground: #e2e8f0;
-  --muted: #151f35;
-  --muted-foreground: #94a3b8;
-  --accent: #1a2744;
-  --accent-foreground: #60a5fa;
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: #1e2a42;
-  --input: #1e2a42;
-  --ring: #60a5fa;
-  --chart-1: #2f65f1;
-  --chart-2: #60a5fa;
-  --chart-3: #38bdf8;
-  --chart-4: #818cf8;
-  --chart-5: #c4b5fd;
-  --sidebar: #0a1020;
-  --sidebar-foreground: #f1f5f9;
-  --sidebar-primary: #2f65f1;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #151f35;
-  --sidebar-accent-foreground: #e2e8f0;
-  --sidebar-border: #1e2a42;
-  --sidebar-ring: #60a5fa;
+  --brand: #6b9a7a;
+  --brand-accent: #7a8499;
+
+  --background: #0a0a0a;
+  --foreground: #f0f0f0;
+  --card: #141414;
+  --card-foreground: #f0f0f0;
+  --popover: #141414;
+  --popover-foreground: #f0f0f0;
+
+  --primary: #6b9a7a;
+  --primary-foreground: #0a0a0a;
+  --secondary: #a8925a;
+  --secondary-foreground: #0a0a0a;
+  --muted: #161616;
+  --muted-foreground: #737373;
+  --accent: #7a8499;
+  --accent-foreground: #f0f0f0;
+
+  --success: #6b9a7a;
+  --warning: #a8925a;
+  --destructive: #9a6b6b;
+  --destructive-foreground: #f0f0f0;
+
+  --border: #1c1c1c;
+  --input: #252525;
+  --ring: #6b9a7a;
+
+  --chart-1: #6b9a7a;
+  --chart-2: #a8925a;
+  --chart-3: #7a8499;
+  --chart-4: #5a7d68;
+  --chart-5: #9a6b6b;
+
+  --sidebar: #0a0a0a;
+  --sidebar-foreground: #f0f0f0;
+  --sidebar-primary: #6b9a7a;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #161616;
+  --sidebar-accent-foreground: #737373;
+  --sidebar-border: #1c1c1c;
+  --sidebar-ring: #6b9a7a;
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+  *,
+  ::after,
+  ::before {
+    border-color: var(--border);
   }
+
+  * {
+    @apply outline-ring/40;
+  }
+
+  html {
+    font-size: var(--text-body);
+  }
+
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+
+  h1 {
+    font-size: var(--text-h1);
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  h4 {
+    font-size: var(--text-label);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 }
 
-/* Resume / document export — always render as light paper */
+@layer components {
+  .text-h1 {
+    font-size: var(--text-h1);
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .text-label {
+    font-size: var(--text-label);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .text-body {
+    font-size: var(--text-body);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  .text-btn {
+    font-size: var(--text-button);
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  .font-data {
+    font-family: var(--font-mono);
+  }
+
+  /* Card / panel — mockup: charcoal lift, hairline border, ~6px radius */
+  .vs-surface {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    background-color: var(--card);
+    box-shadow: none;
+  }
+
+  /* Status badges — desaturated tints, small rectangular radius */
+  .vs-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.3;
+  }
+
+  .vs-badge-success {
+    border-color: color-mix(in srgb, var(--success) 28%, transparent);
+    background-color: color-mix(in srgb, var(--success) 12%, transparent);
+    color: var(--success);
+  }
+
+  .vs-badge-warning {
+    border-color: color-mix(in srgb, var(--warning) 28%, transparent);
+    background-color: color-mix(in srgb, var(--warning) 12%, transparent);
+    color: var(--warning);
+  }
+
+  .vs-badge-danger {
+    border-color: color-mix(in srgb, var(--destructive) 28%, transparent);
+    background-color: color-mix(in srgb, var(--destructive) 12%, transparent);
+    color: var(--destructive);
+  }
+
+  .vs-badge-neutral {
+    border-color: var(--border);
+    background-color: var(--muted);
+    color: var(--muted-foreground);
+  }
+}
+
 @media print {
   body {
     background: #ffffff !important;
-    color: #0f172a !important;
+    color: #000000 !important;
   }
 
   .no-print {
@@ -150,18 +280,18 @@
     border-radius: 0 !important;
     box-shadow: none !important;
     background: #ffffff !important;
-    color: #0f172a !important;
+    color: #000000 !important;
   }
 
   .resume-print-surface * {
-    color: #0f172a !important;
-    border-color: #e2e8f0 !important;
+    color: #000000 !important;
+    border-color: #737373 !important;
     background-color: transparent !important;
     box-shadow: none !important;
   }
 
   .resume-print-surface h2,
   .resume-print-surface h4 {
-    color: #0f172a !important;
+    color: #000000 !important;
   }
 }

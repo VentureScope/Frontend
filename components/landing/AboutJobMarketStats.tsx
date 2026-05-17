@@ -38,7 +38,7 @@ export function AboutJobMarketStats() {
   }, []);
 
   return (
-    <div className="absolute -bottom-4 -left-2 sm:-bottom-5 sm:-left-5 rounded-xl sm:rounded-2xl bg-card p-4 sm:p-6 shadow-xl border border-border max-w-[11rem] sm:max-w-xs">
+    <div className="absolute -bottom-4 -left-2 sm:-bottom-5 sm:-left-5 rounded-xl sm:rounded-lg bg-card p-4 sm:p-6 shadow-xl border border-border max-w-[11rem] sm:max-w-xs">
       {loading ? (
         <div className="space-y-2 py-1">
           <Skeleton className="h-7 w-16 bg-muted" />

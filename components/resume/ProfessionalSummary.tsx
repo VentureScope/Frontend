@@ -14,7 +14,7 @@ export default function ProfessionalSummary() {
           Re-generate AI <RotateCw size={14} />
         </button>
       </div>
-      <div className="rounded-2xl bg-muted p-5 text-sm italic leading-relaxed text-muted-foreground sm:p-6 sm:text-[15px] lg:p-8">
+      <div className="rounded-lg bg-muted p-5 text-sm italic leading-relaxed text-muted-foreground sm:p-6 sm:text-[15px] lg:p-8">
         Senior Product Designer with 6+ years of experience in fin-tech and
         digital curator aesthetics. Proven track record of increasing user
         engagement by 40% through intentional design systems and

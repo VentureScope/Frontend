@@ -1,4 +1,3 @@
-// components/dashboard/SuggestedActions.tsx
 import { Lightbulb, Zap, ChevronRight } from "lucide-react";
 
 export default function SuggestedActions() {
@@ -16,39 +15,41 @@ export default function SuggestedActions() {
   ];
 
   return (
-    <div className="rounded-3xl sm:rounded-[40px] bg-muted/50 p-6 sm:p-8 lg:p-10 border border-border shadow-sm h-full flex flex-col justify-between">
+    <div className="flex h-full flex-col justify-between rounded-lg border border-border bg-muted/40 p-6 shadow-sm sm:rounded-xl sm:p-8 lg:p-10">
       <div className="space-y-6 sm:space-y-10">
-        <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+        <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
           Suggested Actions
         </h2>
 
         <div className="space-y-3 sm:space-y-4">
           {actions.map((action, i) => (
-            <div
+            <button
               key={i}
-              className="rounded-2xl sm:rounded-3xl bg-primary/10 p-5 sm:p-6 lg:p-8 border border-primary/20 transition-transform hover:-translate-y-1 hover:shadow-md cursor-pointer"
+              type="button"
+              className="w-full cursor-pointer rounded-lg border border-border bg-muted p-5 text-left transition-transform hover:-translate-y-0.5 hover:shadow-md sm:rounded-xl sm:p-6 lg:p-8"
             >
               <div className="flex gap-3 sm:gap-4">
-                <div className="shrink-0">
-                  <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-card text-primary shadow-sm">
-                    <action.icon className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </div>
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-card text-primary shadow-sm sm:h-10 sm:w-10">
+                  <action.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <div className="space-y-0.5 sm:space-y-1">
-                  <h4 className="text-xs sm:text-sm font-bold text-foreground leading-tight">
+                  <h4 className="text-body font-medium text-foreground leading-tight">
                     {action.title}
                   </h4>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {action.desc}
                   </p>
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
 
-      <button className="mt-8 sm:mt-10 flex items-center gap-2 text-xs sm:text-sm font-bold text-primary hover:gap-3 transition-all">
+      <button
+        type="button"
+        className="text-btn mt-8 flex items-center gap-2 font-medium text-primary transition-all hover:gap-3 sm:mt-10"
+      >
         Platform Roadmap <ChevronRight className="h-4 w-4" />
       </button>
     </div>

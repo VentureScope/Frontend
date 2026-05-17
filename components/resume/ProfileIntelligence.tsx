@@ -71,16 +71,16 @@ export default function ProfileIntelligence() {
 
   if (loading) {
     return (
-      <div className="relative rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-7 lg:rounded-[32px] lg:p-10">
+      <div className="relative rounded-xl border border-border bg-card p-5 shadow-sm sm:p-7 lg:rounded-xl lg:p-10">
         <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
           <Skeleton className="h-6 w-48" />
           <Skeleton className="h-4 w-32" />
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* GitHub Card Skeleton */}
-          <div className="flex flex-col gap-3 rounded-3xl border border-border p-4 sm:p-5">
+          <div className="flex flex-col gap-3 rounded-xl border border-border p-4 sm:p-5">
             <div className="flex items-center gap-4">
-              <Skeleton className="h-12 w-12 rounded-2xl" />
+              <Skeleton className="h-12 w-12 rounded-lg" />
               <div className="space-y-2">
                 <Skeleton className="h-4 w-32" />
                 <Skeleton className="h-3 w-24" />
@@ -88,9 +88,9 @@ export default function ProfileIntelligence() {
             </div>
           </div>
           {/* Academic Card Skeleton */}
-          <div className="flex flex-col gap-3 rounded-3xl border border-border p-4 sm:p-5">
+          <div className="flex flex-col gap-3 rounded-xl border border-border p-4 sm:p-5">
             <div className="flex items-center gap-4">
-              <Skeleton className="h-12 w-12 rounded-2xl" />
+              <Skeleton className="h-12 w-12 rounded-lg" />
               <div className="space-y-2">
                 <Skeleton className="h-4 w-32" />
                 <Skeleton className="h-3 w-24" />
@@ -103,7 +103,7 @@ export default function ProfileIntelligence() {
   }
 
   return (
-    <div className="relative rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-7 lg:rounded-[32px] lg:p-10">
+    <div className="relative rounded-xl border border-border bg-card p-5 shadow-sm sm:p-7 lg:rounded-xl lg:p-10">
       <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-xl font-bold text-foreground">
           Profile Intelligence
@@ -132,7 +132,7 @@ export default function ProfileIntelligence() {
         {/* GitHub Card */}
         <div
           className={
-            "flex flex-col gap-3 rounded-3xl p-4 sm:p-5 md:flex-row md:items-center md:justify-between " +
+            "flex flex-col gap-3 rounded-xl p-4 sm:p-5 md:flex-row md:items-center md:justify-between " +
             (isGithubConnected
               ? "bg-primary/5"
               : "bg-muted border border-border")
@@ -141,7 +141,7 @@ export default function ProfileIntelligence() {
           <div className="flex min-w-0 items-center gap-3 sm:gap-4">
             <div
               className={
-                "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl shadow-sm sm:h-12 sm:w-12 " +
+                "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg shadow-sm sm:h-12 sm:w-12 " +
                 (isGithubConnected
                   ? "bg-card text-primary"
                   : "bg-card text-muted-foreground")
@@ -176,18 +176,18 @@ export default function ProfileIntelligence() {
         {/* Academic Card */}
         <div
           className={
-            "flex flex-col gap-3 rounded-3xl p-4 sm:p-5 md:flex-row md:items-center md:justify-between " +
+            "flex flex-col gap-3 rounded-xl p-4 sm:p-5 md:flex-row md:items-center md:justify-between " +
             (isAcademicConnected
-              ? "border-2 border-primary/20 bg-card"
+              ? "border-2 border-border bg-card"
               : "border-2 border-border bg-muted")
           }
         >
           <div className="flex min-w-0 items-center gap-3 sm:gap-4">
             <div
               className={
-                "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl sm:h-12 sm:w-12 " +
+                "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg sm:h-12 sm:w-12 " +
                 (isAcademicConnected
-                  ? "bg-primary/10 text-primary"
+                  ? "bg-muted text-primary"
                   : "bg-muted text-muted-foreground")
               }
             >

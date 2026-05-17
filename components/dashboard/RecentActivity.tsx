@@ -4,54 +4,45 @@ export default function RecentActivity() {
       title: "Synced Semester 4 Grades",
       time: "3 HOURS AGO",
       badge: "Academic Hub",
-      color: "bg-primary",
     },
     {
       title: "Updated Resume keyword: Python",
       time: "YESTERDAY",
       badge: "Resume Builder",
-      color: "bg-rose-500",
     },
     {
       title: "Completed Module: Data Pre-processing",
       time: "2 DAYS AGO",
       badge: "Learning Path",
-      color: "bg-primary",
     },
   ];
 
   return (
-    <div className="rounded-3xl sm:rounded-[40px] border border-border bg-card p-6 sm:p-8 lg:p-10 shadow-sm relative overflow-hidden">
-      <div className="mb-6 sm:mb-10 flex items-center justify-between">
-        <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+    <div className="vs-surface p-6 sm:p-8 lg:p-10">
+      <div className="mb-6 flex items-center justify-between sm:mb-8">
+        <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
           Recent Activity
         </h2>
-        <button className="text-xs sm:text-sm font-bold text-primary hover:underline">
+        <button
+          type="button"
+          className="text-btn font-medium text-muted-foreground hover:text-foreground"
+        >
           View All
         </button>
       </div>
-      <div className="space-y-8 sm:space-y-10 pl-2">
+      <div className="space-y-8 sm:space-y-10">
         {activities.map((act, i) => (
-          <div key={i} className="flex gap-4 sm:gap-6 relative shrink-0">
-            <div
-              className={`mt-1 sm:mt-0 h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full shrink-0 ${act.color}`}
-            />
-            <div className="space-y-1 -mt-1 sm:mt-0">
-              <h4 className="font-bold text-sm sm:text-base text-foreground">
-                {act.title}
-              </h4>
+          <div key={i} className="flex gap-4 sm:gap-5">
+            <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-muted-foreground/40 sm:mt-2" />
+            <div className="min-w-0 space-y-1.5">
+              <h4 className="text-body font-medium text-foreground">{act.title}</h4>
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                <span className="text-[9px] sm:text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                <span className="font-data text-label text-muted-foreground">
                   {act.time}
                 </span>
-                <span className="rounded-full bg-muted px-2 py-0.5 sm:px-3 sm:py-1 text-[9px] sm:text-[10px] font-bold text-muted-foreground uppercase">
-                  {act.badge}
-                </span>
+                <span className="vs-badge vs-badge-neutral">{act.badge}</span>
               </div>
             </div>
-            {i !== activities.length - 1 && (
-              <div className="absolute left-[4.5px] sm:left-[5.5px] top-4 sm:top-6 w-1 h-full -mb-4 bg-muted" />
-            )}
           </div>
         ))}
       </div>

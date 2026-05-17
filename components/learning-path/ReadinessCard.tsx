@@ -1,40 +1,38 @@
-// components/learning-path/ReadinessCard.tsx
 export default function ReadinessCard() {
   return (
-    <div className="flex items-center gap-4 sm:gap-6 rounded-2xl md:rounded-[24px] bg-card p-4 sm:p-6 shadow-sm border border-border">
-      {/* Circular Progress */}
-      <div className="relative flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center shrink-0">
-        <svg className="h-full w-full -rotate-90">
+    <div className="flex items-center gap-4 rounded-lg border border-border bg-card p-4 shadow-sm sm:gap-6 sm:rounded-xl sm:p-6">
+      <div className="relative flex h-14 w-14 shrink-0 items-center justify-center sm:h-20 sm:w-20">
+        <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
           <circle
-            cx="50%"
-            cy="50%"
-            r="40%"
+            cx="50"
+            cy="50"
+            r="40"
             fill="transparent"
-            stroke="#f1f5f9"
-            strokeWidth="10%"
+            stroke="currentColor"
+            className="text-muted"
+            strokeWidth="10"
           />
           <circle
-            cx="50%"
-            cy="50%"
-            r="40%"
+            cx="50"
+            cy="50"
+            r="40"
             fill="transparent"
-            stroke="#1d59db"
-            strokeWidth="10%"
+            stroke="currentColor"
+            className="text-primary"
+            strokeWidth="10"
             strokeDasharray="251"
             strokeDashoffset="62.7"
             strokeLinecap="round"
           />
         </svg>
-        <span className="absolute text-sm sm:text-lg font-black text-foreground">
+        <span className="absolute text-sm font-semibold text-foreground sm:text-lg">
           75%
         </span>
       </div>
 
       <div className="space-y-0.5">
-        <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-          Current Readiness
-        </p>
-        <h4 className="text-xl sm:text-2xl font-black text-primary tracking-tight">
+        <p className="text-label text-muted-foreground">Current Readiness</p>
+        <h4 className="text-xl font-semibold text-primary sm:text-2xl">
           Senior Rank
         </h4>
       </div>

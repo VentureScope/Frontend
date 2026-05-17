@@ -1,8 +1,7 @@
 // components/market/IntelligenceLayerSummary.tsx
 export default function IntelligenceLayerSummary() {
   return (
-    <div className="group relative overflow-hidden rounded-[28px] sm:rounded-[32px] bg-[#0f172a] p-6 sm:p-10 text-white shadow-2xl shadow-blue-900/40">
-      {/* Visual Background - Abstract Mesh/Network */}
+    <div className="group relative overflow-hidden rounded-lg bg-foreground p-6 text-background shadow-2xl shadow-foreground/20 sm:rounded-xl sm:p-10">
       <div className="absolute inset-0 opacity-40 mix-blend-overlay">
         <img
           src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800"
@@ -11,28 +10,27 @@ export default function IntelligenceLayerSummary() {
         />
       </div>
 
-      {/* Radial Glow for Depth */}
-      <div className="absolute -bottom-10 -right-10 h-64 w-64 rounded-full bg-primary/30 blur-[80px]" />
+      <div className="absolute -bottom-10 -right-10 h-64 w-64 rounded-lg bg-primary/30 blur-[80px]" />
 
       <div className="relative z-10 space-y-4 sm:space-y-6">
         <div className="flex items-center gap-2">
-          <div className="h-1.5 w-1.5 rounded-full bg-[var(--brand-accent)] animate-pulse shrink-0" />
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--brand-accent)] wrap-break-word">
+          <div className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-accent" />
+          <p className="text-label wrap-break-word text-accent">
             Intelligence Layer
           </p>
         </div>
 
-        <p className="text-lg sm:text-xl font-bold leading-relaxed tracking-tight text-white/90">
-          Forecasting model <span className="text-[var(--brand-accent)]">FR5.5</span>{" "}
-          estimates a{" "}
-          <span className="underline decoration-blue-500/50 underline-offset-4">
+        <p className="text-lg font-bold leading-relaxed tracking-tight text-background/90 sm:text-xl">
+          Forecasting model <span className="text-accent">FR5.5</span> estimates
+          a{" "}
+          <span className="underline decoration-accent/50 underline-offset-4">
             22% increase
           </span>{" "}
           in remote-friendly roles by Q4.
         </p>
 
         <div className="pt-2 sm:pt-4">
-          <div className="h-1 w-12 rounded-full bg-primary/100/50" />
+          <div className="h-1 w-12 rounded-lg bg-primary" />
         </div>
       </div>
     </div>

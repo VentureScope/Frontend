@@ -187,8 +187,7 @@ export default function LearningPathPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <div className="mx-auto max-w-6xl px-4 pt-12 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-6xl">
         <HeaderSection />
         <TabNavigation
           tabs={tabsData}
@@ -199,7 +198,7 @@ export default function LearningPathPage() {
         {loading ? (
           <LearningPathListSkeleton />
         ) : filteredPaths.length === 0 ? (
-          <p className="mt-10 text-center text-sm text-muted-foreground">
+          <p className="mt-10 text-center text-body text-muted-foreground">
             {activeTabId === FUTURE_PREDICTIONS_TAB
               ? "No future-prediction roadmaps yet. Generate one from a predicted role."
               : "No current-trend roadmaps yet."}{" "}
@@ -233,7 +232,6 @@ export default function LearningPathPage() {
             ))}
           </div>
         )}
-      </div>
     </div>
   );
 }

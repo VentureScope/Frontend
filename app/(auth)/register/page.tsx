@@ -53,15 +53,15 @@ function getStrength(password: string): StrengthInfo {
     return { level: 0, label: "", color: "bg-muted", textColor: "text-muted-foreground" };
   }
   if (passed <= 1) {
-    return { level: 1, label: "Weak", color: "bg-red-500", textColor: "text-red-500" };
+    return { level: 1, label: "Weak", color: "bg-destructive", textColor: "text-destructive" };
   }
   if (passed === 2) {
-    return { level: 2, label: "Fair", color: "bg-amber-500", textColor: "text-amber-500" };
+    return { level: 2, label: "Fair", color: "bg-muted-foreground/40", textColor: "text-secondary" };
   }
   if (passed === 3 || passed === 4) {
-    return { level: 3, label: "Good", color: "bg-primary/100", textColor: "text-primary" };
+    return { level: 3, label: "Good", color: "bg-muted0", textColor: "text-primary" };
   }
-  return { level: 4, label: "Strong", color: "bg-emerald-500", textColor: "text-emerald-500" };
+  return { level: 4, label: "Strong", color: "bg-success", textColor: "text-success" };
 }
 
 // ─── Zod Schema ───────────────────────────────────────────────────────────────
@@ -178,12 +178,12 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-muted p-4 sm:p-8">
-      <div className="flex w-full max-w-5xl overflow-hidden rounded-2xl sm:rounded-3xl bg-card shadow-2xl">
+      <div className="flex w-full max-w-5xl overflow-hidden rounded-lg sm:rounded-xl bg-card shadow-2xl">
         {/* ── LEFT SIDE ── */}
-        <section className="relative hidden w-1/2 flex-col justify-between bg-primary p-8 shrink-0 lg:flex">
+        <section className="relative hidden w-1/2 shrink-0 flex-col justify-between border-r border-border bg-muted p-8 lg:flex">
           <div className="space-y-6">
             {/* Logo */}
-            <div className="flex items-center gap-3 text-white">
+            <div className="flex items-center gap-3 text-foreground">
               <Image
                 src="/logo.png"
                 alt="VentureScope Logo"
@@ -198,10 +198,10 @@ export default function RegisterPage() {
 
             {/* Headline */}
             <div className="max-w-md space-y-4">
-              <h1 className="text-4xl font-bold leading-[1.1] text-white">
+              <h1 className="text-4xl font-bold leading-[1.1] text-foreground">
                 The Intelligence Layer for Your Next Move.
               </h1>
-              <p className="text-sm text-primary-foreground/80/90 leading-relaxed">
+              <p className="text-sm leading-relaxed text-muted-foreground">
                 Join 20,000+ professionals and HR leaders using data-driven
                 insights to navigate career transitions with absolute clarity.
               </p>
@@ -209,16 +209,16 @@ export default function RegisterPage() {
           </div>
 
           {/* Testimonial Card */}
-          <div className="rounded-xl bg-card/20 p-6 backdrop-blur-md border border-background/20">
+          <div className="rounded-md border border-border bg-card p-6">
             <div className="mb-3 flex gap-1">
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
-                  className="h-3 w-3 fill-yellow-400 text-yellow-400"
+                  className="h-3 w-3 fill-warning/60 text-warning"
                 />
               ))}
             </div>
-            <p className="mb-4 text-sm font-medium leading-relaxed text-white">
+            <p className="mb-4 text-sm font-medium leading-relaxed text-foreground">
               &quot;VentureScope transformed our recruitment strategy from
               guesswork to a precision science. The AI advisor is truly
               elite.&quot;
@@ -232,7 +232,7 @@ export default function RegisterPage() {
                 />
               </div>
               <div>
-                <p className="text-xs font-bold text-white uppercase tracking-wider">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   Sarah Jenkins
                 </p>
                 <p className="text-[10px] text-primary-foreground/80 uppercase tracking-widest opacity-80">
@@ -366,7 +366,7 @@ export default function RegisterPage() {
                           <li
                             key={req.label}
                             className={`flex items-center gap-1.5 text-[10px] transition-colors ${
-                              met ? "text-emerald-600" : "text-muted-foreground"
+                              met ? "text-success" : "text-muted-foreground"
                             }`}
                           >
                             {met ? (
@@ -419,13 +419,13 @@ export default function RegisterPage() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-10 w-full bg-primary text-sm font-semibold text-white hover:bg-primary/90"
+                className="h-10 w-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90"
               >
                 {isSubmitting ? "Creating Account..." : "Create Account"}
               </Button>
 
               {apiError && (
-                <p className="text-center text-xs text-red-600">{apiError}</p>
+                <p className="text-center text-xs text-destructive">{apiError}</p>
               )}
 
               {/* Divider */}

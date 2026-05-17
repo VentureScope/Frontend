@@ -142,16 +142,16 @@ export default function CVManager() {
 
   if (loading) {
     return (
-      <div className="space-y-6 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
+      <div className="space-y-6 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
         <Skeleton className="h-4 w-40" />
-        <Skeleton className="h-16 w-full rounded-2xl" />
+        <Skeleton className="h-16 w-full rounded-lg" />
         <Skeleton className="h-12 w-full rounded-xl" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
+    <div className="space-y-6 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
       <input
         ref={fileInputRef}
         type="file"
@@ -163,9 +163,7 @@ export default function CVManager() {
       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <div className="flex items-center gap-2 text-primary">
           <FileText size={18} />
-          <span className="text-[10px] font-bold uppercase tracking-widest">
-            Curriculum Vitae
-          </span>
+          <span className="text-label">Curriculum Vitae</span>
         </div>
         <button
           type="button"
@@ -181,7 +179,7 @@ export default function CVManager() {
       </div>
 
       {cvUrl ? (
-        <div className="flex flex-col gap-4 rounded-2xl border border-border bg-muted/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 rounded-lg border border-border bg-muted/50 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-sm text-primary border border-border">
               <FileText size={20} />
@@ -200,7 +198,7 @@ export default function CVManager() {
               type="button"
               onClick={onUploadClick}
               disabled={isUploading}
-              className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-muted-foreground hover:border-primary/30 hover:text-primary disabled:opacity-60 sm:flex-initial"
+              className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-muted-foreground hover:border-border hover:text-primary disabled:opacity-60 sm:flex-initial"
             >
               {isUploading ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -213,7 +211,7 @@ export default function CVManager() {
               href={cvUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-muted-foreground hover:border-primary/30 hover:text-primary sm:flex-initial"
+              className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-muted-foreground hover:border-border hover:text-primary sm:flex-initial"
             >
               View
               <ExternalLink size={14} />
@@ -225,7 +223,7 @@ export default function CVManager() {
           type="button"
           onClick={onUploadClick}
           disabled={isUploading}
-          className="group block w-full rounded-2xl border-2 border-dashed border-border bg-muted/30 p-6 transition-all hover:border-blue-400 hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-70 sm:p-8"
+          className="group block w-full rounded-lg border-2 border-dashed border-border bg-muted/30 p-6 transition-all hover:border-primary hover:bg-muted disabled:cursor-not-allowed disabled:opacity-70 sm:p-8"
         >
           <div className="flex flex-col items-center text-center">
             {isUploading ? (

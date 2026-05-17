@@ -29,7 +29,7 @@ export function MarketStatsPanel({
 
   if (variant === "inline") {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatTile
           icon={<Briefcase className="h-5 w-5" />}
           label="Open roles"
@@ -54,40 +54,44 @@ export function MarketStatsPanel({
 
   if (loading) {
     return (
-      <div className="rounded-2xl sm:rounded-3xl bg-primary p-6 sm:p-8 lg:p-10 relative overflow-hidden min-h-[280px] h-full">
+      <div className="vs-surface relative min-h-[280px] h-full overflow-hidden p-6 sm:p-8 lg:p-10">
         <MarketStatsSkeleton />
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl sm:rounded-3xl bg-primary p-6 sm:p-8 lg:p-10 text-white relative overflow-hidden flex flex-col justify-between min-h-[280px] h-full">
-      <div className="relative z-10 space-y-3">
-        <h3 className="text-lg sm:text-xl font-bold">Market at a glance</h3>
+    <div className="vs-surface relative flex h-full min-h-[280px] flex-col justify-between p-6 sm:p-8 lg:p-10">
+      <div className="space-y-3">
+        <p className="text-label text-muted-foreground">Market overview</p>
+        <h3 className="text-lg font-semibold text-foreground sm:text-xl">
+          Market at a glance
+        </h3>
         {insight && (
-          <p className="text-sm text-primary-foreground/80 leading-relaxed line-clamp-3">
+          <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
             {insight}
           </p>
         )}
       </div>
 
-      <div className="relative z-10 mt-6 grid grid-cols-3 gap-4">
+      <div className="mt-6 grid grid-cols-3 gap-4">
         <MiniStat label="Roles" value={stats?.total_jobs} />
         <MiniStat label="Employers" value={stats?.unique_companies} />
         <MiniStat label="Categories" value={stats?.unique_categories} />
       </div>
 
       {coverage != null && (
-        <p className="relative z-10 mt-4 text-xs text-[var(--brand-accent)]">
+        <p className="mt-4 text-xs text-muted-foreground">
           Coverage index:{" "}
-          <span className="font-bold text-white">{coverage}%</span>
+          <span className="font-semibold text-foreground">{coverage}%</span>
         </p>
       )}
 
       {showCta && (
         <Button
           asChild
-          className="w-full bg-card text-primary font-bold hover:bg-primary/10 mt-6 py-5 rounded-xl relative z-10"
+          variant="outline"
+          className="relative mt-6 w-full rounded-md border-border py-5 font-medium"
         >
           <Link href="/register">Build your career profile</Link>
         </Button>
@@ -108,15 +112,15 @@ function StatTile({
   loading: boolean;
 }) {
   return (
-    <div className="rounded-2xl bg-card border border-border p-5 shadow-sm">
-      <div className="flex items-center gap-2 text-primary mb-2">{icon}</div>
-      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-        {label}
-      </p>
+    <div className="vs-surface p-5">
+      <div className="mb-2 flex items-center gap-2 text-muted-foreground">
+        {icon}
+      </div>
+      <p className="text-label text-muted-foreground">{label}</p>
       {loading ? (
-        <Skeleton className="h-8 w-20 mt-2 bg-muted" />
+        <Skeleton className="mt-2 h-8 w-20 bg-muted" />
       ) : (
-        <p className="text-2xl font-bold text-foreground mt-1">
+        <p className="mt-1 text-2xl font-semibold text-foreground">
           {value != null ? formatCompactNumber(value) : "—"}
         </p>
       )}
@@ -133,10 +137,8 @@ function MiniStat({
 }) {
   return (
     <div>
-      <p className="text-[9px] font-bold uppercase tracking-widest text-[var(--brand-accent)]">
-        {label}
-      </p>
-      <p className="text-xl sm:text-2xl font-bold mt-0.5">
+      <p className="text-label text-muted-foreground">{label}</p>
+      <p className="mt-0.5 text-xl font-semibold text-foreground sm:text-2xl">
         {value != null ? formatCompactNumber(value) : "—"}
       </p>
     </div>

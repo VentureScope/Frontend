@@ -97,7 +97,7 @@ export default function NewResumePage() {
   }, [router, selected?.targetRole]);
 
   return (
-    <div className="relative min-h-screen bg-card">
+    <div className="relative min-h-screen bg-background">
       <div className="relative z-10 mx-auto max-w-6xl px-4 pt-8 pb-20 sm:px-6 lg:px-8">
         <NewResumeHeader
           onGenerate={handleGenerate}

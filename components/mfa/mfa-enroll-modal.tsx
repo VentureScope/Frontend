@@ -98,7 +98,7 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div 
-        className="relative w-full max-w-md overflow-hidden rounded-[32px] bg-card shadow-2xl animate-in zoom-in-95 duration-300"
+        className="relative w-full max-w-md overflow-hidden rounded-xl bg-card shadow-2xl animate-in zoom-in-95 duration-300"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -110,8 +110,8 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
         </button>
 
         {/* Header */}
-        <div className="bg-primary px-8 py-10 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-card/20 backdrop-blur-sm">
+        <div className="border-b border-border bg-muted px-8 py-10 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-card/20 backdrop-blur-sm">
             <ShieldCheck className="h-8 w-8 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-white">
@@ -161,7 +161,7 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
           {/* STEP 2: QR CODE */}
           {step === "qr" && enrollData && (
             <div className="flex flex-col items-center space-y-6">
-              <div className="rounded-2xl border-2 border-border p-4 bg-card shadow-inner">
+              <div className="rounded-lg border-2 border-border p-4 bg-card shadow-inner">
                 <Image 
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(enrollData.totp_uri)}`}
                   alt="MFA QR Code"
@@ -222,7 +222,7 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
                     handleVerify();
                   }
                 }}
-                className="h-14 rounded-xl border-2 border-primary/20 bg-muted text-center text-2xl font-bold tracking-[0.5em] text-foreground focus:border-primary focus:bg-card transition-all"
+                className="h-14 rounded-xl border-2 border-border bg-muted text-center text-2xl font-bold tracking-[0.5em] text-foreground focus:border-primary focus:bg-card transition-all"
                 autoFocus
               />
 
