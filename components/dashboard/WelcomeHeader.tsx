@@ -19,8 +19,8 @@ export default function WelcomeHeader() {
         </p>
       </div>
 
-      <div className="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-md border border-border bg-card text-center sm:h-28 sm:w-28">
-        <span className="text-4xl font-semibold text-foreground sm:text-5xl">84</span>
+      <div className="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-md border border-primary/25 bg-primary/8 text-center sm:h-28 sm:w-28">
+        <span className="text-4xl font-semibold text-primary sm:text-5xl">84</span>
         <span className="text-label mt-1 text-muted-foreground">Readiness</span>
       </div>
     </div>

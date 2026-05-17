@@ -185,7 +185,7 @@ export default function AcademicStatusCard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-4 sm:gap-6">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted text-accent sm:h-16 sm:w-16 sm:rounded-lg">
+            <div className="vs-icon-tile vs-icon-tile-accent h-12 w-12 shrink-0 sm:h-16 sm:w-16">
               <GraduationCap className="h-6 w-6 sm:h-8 sm:w-8" />
             </div>
             <div className="space-y-1">
@@ -329,7 +329,7 @@ export default function AcademicStatusCard() {
           >
             <FileText className="h-4 w-4" /> View Full Transcript
           </button>
-          <button className="flex items-center justify-center gap-2 rounded-xl bg-foreground px-4 py-3 text-xs font-bold text-background hover:bg-foreground/90 sm:px-6 sm:text-sm">
+          <button className="flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-xs font-bold text-primary-foreground transition-colors hover:bg-primary/90 sm:px-6 sm:text-sm">
             <UploadCloud className="h-4 w-4" /> Update Records
           </button>
         </div>
@@ -337,3 +337,5 @@ export default function AcademicStatusCard() {
     </div>
   );
 }
+
+

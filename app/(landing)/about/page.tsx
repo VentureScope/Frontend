@@ -15,7 +15,7 @@ import { marketingImages } from "@/lib/marketing-images";
 
 export default function AboutPage() {
   return (
-    <div className="bg-card">
+    <div className="bg-background">
       {/* HERO SECTION */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-24 lg:px-8">
         <div className="grid items-center gap-10 sm:gap-16 lg:grid-cols-2">
@@ -31,10 +31,10 @@ export default function AboutPage() {
               tech talent.
             </p>
             <div className="flex flex-wrap justify-center lg:justify-start gap-3 sm:gap-4">
-              <div className="flex flex-1 sm:flex-none justify-center items-center gap-2 rounded-lg bg-muted px-4 py-2 sm:py-1.5 text-[10px] font-bold uppercase tracking-widest text-primary border border-border">
+              <div className="vs-accent-chip flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 sm:flex-none sm:py-1.5">
                 <CheckCircle className="h-3 w-3 shrink-0" /> Verified Skills
               </div>
-              <div className="flex flex-1 sm:flex-none justify-center items-center gap-2 rounded-lg bg-muted px-4 py-2 sm:py-1.5 text-[10px] font-bold uppercase tracking-widest text-primary border border-border">
+              <div className="vs-accent-chip flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 sm:flex-none sm:py-1.5">
                 <Zap className="h-3 w-3 shrink-0" /> Real-time Data
               </div>
             </div>
@@ -101,16 +101,16 @@ export default function AboutPage() {
 
         <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3 md:auto-rows-[320px]">
           {/* GitHub Analytics Card */}
-          <div className="relative flex flex-col justify-between overflow-hidden rounded-xl bg-foreground p-8 text-background group md:col-span-2">
-            <div className="absolute -right-10 -bottom-10 opacity-10 group-hover:opacity-20 transition-opacity">
+          <div className="vs-band group relative flex flex-col justify-between overflow-hidden rounded-xl p-8 md:col-span-2">
+            <div className="absolute -right-10 -bottom-10 opacity-10 transition-opacity group-hover:opacity-20">
               <Terminal size={180} />
             </div>
             <div className="relative z-10">
-              <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-card/10 mb-4">
+              <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-primary/20 text-primary">
                 <Terminal size={24} />
               </span>
-              <h3 className="text-2xl font-bold mb-2">GitHub Analytics</h3>
-              <p className="max-w-md text-sm leading-relaxed text-background/70">
+              <h3 className="mb-2 text-2xl font-bold">GitHub Analytics</h3>
+              <p className="vs-band-muted max-w-md text-sm leading-relaxed">
                 We analyze real-world contributions, repository velocity, and
                 code quality to verify technical proficiency beyond the CV.
               </p>
@@ -118,9 +118,9 @@ export default function AboutPage() {
           </div>
 
           {/* AI Matching Card */}
-          <div className="vs-surface flex flex-col justify-between p-8">
+          <div className="flex flex-col justify-between rounded-xl border border-primary/20 bg-primary/5 p-8">
             <div>
-              <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-muted text-muted-foreground">
+              <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-primary/15 text-primary">
                 <Sparkles size={24} />
               </span>
               <h3 className="mb-2 text-2xl font-bold text-foreground">AI-Powered Matching</h3>
@@ -155,9 +155,9 @@ export default function AboutPage() {
               sizes="(max-width: 768px) 100vw, 66vw"
               className="object-cover rounded-lg transition-transform duration-700 group-hover:scale-105"
             />
-            <div className="absolute inset-0 flex flex-col justify-end bg-linear-to-t from-foreground/80 to-transparent p-10">
-              <h3 className="text-xl font-bold text-background">Market Trends</h3>
-              <p className="text-sm text-background/80">
+            <div className="absolute inset-0 flex flex-col justify-end bg-linear-to-t from-black/80 via-black/40 to-transparent p-10">
+              <h3 className="text-xl font-bold text-white">Market Trends</h3>
+              <p className="text-sm text-white/80">
                 Tracking shifts in technology demand to guide students toward
                 future-proof skill sets.
               </p>
@@ -167,7 +167,7 @@ export default function AboutPage() {
       </section>
 
       {/* IMPACT SECTION */}
-      <section className="bg-foreground py-16 text-background sm:py-24">
+      <section className="vs-band py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10 sm:mb-16">
             Unlocking Impact Across the Ecosystem
@@ -193,7 +193,7 @@ export default function AboutPage() {
               <div key={i} className="space-y-4">
                 <item.icon className="h-8 w-8 text-primary" />
                 <h3 className="text-xl font-bold">{item.title}</h3>
-                <p className="text-sm leading-relaxed text-background/70">
+                <p className="vs-band-muted text-sm leading-relaxed">
                   {item.desc}
                 </p>
               </div>
@@ -210,7 +210,7 @@ export default function AboutPage() {
           </h2>
           <Button
             variant="outline"
-            className="w-full sm:w-auto rounded-lg bg-muted text-primary border-none font-bold hover:bg-muted"
+            className="w-full rounded-md border-border font-semibold text-primary hover:bg-primary/5 sm:w-auto"
           >
             Join the Movement
           </Button>
@@ -305,3 +305,4 @@ export default function AboutPage() {
     </div>
   );
 }
+

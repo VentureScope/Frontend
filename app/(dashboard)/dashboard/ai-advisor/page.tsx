@@ -17,7 +17,7 @@ export default function AdvisorPage() {
       {/* Overlay for mobile when sidebar is open */}
       <label
         htmlFor="sidebar-toggle"
-        className="absolute inset-0 z-30 hidden bg-foreground/20 backdrop-blur-sm peer-checked:block lg:peer-checked:hidden"
+        className="absolute inset-0 z-30 hidden bg-black/40 backdrop-blur-sm peer-checked:block lg:peer-checked:hidden"
       ></label>
 
       {/* Main Chat Area */}

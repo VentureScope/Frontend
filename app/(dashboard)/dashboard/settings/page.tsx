@@ -340,8 +340,8 @@ export default function SettingsPage() {
                 className={cn(
                   "flex w-full items-center gap-3 rounded-r-xl border-l-2 px-4 py-3 text-left text-btn transition-all sm:px-5 sm:py-4 lg:gap-4 lg:pl-5 lg:pr-6 lg:py-4",
                   activeTab === item.id
-                    ? "border-primary bg-muted font-medium text-foreground"
-                    : "border-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
+                    ? "vs-nav-active border-l-2 font-medium"
+                    : "border-transparent text-muted-foreground hover:bg-primary/5 hover:text-foreground",
                 )}
               >
                 <item.icon
@@ -644,7 +644,7 @@ export default function SettingsPage() {
                 <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2">
                   <div className="flex min-h-64 flex-col justify-between rounded-xl border-2 border-border bg-card p-5 sm:p-8 lg:rounded-xl lg:p-10">
                     <div className="flex items-start justify-between">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-[20px] bg-foreground text-background">
+                      <div className="vs-icon-tile vs-icon-tile-primary flex h-16 w-16 rounded-[20px]">
                         <Github size={32} />
                       </div>
                       <Badge className="bg-success/15 text-success font-semibold tracking-widest uppercase border-none py-1.5 px-4 text-[10px]">
@@ -761,29 +761,29 @@ export default function SettingsPage() {
             {/* 4. PRIVACY & SECURITY */}
             {activeTab === "privacy" && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="relative overflow-hidden rounded-xl border border-border bg-foreground p-5 text-background shadow-2xl sm:p-8 lg:rounded-xl lg:p-12 xl:p-16">
-                  <div className="absolute top-0 right-0 h-64 w-64 bg-muted blur-[100px]" />
+                <div className="vs-band relative overflow-hidden rounded-xl p-5 sm:p-8 lg:p-12 xl:p-16">
+                  <div className="absolute top-0 right-0 h-64 w-64 bg-primary/15 blur-[100px]" />
                   <div className="relative z-10 space-y-7 sm:space-y-8 lg:space-y-10">
                     <div className="space-y-4">
                       <h3 className="text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl">
                         Intelligence Anonymization
                       </h3>
-                      <p className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+                      <p className="vs-band-muted max-w-2xl text-base leading-relaxed sm:text-lg">
                         When enabled, your data is scrubbed of all PII
                         (Personally Identifiable Information) before being
                         mapped to global trend analysis.
                       </p>
                     </div>
-                    <div className="flex flex-col gap-5 rounded-xl border border-white/10 bg-card/5 p-5 backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:p-8 lg:rounded-xl lg:p-10">
+                    <div className="flex flex-col gap-5 rounded-xl border border-inverse-foreground/15 bg-inverse-foreground/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-8 lg:p-10">
                       <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary/20 text-accent sm:h-16 sm:w-16">
+                        <div className="vs-icon-tile vs-icon-tile-primary flex h-14 w-14 sm:h-16 sm:w-16">
                           <EyeOff size={32} />
                         </div>
                         <div>
                           <p className="text-lg font-semibold sm:text-xl">
                             Privacy Shield Mode
                           </p>
-                          <p className="text-sm text-muted-foreground font-medium">
+                          <p className="vs-band-muted text-sm font-medium">
                             Hide identity from global recruitment pools.
                           </p>
                         </div>

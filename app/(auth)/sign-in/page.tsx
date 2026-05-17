@@ -219,27 +219,27 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-muted p-4 sm:p-8">
-      <div className="flex w-full max-w-5xl overflow-hidden rounded-lg sm:rounded-xl bg-card shadow-2xl">
+    <div className="flex min-h-screen w-full items-center justify-center bg-linear-to-b from-primary/5 via-background to-background p-4 sm:p-8">
+      <div className="flex w-full max-w-5xl overflow-hidden rounded-lg border border-border bg-card shadow-xl sm:rounded-xl">
         {/* --- LEFT SIDE: BRANDING & VISUALS (Hidden on mobile/tablet for focus) --- */}
-        <section className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-foreground p-10 shrink-0 lg:flex">
+        <section className="vs-band relative hidden w-1/2 shrink-0 flex-col justify-between overflow-hidden p-10 lg:flex">
           {/* Background Image Effect */}
           <div className="absolute inset-0 z-0">
             <Image
               src="/aesthetic.png"
               alt="Aesthetic Background"
               fill
-              className="object-cover opacity-80"
+              className="object-cover opacity-50"
               priority
               sizes="50vw"
             />
             {/* Subtle Gradient to ensure text always pops! */}
-            <div className="absolute inset-0 bg-linear-to-br from-foreground/60 via-transparent to-foreground/80" />
+            <div className="absolute inset-0 bg-linear-to-br from-inverse/70 via-inverse/40 to-inverse/85" />
           </div>
 
           <div className="relative z-10 space-y-8">
             {/* Logo */}
-            <div className="flex items-center gap-3 text-background">
+            <div className="flex items-center gap-3 text-inverse-foreground">
               <Image
                 src="/logo.png"
                 alt="VentureScope Logo"
@@ -254,10 +254,13 @@ export default function SignInPage() {
 
             {/* Hero Content */}
             <div className="max-w-xl space-y-4">
-              <h1 className="text-5xl font-bold leading-[1.1] tracking-tight text-background">
+              <p className="vs-accent-chip inline-flex rounded-md px-3 py-1 text-[10px] font-bold uppercase tracking-widest">
+                Career intelligence
+              </p>
+              <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-inverse-foreground lg:text-5xl">
                 The Intelligence Layer for Your Career Journey.
               </h1>
-              <p className="text-lg text-muted-foreground leading-relaxed max-w-md">
+              <p className="max-w-md text-base leading-relaxed vs-band-muted">
                 Join thousands of professionals using data-driven insights to
                 navigate the next chapter of their careers.
               </p>
@@ -265,32 +268,31 @@ export default function SignInPage() {
           </div>
 
           {/* Data Card (The Progress Visual) */}
-          <div className="relative z-10 w-full max-w-sm rounded-lg border border-background/10 bg-card/10 p-6 backdrop-blur-xl">
-            <div className="flex items-start justify-between mb-4">
+          <div className="relative z-10 w-full max-w-sm rounded-md border border-inverse-foreground/12 bg-inverse-foreground/8 p-6 backdrop-blur-sm">
+            <div className="mb-4 flex items-start justify-between">
               <div className="flex gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-md border border-border bg-muted">
-                  <TrendingUp className="h-6 w-6 text-muted-foreground" />
+                <div className="vs-icon-tile-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-md">
+                  <TrendingUp className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  <p className="text-[10px] font-bold uppercase tracking-widest vs-band-muted">
                     Market Insights
                   </p>
-                  <p className="font-bold text-background/90">
+                  <p className="font-bold text-inverse-foreground">
                     Role Alignment Score
                   </p>
                 </div>
               </div>
-              <span className="text-3xl font-bold text-foreground">94%</span>
+              <span className="text-3xl font-bold text-primary">94%</span>
             </div>
-            {/* Progress Bar */}
-            <div className="h-2 w-full overflow-hidden rounded-full bg-card/10">
-              <div className="h-full w-[94%] bg-foreground/60" />
+            <div className="h-2 w-full overflow-hidden rounded-full bg-inverse-foreground/15">
+              <div className="h-full w-[94%] rounded-full bg-primary" />
             </div>
           </div>
 
-          <div className="relative z-10 text-sm text-muted-foreground">
+          <p className="relative z-10 text-xs vs-band-muted">
             © 2026 VentureScope Intelligence. All rights reserved.
-          </div>
+          </p>
         </section>
 
         {/* --- RIGHT SIDE: LOGIN FORM (Centered in its container) --- */}
@@ -316,7 +318,7 @@ export default function SignInPage() {
                     disabled={
                       isGoogleSubmitting || isGithubSubmitting || isSubmitting
                     }
-                    className="flex-1 h-11 gap-2 border-border bg-card text-muted-foreground shadow-sm hover:bg-muted"
+                    className="flex-1 h-11 gap-2 border-primary/20 bg-card text-foreground shadow-sm hover:border-primary/35 hover:bg-primary/5"
                   >
                     <svg className="h-4 w-4" viewBox="0 0 24 24">
                       <path
@@ -347,7 +349,7 @@ export default function SignInPage() {
                     disabled={
                       isGoogleSubmitting || isGithubSubmitting || isSubmitting
                     }
-                    className="flex-1 h-11 gap-2 border-border bg-card text-muted-foreground shadow-sm hover:bg-muted"
+                    className="flex-1 h-11 gap-2 border-primary/20 bg-card text-foreground shadow-sm hover:border-primary/35 hover:bg-primary/5"
                   >
                     <Github className="h-4 w-4 text-foreground" />
                     <span className="font-semibold">
@@ -449,8 +451,8 @@ export default function SignInPage() {
                   <>
                     <div className="text-center sm:text-left space-y-2">
                       <div className="flex items-center justify-center sm:justify-start">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted mb-2">
-                          <ShieldCheck className="h-6 w-6 text-primary" />
+                        <div className="vs-icon-tile-primary mb-2 flex h-12 w-12 items-center justify-center rounded-md">
+                          <ShieldCheck className="h-6 w-6" />
                         </div>
                       </div>
                       <h2 className="text-2xl font-bold tracking-tight text-foreground">
@@ -552,9 +554,9 @@ export default function SignInPage() {
                         <button
                           key={f.factor_id}
                           onClick={() => selectFactor(f)}
-                          className="flex w-full items-center gap-4 rounded-lg border border-border bg-muted px-5 py-4 text-left transition-all hover:border-primary/40 hover:bg-muted"
+                          className="vs-surface-accent flex w-full items-center gap-4 rounded-md px-5 py-4 text-left transition-all hover:border-primary/35"
                         >
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-primary">
+                          <div className="vs-icon-tile-primary flex h-10 w-10 items-center justify-center rounded-md">
                             <Smartphone className="h-5 w-5" />
                           </div>
                           <div className="flex-1">

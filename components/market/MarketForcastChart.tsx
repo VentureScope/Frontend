@@ -17,7 +17,7 @@ const MarketForecastChart = () => {
   const maxPercent = 100;
 
   return (
-    <div className="w-full rounded-lg sm:rounded-xl border border-border bg-card p-4 sm:p-6 md:p-10 shadow-sm overflow-hidden">
+    <div className="vs-surface w-full overflow-hidden p-4 sm:p-6 md:p-10">
       {/* Header Section */}
       <div className="mb-6 sm:mb-8 md:mb-12 flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div className="space-y-1">

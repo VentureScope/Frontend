@@ -2,7 +2,7 @@ import { TrendingUp } from "lucide-react";
 
 export default function JobListingsStat() {
   return (
-    <div className="flex flex-col justify-between rounded-lg sm:rounded-xl border border-border bg-card p-6 sm:p-10 shadow-sm transition-all hover:shadow-md">
+    <div className="vs-surface-accent flex flex-col justify-between p-6 transition-colors sm:p-10">
       <div className="space-y-4">
         {/* Uppercase Label */}
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">

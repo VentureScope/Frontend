@@ -18,10 +18,10 @@ function careerToRole(c: TrendingCareer, i: number): Role {
   }
   const demandColor =
     demand === "HIGH DEMAND"
-      ? "bg-muted text-secondary"
+      ? "vs-badge vs-badge-warning"
       : demand === "EMERGING"
-        ? "bg-muted text-accent"
-        : "bg-success/15 text-success";
+        ? "vs-badge vs-badge-accent"
+        : "vs-badge vs-badge-success";
   const icons = ["☁️", "</> ", "📊", "🧠", "🎨", "🛡️"];
   return {
     id: `live-${i}-${c.name.slice(0, 24)}`,
@@ -155,9 +155,7 @@ export default function Step1RoleSelection() {
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="text-3xl">{role.icon}</div>
-                    <span
-                      className={`text-[10px] font-bold px-2 py-1 rounded-md ${role.demandColor}`}
-                    >
+                    <span className={role.demandColor}>
                       {role.demand}
                     </span>
                   </div>

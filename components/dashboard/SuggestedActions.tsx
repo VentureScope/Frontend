@@ -15,7 +15,7 @@ export default function SuggestedActions() {
   ];
 
   return (
-    <div className="flex h-full flex-col justify-between rounded-lg border border-border bg-muted/40 p-6 shadow-sm sm:rounded-xl sm:p-8 lg:p-10">
+    <div className="vs-surface-accent flex h-full flex-col justify-between p-6 sm:p-8 lg:p-10">
       <div className="space-y-6 sm:space-y-10">
         <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
           Suggested Actions
@@ -26,10 +26,10 @@ export default function SuggestedActions() {
             <button
               key={i}
               type="button"
-              className="w-full cursor-pointer rounded-lg border border-border bg-muted p-5 text-left transition-transform hover:-translate-y-0.5 hover:shadow-md sm:rounded-xl sm:p-6 lg:p-8"
+              className="w-full cursor-pointer rounded-md border border-border bg-card p-5 text-left transition-colors hover:border-primary/20 hover:bg-primary/5 sm:p-6 lg:p-8"
             >
               <div className="flex gap-3 sm:gap-4">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-card text-primary shadow-sm sm:h-10 sm:w-10">
+                <div className="vs-icon-tile vs-icon-tile-primary flex h-8 w-8 shrink-0 rounded-full sm:h-10 sm:w-10">
                   <action.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <div className="space-y-0.5 sm:space-y-1">

@@ -70,11 +70,11 @@ export default function MarketPulse() {
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-lg bg-primary/30/30 blur-3xl"
+        className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-lg bg-primary/15 blur-3xl"
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-indigo-100/40 blur-3xl"
+        className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-accent/10 blur-3xl"
         aria-hidden
       />
 
@@ -82,7 +82,7 @@ export default function MarketPulse() {
         <div className="rounded-xl border border-border/80 bg-card/90 p-6 sm:p-10 shadow-sm backdrop-blur-sm">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl space-y-4">
-              <span className="inline-flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
+              <span className="vs-accent-chip inline-flex items-center gap-2 rounded-md px-3 py-1 text-[10px] font-bold uppercase tracking-widest">
                 <Radio className="h-3 w-3" />
                 Live market pulse
               </span>
@@ -107,7 +107,7 @@ export default function MarketPulse() {
             <Button
               asChild
               size="lg"
-              className="h-12 shrink-0 rounded-lg bg-primary px-7 font-semibold /60 hover:bg-primary/90"
+              className="h-12 shrink-0 rounded-md px-7 font-semibold"
             >
               <Link href="/market-insight" className="gap-2">
                 Full market report

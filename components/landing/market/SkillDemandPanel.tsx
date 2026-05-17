@@ -9,12 +9,12 @@ import {
 } from "@/lib/job-market-insights";
 
 const BAR_COLORS = [
-  "bg-foreground/70",
-  "bg-foreground/55",
-  "bg-muted-foreground/45",
-  "bg-muted-foreground/35",
-  "bg-muted-foreground/28",
-  "bg-muted-foreground/22",
+  "bg-chart-1",
+  "bg-chart-1/80",
+  "bg-chart-4",
+  "bg-chart-3",
+  "bg-chart-2/80",
+  "bg-chart-2/60",
 ];
 
 export function SkillDemandPanel({

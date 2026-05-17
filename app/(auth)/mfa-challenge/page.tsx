@@ -184,26 +184,26 @@ function MFAChallengeContent() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-muted">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted p-4">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-b from-primary/5 via-background to-background p-4">
       <div className="w-full max-w-md">
         {/* Card */}
-        <div className="rounded-xl bg-card shadow-2xl overflow-hidden">
+        <div className="overflow-hidden rounded-lg border border-border bg-card shadow-xl">
           {/* Header band */}
-          <div className="border-b border-border bg-muted px-8 py-10 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-card/20 backdrop-blur-sm">
-              <ShieldCheck className="h-8 w-8 text-primary-foreground" />
+          <div className="vs-band border-b border-inverse-foreground/10 px-8 py-10 text-center">
+            <div className="vs-icon-tile-primary mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-md">
+              <ShieldCheck className="h-8 w-8" />
             </div>
-            <h1 className="text-2xl font-bold text-primary-foreground">
+            <h1 className="text-2xl font-bold text-inverse-foreground">
               Two-Factor Verification
             </h1>
-            <p className="mt-1 text-sm text-primary-foreground/80">
+            <p className="mt-1 text-sm vs-band-muted">
               {step === "select"
                 ? "Choose an authenticator to continue"
                 : "Enter the 6-digit code from your authenticator app"}
@@ -219,9 +219,9 @@ function MFAChallengeContent() {
                     key={f.factor_id}
                     id={`factor-${i}`}
                     onClick={() => selectFactor(f)}
-                    className="flex w-full items-center gap-4 rounded-lg border border-border bg-muted px-5 py-4 text-left transition-all hover:border-primary/40 hover:bg-muted active:scale-[0.98]"
+                    className="vs-surface-accent flex w-full items-center gap-4 rounded-md px-5 py-4 text-left transition-all hover:border-primary/35 active:scale-[0.98]"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-primary">
+                    <div className="vs-icon-tile-primary flex h-10 w-10 items-center justify-center rounded-md">
                       <Smartphone className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
@@ -293,7 +293,7 @@ export default function MFAChallengePage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-muted">
+        <div className="flex min-h-screen items-center justify-center bg-background">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       }

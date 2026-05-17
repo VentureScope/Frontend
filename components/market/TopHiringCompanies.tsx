@@ -5,21 +5,21 @@ export default function TopHiringCompanies() {
       cat: "Telecommunications",
       count: 342,
       init: "S",
-      bg: "bg-muted text-primary",
+      bg: "vs-icon-tile vs-icon-tile-primary",
     },
     {
       name: "Ethio Telecom",
       cat: "Infrastructure",
       count: 218,
       init: "E",
-      bg: "bg-muted text-primary",
+      bg: "vs-icon-tile vs-icon-tile-accent",
     },
     {
       name: "CBE Tech Hub",
       cat: "FinTech",
       count: 156,
       init: "C",
-      bg: "bg-muted text-primary",
+      bg: "vs-icon-tile vs-icon-tile-secondary",
     },
   ];
 
@@ -40,7 +40,7 @@ export default function TopHiringCompanies() {
           <div key={c.name} className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
               <div
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-bold ${c.bg}`}
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-sm font-bold ${c.bg}`}
               >
                 {c.init}
               </div>

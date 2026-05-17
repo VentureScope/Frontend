@@ -128,7 +128,7 @@ export default function ResumePreview({ resume = mockResumes[0] }: { resume?: Re
         <button
           type="button"
           onClick={() => window.print()}
-          className="flex h-12 flex-[1.4] items-center justify-center gap-3 rounded-lg bg-foreground text-xs font-bold text-background shadow-xl shadow-foreground/10 transition-all hover:bg-foreground/90 sm:h-14 sm:text-sm"
+          className="flex h-12 flex-[1.4] items-center justify-center gap-3 rounded-md bg-primary text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:h-14 sm:text-sm"
         >
           <Download size={18} strokeWidth={2.5} />
           Export PDF

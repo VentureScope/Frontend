@@ -175,7 +175,7 @@ export default function GitHubCard() {
       <div className="space-y-6 sm:space-y-10">
         <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
           <div className="flex items-center gap-4 sm:gap-5">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-foreground text-background sm:h-14 sm:w-14 sm:rounded-lg">
+            <div className="vs-icon-tile vs-icon-tile-primary h-12 w-12 shrink-0 sm:h-14 sm:w-14">
               <Github className="h-6 w-6 sm:h-8 sm:w-8" />
             </div>
             <div>
@@ -248,7 +248,7 @@ export default function GitHubCard() {
           className={`group flex items-center justify-center w-full sm:w-auto gap-2 text-xs sm:text-sm font-bold transition-all ${
             isConnected
               ? "text-primary bg-muted sm:bg-transparent py-3 sm:py-0 rounded-xl sm:rounded-none hover:text-primary/90"
-              : "rounded-xl bg-foreground px-4 py-3 text-background hover:bg-foreground/90 sm:rounded-lg sm:py-2"
+              : "rounded-md bg-primary px-4 py-3 text-primary-foreground hover:bg-primary/90 sm:py-2"
           } ${syncing || loading ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           {syncing ? (
@@ -269,3 +269,4 @@ export default function GitHubCard() {
     </div>
   );
 }
+

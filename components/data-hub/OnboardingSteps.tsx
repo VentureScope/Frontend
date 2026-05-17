@@ -27,7 +27,7 @@ export default function OnboardingSteps() {
       {steps.map((step) => (
         <div
           key={step.number}
-          className="group relative flex flex-col gap-6 rounded-xl bg-card p-10 shadow-sm border border-border transition-all hover:shadow-md hover:border-border"
+          className="vs-surface group relative flex flex-col gap-6 p-10 transition-colors hover:border-primary/20 hover:bg-primary/[0.03]"
         >
           {/* Large Step Number */}
           <span className="text-5xl font-semibold tracking-tighter text-primary/10 transition-colors group-hover:text-primary/20">

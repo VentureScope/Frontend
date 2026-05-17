@@ -142,7 +142,7 @@ function GoogleOAuthCallbackContent() {
   }, [router, searchParams, setAuthData]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted px-4">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-b from-primary/5 via-background to-background px-4">
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 text-center shadow-sm">
         <h1 className="text-xl font-semibold text-foreground">Google Sign-In</h1>
         <p className="mt-3 text-sm text-muted-foreground">{statusMessage}</p>

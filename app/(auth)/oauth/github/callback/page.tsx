@@ -132,11 +132,11 @@ function GithubCallbackContent() {
   }, [router, searchParams, setAuthData]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-card p-4">
-      <div className="glass-panel w-full max-w-md p-8 text-center pt-10 px-8 pb-10">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-b from-primary/5 via-background to-background p-4">
+      <div className="vs-surface w-full max-w-md p-8 text-center pt-10 px-8 pb-10">
         <div className="mb-6 flex justify-center">
           {status === "processing" && (
-            <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-muted">
+            <div className="vs-icon-tile-primary flex h-20 w-20 items-center justify-center rounded-md">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
             </div>
           )}
@@ -204,8 +204,8 @@ function GithubCallbackContent() {
 export default function GithubOAuthCallback() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-card p-4">
-        <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-muted">
+      <div className="flex min-h-screen items-center justify-center bg-linear-to-b from-primary/5 via-background to-background p-4">
+        <div className="vs-icon-tile-primary flex h-20 w-20 items-center justify-center rounded-md">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
         </div>
       </div>

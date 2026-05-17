@@ -112,22 +112,22 @@ function Steps({ current }: { current: 1 | 2 | 3 }) {
             <div
               className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-all ${
                 done
-                  ? "bg-success text-success-foreground"
+                  ? "bg-primary text-primary-foreground"
                   : active
-                  ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
-                  : "bg-muted text-muted-foreground"
+                  ? "bg-inverse-foreground text-inverse ring-4 ring-primary/25"
+                  : "bg-inverse-foreground/15 text-inverse-muted"
               }`}
             >
               {done ? "✓" : num}
             </div>
             <span
               className={`text-xs font-semibold ${
-                active ? "text-foreground" : "text-muted-foreground"
+                active ? "text-inverse-foreground" : "vs-band-muted"
               }`}
             >
               {label}
             </span>
-            {i < 2 && <div className="h-px w-8 bg-muted" />}
+            {i < 2 && <div className="h-px w-8 bg-inverse-foreground/20" />}
           </div>
         );
       })}
@@ -223,19 +223,19 @@ export default function MFAEnrollPage() {
     pageStep === "scan" ? 1 : pageStep === "verify" ? 2 : 3;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted p-4">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-b from-primary/5 via-background to-background p-4">
       <div className="w-full max-w-lg">
-        <div className="rounded-xl bg-card shadow-2xl overflow-hidden">
+        <div className="overflow-hidden rounded-lg border border-border bg-card shadow-xl">
           {/* Header */}
-          <div className="space-y-4 border-b border-border bg-muted px-8 py-8 text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg bg-card/20 backdrop-blur-sm">
-              <ShieldCheck className="h-8 w-8 text-primary-foreground" />
+          <div className="vs-band space-y-4 border-b border-inverse-foreground/10 px-8 py-8 text-center">
+            <div className="vs-icon-tile-primary mx-auto flex h-16 w-16 items-center justify-center rounded-md">
+              <ShieldCheck className="h-8 w-8" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-primary-foreground">
+              <h1 className="text-2xl font-bold text-inverse-foreground">
                 {isBackup ? "Add Backup Factor" : "Set Up Two-Factor Auth"}
               </h1>
-              <p className="mt-1 text-sm text-primary-foreground/80">
+              <p className="mt-1 text-sm vs-band-muted">
                 Protect your account with Google Authenticator, Authy, or 1Password
               </p>
             </div>

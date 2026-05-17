@@ -11,6 +11,7 @@ export default function MarketTrendsPage() {
       <div className="mx-auto max-w-7xl space-y-6 sm:space-y-10">
         {/* Page Header */}
         <header className="space-y-2">
+          <p className="text-label text-primary">Career intelligence</p>
           <h1 className="text-h1 text-foreground">
             Market Trends & Forecasting
           </h1>

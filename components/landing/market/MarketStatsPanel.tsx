@@ -63,7 +63,7 @@ export function MarketStatsPanel({
   return (
     <div className="vs-surface relative flex h-full min-h-[280px] flex-col justify-between p-6 sm:p-8 lg:p-10">
       <div className="space-y-3">
-        <p className="text-label text-muted-foreground">Market overview</p>
+        <p className="text-label text-primary">Market overview</p>
         <h3 className="text-lg font-semibold text-foreground sm:text-xl">
           Market at a glance
         </h3>

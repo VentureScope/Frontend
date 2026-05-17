@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useChatStore } from "@/store/useChatStore";
+import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { X } from "lucide-react";
 
@@ -104,10 +105,12 @@ export default function AdvisorSideBar() {
           {sessions.map((session) => (
             <div
               key={session.id}
-              className={`group flex items-center justify-between w-full p-3 rounded-xl border transition-all text-left ${activeSessionId === session.id
-                ? "border-border bg-muted"
-                : "border-transparent hover:border-border hover:bg-muted"
-                }`}
+              className={cn(
+                "group flex w-full items-center justify-between rounded-md border p-3 text-left transition-all",
+                activeSessionId === session.id
+                  ? "border-primary/20 bg-primary/10"
+                  : "border-transparent hover:border-border hover:bg-primary/5",
+              )}
             >
               <button
                 onClick={() => setActiveSession(session.id)}
@@ -164,9 +167,9 @@ export default function AdvisorSideBar() {
             <button
               key={i}
               onClick={() => handleQuickAction(action.label)}
-              className="group flex flex-col items-start gap-4 w-full p-4 rounded-xl border border-border hover:border-border hover:bg-muted transition-all text-left"
+              className="group flex w-full flex-col items-start gap-4 rounded-md border border-border p-4 text-left transition-all hover:border-primary/20 hover:bg-primary/5"
             >
-              <div className="h-8 w-8 rounded-lg bg-muted text-primary flex items-center justify-center group-hover:bg-muted">
+              <div className="vs-icon-tile vs-icon-tile-primary h-8 w-8">
                 <action.icon size={16} />
               </div>
               <p className="text-xs font-bold text-foreground leading-snug">
@@ -178,13 +181,12 @@ export default function AdvisorSideBar() {
       </div>
 
       {/* Advisor Info Card */}
-      <div className="relative mt-auto overflow-hidden rounded-xl bg-foreground p-8 text-background">
-        {/* Glow effect */}
-        <div className="absolute top-0 right-0 h-32 w-32 bg-primary/20 blur-3xl pointer-events-none" />
+      <div className="vs-band relative mt-auto overflow-hidden rounded-xl p-8">
+        <div className="pointer-events-none absolute top-0 right-0 h-32 w-32 bg-primary/20 blur-3xl" />
 
         <div className="relative z-10 space-y-6">
           <h3 className="text-xl font-bold">VentureScope Advisor</h3>
-          <p className="text-xs leading-relaxed text-background/70">
+          <p className="vs-band-muted text-xs leading-relaxed">
             Leveraging GPT-4 Turbo and vector embeddings of over 2M job
             descriptions.
           </p>
@@ -197,7 +199,7 @@ export default function AdvisorSideBar() {
 
       {/* New Chat Modal */}
       {isModalOpen && typeof window !== "undefined" && createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-foreground/20 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-lg bg-card p-6 shadow-xl animate-in fade-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-foreground">Start New Chat</h3>
@@ -248,3 +250,4 @@ export default function AdvisorSideBar() {
     </div>
   );
 }
+

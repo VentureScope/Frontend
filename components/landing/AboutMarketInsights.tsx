@@ -54,7 +54,7 @@ export function AboutMarketInsights() {
     <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24 lg:px-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 sm:mb-14">
         <div className="max-w-xl text-center md:text-left">
-          <span className="inline-flex rounded-lg bg-muted px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
+          <span className="vs-accent-chip inline-flex rounded-md px-3 py-1 text-[10px] font-bold uppercase tracking-widest">
             Data-backed mission
           </span>
           <h2 className="mt-4 text-2xl sm:text-3xl font-bold text-foreground">

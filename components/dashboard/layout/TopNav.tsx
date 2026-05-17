@@ -29,7 +29,7 @@ export default function TopNav({ breadcrumb, onMenuClick }: TopNavProps) {
         </button>
 
         <div className="min-w-0">
-          <p className="text-label hidden text-muted-foreground sm:block">
+          <p className="text-label hidden text-primary sm:block">
             VentureScope
           </p>
           <h1 className="truncate text-base font-semibold text-foreground sm:text-lg">
@@ -44,7 +44,7 @@ export default function TopNav({ breadcrumb, onMenuClick }: TopNavProps) {
           <input
             type="search"
             placeholder="Search resources..."
-            className="h-9 w-full rounded-md border border-border bg-muted pl-10 pr-3 text-body text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-input focus:ring-1 focus:ring-ring/20"
+            className="h-9 w-full rounded-md border border-border bg-muted pl-10 pr-3 text-body text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/35 focus:ring-1 focus:ring-primary/20"
           />
         </div>
       </div>
@@ -57,7 +57,7 @@ export default function TopNav({ breadcrumb, onMenuClick }: TopNavProps) {
           aria-label="Notifications"
         >
           <Bell size={20} />
-          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-muted-foreground" />
+          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
         </button>
         <button
           type="button"

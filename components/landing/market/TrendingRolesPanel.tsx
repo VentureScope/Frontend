@@ -67,8 +67,12 @@ export function TrendingRolesPanel({
           <p className="text-sm text-muted-foreground">No trending roles yet.</p>
         ) : (
           topCareers.map((role, i) => {
-            const rankClass =
-              "flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border bg-muted text-xs font-bold text-muted-foreground";
+            const rankStyles = [
+              "bg-primary/15 text-primary border-primary/25",
+              "bg-accent/15 text-accent border-accent/25",
+              "bg-secondary/15 text-secondary border-secondary/25",
+            ];
+            const rankClass = `flex h-9 w-9 shrink-0 items-center justify-center rounded-md border text-xs font-bold ${rankStyles[i % rankStyles.length]}`;
             const growth = formatGrowthLabel(role.growth_pct);
             const volume = Math.round((role.job_count / maxJobs) * 100);
 
@@ -112,11 +116,11 @@ export function TrendingRolesPanel({
                     <div className="flex items-center gap-1.5">
                       <div className="w-12 bg-muted rounded-full h-1.5 overflow-hidden">
                         <div
-                          className="h-1.5 rounded-full bg-foreground/50"
+                          className="h-1.5 rounded-full bg-primary/70"
                           style={{ width: `${volume}%` }}
                         />
                       </div>
-                      <span className="w-7 text-right text-[10px] font-medium text-muted-foreground">
+                      <span className="w-7 text-right text-[10px] font-semibold text-primary">
                         {volume}%
                       </span>
                     </div>

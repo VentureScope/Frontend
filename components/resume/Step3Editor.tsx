@@ -236,7 +236,7 @@ export default function Step3Editor() {
             <div className="mt-8 flex gap-4 justify-center">
               <button
                 onClick={() => setShowExportSettings(!showExportSettings)}
-                className="flex items-center gap-2 rounded-lg bg-foreground px-6 py-3 font-semibold text-background transition-colors hover:bg-foreground/90"
+                className="flex items-center gap-2 rounded-md bg-primary px-6 py-3 font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 <Download size={18} />
                 Export PDF
