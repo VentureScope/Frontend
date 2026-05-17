@@ -41,7 +41,7 @@ export default function Step2HighlightsSelection() {
 
   return (
     <div className="w-full flex justify-center">
-      <div className="w-full bg-card rounded-3xl shadow-sm border border-border">
+      <div className="w-full bg-card rounded-xl shadow-sm border border-border">
         {/* Header */}
         <div className="sticky top-0 bg-card border-b border-border px-6 py-8 sm:px-8 flex items-start gap-4 rounded-t-3xl z-10">
           <button
@@ -65,10 +65,8 @@ export default function Step2HighlightsSelection() {
             </svg>
           </button>
           <div className="flex-1">
-            <p className="text-xs font-bold uppercase tracking-widest text-primary mb-2">
-              Step 02
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-black text-foreground">
+            <p className="text-label mb-2 text-primary">Step 02</p>
+            <h2 className="text-2xl font-semibold text-foreground sm:text-3xl">
               Select Your Highlights
             </h2>
             <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
@@ -97,7 +95,7 @@ export default function Step2HighlightsSelection() {
                     <span className="inline-block text-lg">📁</span>
                     Your Integrated Data
                   </h3>
-                  <p className="text-xs font-bold uppercase tracking-widest text-primary bg-primary/10 w-fit px-2 py-1 rounded">
+                  <p className="text-xs font-bold uppercase tracking-widest text-primary bg-muted w-fit px-2 py-1 rounded">
                     LIVE SYNC: ACTIVE
                   </p>
                 </div>
@@ -121,7 +119,7 @@ export default function Step2HighlightsSelection() {
                           type="checkbox"
                           checked={project.selected}
                           onChange={() => toggleProject(project.id)}
-                          className="mt-1 w-5 h-5 accent-blue-600 rounded"
+                          className="mt-1 h-5 w-5 rounded accent-primary"
                         />
                         <div className="flex-1">
                           <h5 className="font-bold text-foreground">
@@ -166,7 +164,7 @@ export default function Step2HighlightsSelection() {
                           type="checkbox"
                           checked={edu.selected}
                           onChange={() => toggleEducation(edu.id)}
-                          className="mt-1 w-5 h-5 accent-blue-600 rounded"
+                          className="mt-1 h-5 w-5 rounded accent-primary"
                         />
                         <div className="flex-1">
                           <h5 className="font-bold text-foreground">
@@ -198,13 +196,13 @@ export default function Step2HighlightsSelection() {
                         onClick={() => toggleSkill(skill.id)}
                         className={`p-3 text-center rounded-lg border-2 transition-all ${
                           skill.selected
-                            ? "border-primary bg-primary/10"
+                            ? "border-primary bg-muted"
                             : "border-border bg-card hover:border-border"
                         }`}
                       >
                         {skill.selected && (
                           <div className="flex justify-center mb-1">
-                            <span className="inline-block w-4 h-4 bg-primary rounded-full text-white text-xs flex items-center justify-center">
+                            <span className="inline-flex h-4 w-4 items-center justify-center rounded-lg bg-primary text-xs text-primary-foreground">
                               ✓
                             </span>
                           </div>
@@ -225,43 +223,43 @@ export default function Step2HighlightsSelection() {
 
           {/* Right Column: AI Assistant */}
           <div className="lg:col-span-1">
-            <div className="sticky top-[120px] bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-6 text-primary-foreground">
+            <div className="vs-surface sticky top-[120px] p-6">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 bg-card/20 rounded-lg flex items-center justify-center">
-                  <Zap className="w-5 h-5" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted">
+                  <Zap className="h-5 w-5 text-muted-foreground" />
                 </div>
-                <h3 className="font-bold">AI Assistant</h3>
+                <h3 className="font-bold text-foreground">AI Assistant</h3>
               </div>
 
-              <p className="text-sm leading-relaxed mb-6">
+              <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
                 I can analyze the job description you&apos;ve targeted and
                 automatically select the most relevant projects and courses to
                 maximize your match score.
               </p>
 
-              <div className="bg-card/10 rounded-lg p-4 mb-6">
-                <div className="flex items-center gap-2 mb-2">
+              <div className="mb-6 rounded-md border border-border bg-muted/50 p-4">
+                <div className="mb-2 flex items-center gap-2">
                   <input type="checkbox" className="rounded" />
                   <label className="text-sm font-medium">
                     Auto-Selection Mode
                   </label>
                 </div>
-                <p className="text-xs text-blue-100 mt-2">
-                  RECOMMENDATION ENGINE OPTIMIZED FOR FAANG STANDARDS
+                <p className="text-label mt-2 text-muted-foreground">
+                  Recommendation engine optimized for FAANG standards
                 </p>
               </div>
 
-              <div className="bg-card/10 rounded-lg p-4 mb-6">
-                <p className="text-xs font-bold text-blue-100 mb-2">
-                  PREDICTED MATCH SCORE
+              <div className="mb-6 rounded-md border border-border bg-muted/50 p-4">
+                <p className="text-label mb-2 text-muted-foreground">
+                  Predicted match score
                 </p>
-                <p className="text-4xl font-black">94%</p>
-                <p className="text-xs text-blue-100 mt-1">+12% from base</p>
+                <p className="text-4xl font-semibold text-foreground">94%</p>
+                <p className="mt-1 text-xs text-muted-foreground">+12% from base</p>
               </div>
 
               <button
                 onClick={handleGenerateResume}
-                className="w-full bg-card text-primary font-bold py-3 rounded-lg hover:bg-primary/10 transition-colors flex items-center justify-center gap-2"
+                className="flex w-full items-center justify-center gap-2 rounded-md border border-border bg-muted py-3 font-semibold text-foreground transition-colors hover:bg-muted/80"
               >
                 <Zap className="w-4 h-4" />
                 Generate Resume
@@ -280,7 +278,7 @@ export default function Step2HighlightsSelection() {
           </button>
           <div className="flex gap-2">
             <div className="w-2 h-2 rounded-full bg-muted-foreground/40" />
-            <div className="w-2 h-2 rounded-full bg-primary" />
+            <div className="h-2 w-2 rounded-full bg-primary" />
             <div className="w-2 h-2 rounded-full bg-muted-foreground/40" />
           </div>
         </div>

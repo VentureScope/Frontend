@@ -1,75 +1,59 @@
-import React from "react";
-
 export default function MarketFitCard() {
   return (
-    <div className="w-full rounded-3xl sm:rounded-[40px] bg-[#1a2436] p-6 sm:p-8 lg:p-10 text-white shadow-2xl shadow-black/40">
-      {/* Header Label */}
-      <p className="mb-6 sm:mb-8 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground/80">
+    <div className="w-full rounded-xl border border-border bg-foreground p-6 text-background shadow-2xl sm:p-8 lg:p-10">
+      <p className="text-label mb-6 text-background/60 sm:mb-8">
         Market Fit Score
       </p>
 
-      {/* Main Score Display */}
-      <div className="mb-6 sm:mb-8 flex items-baseline gap-1.5">
-        <span className="text-6xl sm:text-[78px] font-black leading-none tracking-tighter">
+      <div className="mb-6 flex items-baseline gap-1.5 sm:mb-8">
+        <span className="text-6xl font-semibold leading-none tracking-tighter sm:text-7xl">
           84
         </span>
-        <span className="text-xl sm:text-2xl font-semibold text-muted-foreground/80">
+        <span className="text-xl font-medium text-background/60 sm:text-2xl">
           /100
         </span>
       </div>
 
-      {/* Description Text */}
-      <p className="mb-8 sm:mb-10 text-sm sm:text-[15.5px] leading-relaxed text-muted-foreground">
+      <p className="text-body mb-8 leading-relaxed text-background/70 sm:mb-10">
         Your skills are highly competitive for{" "}
-        <span className="font-bold text-[var(--brand-accent)] decoration-[var(--brand-accent)]/30 underline-offset-4 hover:underline cursor-pointer">
+        <span className="cursor-pointer font-semibold text-accent underline decoration-accent/30 underline-offset-4 hover:underline">
           Senior Data Scientist
         </span>{" "}
         roles in Fintech and Logistics.
       </p>
 
-      {/* Progress Bars Section */}
-      <div className="space-y-6 sm:space-y-9 border-b border-slate-700/40 pb-8 sm:pb-10 mb-6 sm:mb-8">
-        {/* Technical Match */}
-        <div className="space-y-2.5 sm:space-y-3.5">
-          <div className="flex justify-between text-xs sm:text-[13px] font-bold">
-            <span className="text-muted-foreground font-medium">Technical Match</span>
-            <span className="text-white">92%</span>
+      <div className="mb-6 space-y-6 border-b border-background/20 pb-8 sm:mb-8 sm:space-y-9 sm:pb-10">
+        <div className="space-y-3">
+          <div className="flex justify-between text-sm font-medium">
+            <span className="text-background/60">Technical Match</span>
+            <span>92%</span>
           </div>
-          <div className="h-1.5 w-full rounded-full bg-slate-800/80 overflow-hidden">
-            <div
-              className="h-full bg-[#a5b4fc] rounded-full shadow-[0_0_12px_rgba(165,180,252,0.3)]"
-              style={{ width: "92%" }}
-            />
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-background/20">
+            <div className="h-full w-[92%] rounded-full bg-accent shadow-[0_0_12px] shadow-accent/30" />
           </div>
         </div>
-
-        {/* Leadership Index */}
-        <div className="space-y-2.5 sm:space-y-3.5">
-          <div className="flex justify-between text-xs sm:text-[13px] font-bold">
-            <span className="text-muted-foreground font-medium">Leadership Index</span>
-            <span className="text-white">68%</span>
+        <div className="space-y-3">
+          <div className="flex justify-between text-sm font-medium">
+            <span className="text-background/60">Leadership Index</span>
+            <span>68%</span>
           </div>
-          <div className="h-1.5 w-full rounded-full bg-slate-800/80 overflow-hidden">
-            <div
-              className="h-full bg-[#fca5a5] rounded-full shadow-[0_0_12px_rgba(252,165,165,0.3)]"
-              style={{ width: "68%" }}
-            />
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-background/20">
+            <div className="h-full w-[68%] rounded-full bg-secondary shadow-[0_0_12px] shadow-secondary/30" />
           </div>
         </div>
       </div>
 
-      {/* Footer Section: Gaps Detected */}
       <div className="space-y-4 sm:space-y-5">
-        <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground/80">
-          Gaps Detected
-        </p>
+        <p className="text-label text-background/60">Gaps Detected</p>
         <div className="flex flex-wrap gap-2 sm:gap-3">
-          <span className="rounded-full bg-[#3b1c24] border border-[#7f1d1d]/20 px-4 sm:px-5 py-1.5 sm:py-2 text-[11px] sm:text-[12px] font-bold text-[#fca5a5] hover:bg-[#4d252e] transition-colors cursor-default">
-            MLOps
-          </span>
-          <span className="rounded-full bg-[#3b1c24] border border-[#7f1d1d]/20 px-4 sm:px-5 py-1.5 sm:py-2 text-[11px] sm:text-[12px] font-bold text-[#fca5a5] hover:bg-[#4d252e] transition-colors cursor-default">
-            System Design
-          </span>
+          {["MLOps", "System Design"].map((gap) => (
+            <span
+              key={gap}
+              className="rounded-full border border-secondary/30 bg-muted px-4 py-1.5 text-xs font-medium text-secondary sm:px-5 sm:py-2"
+            >
+              {gap}
+            </span>
+          ))}
         </div>
       </div>
     </div>

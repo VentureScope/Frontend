@@ -104,7 +104,7 @@ export default function CareerInterests() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-5 rounded-3xl border border-border bg-card p-5 shadow-sm sm:space-y-6 sm:p-6 lg:p-8">
+      <div className="space-y-5 rounded-xl border border-border bg-card p-5 shadow-sm sm:space-y-6 sm:p-6 lg:p-8">
         <h3 className="text-lg font-bold text-foreground sm:text-xl">
           Career Interests
         </h3>
@@ -123,7 +123,7 @@ export default function CareerInterests() {
           {tags.map((t) => (
             <span
               key={t}
-              className="group flex min-w-0 max-w-full items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold text-primary shadow-sm transition-all hover:border-primary/30"
+              className="group flex min-w-0 max-w-full items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold text-primary shadow-sm transition-all hover:border-border"
             >
               <span className="max-w-40 text-left wrap-break-word sm:max-w-56">
                 {t}
@@ -143,7 +143,7 @@ export default function CareerInterests() {
             <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
               <input
                 autoFocus
-                className="w-full rounded-full border border-primary/30 px-4 py-2 text-xs font-medium outline-none ring-2 ring-blue-50 sm:w-auto"
+                className="w-full rounded-full border border-border px-4 py-2 text-xs font-medium outline-none ring-2 ring-primary/20 sm:w-auto"
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyDown={(e) => {
@@ -159,7 +159,7 @@ export default function CareerInterests() {
                 onClick={() => {
                   void addTag();
                 }}
-                className="rounded-full bg-primary px-3 py-2 text-[11px] font-bold text-white hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-lg bg-primary px-3 py-2 text-[11px] font-medium text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Save
               </button>
@@ -178,10 +178,8 @@ export default function CareerInterests() {
         </div>
       </div>
 
-      <div className="space-y-2 rounded-2xl border border-primary/20 bg-primary/10 p-5 sm:p-6">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-primary">
-          Interest Insight
-        </p>
+      <div className="space-y-2 rounded-lg border border-border bg-muted p-5 sm:p-6">
+        <p className="text-label text-primary">Interest Insight</p>
         <p className="text-sm text-muted-foreground leading-relaxed">{helperText}</p>
       </div>
     </div>

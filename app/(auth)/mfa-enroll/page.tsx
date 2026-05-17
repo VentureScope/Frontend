@@ -89,7 +89,7 @@ function QRCodeImage({ uri }: { uri: string }) {
   const src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encoded}`;
   return (
     <div className="flex justify-center">
-      <div className="rounded-2xl border-4 border-background shadow-lg overflow-hidden bg-card p-2">
+      <div className="rounded-lg border-4 border-background shadow-lg overflow-hidden bg-card p-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={src} alt="TOTP QR Code" width={192} height={192} />
       </div>
@@ -112,22 +112,22 @@ function Steps({ current }: { current: 1 | 2 | 3 }) {
             <div
               className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-all ${
                 done
-                  ? "bg-emerald-500 text-white"
+                  ? "bg-primary text-primary-foreground"
                   : active
-                  ? "bg-primary text-white ring-4 ring-blue-100"
-                  : "bg-muted text-muted-foreground"
+                  ? "bg-inverse-foreground text-inverse ring-4 ring-primary/25"
+                  : "bg-inverse-foreground/15 text-inverse-muted"
               }`}
             >
               {done ? "✓" : num}
             </div>
             <span
               className={`text-xs font-semibold ${
-                active ? "text-foreground" : "text-muted-foreground"
+                active ? "text-inverse-foreground" : "vs-band-muted"
               }`}
             >
               {label}
             </span>
-            {i < 2 && <div className="h-px w-8 bg-muted" />}
+            {i < 2 && <div className="h-px w-8 bg-inverse-foreground/20" />}
           </div>
         );
       })}
@@ -223,19 +223,19 @@ export default function MFAEnrollPage() {
     pageStep === "scan" ? 1 : pageStep === "verify" ? 2 : 3;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted p-4">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-b from-primary/5 via-background to-background p-4">
       <div className="w-full max-w-lg">
-        <div className="rounded-3xl bg-card shadow-2xl overflow-hidden">
+        <div className="overflow-hidden rounded-lg border border-border bg-card shadow-xl">
           {/* Header */}
-          <div className="bg-primary px-8 py-8 text-center space-y-4">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-card/20 backdrop-blur-sm">
-              <ShieldCheck className="h-8 w-8 text-white" />
+          <div className="vs-band space-y-4 border-b border-inverse-foreground/10 px-8 py-8 text-center">
+            <div className="vs-icon-tile-primary mx-auto flex h-16 w-16 items-center justify-center rounded-md">
+              <ShieldCheck className="h-8 w-8" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className="text-2xl font-bold text-inverse-foreground">
                 {isBackup ? "Add Backup Factor" : "Set Up Two-Factor Auth"}
               </h1>
-              <p className="mt-1 text-sm text-primary-foreground/80">
+              <p className="mt-1 text-sm vs-band-muted">
                 Protect your account with Google Authenticator, Authy, or 1Password
               </p>
             </div>
@@ -262,7 +262,7 @@ export default function MFAEnrollPage() {
                 <QRCodeImage uri={enrollData.totp_uri} />
 
                 {/* Collapsible secret */}
-                <div className="rounded-2xl border border-border overflow-hidden">
+                <div className="rounded-lg border border-border overflow-hidden">
                   <button
                     id="toggle-secret-btn"
                     onClick={() => setSecretVisible((v) => !v)}
@@ -303,7 +303,7 @@ export default function MFAEnrollPage() {
                 <Button
                   id="continue-to-verify-btn"
                   onClick={() => setPageStep("verify")}
-                  className="h-12 w-full bg-primary text-sm font-bold text-white hover:bg-primary/90 shadow-xl shadow-primary/20"
+                  className="h-12 w-full bg-primary text-sm font-bold text-primary-foreground hover:bg-primary/90 "
                 >
                   I&apos;ve scanned it — Continue
                 </Button>
@@ -326,7 +326,7 @@ export default function MFAEnrollPage() {
                   id="verify-enroll-btn"
                   onClick={handleVerify}
                   disabled={code.length !== 6 || verifying}
-                  className="h-12 w-full bg-primary text-sm font-bold text-white hover:bg-primary/90 shadow-xl shadow-primary/20"
+                  className="h-12 w-full bg-primary text-sm font-bold text-primary-foreground hover:bg-primary/90 "
                 >
                   {verifying ? (
                     <>
@@ -350,8 +350,8 @@ export default function MFAEnrollPage() {
               <>
                 {/* Step 3: Success */}
                 <div className="flex flex-col items-center gap-4 py-4 text-center">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50 border-4 border-emerald-100">
-                    <CheckCircle2 className="h-10 w-10 text-emerald-500" />
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-success/10 border-4 border-success/20">
+                    <CheckCircle2 className="h-10 w-10 text-success" />
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-foreground">
@@ -371,7 +371,7 @@ export default function MFAEnrollPage() {
                       id="add-backup-btn"
                       variant="outline"
                       onClick={handleAddBackup}
-                      className="h-12 w-full border-primary text-primary font-bold hover:bg-primary/10 flex items-center gap-2"
+                      className="h-12 w-full border-primary text-primary font-bold hover:bg-muted flex items-center gap-2"
                     >
                       <RefreshCw className="h-4 w-4" />
                       Add a Backup Authenticator (Recommended)
@@ -380,7 +380,7 @@ export default function MFAEnrollPage() {
                   <Button
                     id="done-enroll-btn"
                     onClick={() => router.push("/")}
-                    className="h-12 w-full bg-primary font-bold text-white hover:bg-primary/90"
+                    className="h-12 w-full bg-primary font-bold text-primary-foreground hover:bg-primary/90"
                   >
                     {isBackup ? "All done" : "Go to Dashboard"}
                   </Button>
@@ -390,14 +390,14 @@ export default function MFAEnrollPage() {
 
             {/* Error */}
             {error && (
-              <div className="flex items-start gap-3 rounded-xl bg-red-50 border border-red-100 px-4 py-3">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+              <div className="flex items-start gap-3 rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-3">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
                 <div className="flex-1">
-                  <p className="text-xs text-red-700">{error}</p>
+                  <p className="text-xs text-destructive">{error}</p>
                   {pageStep === "scan" && (
                     <button
                       onClick={startEnrollment}
-                      className="mt-1 text-xs font-semibold text-red-600 hover:underline"
+                      className="mt-1 text-xs font-semibold text-destructive hover:underline"
                     >
                       Try again
                     </button>

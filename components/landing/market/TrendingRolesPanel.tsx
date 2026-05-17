@@ -35,7 +35,7 @@ export function TrendingRolesPanel({
       className={
         compact
           ? "space-y-4 h-full flex flex-col"
-          : "rounded-2xl sm:rounded-3xl bg-primary/10 p-6 sm:p-8 lg:p-10 border border-primary/20"
+          : "rounded-lg sm:rounded-xl bg-muted p-6 sm:p-8 lg:p-10 border border-border"
       }
     >
       <div>
@@ -54,7 +54,7 @@ export function TrendingRolesPanel({
           </p>
         )}
         {insight && !loading && (
-          <p className="mt-3 text-sm text-muted-foreground leading-relaxed border-l-2 border-blue-500 pl-3">
+          <p className="mt-3 border-l border-border pl-3 text-sm leading-relaxed text-muted-foreground">
             {insight}
           </p>
         )}
@@ -67,11 +67,12 @@ export function TrendingRolesPanel({
           <p className="text-sm text-muted-foreground">No trending roles yet.</p>
         ) : (
           topCareers.map((role, i) => {
-            const colors = [
-              "bg-primary text-white",
-              "bg-violet-600 text-white",
-              "bg-emerald-600 text-white",
+            const rankStyles = [
+              "bg-primary/15 text-primary border-primary/25",
+              "bg-accent/15 text-accent border-accent/25",
+              "bg-secondary/15 text-secondary border-secondary/25",
             ];
+            const rankClass = `flex h-9 w-9 shrink-0 items-center justify-center rounded-md border text-xs font-bold ${rankStyles[i % rankStyles.length]}`;
             const growth = formatGrowthLabel(role.growth_pct);
             const volume = Math.round((role.job_count / maxJobs) * 100);
 
@@ -81,13 +82,11 @@ export function TrendingRolesPanel({
                 className={
                   compact
                     ? "flex items-center gap-3 rounded-xl border border-border bg-card p-3 shadow-sm"
-                    : "flex flex-col sm:flex-row sm:items-center justify-between bg-card p-4 sm:p-5 rounded-2xl shadow-sm border border-border gap-3"
+                    : "flex flex-col sm:flex-row sm:items-center justify-between bg-card p-4 sm:p-5 rounded-lg shadow-sm border border-border gap-3"
                 }
               >
                 <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${colors[i % colors.length]}`}
-                  >
+                  <div className={rankClass}>
                     {i + 1}
                   </div>
                   <div className="min-w-0">
@@ -104,12 +103,12 @@ export function TrendingRolesPanel({
                 {showGrowth && (
                   <div className="flex items-center gap-2 shrink-0 pl-12 sm:pl-0">
                     <span
-                      className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full ${
+                      className={`vs-badge ${
                         growth.tone === "up"
-                          ? "bg-emerald-50 text-emerald-700"
+                          ? "vs-badge-success"
                           : growth.tone === "down"
-                            ? "bg-rose-50 text-rose-700"
-                            : "bg-muted text-muted-foreground"
+                            ? "vs-badge-danger"
+                            : "vs-badge-neutral"
                       }`}
                     >
                       {growth.label}
@@ -117,11 +116,11 @@ export function TrendingRolesPanel({
                     <div className="flex items-center gap-1.5">
                       <div className="w-12 bg-muted rounded-full h-1.5 overflow-hidden">
                         <div
-                          className="bg-primary h-1.5 rounded-full"
+                          className="h-1.5 rounded-full bg-primary/70"
                           style={{ width: `${volume}%` }}
                         />
                       </div>
-                      <span className="font-bold text-primary text-[10px] w-7 text-right">
+                      <span className="w-7 text-right text-[10px] font-semibold text-primary">
                         {volume}%
                       </span>
                     </div>

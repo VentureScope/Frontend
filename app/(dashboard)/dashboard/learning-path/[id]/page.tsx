@@ -95,7 +95,7 @@ export default function StandaloneRoadmapPage({
     }
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold text-foreground">Roadmap Not Found</h1>
+        <h1 className="text-h1 text-foreground">Roadmap Not Found</h1>
         <Link
           href="/dashboard/learning-path"
           className="mt-4 text-primary hover:underline"
@@ -137,7 +137,7 @@ export default function StandaloneRoadmapPage({
               <Share2 size={16} />
               Share
             </Button>
-            <Button className="h-10 rounded-full bg-primary px-6 font-semibold text-white hover:bg-primary/90">
+            <Button className="h-10 rounded-lg bg-primary px-6 font-medium text-primary-foreground hover:bg-primary/90">
               Update Progress
             </Button>
             <button

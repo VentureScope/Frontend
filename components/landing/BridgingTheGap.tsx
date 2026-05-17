@@ -6,15 +6,15 @@ export default function BridgingTheGap() {
       title: "Academic Alignment",
       desc: "Mapping curriculum outcomes to industry requirements in the Ethiopian tech landscape.",
       icon: GraduationCap,
-      bg: "bg-primary/10",
+      bg: "bg-primary/5 border-primary/20",
       iconColor: "text-primary",
     },
     {
       title: "Market Mapping",
       desc: "Identifying emerging tech hubs within Addis Ababa and the growing digital economy.",
       icon: TrendingUp,
-      bg: "bg-accent",
-      iconColor: "text-[var(--brand-accent)]",
+      bg: "bg-accent/5 border-accent/20",
+      iconColor: "text-accent",
     },
   ];
 
@@ -37,7 +37,7 @@ export default function BridgingTheGap() {
             {features.map((f, i) => (
               <div
                 key={i}
-                className={`rounded-2xl ${f.bg} p-6 sm:p-8 border border-background transition-transform hover:-translate-y-1 flex flex-col items-center text-center sm:items-start sm:text-left`}
+                className={`flex flex-col items-center rounded-lg border p-6 text-center transition-transform hover:-translate-y-1 sm:items-start sm:p-8 sm:text-left ${f.bg}`}
               >
                 <f.icon className={`mb-4 sm:mb-6 h-8 w-8 ${f.iconColor}`} />
                 <h3 className="mb-2 sm:mb-3 text-lg sm:text-xl font-bold text-foreground">

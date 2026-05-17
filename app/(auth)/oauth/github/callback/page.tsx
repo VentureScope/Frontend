@@ -132,18 +132,18 @@ function GithubCallbackContent() {
   }, [router, searchParams, setAuthData]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-card p-4">
-      <div className="glass-panel w-full max-w-md p-8 text-center pt-10 px-8 pb-10">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-b from-primary/5 via-background to-background p-4">
+      <div className="vs-surface w-full max-w-md p-8 text-center pt-10 px-8 pb-10">
         <div className="mb-6 flex justify-center">
           {status === "processing" && (
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
+            <div className="vs-icon-tile-primary flex h-20 w-20 items-center justify-center rounded-md">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
             </div>
           )}
           {status === "success" && (
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-success/10">
               <svg
-                className="h-10 w-10 text-emerald-500"
+                className="h-10 w-10 text-success"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -158,9 +158,9 @@ function GithubCallbackContent() {
             </div>
           )}
           {status === "error" && (
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-rose-50">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
               <svg
-                className="h-10 w-10 text-rose-500"
+                className="h-10 w-10 text-destructive"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -176,7 +176,7 @@ function GithubCallbackContent() {
           )}
         </div>
 
-        <h2 className="mb-2 text-2xl font-black text-foreground">
+        <h2 className="mb-2 text-2xl font-semibold text-foreground">
           {status === "processing" && "Connecting to GitHub..."}
           {status === "success" && "GitHub Connected!"}
           {status === "error" && "Connection Failed"}
@@ -204,8 +204,8 @@ function GithubCallbackContent() {
 export default function GithubOAuthCallback() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-card p-4">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
+      <div className="flex min-h-screen items-center justify-center bg-linear-to-b from-primary/5 via-background to-background p-4">
+        <div className="vs-icon-tile-primary flex h-20 w-20 items-center justify-center rounded-md">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
         </div>
       </div>

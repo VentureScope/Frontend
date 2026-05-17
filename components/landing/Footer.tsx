@@ -15,29 +15,34 @@ export default function Footer() {
                 height={24}
                 className="h-6 w-6 object-contain"
               />
-              <span className="text-xl font-bold text-foreground">
+              <span className="text-lg font-semibold text-foreground">
                 VentureScope
               </span>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-body text-muted-foreground">
               © 2026 VentureScope Intelligence. All rights reserved.
             </p>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-4 md:justify-end md:gap-8 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-            <Link href="#" className="hover:text-primary">
-              Privacy Policy
-            </Link>
-            <Link href="#" className="hover:text-primary">
-              Terms of Service
-            </Link>
-            <Link href="#" className="hover:text-primary">
-              Contact Support
-            </Link>
-            <Link href="#" className="hover:text-primary">
-              API Documentation
-            </Link>
-          </div>
+          <nav
+            className="flex flex-wrap justify-center gap-4 md:justify-end md:gap-8"
+            aria-label="Footer"
+          >
+            {[
+              "Privacy Policy",
+              "Terms of Service",
+              "Contact Support",
+              "API Documentation",
+            ].map((label) => (
+              <Link
+                key={label}
+                href="#"
+                className="text-label text-muted-foreground transition-colors hover:text-primary"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
         </div>
       </div>
     </footer>

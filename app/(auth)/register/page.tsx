@@ -53,15 +53,15 @@ function getStrength(password: string): StrengthInfo {
     return { level: 0, label: "", color: "bg-muted", textColor: "text-muted-foreground" };
   }
   if (passed <= 1) {
-    return { level: 1, label: "Weak", color: "bg-red-500", textColor: "text-red-500" };
+    return { level: 1, label: "Weak", color: "bg-destructive", textColor: "text-destructive" };
   }
   if (passed === 2) {
-    return { level: 2, label: "Fair", color: "bg-amber-500", textColor: "text-amber-500" };
+    return { level: 2, label: "Fair", color: "bg-muted-foreground/40", textColor: "text-secondary" };
   }
   if (passed === 3 || passed === 4) {
-    return { level: 3, label: "Good", color: "bg-primary/100", textColor: "text-primary" };
+    return { level: 3, label: "Good", color: "bg-primary", textColor: "text-primary" };
   }
-  return { level: 4, label: "Strong", color: "bg-emerald-500", textColor: "text-emerald-500" };
+  return { level: 4, label: "Strong", color: "bg-success", textColor: "text-success" };
 }
 
 // ─── Zod Schema ───────────────────────────────────────────────────────────────
@@ -177,13 +177,17 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-muted p-4 sm:p-8">
-      <div className="flex w-full max-w-5xl overflow-hidden rounded-2xl sm:rounded-3xl bg-card shadow-2xl">
+    <div className="flex min-h-screen w-full items-center justify-center bg-linear-to-b from-primary/5 via-background to-background p-4 sm:p-8">
+      <div className="flex w-full max-w-5xl overflow-hidden rounded-lg border border-border bg-card shadow-xl sm:rounded-xl">
         {/* ── LEFT SIDE ── */}
-        <section className="relative hidden w-1/2 flex-col justify-between bg-primary p-8 shrink-0 lg:flex">
-          <div className="space-y-6">
+        <section className="vs-band relative hidden w-1/2 shrink-0 flex-col justify-between overflow-hidden p-8 lg:flex lg:p-10">
+          <div
+            className="pointer-events-none absolute -right-16 top-8 h-48 w-48 rounded-full bg-primary/25 blur-3xl"
+            aria-hidden
+          />
+          <div className="relative z-10 space-y-6">
             {/* Logo */}
-            <div className="flex items-center gap-3 text-white">
+            <div className="flex items-center gap-3 text-inverse-foreground">
               <Image
                 src="/logo.png"
                 alt="VentureScope Logo"
@@ -198,10 +202,13 @@ export default function RegisterPage() {
 
             {/* Headline */}
             <div className="max-w-md space-y-4">
-              <h1 className="text-4xl font-bold leading-[1.1] text-white">
+              <p className="vs-accent-chip inline-flex rounded-md px-3 py-1 text-[10px] font-bold uppercase tracking-widest">
+                Join the beta
+              </p>
+              <h1 className="text-4xl font-bold leading-[1.1] text-inverse-foreground">
                 The Intelligence Layer for Your Next Move.
               </h1>
-              <p className="text-sm text-primary-foreground/80/90 leading-relaxed">
+              <p className="text-sm leading-relaxed vs-band-muted">
                 Join 20,000+ professionals and HR leaders using data-driven
                 insights to navigate career transitions with absolute clarity.
               </p>
@@ -209,22 +216,22 @@ export default function RegisterPage() {
           </div>
 
           {/* Testimonial Card */}
-          <div className="rounded-xl bg-card/20 p-6 backdrop-blur-md border border-background/20">
+          <div className="relative z-10 rounded-md border border-inverse-foreground/12 bg-inverse-foreground/8 p-6 backdrop-blur-sm">
             <div className="mb-3 flex gap-1">
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
-                  className="h-3 w-3 fill-yellow-400 text-yellow-400"
+                  className="h-3 w-3 fill-warning/60 text-warning"
                 />
               ))}
             </div>
-            <p className="mb-4 text-sm font-medium leading-relaxed text-white">
+            <p className="mb-4 text-sm font-medium leading-relaxed text-inverse-foreground">
               &quot;VentureScope transformed our recruitment strategy from
               guesswork to a precision science. The AI advisor is truly
               elite.&quot;
             </p>
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 overflow-hidden rounded-full border-2 border-background/50">
+              <div className="h-8 w-8 overflow-hidden rounded-full border-2 border-inverse-foreground/25">
                 <img
                   src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah"
                   alt="Sarah Jenkins"
@@ -232,10 +239,10 @@ export default function RegisterPage() {
                 />
               </div>
               <div>
-                <p className="text-xs font-bold text-white uppercase tracking-wider">
+                <p className="text-xs font-bold uppercase tracking-wider vs-band-muted">
                   Sarah Jenkins
                 </p>
-                <p className="text-[10px] text-primary-foreground/80 uppercase tracking-widest opacity-80">
+                <p className="text-[10px] uppercase tracking-widest text-primary">
                   Director of Talent, Innovate Corp
                 </p>
               </div>
@@ -366,7 +373,7 @@ export default function RegisterPage() {
                           <li
                             key={req.label}
                             className={`flex items-center gap-1.5 text-[10px] transition-colors ${
-                              met ? "text-emerald-600" : "text-muted-foreground"
+                              met ? "text-success" : "text-muted-foreground"
                             }`}
                           >
                             {met ? (
@@ -419,13 +426,13 @@ export default function RegisterPage() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-10 w-full bg-primary text-sm font-semibold text-white hover:bg-primary/90"
+                className="h-10 w-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90"
               >
                 {isSubmitting ? "Creating Account..." : "Create Account"}
               </Button>
 
               {apiError && (
-                <p className="text-center text-xs text-red-600">{apiError}</p>
+                <p className="text-center text-xs text-destructive">{apiError}</p>
               )}
 
               {/* Divider */}
@@ -444,7 +451,7 @@ export default function RegisterPage() {
                   variant="outline"
                   onClick={onGoogleSignIn}
                   disabled={isGoogleSubmitting || isGithubSubmitting || isSubmitting}
-                  className="h-10 flex-1 border-border bg-card text-xs font-bold text-muted-foreground shadow-sm hover:bg-muted gap-2"
+                  className="h-10 flex-1 gap-2 border-primary/20 bg-card text-xs font-bold text-foreground shadow-sm hover:border-primary/35 hover:bg-primary/5"
                 >
                   <svg className="h-3.5 w-3.5" viewBox="0 0 24 24">
                     <path
@@ -471,7 +478,7 @@ export default function RegisterPage() {
                   variant="outline"
                   onClick={onGithubSignIn}
                   disabled={isGoogleSubmitting || isGithubSubmitting || isSubmitting}
-                  className="h-10 flex-1 border-border bg-card text-xs font-bold text-muted-foreground shadow-sm hover:bg-muted gap-2"
+                  className="h-10 flex-1 gap-2 border-primary/20 bg-card text-xs font-bold text-foreground shadow-sm hover:border-primary/35 hover:bg-primary/5"
                 >
                   <Github className="h-3.5 w-3.5 text-foreground" />
                   {isGithubSubmitting ? "Connecting..." : "GitHub"}

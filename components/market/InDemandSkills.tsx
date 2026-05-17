@@ -9,7 +9,7 @@ const skills = [
 
 export default function InDemandSkills() {
   return (
-    <div className="rounded-[28px] sm:rounded-[32px] border border-border bg-card p-6 sm:p-8 shadow-sm">
+    <div className="vs-surface p-6 sm:p-8">
       <h3 className="mb-6 sm:mb-8 text-lg sm:text-xl font-bold text-foreground">
         In-Demand Skills
       </h3>

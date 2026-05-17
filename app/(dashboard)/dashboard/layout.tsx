@@ -3,10 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { usePathname } from "next/navigation";
+
 import Sidebar from "@/components/dashboard/layout/Sidebar";
 import TopNav from "@/components/dashboard/layout/TopNav";
 import { useAppStore } from "@/store/useAppStore";
 import { mfaGetAAL } from "@/lib/mfa-api";
+import { getDashboardBreadcrumb } from "@/lib/dashboard-breadcrumb";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -14,6 +17,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
+  const pathname = usePathname();
   // TODO: Re-enable real auth checks once backend integration is complete.
   const token = useAppStore((state) => state.authData.token);
   const isAuthenticated = Boolean(token);
@@ -54,7 +58,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   if (!isHydrated || !isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
+      <div className="flex min-h-screen items-center justify-center bg-background text-body text-muted-foreground">
         Checking session...
       </div>
     );
@@ -68,7 +72,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       />
       <div className="lg:pl-64 flex flex-col min-h-screen">
         <TopNav
-          breadcrumb="Dashboard"
+          breadcrumb={getDashboardBreadcrumb(pathname)}
           onMenuClick={() => setIsMobileMenuOpen(true)}
         />
         <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>

@@ -66,23 +66,23 @@ export default function MarketPulse() {
   return (
     <section className="relative overflow-hidden py-20 sm:py-28">
       <div
-        className="pointer-events-none absolute inset-0 bg-linear-to-b from-primary/10 via-background to-muted/50"
+        className="pointer-events-none absolute inset-0 bg-linear-to-b from-muted/50 via-background to-muted/50"
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-primary/30/30 blur-3xl"
+        className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-lg bg-primary/15 blur-3xl"
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-indigo-100/40 blur-3xl"
+        className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-accent/10 blur-3xl"
         aria-hidden
       />
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="rounded-3xl border border-border/80 bg-card/90 p-6 sm:p-10 shadow-sm backdrop-blur-sm">
+        <div className="rounded-xl border border-border/80 bg-card/90 p-6 sm:p-10 shadow-sm backdrop-blur-sm">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl space-y-4">
-              <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
+              <span className="vs-accent-chip inline-flex items-center gap-2 rounded-md px-3 py-1 text-[10px] font-bold uppercase tracking-widest">
                 <Radio className="h-3 w-3" />
                 Live market pulse
               </span>
@@ -107,7 +107,7 @@ export default function MarketPulse() {
             <Button
               asChild
               size="lg"
-              className="h-12 shrink-0 rounded-full bg-primary px-7 font-semibold shadow-lg shadow-primary/20/60 hover:bg-primary/90"
+              className="h-12 shrink-0 rounded-md px-7 font-semibold"
             >
               <Link href="/market-insight" className="gap-2">
                 Full market report
@@ -122,7 +122,7 @@ export default function MarketPulse() {
             ) : (
               <div className="grid gap-5 lg:grid-cols-12 lg:items-stretch">
                 <div className="lg:col-span-5 flex">
-                  <div className="flex-1 rounded-2xl border border-border bg-muted/50 p-5 sm:p-6">
+                  <div className="flex-1 rounded-lg border border-border bg-muted/50 p-5 sm:p-6">
                     <SkillDemandPanel
                       skills={skills}
                       loading={false}
@@ -133,7 +133,7 @@ export default function MarketPulse() {
                 </div>
 
                 <div className="lg:col-span-4 flex">
-                  <div className="flex-1 rounded-2xl border border-border bg-muted/50 p-5 sm:p-6">
+                  <div className="flex-1 rounded-lg border border-border bg-muted/50 p-5 sm:p-6">
                     <TrendingRolesPanel
                       careers={trending}
                       loading={false}

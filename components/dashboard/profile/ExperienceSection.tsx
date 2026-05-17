@@ -146,7 +146,7 @@ export default function ExperienceSection() {
 
   if (loading) {
     return (
-      <div className="relative rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
+      <div className="relative rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
         <div className="mb-6 flex items-center gap-2 text-muted-foreground/50">
           <Skeleton className="h-4 w-4" />
           <Skeleton className="h-3 w-32" />
@@ -160,19 +160,17 @@ export default function ExperienceSection() {
   }
 
   return (
-    <div className="relative rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
+    <div className="relative rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2 text-primary">
           <Briefcase size={18} />
-          <span className="text-[10px] font-bold uppercase tracking-widest">
-            Experience
-          </span>
+          <span className="text-label">Experience</span>
         </div>
         {!isFormOpen && (
           <Button
             size="sm"
             variant="outline"
-            className="h-8 gap-1.5 rounded-full px-3 text-xs text-primary border-primary/20 hover:bg-primary/10"
+            className="h-8 gap-1.5 rounded-full px-3 text-xs text-primary border-border hover:bg-muted"
             onClick={() => setIsFormOpen(true)}
           >
             <Plus size={14} />
@@ -184,7 +182,7 @@ export default function ExperienceSection() {
       {isFormOpen ? (
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 rounded-2xl border border-border bg-muted/50 p-4 sm:p-5"
+          className="space-y-4 rounded-lg border border-border bg-muted/50 p-4 sm:p-5"
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
@@ -296,7 +294,7 @@ export default function ExperienceSection() {
               type="submit"
               size="sm"
               disabled={submitting}
-              className="bg-primary hover:bg-primary/90 text-white min-w-[100px]"
+              className="min-w-[100px] bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {submitting ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -309,8 +307,8 @@ export default function ExperienceSection() {
           </div>
         </form>
       ) : experiences.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/50 py-10">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 text-primary">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-muted/50 py-10">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-muted text-primary">
             <Briefcase size={20} />
           </div>
           <p className="mb-1 text-sm font-bold text-muted-foreground">

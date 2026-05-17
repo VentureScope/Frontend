@@ -285,12 +285,12 @@ export default function SkillIntelligence() {
           <Skeleton className="h-7 w-48 sm:h-8 sm:w-56" />
           <Skeleton className="h-4 w-56 sm:w-72" />
         </div>
-        <Skeleton className="h-28 w-full rounded-2xl" />
+        <Skeleton className="h-28 w-full rounded-lg" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               key={index}
-              className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4"
+              className="vs-surface p-6 space-y-4"
             >
               <Skeleton className="h-3 w-16" />
               <Skeleton className="h-8 w-24" />
@@ -315,13 +315,13 @@ export default function SkillIntelligence() {
         </div>
         <Link
           href="/dashboard/data-hub"
-          className="w-full rounded-xl bg-primary px-4 py-2 text-center text-xs font-bold text-white shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90 sm:w-auto"
+          className="text-btn w-full rounded-xl bg-primary px-4 py-2 text-center text-primary-foreground  transition-colors hover:bg-primary/90 sm:w-auto"
         >
           Update Data Sources
         </Link>
       </div>
 
-      <div className="space-y-3 rounded-2xl border border-border bg-card p-5 sm:p-6">
+      <div className="space-y-3 rounded-lg border border-border bg-card p-5 sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
             Your Skills
@@ -353,7 +353,7 @@ export default function SkillIntelligence() {
           {draftUserSkills.map((skill) => (
             <span
               key={skill}
-              className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary"
+              className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1.5 text-xs font-semibold text-primary"
             >
               <span className="wrap-break-word">{skill}</span>
               <button
@@ -362,7 +362,7 @@ export default function SkillIntelligence() {
                 onClick={() => {
                   handleRemoveSkill(skill);
                 }}
-                className="text-[var(--brand-accent)] hover:text-rose-500 disabled:opacity-60"
+                className="text-accent hover:text-destructive disabled:opacity-60"
                 aria-label={`Remove ${skill}`}
               >
                 <X size={12} />
@@ -381,7 +381,7 @@ export default function SkillIntelligence() {
               }
             }}
             placeholder="Add a skill"
-            className="w-full rounded-xl border border-border px-3 py-2 text-sm text-muted-foreground outline-none ring-blue-100 transition-all focus:border-blue-300 focus:ring-2 sm:w-64"
+            className="w-full rounded-xl border border-border px-3 py-2 text-sm text-muted-foreground outline-none transition-all focus:border-primary focus:ring-1 focus:ring-ring/20 sm:w-64"
           />
           <button
             type="button"
@@ -389,7 +389,7 @@ export default function SkillIntelligence() {
             onClick={() => {
               handleAddSkill();
             }}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Plus size={14} />
             Add Skill
@@ -403,7 +403,7 @@ export default function SkillIntelligence() {
             onClick={() => {
               void handleSaveSkills();
             }}
-            className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center rounded-xl bg-foreground px-4 py-2 text-xs font-medium text-background transition-colors hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSavingSkills ? "Saving..." : "Save Changes"}
           </button>
@@ -426,7 +426,7 @@ export default function SkillIntelligence() {
       </div>
 
       {githubSkills.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-border bg-muted/60 p-6 text-sm text-muted-foreground">
+        <div className="rounded-lg border border-dashed border-border bg-muted/60 p-6 text-sm text-muted-foreground">
           No GitHub skill data available yet. Sync your GitHub account from the
           Data Hub.
         </div>
@@ -436,14 +436,14 @@ export default function SkillIntelligence() {
         {githubSkills.slice(0, displayCount).map((s, idx) => (
           <div
             key={`github-${s.label}-${idx}`}
-            className={`flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md sm:p-6 border-l-4 ${
+            className={`flex h-full flex-col rounded-lg border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md sm:p-6 border-l-4 ${
               s.color === "blue"
                 ? "border-l-primary"
                 : s.color === "rose"
-                  ? "border-l-rose-500"
+                    ? "border-l-secondary"
                   : s.color === "indigo"
-                    ? "border-l-indigo-600"
-                    : "border-l-emerald-500"
+                    ? "border-l-accent"
+                    : "border-l-success"
             }`}
           >
             <div className="mb-4 flex flex-col items-start gap-1.5">
@@ -453,10 +453,10 @@ export default function SkillIntelligence() {
               <span
                 className={`rounded-md px-2 py-1 text-[10px] font-bold inline-flex ${
                   s.status === "Needs Depth"
-                    ? "bg-rose-50 text-rose-500"
+                    ? "bg-destructive/10 text-destructive"
                     : s.status === "Steady" || s.status === "Growing"
                       ? "bg-muted text-muted-foreground"
-                      : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                      : "bg-success/15 text-success"
                 }`}
               >
                 {s.status}
@@ -482,10 +482,10 @@ export default function SkillIntelligence() {
                       s.color === "blue"
                         ? "bg-primary"
                         : s.color === "rose"
-                          ? "bg-rose-500"
+                          ? "bg-secondary"
                           : s.color === "indigo"
-                            ? "bg-indigo-600"
-                            : "bg-emerald-500"
+                            ? "bg-accent"
+                            : "bg-success"
                     }`}
                     style={{ width: `${s.pct}%` }}
                   />

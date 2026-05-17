@@ -118,7 +118,7 @@ export default function ProfileHeader() {
              <button
                 onClick={handleDeletePicture}
                 disabled={isDeleting}
-                className="absolute -bottom-2 -left-2 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-rose-500 text-white shadow-lg transition hover:bg-rose-600 disabled:opacity-50"
+                className="absolute -bottom-2 -left-2 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-destructive text-destructive-foreground shadow-lg transition hover:bg-destructive/90 disabled:opacity-50"
                 title="Remove profile picture"
              >
                 {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
@@ -127,14 +127,14 @@ export default function ProfileHeader() {
 
           <Link
             href="/dashboard/settings"
-            className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary text-white shadow-lg hover:bg-primary/90 sm:h-8 sm:w-8"
+            className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 sm:h-8 sm:w-8"
           >
             <Pencil size={12} className="sm:h-3.5 sm:w-3.5" />
           </Link>
         </div>
 
         <div className="min-w-0 space-y-1 text-center md:pt-1 md:text-left lg:pt-2">
-          <h1 className="wrap-break-word text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+          <h1 className="text-h1 wrap-break-word text-foreground">
             {profile.fullName}
           </h1>
           <div className="flex flex-col items-center gap-1 text-sm text-muted-foreground sm:flex-row sm:flex-wrap sm:justify-center sm:gap-2 sm:text-base md:justify-start lg:text-lg">

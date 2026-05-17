@@ -123,23 +123,25 @@ export default function NewRoadmapPage() {
   }, [router, selected?.trendName]);
 
   return (
-    <div className="relative min-h-screen bg-card">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="relative min-h-screen bg-background">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <svg
-          className="absolute right-0 top-0 h-[600px] w-auto opacity-40"
+          className="absolute right-0 top-0 h-[600px] w-auto text-border opacity-50 dark:opacity-25"
           viewBox="0 0 800 600"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          aria-hidden
         >
           <path
             d="M800 50C600 150 400 50 200 250S0 450 -100 550"
-            stroke="#e2e8f0"
+            stroke="currentColor"
             strokeWidth="1"
           />
           <path
             d="M850 150C650 250 450 150 250 350S50 550 -50 650"
-            stroke="#eff6ff"
+            stroke="currentColor"
             strokeWidth="2"
+            className="text-primary/20"
           />
         </svg>
       </div>

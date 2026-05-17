@@ -15,7 +15,7 @@ import { marketingImages } from "@/lib/marketing-images";
 
 export default function AboutPage() {
   return (
-    <div className="bg-card">
+    <div className="bg-background">
       {/* HERO SECTION */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-24 lg:px-8">
         <div className="grid items-center gap-10 sm:gap-16 lg:grid-cols-2">
@@ -31,17 +31,17 @@ export default function AboutPage() {
               tech talent.
             </p>
             <div className="flex flex-wrap justify-center lg:justify-start gap-3 sm:gap-4">
-              <div className="flex flex-1 sm:flex-none justify-center items-center gap-2 rounded-full bg-primary/10 px-4 py-2 sm:py-1.5 text-[10px] font-bold uppercase tracking-widest text-primary border border-primary/20">
+              <div className="vs-accent-chip flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 sm:flex-none sm:py-1.5">
                 <CheckCircle className="h-3 w-3 shrink-0" /> Verified Skills
               </div>
-              <div className="flex flex-1 sm:flex-none justify-center items-center gap-2 rounded-full bg-primary/10 px-4 py-2 sm:py-1.5 text-[10px] font-bold uppercase tracking-widest text-primary border border-primary/20">
+              <div className="vs-accent-chip flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 sm:flex-none sm:py-1.5">
                 <Zap className="h-3 w-3 shrink-0" /> Real-time Data
               </div>
             </div>
           </div>
 
           <div className="relative mt-8 lg:mt-0 px-2 sm:px-0">
-            <div className="relative aspect-4/3 overflow-hidden rounded-2xl sm:rounded-[32px] shadow-2xl">
+            <div className="relative aspect-4/3 overflow-hidden rounded-lg sm:rounded-xl shadow-2xl">
               <MarketingPhoto
                 src={marketingImages.aboutHero.src}
                 alt={marketingImages.aboutHero.alt}
@@ -101,16 +101,16 @@ export default function AboutPage() {
 
         <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3 md:auto-rows-[320px]">
           {/* GitHub Analytics Card */}
-          <div className="md:col-span-2 rounded-[32px] bg-[#020817] p-8 text-white flex flex-col justify-between group overflow-hidden relative">
-            <div className="absolute -right-10 -bottom-10 opacity-10 group-hover:opacity-20 transition-opacity">
+          <div className="vs-band group relative flex flex-col justify-between overflow-hidden rounded-xl p-8 md:col-span-2">
+            <div className="absolute -right-10 -bottom-10 opacity-10 transition-opacity group-hover:opacity-20">
               <Terminal size={180} />
             </div>
             <div className="relative z-10">
-              <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-card/10 mb-4">
+              <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-primary/20 text-primary">
                 <Terminal size={24} />
               </span>
-              <h3 className="text-2xl font-bold mb-2">GitHub Analytics</h3>
-              <p className="text-muted-foreground text-sm max-w-md leading-relaxed">
+              <h3 className="mb-2 text-2xl font-bold">GitHub Analytics</h3>
+              <p className="vs-band-muted max-w-md text-sm leading-relaxed">
                 We analyze real-world contributions, repository velocity, and
                 code quality to verify technical proficiency beyond the CV.
               </p>
@@ -118,13 +118,13 @@ export default function AboutPage() {
           </div>
 
           {/* AI Matching Card */}
-          <div className="rounded-[32px] bg-primary p-8 text-white flex flex-col justify-between">
+          <div className="flex flex-col justify-between rounded-xl border border-primary/20 bg-primary/5 p-8">
             <div>
-              <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-card/20 mb-4">
+              <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-primary/15 text-primary">
                 <Sparkles size={24} />
               </span>
-              <h3 className="text-2xl font-bold mb-2">AI-Powered Matching</h3>
-              <p className="text-primary-foreground/80 text-sm leading-relaxed">
+              <h3 className="mb-2 text-2xl font-bold text-foreground">AI-Powered Matching</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
                 Predictive algorithms that connect graduates with the roles
                 where they are most likely to excel.
               </p>
@@ -132,7 +132,7 @@ export default function AboutPage() {
           </div>
 
           {/* eStudent Data Card */}
-          <div className="rounded-[32px] bg-primary/10 p-8 flex flex-col justify-between">
+          <div className="rounded-xl bg-muted p-8 flex flex-col justify-between">
             <div>
               <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/30 mb-4">
                 <Award size={24} className="text-primary" />
@@ -148,16 +148,16 @@ export default function AboutPage() {
           </div>
 
           {/* Market Trends Card */}
-          <div className="md:col-span-2 rounded-[32px] border border-border shadow-sm p-1 overflow-hidden relative group min-h-[280px]">
+          <div className="md:col-span-2 rounded-xl border border-border shadow-sm p-1 overflow-hidden relative group min-h-[280px]">
             <MarketingPhoto
               src={marketingImages.aboutMarketTrends.src}
               alt={marketingImages.aboutMarketTrends.alt}
               sizes="(max-width: 768px) 100vw, 66vw"
-              className="object-cover rounded-[31px] transition-transform duration-700 group-hover:scale-105"
+              className="object-cover rounded-lg transition-transform duration-700 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-linear-to-t from-slate-900/80 to-transparent p-10 flex flex-col justify-end">
+            <div className="absolute inset-0 flex flex-col justify-end bg-linear-to-t from-black/80 via-black/40 to-transparent p-10">
               <h3 className="text-xl font-bold text-white">Market Trends</h3>
-              <p className="text-slate-200 text-sm">
+              <p className="text-sm text-white/80">
                 Tracking shifts in technology demand to guide students toward
                 future-proof skill sets.
               </p>
@@ -167,7 +167,7 @@ export default function AboutPage() {
       </section>
 
       {/* IMPACT SECTION */}
-      <section className="bg-[#020817] py-16 sm:py-24 text-white">
+      <section className="vs-band py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10 sm:mb-16">
             Unlocking Impact Across the Ecosystem
@@ -193,7 +193,7 @@ export default function AboutPage() {
               <div key={i} className="space-y-4">
                 <item.icon className="h-8 w-8 text-primary" />
                 <h3 className="text-xl font-bold">{item.title}</h3>
-                <p className="text-white/70 text-sm leading-relaxed">
+                <p className="vs-band-muted text-sm leading-relaxed">
                   {item.desc}
                 </p>
               </div>
@@ -210,7 +210,7 @@ export default function AboutPage() {
           </h2>
           <Button
             variant="outline"
-            className="w-full sm:w-auto rounded-full bg-primary/10 text-primary border-none font-bold hover:bg-primary/15"
+            className="w-full rounded-md border-border font-semibold text-primary hover:bg-primary/5 sm:w-auto"
           >
             Join the Movement
           </Button>
@@ -237,7 +237,7 @@ export default function AboutPage() {
           ].map((v, i) => (
             <div
               key={i}
-              className="rounded-2xl bg-card p-8 border border-border shadow-sm transition-shadow hover:shadow-md"
+              className="rounded-lg bg-card p-8 border border-border shadow-sm transition-shadow hover:shadow-md"
             >
               <h3 className="font-bold text-foreground mb-2">{v.t}</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">{v.d}</p>
@@ -247,7 +247,7 @@ export default function AboutPage() {
       </section>
 
       {/* VISIONARIES SECTION */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24 lg:px-8 text-center bg-muted/50 rounded-3xl sm:rounded-[60px] mb-16 sm:mb-24">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24 lg:px-8 text-center bg-muted/50 rounded-xl sm:rounded-lg mb-16 sm:mb-24">
         <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-3 sm:mb-4">
           Our Visionaries
         </h2>
@@ -305,3 +305,4 @@ export default function AboutPage() {
     </div>
   );
 }
+

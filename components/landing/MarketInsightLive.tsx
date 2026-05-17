@@ -109,7 +109,7 @@ export default function MarketInsightLive() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8 sm:pt-16 lg:px-8">
         <div className="flex flex-col justify-between gap-6 sm:gap-8 md:flex-row md:items-end">
           <div className="space-y-3 sm:space-y-4 text-center md:text-left">
-            <span className="inline-flex items-center rounded-full bg-primary/15 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
+            <span className="inline-flex items-center rounded-lg bg-muted px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
               Live market intelligence
             </span>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground">
@@ -122,8 +122,8 @@ export default function MarketInsightLive() {
             </p>
           </div>
 
-          <div className="flex items-center justify-center md:justify-start gap-4 rounded-2xl bg-card p-4 shadow-sm border border-border">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+          <div className="flex items-center justify-center md:justify-start gap-4 rounded-lg bg-card p-4 shadow-sm border border-border">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
               <RefreshCw className="h-5 w-5 text-primary" />
             </div>
             <div>
@@ -181,7 +181,7 @@ export default function MarketInsightLive() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-16 lg:px-8">
-        <div className="rounded-3xl sm:rounded-[40px] bg-linear-to-b from-muted to-background border border-border p-8 sm:p-12 lg:p-24 text-center relative overflow-hidden">
+        <div className="rounded-xl sm:rounded-xl bg-linear-to-b from-muted to-background border border-border p-8 sm:p-12 lg:p-24 text-center relative overflow-hidden">
           <div
             className="absolute inset-0 opacity-[0.4]"
             style={{

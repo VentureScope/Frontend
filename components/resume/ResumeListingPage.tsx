@@ -48,13 +48,12 @@ export default function ResumeListingPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="border-b border-border bg-card px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
+      <div className="border-b border-border bg-primary/[0.04] px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex-1">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">
-                Resume Builder
-              </h1>
+              <p className="text-label text-primary">Career documents</p>
+              <h1 className="text-h1 text-foreground">Resume Builder</h1>
               <p className="mt-2 text-sm sm:text-base text-muted-foreground">
                 Construct your professional narrative using AI-optimized
                 <br className="hidden sm:block" />
@@ -67,7 +66,7 @@ export default function ResumeListingPage() {
               onClick={() =>
                 router.push("/dashboard/resume-builder/new-resume")
               }
-              className="flex items-center gap-2 rounded-full bg-primary px-6 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-base font-semibold text-white shadow-md hover:bg-primary/90 transition-colors whitespace-nowrap"
+              className="flex items-center gap-2 whitespace-nowrap rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-md transition-colors hover:bg-primary/90 sm:px-8 sm:py-3 sm:text-base"
             >
               <span>+</span>
               Create New CV
@@ -145,14 +144,14 @@ export default function ResumeListingPage() {
                   {filteredResumes.map((resume) => (
                     <div
                       key={resume.id}
-                      className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm hover:shadow-md transition-shadow"
+                      className="vs-surface overflow-hidden transition-colors hover:border-primary/20"
                     >
                       <div className="flex flex-col sm:flex-row gap-4 p-4 sm:p-6">
                         <div className="flex-shrink-0 w-full sm:w-32 lg:w-40">
-                          <div className="aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center">
-                            <div className="text-muted-foreground text-xs text-center px-2">
+                          <div className="flex aspect-[3/4] items-center justify-center rounded-md border border-primary/15 bg-primary/5">
+                            <p className="px-2 text-center text-xs text-muted-foreground">
                               Resume Preview
-                            </div>
+                            </p>
                           </div>
                         </div>
 
@@ -160,9 +159,7 @@ export default function ResumeListingPage() {
                           <div className="flex items-start justify-between gap-2">
                             <div>
                               {resume.isRecent && (
-                                <div className="inline-block rounded-md bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700 mb-2">
-                                  RECENT
-                                </div>
+                                <span className="vs-badge vs-badge-warning mb-2">Recent</span>
                               )}
                               <h3 className="text-lg sm:text-xl font-bold text-foreground">
                                 {resume.title}
@@ -214,7 +211,7 @@ export default function ResumeListingPage() {
                                   `/dashboard/resume-builder/${resume.id}`,
                                 )
                               }
-                              className="flex-1 rounded-lg border border-border py-2 text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors"
+                              className="flex-1 rounded-md border border-primary/25 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/5"
                             >
                               View
                             </button>
@@ -225,7 +222,7 @@ export default function ResumeListingPage() {
                                   `/dashboard/resume-builder/${resume.id}`,
                                 )
                               }
-                              className="flex-1 rounded-lg bg-primary py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
+                              className="flex-1 rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                             >
                               Edit
                             </button>
@@ -251,22 +248,22 @@ export default function ResumeListingPage() {
                   )}
                 </div>
 
-                <div className="rounded-2xl border border-border bg-slate-900 p-6 text-white shadow-sm h-fit">
-                  <h3 className="font-bold">Impact Analysis</h3>
-                  <p className="mt-2 text-xs text-muted-foreground">
+                <div className="vs-band h-fit rounded-lg p-6">
+                  <h3 className="font-semibold">Impact Analysis</h3>
+                  <p className="vs-band-muted mt-2 text-xs">
                     Live scoring uses your generated resume payload (skills,
                     highlights, trending tags).
                   </p>
                   <div className="mt-4 space-y-3">
                     <div>
-                      <p className="text-xs font-semibold text-muted-foreground">
+                      <p className="text-xs font-semibold vs-band-muted">
                         Visibility Factor
                       </p>
                       <div className="mt-1 flex items-center justify-between">
-                        <div className="h-2 w-full rounded-full bg-slate-700 mr-2">
-                          <div className="h-full w-3/4 rounded-full bg-primary/100" />
+                        <div className="mr-2 h-2 w-full rounded-full bg-inverse-foreground/20">
+                          <div className="h-full w-3/4 rounded-lg bg-primary" />
                         </div>
-                        <span className="text-xs font-semibold text-green-400">
+                        <span className="text-xs font-semibold text-success">
                           +12%
                         </span>
                       </div>
@@ -281,3 +278,5 @@ export default function ResumeListingPage() {
     </div>
   );
 }
+
+

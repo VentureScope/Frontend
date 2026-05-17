@@ -3,17 +3,17 @@ import { AlertCircle, CheckCircle2 } from "lucide-react";
 
 export default function AtsAnalytics() {
   return (
-    <div className="space-y-7 rounded-3xl border border-border bg-card p-5 shadow-sm sm:space-y-10 sm:p-7 lg:rounded-[40px] lg:p-10">
+    <div className="space-y-7 rounded-xl border border-border bg-card p-5 shadow-sm sm:space-y-10 sm:p-7 lg:rounded-xl lg:p-10">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8 lg:gap-10">
-        {/* ATS Score Circle */}
         <div className="relative flex h-24 w-24 shrink-0 items-center justify-center sm:h-28 sm:w-28">
-          <svg className="h-full w-full -rotate-90">
+          <svg className="h-full w-full -rotate-90" viewBox="0 0 112 112">
             <circle
               cx="56"
               cy="56"
               r="48"
               fill="none"
-              stroke="#f1f5f9"
+              stroke="currentColor"
+              className="text-muted"
               strokeWidth="12"
             />
             <circle
@@ -21,7 +21,8 @@ export default function AtsAnalytics() {
               cy="56"
               r="48"
               fill="none"
-              stroke="#1d59db"
+              stroke="currentColor"
+              className="text-primary"
               strokeWidth="12"
               strokeDasharray="301"
               strokeDashoffset="36"
@@ -29,10 +30,10 @@ export default function AtsAnalytics() {
             />
           </svg>
           <div className="absolute flex flex-col items-center">
-            <span className="text-2xl font-black text-foreground sm:text-3xl">
+            <span className="text-2xl font-semibold text-foreground sm:text-3xl">
               88
             </span>
-            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
               ATS Score
             </span>
           </div>
@@ -43,10 +44,10 @@ export default function AtsAnalytics() {
             Critical Suggestions
           </h3>
           <div className="space-y-2">
-            <div className="flex items-start gap-2 text-[13px] font-bold text-rose-600">
+            <div className="flex items-start gap-2 text-[13px] font-bold text-destructive">
               <AlertCircle size={16} className="mt-0.5 shrink-0" />
               <span className="wrap-break-word">
-                Missing keyword: "Stakeholder Management"
+                Missing keyword: &quot;Stakeholder Management&quot;
               </span>
             </div>
             <div className="flex items-start gap-2 text-[13px] font-bold text-primary">
@@ -64,12 +65,10 @@ export default function AtsAnalytics() {
           <span>Keyword Density</span>
           <span>Optimal (4.2%)</span>
         </div>
-        <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-          <div className="h-full w-[80%] bg-primary rounded-full" />
+        <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+          <div className="h-full w-[80%] rounded-lg bg-primary" />
         </div>
       </div>
     </div>
   );
 }
-
-// components/resume/ResumePreview.tsx

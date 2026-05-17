@@ -13,9 +13,7 @@ export default function JobCard() {
         </div>
       </div>
 
-      <span className="text-green-600 font-medium">
-        90%
-      </span>
+      <span className="font-medium text-success">90%</span>
     </div>
   );
 }

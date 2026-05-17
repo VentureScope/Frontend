@@ -51,7 +51,7 @@ export function PathCardModulesSkeleton() {
             {[0, 1].map((r) => (
               <div
                 key={r}
-                className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4"
+                className="flex items-center gap-4 rounded-lg border border-border bg-card p-4"
               >
                 {sk("h-16 w-16 shrink-0 rounded-xl")}
                 <div className="flex-1 space-y-2">
@@ -93,7 +93,7 @@ export function RoadmapDetailPageSkeleton() {
       <div className="mx-auto max-w-5xl space-y-12 px-4 py-12 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div className="space-y-4">
-            {sk("h-14 w-14 rounded-2xl")}
+            {sk("h-14 w-14 rounded-lg")}
             <div className="space-y-2">
               {sk("h-10 w-80 max-w-full")}
               {sk("h-6 w-56 max-w-full")}
@@ -108,7 +108,7 @@ export function RoadmapDetailPageSkeleton() {
           </div>
         </div>
 
-        <div className="rounded-[32px] border border-border bg-card p-8 shadow-sm sm:p-12">
+        <div className="rounded-xl border border-border bg-card p-8 shadow-sm sm:p-12">
           <RoadmapStepsSkeleton stepCount={3} />
         </div>
       </div>
@@ -134,7 +134,7 @@ function RoadmapStepsSkeleton({ stepCount = 3 }: { stepCount?: number }) {
                   className="flex items-center justify-between rounded-[24px] border border-border p-5"
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-5">
-                    {sk("h-20 w-20 shrink-0 rounded-2xl")}
+                    {sk("h-20 w-20 shrink-0 rounded-lg")}
                     <div className="min-w-0 flex-1 space-y-2">
                       {sk("h-3 w-24")}
                       {sk("h-5 w-full")}
@@ -163,7 +163,7 @@ export function NewRoadmapRolesSkeleton({ count = 4 }: { count?: number }) {
         >
           <div className="flex min-w-0 flex-1 items-center gap-6">
             {sk("h-6 w-6 shrink-0 rounded-full")}
-            {sk("h-14 w-14 shrink-0 rounded-2xl")}
+            {sk("h-14 w-14 shrink-0 rounded-lg")}
             <div className="min-w-0 flex-1 space-y-2">
               <div className="flex items-center gap-3">
                 {sk("h-6 w-48 max-w-full")}

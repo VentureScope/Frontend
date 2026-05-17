@@ -43,14 +43,14 @@ export function MarketStatsSkeleton() {
   return (
     <div className="flex flex-col justify-between h-full min-h-[240px] space-y-6">
       <div className="space-y-3">
-        {sk("h-5 w-40 bg-blue-400/30")}
-        {sk("h-3 w-full max-w-xs bg-blue-400/20")}
+        {sk("h-5 w-40 bg-primary/30")}
+        {sk("h-3 w-full max-w-xs bg-primary/20")}
       </div>
       <div className="grid grid-cols-3 gap-3">
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="space-y-2">
-            {sk("h-2 w-12 bg-blue-400/20")}
-            {sk("h-7 w-14 bg-blue-400/30")}
+            {sk("h-2 w-12 bg-primary/20")}
+            {sk("h-7 w-14 bg-primary/30")}
           </div>
         ))}
       </div>
@@ -64,7 +64,7 @@ export function CategoryJobsSkeleton({ count = 4 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="rounded-2xl border border-border bg-muted/80 p-4 space-y-3"
+          className="rounded-lg border border-border bg-muted/80 p-4 space-y-3"
         >
           {sk("h-4 w-full")}
           {sk("h-3 w-2/3")}
@@ -97,15 +97,15 @@ export function ProfileMatchesSkeleton({ rows = 3 }: { rows?: number }) {
 export function MarketPulseGridSkeleton() {
   return (
     <div className="grid gap-5 lg:grid-cols-12">
-      <div className="lg:col-span-5 rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <div className="lg:col-span-5 vs-surface p-6">
         {sk("h-5 w-40 mb-6")}
         <SkillDemandSkeleton />
       </div>
-      <div className="lg:col-span-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <div className="lg:col-span-4 vs-surface p-6">
         {sk("h-5 w-36 mb-6")}
         <TrendingRolesSkeleton rows={3} />
       </div>
-      <div className="lg:col-span-3 rounded-2xl bg-primary p-6 shadow-sm min-h-[240px]">
+      <div className="lg:col-span-3 vs-surface min-h-[240px] p-6">
         <MarketStatsSkeleton />
       </div>
     </div>

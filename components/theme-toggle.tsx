@@ -47,7 +47,7 @@ export function ThemeToggle({ className, variant = "icon" }: ThemeToggleProps) {
       >
         {isDark ? (
           <>
-            <Sun className="h-3.5 w-3.5 text-[var(--brand-accent)]" />
+            <Sun className="h-3.5 w-3.5 text-primary" />
             Light
           </>
         ) : (
@@ -73,7 +73,7 @@ export function ThemeToggle({ className, variant = "icon" }: ThemeToggleProps) {
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       {isDark ? (
-        <Sun className="h-[18px] w-[18px] text-[var(--brand-accent)]" />
+        <Sun className="h-[18px] w-[18px] text-primary" />
       ) : (
         <Moon className="h-[18px] w-[18px]" />
       )}

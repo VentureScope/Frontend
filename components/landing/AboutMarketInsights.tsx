@@ -54,7 +54,7 @@ export function AboutMarketInsights() {
     <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24 lg:px-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 sm:mb-14">
         <div className="max-w-xl text-center md:text-left">
-          <span className="inline-flex rounded-full bg-primary/15 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
+          <span className="vs-accent-chip inline-flex rounded-md px-3 py-1 text-[10px] font-bold uppercase tracking-widest">
             Data-backed mission
           </span>
           <h2 className="mt-4 text-2xl sm:text-3xl font-bold text-foreground">
@@ -65,7 +65,7 @@ export function AboutMarketInsights() {
             graduates see where demand is—not guesswork from outdated advice.
           </p>
           {trendNote && !loading && (
-            <p className="mt-4 text-sm text-muted-foreground border-l-2 border-blue-500 pl-3 leading-relaxed">
+            <p className="mt-4 text-sm text-muted-foreground border-l-2 border-primary pl-3 leading-relaxed">
               {trendNote}
             </p>
           )}
@@ -73,7 +73,7 @@ export function AboutMarketInsights() {
         <Button
           asChild
           variant="outline"
-          className="rounded-full border-primary/30 text-primary font-bold shrink-0"
+          className="rounded-full border-border text-primary font-bold shrink-0"
         >
           <Link href="/market-insight">
             Full market report <ArrowRight className="ml-2 h-4 w-4" />
@@ -86,7 +86,7 @@ export function AboutMarketInsights() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
+        <div className="rounded-lg border border-border bg-card p-6 sm:p-8 shadow-sm">
           <SkillDemandPanel
             skills={skills}
             loading={loading}

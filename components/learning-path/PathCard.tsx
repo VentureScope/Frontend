@@ -24,24 +24,32 @@ export const PathCard = ({
       {/* Card Header */}
       <div className="flex items-center justify-between p-6 sm:p-8 cursor-pointer" onClick={() => onToggleExpand(path.id)}>
         <div className="flex items-center gap-5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
             {path.icon}
           </div>
           <div>
-            <h3 className="text-xl font-bold text-foreground hover:text-primary transition-colors" onClick={(e) => { e.stopPropagation(); onViewDetails(path.id); }}>{path.title}</h3>
-            <p className="text-sm font-medium text-muted-foreground">Focus: {path.focus}</p>
+            <h3
+              className="text-xl font-semibold text-foreground transition-colors hover:text-primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewDetails(path.id);
+              }}
+            >
+              {path.title}
+            </h3>
+            <p className="text-body text-muted-foreground">Focus: {path.focus}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-10">
           <div className="hidden w-64 md:block">
-            <div className="mb-2 flex justify-between text-[11px] font-bold">
+            <div className="text-label mb-2 flex justify-between">
               <span className="text-muted-foreground">Progress</span>
               <span className="text-primary">{path.progress}% Complete</span>
             </div>
             <div className="h-2 w-full rounded-full bg-muted">
               <div
-                className="h-full rounded-full bg-primary transition-all duration-500"
+                className="h-full rounded-lg bg-primary transition-all duration-500"
                 style={{ width: `${path.progress}%` }}
               />
             </div>
@@ -66,10 +74,16 @@ export const PathCard = ({
 
             {path.modules.map((module: any, index: number) => (
               <div key={module.id} className="relative pl-12">
-                <div className={`absolute left-0 top-0 flex h-8 w-8 items-center justify-center rounded-full ring-8 ring-background ${module.status === 'completed' ? 'bg-primary text-white' : 'border-2 border-primary bg-card text-primary font-bold text-sm'}`}>
+                <div
+                  className={`absolute left-0 top-0 flex h-8 w-8 items-center justify-center rounded-full ring-8 ring-background ${
+                    module.status === "completed"
+                      ? "bg-primary text-primary-foreground"
+                      : "border-2 border-primary bg-card text-sm font-semibold text-primary"
+                  }`}
+                >
                   {module.status === 'completed' ? <Check size={16} strokeWidth={3} /> : index + 1}
                 </div>
-                <h4 className="mb-6 text-lg font-bold text-foreground">
+                <h4 className="mb-6 text-lg font-semibold text-foreground">
                   {module.title}
                 </h4>
 

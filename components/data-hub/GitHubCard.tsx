@@ -141,11 +141,11 @@ export default function GitHubCard() {
 
   if (loading && !data) {
     return (
-      <div className="flex h-full flex-col justify-between rounded-2xl sm:rounded-[32px] border border-border bg-card p-6 sm:p-8 lg:p-10 shadow-sm relative">
+      <div className="flex h-full flex-col justify-between rounded-lg sm:rounded-xl border border-border bg-card p-6 sm:p-8 lg:p-10 shadow-sm relative">
         <div className="space-y-6 sm:space-y-10">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4 sm:gap-5">
-              <Skeleton className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl sm:rounded-2xl shrink-0" />
+              <Skeleton className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl sm:rounded-lg shrink-0" />
               <div className="space-y-1 sm:space-y-2">
                 <Skeleton className="h-5 sm:h-6 w-32 sm:w-48" />
                 <Skeleton className="h-4 w-32" />
@@ -154,9 +154,9 @@ export default function GitHubCard() {
             <Skeleton className="h-5 sm:h-6 w-20 sm:w-24 rounded-full" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            <Skeleton className="h-20 sm:h-24 w-full rounded-xl sm:rounded-2xl" />
-            <Skeleton className="h-20 sm:h-24 w-full rounded-xl sm:rounded-2xl" />
-            <Skeleton className="h-20 sm:h-24 w-full rounded-xl sm:rounded-2xl" />
+            <Skeleton className="h-20 sm:h-24 w-full rounded-xl sm:rounded-lg" />
+            <Skeleton className="h-20 sm:h-24 w-full rounded-xl sm:rounded-lg" />
+            <Skeleton className="h-20 sm:h-24 w-full rounded-xl sm:rounded-lg" />
           </div>
         </div>
         <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-border pt-4 sm:pt-6 gap-4">
@@ -171,11 +171,11 @@ export default function GitHubCard() {
   }
 
   return (
-    <div className="flex h-full flex-col justify-between rounded-2xl sm:rounded-[32px] border border-border bg-card p-6 sm:p-8 lg:p-10 shadow-sm relative">
+    <div className="flex h-full flex-col justify-between rounded-lg sm:rounded-xl border border-border bg-card p-6 sm:p-8 lg:p-10 shadow-sm relative">
       <div className="space-y-6 sm:space-y-10">
         <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
           <div className="flex items-center gap-4 sm:gap-5">
-            <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-slate-900 text-white shrink-0">
+            <div className="vs-icon-tile vs-icon-tile-primary h-12 w-12 shrink-0 sm:h-14 sm:w-14">
               <Github className="h-6 w-6 sm:h-8 sm:w-8" />
             </div>
             <div>
@@ -190,20 +190,20 @@ export default function GitHubCard() {
             </div>
           </div>
           {isConnected ? (
-            <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2 sm:px-3 py-1 text-[9px] sm:text-[10px] font-bold text-emerald-700 dark:text-emerald-400 self-start">
-              <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            <span className="flex items-center gap-1.5 self-start rounded-full bg-success/15 px-2 py-1 text-[9px] font-bold text-success sm:px-3 sm:text-[10px]">
+              <div className="h-1.5 w-1.5 rounded-full bg-success" />
               CONNECTED
             </span>
           ) : (
             <span className="flex items-center gap-1.5 rounded-full bg-muted px-2 sm:px-3 py-1 text-[9px] sm:text-[10px] font-bold text-muted-foreground self-start">
-              <div className="h-1.5 w-1.5 rounded-full bg-slate-400" />
+              <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
               DISCONNECTED
             </span>
           )}
         </div>
 
         {syncError && (
-          <div className="text-xs font-bold text-rose-500 bg-rose-50 p-3 rounded-xl border border-rose-100">
+          <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-xs font-bold text-destructive">
             {syncError}
           </div>
         )}
@@ -212,9 +212,9 @@ export default function GitHubCard() {
           {stats.map((s) => (
             <div
               key={s.label}
-              className={`rounded-xl sm:rounded-2xl p-4 sm:p-6 border flex sm:block items-center justify-between sm:justify-start ${
+              className={`rounded-xl sm:rounded-lg p-4 sm:p-6 border flex sm:block items-center justify-between sm:justify-start ${
                 isConnected
-                  ? "bg-primary/10 border-primary/20/50"
+                  ? "bg-muted border-border/50"
                   : "bg-muted border-border"
               }`}
             >
@@ -247,8 +247,8 @@ export default function GitHubCard() {
           disabled={syncing || loading}
           className={`group flex items-center justify-center w-full sm:w-auto gap-2 text-xs sm:text-sm font-bold transition-all ${
             isConnected
-              ? "text-primary bg-primary/10 sm:bg-transparent py-3 sm:py-0 rounded-xl sm:rounded-none hover:text-primary/90"
-              : "px-4 py-3 sm:py-2 bg-slate-900 text-white rounded-xl sm:rounded-lg hover:bg-slate-800"
+              ? "text-primary bg-muted sm:bg-transparent py-3 sm:py-0 rounded-xl sm:rounded-none hover:text-primary/90"
+              : "rounded-md bg-primary px-4 py-3 text-primary-foreground hover:bg-primary/90 sm:py-2"
           } ${syncing || loading ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           {syncing ? (
@@ -269,3 +269,4 @@ export default function GitHubCard() {
     </div>
   );
 }
+

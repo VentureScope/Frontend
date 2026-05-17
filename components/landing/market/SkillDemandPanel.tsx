@@ -9,12 +9,12 @@ import {
 } from "@/lib/job-market-insights";
 
 const BAR_COLORS = [
-  "bg-primary",
-  "bg-primary",
-  "bg-indigo-600",
-  "bg-sky-500",
-  "bg-violet-500",
-  "bg-cyan-600",
+  "bg-chart-1",
+  "bg-chart-1/80",
+  "bg-chart-4",
+  "bg-chart-3",
+  "bg-chart-2/80",
+  "bg-chart-2/60",
 ];
 
 export function SkillDemandPanel({
@@ -39,7 +39,7 @@ export function SkillDemandPanel({
       className={
         compact
           ? "space-y-4"
-          : "rounded-2xl sm:rounded-3xl bg-card p-6 sm:p-8 lg:p-10 shadow-sm border border-border"
+          : "rounded-lg sm:rounded-xl bg-card p-6 sm:p-8 lg:p-10 shadow-sm border border-border"
       }
     >
       <div className={compact ? "" : "mb-6 sm:mb-8"}>
@@ -58,7 +58,7 @@ export function SkillDemandPanel({
           </p>
         )}
         {insight && !loading && (
-          <p className="mt-3 text-sm text-muted-foreground leading-relaxed border-l-2 border-blue-500 pl-3">
+          <p className="mt-3 border-l border-border pl-3 text-sm leading-relaxed text-muted-foreground">
             {insight}
           </p>
         )}

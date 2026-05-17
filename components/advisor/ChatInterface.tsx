@@ -29,7 +29,7 @@ export default function ChatInterface() {
   if (!activeSession) {
     return (
       <div className="flex flex-col h-full items-center justify-center p-6 text-muted-foreground">
-        <Bot size={48} className="text-primary/30 mb-4" />
+        <Bot size={48} className="mb-4 text-primary/50" />
         <h2 className="text-xl font-bold text-foreground">
           VentureScope Advisor
         </h2>
@@ -45,7 +45,7 @@ export default function ChatInterface() {
     <div className="flex flex-col h-full relative">
       <div className="flex items-center justify-between p-4 shrink-0 sm:p-6 border-b border-border bg-card/50">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+          <div className="vs-icon-tile vs-icon-tile-primary h-8 w-8 shrink-0">
             <Bot size={16} />
           </div>
           <div className="truncate">
@@ -68,18 +68,18 @@ export default function ChatInterface() {
               className={`flex gap-3 sm:gap-4 md:max-w-3xl ${isUser ? "justify-end ml-auto" : ""}`}
             >
               {!isUser && (
-                <div className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 rounded-lg bg-primary flex items-center justify-center text-primary-foreground mt-1">
-                  <Bot size={20} className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="vs-icon-tile vs-icon-tile-primary mt-1 h-8 w-8 shrink-0 sm:h-10 sm:w-10">
+                  <Bot size={20} className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
               )}
               <div
                 className={`space-y-2 sm:space-y-4 max-w-[85%] ${isUser ? "sm:max-w-xl" : "w-full"}`}
               >
                 <div
-                  className={`rounded-2xl p-4 sm:p-6 leading-relaxed shadow-sm ${
+                  className={`rounded-lg p-4 sm:p-6 leading-relaxed shadow-sm ${
                     isUser
-                      ? "rounded-tr-none bg-primary text-primary-foreground shadow-primary/10"
-                      : "rounded-tl-none bg-primary/10 border border-primary/20 text-muted-foreground"
+                      ? "rounded-tr-none bg-primary text-primary-foreground "
+                      : "rounded-tl-none border border-border bg-card text-foreground"
                   }`}
                 >
                   <div className="whitespace-pre-wrap text-sm wrap-break-word">
@@ -102,11 +102,11 @@ export default function ChatInterface() {
 
         {isTyping && (
           <div className="flex gap-3 sm:gap-4 md:max-w-3xl">
-            <div className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 rounded-lg bg-primary flex items-center justify-center text-primary-foreground mt-1">
-              <Bot size={20} className="w-4 h-4 sm:w-5 sm:h-5" />
+            <div className="vs-icon-tile vs-icon-tile-primary mt-1 h-8 w-8 shrink-0 sm:h-10 sm:w-10">
+              <Bot size={20} className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
             <div className="space-y-2 sm:space-y-4 w-full">
-              <div className="rounded-2xl p-4 sm:p-6 leading-relaxed shadow-sm rounded-tl-none bg-primary/10 border border-primary/20 text-muted-foreground w-fit">
+              <div className="w-fit rounded-lg rounded-tl-none border border-border bg-card p-4 leading-relaxed shadow-sm sm:p-6">
                 <div className="flex space-x-1 items-center justify-center h-4">
                   <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                   <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
@@ -134,7 +134,7 @@ export default function ChatInterface() {
               placeholder={
                 isConnecting ? "Connecting..." : "Ask your advisor..."
               }
-              className="w-full h-12 sm:h-14 bg-muted border-none rounded-xl sm:rounded-2xl px-4 sm:px-6 pr-12 sm:pr-14 text-xs sm:text-sm text-foreground focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50"
+              className="h-12 w-full rounded-md border border-border bg-muted px-4 pr-12 text-xs text-foreground outline-none focus:border-primary/35 focus:ring-1 focus:ring-primary/20 disabled:opacity-50 sm:h-14 sm:rounded-lg sm:px-6 sm:pr-14 sm:text-sm"
             />
             <button
               onClick={handleSend}
@@ -152,3 +152,5 @@ export default function ChatInterface() {
     </div>
   );
 }
+
+

@@ -17,11 +17,11 @@ export default function AdvisorPage() {
       {/* Overlay for mobile when sidebar is open */}
       <label
         htmlFor="sidebar-toggle"
-        className="hidden peer-checked:block lg:peer-checked:hidden absolute inset-0 bg-slate-900/20 backdrop-blur-sm z-30"
+        className="absolute inset-0 z-30 hidden bg-black/40 backdrop-blur-sm peer-checked:block lg:peer-checked:hidden"
       ></label>
 
       {/* Main Chat Area */}
-      <section className="flex-1 flex flex-col min-w-0 bg-card border-t border-border rounded-none lg:rounded-tr-2xl shadow-sm relative z-10 w-full pt-14 lg:pt-0">
+      <section className="relative z-10 flex min-w-0 w-full flex-1 flex-col rounded-none border-t border-border/60 bg-card pt-14 shadow-sm lg:rounded-tr-lg lg:pt-0">
         <ChatInterface />
       </section>
 

@@ -1,31 +1,25 @@
-// components/learning-path/AdvisorTipCard.tsx
 import { Lightbulb } from "lucide-react";
 
 export default function AdvisorTipCard() {
   return (
-    <div className="relative h-72 sm:h-80 overflow-hidden rounded-3xl sm:rounded-[40px] bg-slate-900 shadow-2xl">
-      {/* Background Image - Modern Architecture / Windows */}
+    <div className="relative h-72 overflow-hidden rounded-xl bg-foreground shadow-2xl sm:h-80">
       <img
         src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800"
-        className="absolute inset-0 h-full w-full object-cover opacity-50 mix-blend-overlay"
-        alt="Office Architecture"
+        className="absolute inset-0 h-full w-full object-cover opacity-40 mix-blend-overlay"
+        alt=""
       />
+      <div className="absolute inset-0 bg-gradient-to-t from-foreground via-foreground/60 to-transparent" />
 
-      {/* Gradient Overlay for Text Contrast */}
-      <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-slate-900/60 to-transparent" />
-
-      {/* Content */}
       <div className="relative z-10 flex h-full flex-col justify-end p-6 pb-8 sm:p-10 sm:pb-12">
-        <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-[var(--brand-accent)] backdrop-blur-md border border-[var(--brand-accent)]/20 shrink-0">
+        <div className="mb-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-accent/30 bg-accent/20 text-accent backdrop-blur-md">
           <Lightbulb className="h-5 w-5" />
         </div>
-
-        <h3 className="mb-2 text-lg sm:text-xl font-black text-white tracking-tight">
+        <h3 className="mb-2 text-lg font-semibold text-background sm:text-xl">
           Pro Advisor Tip
         </h3>
-        <p className="text-sm sm:text-[15px] font-medium italic leading-relaxed text-muted-foreground/50">
-          "For Senior roles, recruiters prioritize 'System Thinking' over raw
-          coding speed. Focus on how your models impact the bottom line."
+        <p className="text-body italic leading-relaxed text-background/70">
+          &ldquo;For Senior roles, recruiters prioritize system thinking over raw
+          coding speed. Focus on how your models impact the bottom line.&rdquo;
         </p>
       </div>
     </div>

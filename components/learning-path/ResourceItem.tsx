@@ -12,6 +12,15 @@ interface ResourceItemProps {
   onToggle?: (id: string) => void;
 }
 
+const TYPE_COLORS: Record<ResourceType, string> = {
+  VIDEO: "text-primary",
+  DOCUMENTATION: "text-secondary",
+  "COURSE MODULE": "text-accent",
+  ARTICLE: "text-muted-foreground",
+  PROJECT: "text-success",
+  BOOK: "text-accent",
+};
+
 export default function ResourceItem({
   id,
   type,
@@ -22,25 +31,20 @@ export default function ResourceItem({
   url,
   onToggle,
 }: ResourceItemProps) {
-  const typeColors: Record<ResourceType, string> = {
-    VIDEO: "text-primary",
-    DOCUMENTATION: "text-rose-600",
-    "COURSE MODULE": "text-indigo-600",
-    ARTICLE: "text-amber-600",
-    PROJECT: "text-emerald-600",
-    BOOK: "text-violet-600",
-  };
-
   const href = url && /^https?:\/\//i.test(url.trim()) ? url.trim() : null;
 
   return (
     <div
-      onClick={() => onToggle && id ? onToggle(id) : undefined}
-      className={`group flex items-center justify-between rounded-2xl border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-md cursor-pointer ${status === "in-progress" ? "border-l-4 border-l-primary" : "border-border"}`}
+      onClick={() => onToggle && id && onToggle(id)}
+      className={`group flex cursor-pointer items-center justify-between rounded-lg border bg-card p-4 transition-all hover:border-border hover:shadow-md ${
+        status === "in-progress"
+          ? "border-l-4 border-l-primary border-border"
+          : "border-border"
+      }`}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex min-w-0 flex-1 items-center gap-4">
         {thumbnail ? (
-          <div className="relative h-16 w-24 overflow-hidden rounded-lg border border-border bg-muted">
+          <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
             <img
               src={thumbnail}
               className="h-full w-full object-cover opacity-80"
@@ -51,25 +55,21 @@ export default function ResourceItem({
                 <Play
                   size={12}
                   fill="currentColor"
-                  className="ml-0.5 text-muted-foreground"
+                  className="ml-0.5 text-primary"
                 />
               </div>
             </div>
           </div>
         ) : (
-          <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-muted text-primary">
             <BookOpen size={24} />
           </div>
         )}
 
         <div className="min-w-0 flex-1">
-          <p
-            className={`text-[10px] font-bold tracking-widest ${typeColors[type]}`}
-          >
-            {type}
-          </p>
-          <h5 className="text-[15px] font-bold text-foreground">{title}</h5>
-          <p className="text-[12px] font-medium text-muted-foreground break-words">
+          <p className={`text-label ${TYPE_COLORS[type]}`}>{type}</p>
+          <h5 className="text-body font-semibold text-foreground">{title}</h5>
+          <p className="text-sm font-medium break-words text-muted-foreground">
             {meta}
           </p>
           {href && (
@@ -77,7 +77,7 @@ export default function ResourceItem({
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+              className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
               onClick={(e) => e.stopPropagation()}
             >
               Open resource <ExternalLink className="h-3 w-3" />
@@ -86,9 +86,9 @@ export default function ResourceItem({
         </div>
       </div>
 
-      <div className="pr-2 shrink-0">
+      <div className="shrink-0 pr-2">
         {status === "completed" ? (
-          <div className="flex h-6 w-6 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted">
             <Check size={14} className="text-primary" strokeWidth={3} />
           </div>
         ) : (

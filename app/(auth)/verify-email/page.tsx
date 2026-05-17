@@ -22,7 +22,7 @@ export default function VerifyEmailPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-muted">
+        <div className="flex min-h-screen items-center justify-center bg-background">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       }
@@ -200,13 +200,17 @@ function VerifyEmailContent() {
     : "";
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-muted p-4 sm:p-8">
-      <div className="flex w-full max-w-5xl overflow-hidden rounded-2xl sm:rounded-3xl bg-card shadow-2xl">
+    <div className="flex min-h-screen w-full items-center justify-center bg-linear-to-b from-primary/5 via-background to-background p-4 sm:p-8">
+      <div className="flex w-full max-w-5xl overflow-hidden rounded-lg border border-border bg-card shadow-xl sm:rounded-xl">
         {/* LEFT SIDE - BRANDING */}
-        <section className="relative hidden w-1/2 flex-col justify-between bg-primary p-8 shrink-0 lg:flex">
-          <div className="space-y-6">
+        <section className="vs-band relative hidden w-1/2 shrink-0 flex-col justify-between overflow-hidden p-8 lg:flex lg:p-10">
+          <div
+            className="pointer-events-none absolute -right-16 top-8 h-48 w-48 rounded-full bg-primary/25 blur-3xl"
+            aria-hidden
+          />
+          <div className="relative z-10 space-y-6">
             {/* Logo */}
-            <div className="flex items-center gap-3 text-white">
+            <div className="flex items-center gap-3 text-inverse-foreground">
               <Image
                 src="/logo.png"
                 alt="VentureScope Logo"
@@ -221,10 +225,13 @@ function VerifyEmailContent() {
 
             {/* Headline */}
             <div className="max-w-md space-y-4">
-              <h1 className="text-4xl font-bold leading-[1.1] text-white">
+              <p className="vs-accent-chip inline-flex rounded-md px-3 py-1 text-[10px] font-bold uppercase tracking-widest">
+                Account security
+              </p>
+              <h1 className="text-4xl font-bold leading-[1.1] text-inverse-foreground">
                 One Last Step to Unlock Your Intelligence Dashboard.
               </h1>
-              <p className="text-sm text-primary-foreground/80/90 leading-relaxed">
+              <p className="text-sm leading-relaxed vs-band-muted">
                 We&apos;ve sent a verification code to your email. Enter it
                 below to activate your account and start making data-driven
                 career decisions.
@@ -233,21 +240,21 @@ function VerifyEmailContent() {
           </div>
 
           {/* Security Info Card */}
-          <div className="rounded-xl bg-card/20 p-6 backdrop-blur-md border border-background/20">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-card/20">
-                <ShieldCheck className="h-5 w-5 text-white" />
+          <div className="relative z-10 rounded-md border border-inverse-foreground/12 bg-inverse-foreground/8 p-6 backdrop-blur-sm">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="vs-icon-tile-primary flex h-10 w-10 items-center justify-center rounded-md">
+                <ShieldCheck className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm font-bold text-white">
+                <p className="text-sm font-bold text-inverse-foreground">
                   Secure Verification
                 </p>
-                <p className="text-[11px] text-primary-foreground/80/80">
+                <p className="text-[11px] vs-band-muted">
                   Your code expires in 10 minutes
                 </p>
               </div>
             </div>
-            <p className="text-xs text-primary-foreground/80/70 leading-relaxed">
+            <p className="text-xs leading-relaxed vs-band-muted">
               We use one-time verification codes to protect your account. Never
               share your code with anyone — VentureScope will never ask for it
               outside of this page.
@@ -270,8 +277,8 @@ function VerifyEmailContent() {
             {/* Header */}
             <div className="space-y-2 text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 mb-2">
-                  <Mail className="h-6 w-6 text-primary" />
+                <div className="vs-icon-tile-primary mb-2 flex h-12 w-12 items-center justify-center rounded-md">
+                  <Mail className="h-6 w-6" />
                 </div>
               </div>
               <h2 className="text-2xl font-bold tracking-tight text-foreground">
@@ -308,8 +315,8 @@ function VerifyEmailContent() {
                     outline-none transition-all duration-200
                     focus:border-primary focus:ring-4 focus:ring-primary/20 focus:bg-card
                     disabled:opacity-50 disabled:cursor-not-allowed
-                    ${otp[index] ? "border-blue-400 bg-primary/10" : "border-transparent"}
-                    ${apiError ? "border-red-300 focus:border-red-500 focus:ring-red-100" : ""}
+                    ${otp[index] ? "border-primary bg-muted" : "border-transparent"}
+                    ${apiError ? "border-destructive/40 focus:border-destructive focus:ring-destructive/20" : ""}
                   `}
                 />
               ))}
@@ -317,13 +324,13 @@ function VerifyEmailContent() {
 
             {/* Error / Success Messages */}
             {apiError && (
-              <div className="rounded-lg bg-red-50 border border-red-100 px-4 py-3 text-center">
-                <p className="text-xs font-medium text-red-600">{apiError}</p>
+              <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-center">
+                <p className="text-xs font-medium text-destructive">{apiError}</p>
               </div>
             )}
             {successMessage && (
-              <div className="rounded-lg bg-emerald-50 border border-emerald-100 px-4 py-3 text-center">
-                <p className="text-xs font-medium text-emerald-600">
+              <div className="rounded-lg bg-success/10 border border-success/20 px-4 py-3 text-center">
+                <p className="text-xs font-medium text-success">
                   {successMessage}
                 </p>
               </div>
@@ -333,7 +340,7 @@ function VerifyEmailContent() {
             <Button
               onClick={() => handleVerify()}
               disabled={isVerifying || otp.join("").length !== OTP_LENGTH}
-              className="h-11 w-full bg-primary text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
+              className="h-11 w-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               {isVerifying ? (
                 <>

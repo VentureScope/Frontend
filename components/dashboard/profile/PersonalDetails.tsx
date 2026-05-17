@@ -11,13 +11,11 @@ export default function PersonalDetails() {
   const profile = getUserProfileView(user);
 
   return (
-    <div className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
+    <div className="rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
       <div className="mb-5 flex items-center justify-between sm:mb-6">
         <div className="flex items-center gap-2 text-primary">
           <UserCircle size={18} />
-          <span className="text-[10px] font-bold uppercase tracking-widest">
-            Personal Details
-          </span>
+          <span className="text-label">Personal Details</span>
         </div>
         <Button
           variant="link"
@@ -29,7 +27,7 @@ export default function PersonalDetails() {
 
       <div className="space-y-4">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          <p className="text-label text-muted-foreground">
             Email Address
           </p>
           <p className="break-all text-sm font-medium text-foreground">
@@ -37,7 +35,7 @@ export default function PersonalDetails() {
           </p>
         </div>
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          <p className="text-label text-muted-foreground">
             Timezone
           </p>
           <p className="wrap-break-word text-sm font-medium text-foreground">
