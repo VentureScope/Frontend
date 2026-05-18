@@ -39,6 +39,9 @@ const EMPTY_AUTH_DATA: AuthSessionData = {
 interface AppState {
   theme: "light" | "dark" | "system";
   setTheme: (theme: "light" | "dark" | "system") => void;
+  sidebarCollapsed: boolean;
+  setSidebarCollapsed: (collapsed: boolean) => void;
+  toggleSidebarCollapsed: () => void;
   authData: AuthSessionData;
   setAuthData: (data: AuthSessionData) => void;
   clearAuth: () => void;
@@ -49,6 +52,10 @@ export const useAppStore = create<AppState>()(
     (set) => ({
       theme: "system",
       setTheme: (theme) => set({ theme }),
+      sidebarCollapsed: false,
+      setSidebarCollapsed: (sidebarCollapsed) => set({ sidebarCollapsed }),
+      toggleSidebarCollapsed: () =>
+        set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
       authData: EMPTY_AUTH_DATA,
       setAuthData: (authData) => {
         syncAuthDataToBrowserStorage(authData);
@@ -62,7 +69,11 @@ export const useAppStore = create<AppState>()(
     {
       name: APP_STORAGE_KEY,
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ theme: state.theme, authData: state.authData }), // optionally pick fields to persist
+      partialize: (state) => ({
+        theme: state.theme,
+        sidebarCollapsed: state.sidebarCollapsed,
+        authData: state.authData,
+      }),
     },
   ),
 );

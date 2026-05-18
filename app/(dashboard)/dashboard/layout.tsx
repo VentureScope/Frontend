@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 
 import { usePathname } from "next/navigation";
 
-import Sidebar from "@/components/dashboard/layout/Sidebar";
+import Sidebar, {
+  SIDEBAR_WIDTH_COLLAPSED,
+  SIDEBAR_WIDTH_EXPANDED,
+} from "@/components/dashboard/layout/Sidebar";
 import TopNav from "@/components/dashboard/layout/TopNav";
 import { useAppStore } from "@/store/useAppStore";
 import { mfaGetAAL } from "@/lib/mfa-api";
@@ -23,6 +26,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const isAuthenticated = Boolean(token);
   const [isHydrated, setIsHydrated] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const sidebarCollapsed = useAppStore((state) => state.sidebarCollapsed);
+  const toggleSidebarCollapsed = useAppStore(
+    (state) => state.toggleSidebarCollapsed,
+  );
 
   useEffect(() => {
     setIsHydrated(true);
@@ -69,8 +76,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <Sidebar
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
+        collapsed={sidebarCollapsed}
+        onToggleCollapsed={toggleSidebarCollapsed}
       />
-      <div className="lg:pl-64 flex flex-col min-h-screen">
+      <div
+        className="flex min-h-screen flex-col transition-[padding-left] duration-300 ease-in-out max-lg:!pl-0"
+        style={{
+          paddingLeft: sidebarCollapsed
+            ? SIDEBAR_WIDTH_COLLAPSED
+            : SIDEBAR_WIDTH_EXPANDED,
+        }}
+      >
         <TopNav
           breadcrumb={getDashboardBreadcrumb(pathname)}
           onMenuClick={() => setIsMobileMenuOpen(true)}
