@@ -337,6 +337,15 @@
     color: var(--foreground);
     font-weight: 500;
   }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Sonner — top-right stack above app chrome */
