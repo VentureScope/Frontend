@@ -1,0 +1,141 @@
+import type { OrganizationRoadmap } from "@/types/organization-roadmap";
+
+/** Matches demo enrollments when auth user is not loaded */
+export const DEMO_CURRENT_USER_ID = "user-demo";
+
+const stubModules = (id: string) => [
+  {
+    id: `${id}-m1`,
+    title: "Week 1: Foundations",
+    description: "",
+    status: "in-progress" as const,
+    resources: [
+      {
+        id: `${id}-r1`,
+        type: "VIDEO" as const,
+        title: "Orientation & goals",
+        meta: "45 min",
+        status: "completed" as const,
+      },
+      {
+        id: `${id}-r2`,
+        type: "DOCUMENTATION" as const,
+        title: "Core concepts guide",
+        meta: "Reading",
+        status: "in-progress" as const,
+      },
+    ],
+  },
+  {
+    id: `${id}-m2`,
+    title: "Week 2: Applied practice",
+    description: "",
+    status: "locked" as const,
+    resources: [
+      {
+        id: `${id}-r3`,
+        type: "PROJECT" as const,
+        title: "Capstone milestone",
+        meta: "Team project",
+        status: "locked" as const,
+      },
+    ],
+  },
+];
+
+export const MOCK_ORGANIZATION_ROADMAPS: OrganizationRoadmap[] = [
+  {
+    id: "org-rm-acme-platform",
+    orgId: "acme-corp",
+    title: "Platform Engineering Lead",
+    focus: "Cloud-native architecture & SRE practices",
+    progress: 42,
+    iconName: "Cloud",
+    isExpanded: false,
+    modules: stubModules("org-rm-acme-platform"),
+    createdAt: "2026-04-12T10:00:00Z",
+    trendName: "Platform Engineer",
+    createdByUserId: "user-demo",
+    createdByName: "You",
+    participants: [
+      { id: "user-demo", name: "You", initials: "YU", progress: 42 },
+      { id: "user-jd", name: "Jordan Davis", initials: "JD", progress: 58 },
+      { id: "user-sm", name: "Sam Morgan", initials: "SM", progress: 31 },
+      { id: "user-ak", name: "Ava Kim", initials: "AK", progress: 12 },
+    ],
+  },
+  {
+    id: "org-rm-acme-ai",
+    orgId: "acme-corp",
+    title: "AI Product Strategist",
+    focus: "LLM integration & responsible AI delivery",
+    progress: 18,
+    iconName: "BarChart3",
+    isExpanded: false,
+    modules: stubModules("org-rm-acme-ai"),
+    createdAt: "2026-03-28T14:30:00Z",
+    trendName: "AI Product Manager",
+    createdByUserId: "user-jd",
+    createdByName: "Jordan Davis",
+    participants: [
+      { id: "user-demo", name: "You", initials: "YU", progress: 18 },
+      { id: "user-jd", name: "Jordan Davis", initials: "JD", progress: 64 },
+      { id: "user-pl", name: "Priya Lal", initials: "PL", progress: 22 },
+    ],
+  },
+  {
+    id: "org-rm-acme-security",
+    orgId: "acme-corp",
+    title: "Security Engineering Path",
+    focus: "Zero-trust design & compliance automation",
+    progress: 0,
+    iconName: "BarChart3",
+    isExpanded: false,
+    modules: [],
+    createdAt: "2026-05-01T09:00:00Z",
+    trendName: "Security Engineer",
+    createdByUserId: "user-sm",
+    createdByName: "Sam Morgan",
+    participants: [
+      { id: "user-sm", name: "Sam Morgan", initials: "SM", progress: 5 },
+      { id: "user-ak", name: "Ava Kim", initials: "AK", progress: 0 },
+    ],
+  },
+  {
+    id: "org-rm-globex-supply",
+    orgId: "globex-ind",
+    title: "Supply Chain Analytics",
+    focus: "Forecasting models & operations research",
+    progress: 55,
+    iconName: "BarChart3",
+    isExpanded: false,
+    modules: stubModules("org-rm-globex-supply"),
+    createdAt: "2026-04-02T11:00:00Z",
+    trendName: "Operations Analyst",
+    createdByUserId: "user-demo",
+    createdByName: "You",
+    participants: [
+      { id: "user-demo", name: "You", initials: "YU", progress: 55 },
+      { id: "user-pl", name: "Priya Lal", initials: "PL", progress: 48 },
+      { id: "user-rc", name: "Riley Chen", initials: "RC", progress: 39 },
+    ],
+  },
+  {
+    id: "org-rm-globex-sustain",
+    orgId: "globex-ind",
+    title: "Sustainability Reporting",
+    focus: "ESG metrics & regulatory disclosure",
+    progress: 12,
+    iconName: "Cloud",
+    isExpanded: false,
+    modules: stubModules("org-rm-globex-sustain"),
+    createdAt: "2026-03-15T16:00:00Z",
+    trendName: "ESG Analyst",
+    createdByUserId: "user-rc",
+    createdByName: "Riley Chen",
+    participants: [
+      { id: "user-demo", name: "You", initials: "YU", progress: 12 },
+      { id: "user-rc", name: "Riley Chen", initials: "RC", progress: 71 },
+    ],
+  },
+];

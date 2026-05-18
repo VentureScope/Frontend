@@ -1,156 +1,131 @@
 ﻿"use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Bot, Paperclip, ArrowUp, Mic } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Bot, Sparkles } from "lucide-react";
+import { CHAT_CONTENT_WIDTH, CHAT_MAIN_PADDING } from "@/components/chat/chat-layout";
+import { ChatComposer } from "@/components/chat/ChatComposer";
+import { cn } from "@/lib/utils";
+import { ChatMessageList } from "@/components/chat/ChatMessageList";
+import { ChatPromptChips } from "@/components/chat/ChatPromptChips";
 import { useChatStore } from "@/store/useChatStore";
+import { useAppStore } from "@/store/useAppStore";
+
+const STARTER_PROMPTS = [
+  "What skills should I focus on next?",
+  "Review my profile for senior roles",
+  "Salary benchmarks in my market",
+];
 
 export default function ChatInterface() {
-  const { activeSession, sendMessage, isConnecting, isTyping } = useChatStore();
+  const { activeSession, sendMessage, createSession, isConnecting, isTyping } =
+    useChatStore();
+  const authUser = useAppStore((s) => s.authData.user);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const displayName = authUser?.full_name?.split(" ")[0] ?? "there";
+  const messages = activeSession?.messages ?? [];
+  const showWelcome = !activeSession || messages.length === 0;
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activeSession?.messages, isTyping]);
+  }, [messages, isTyping]);
 
-  const handleSend = () => {
-    if (!input.trim() || !activeSession || isConnecting) return;
+  async function ensureSession() {
+    if (activeSession) return activeSession.id;
+    return createSession("New conversation");
+  }
+
+  async function handleSend() {
+    if (!input.trim() || isConnecting) return;
+    await ensureSession();
     sendMessage(input);
     setInput("");
-  };
+  }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      void handleSend();
     }
-  };
+  }
 
-  if (!activeSession) {
-    return (
-      <div className="flex flex-col h-full items-center justify-center p-6 text-muted-foreground">
-        <Bot size={48} className="mb-4 text-primary/50" />
-        <h2 className="text-xl font-bold text-foreground">
-          VentureScope Advisor
-        </h2>
-        <p className="text-sm mt-2 max-w-md text-center">
-          Start a new conversation or select an existing one to get AI-powered
-          career guidance tailored to your profile.
-        </p>
-      </div>
-    );
+  async function runPrompt(text: string) {
+    if (isConnecting) return;
+    await ensureSession();
+    sendMessage(text);
   }
 
   return (
-    <div className="flex flex-col h-full relative">
-      <div className="flex items-center justify-between p-4 shrink-0 sm:p-6 border-b border-border bg-card/50">
-        <div className="flex items-center gap-3">
-          <div className="vs-icon-tile vs-icon-tile-primary h-8 w-8 shrink-0">
-            <Bot size={16} />
+    <div className="flex h-full flex-col">
+      <header
+        className={cn(
+          "hidden shrink-0 border-b border-border py-3 lg:block",
+          CHAT_MAIN_PADDING,
+        )}
+      >
+        <div className={cn("flex items-center gap-2", CHAT_CONTENT_WIDTH)}>
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Bot className="h-4 w-4" />
           </div>
-          <div className="truncate">
-            <h3 className="font-bold text-sm text-foreground truncate">
-              {activeSession.title}
-            </h3>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium truncate">
-              {isConnecting ? "Connecting..." : "Connected"}
+          <div>
+            <h1 className="text-sm font-semibold text-foreground">
+              {activeSession?.title ?? "AI Advisor"}
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              {isConnecting ? "Connecting…" : "Career guidance for your profile"}
             </p>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-12 space-y-6 sm:space-y-10 custom-scrollbar">
-        {activeSession.messages?.map((msg, i) => {
-          const isUser = msg.role === "user";
-          return (
-            <div
-              key={i}
-              className={`flex gap-3 sm:gap-4 md:max-w-3xl ${isUser ? "justify-end ml-auto" : ""}`}
-            >
-              {!isUser && (
-                <div className="vs-icon-tile vs-icon-tile-primary mt-1 h-8 w-8 shrink-0 sm:h-10 sm:w-10">
-                  <Bot size={20} className="h-4 w-4 sm:h-5 sm:w-5" />
-                </div>
-              )}
-              <div
-                className={`space-y-2 sm:space-y-4 max-w-[85%] ${isUser ? "sm:max-w-xl" : "w-full"}`}
-              >
-                <div
-                  className={`rounded-lg p-4 sm:p-6 leading-relaxed shadow-sm ${
-                    isUser
-                      ? "rounded-tr-none bg-primary text-primary-foreground "
-                      : "rounded-tl-none border border-border bg-card text-foreground"
-                  }`}
-                >
-                  <div className="whitespace-pre-wrap text-sm wrap-break-word">
-                    {msg.content}
-                  </div>
-                </div>
+      <div className="flex-1 overflow-y-auto scrollbar-none">
+        <div className={cn(CHAT_CONTENT_WIDTH, CHAT_MAIN_PADDING)}>
+          {showWelcome ? (
+            <div className="flex min-h-[40vh] flex-col items-start gap-6 pt-4 text-left">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Sparkles className="h-6 w-6" />
               </div>
-              {isUser && (
-                <div className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 rounded-full border border-border overflow-hidden bg-muted mt-1">
-                  <img
-                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=User"
-                    alt="User"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-            </div>
-          );
-        })}
-
-        {isTyping && (
-          <div className="flex gap-3 sm:gap-4 md:max-w-3xl">
-            <div className="vs-icon-tile vs-icon-tile-primary mt-1 h-8 w-8 shrink-0 sm:h-10 sm:w-10">
-              <Bot size={20} className="h-4 w-4 sm:h-5 sm:w-5" />
-            </div>
-            <div className="space-y-2 sm:space-y-4 w-full">
-              <div className="w-fit rounded-lg rounded-tl-none border border-border bg-card p-4 leading-relaxed shadow-sm sm:p-6">
-                <div className="flex space-x-1 items-center justify-center h-4">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full animate-bounce"></div>
-                </div>
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                  Hi {displayName}, how can I help?
+                </h2>
+                <p className="max-w-md text-sm text-muted-foreground">
+                  Ask about skills, roles, salary, or your learning path. Pick a
+                  suggestion or type below.
+                </p>
               </div>
+              <ChatPromptChips
+                disabled={isConnecting}
+                prompts={STARTER_PROMPTS.map((label) => ({
+                  label,
+                  onClick: () => void runPrompt(label),
+                }))}
+              />
             </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-
-      <div className="p-3 sm:p-6 lg:p-10 border-t border-border bg-card">
-        <div className="mx-auto max-w-4xl flex items-center gap-2 sm:gap-4">
-          <button className="text-muted-foreground hover:text-foreground p-1.5 sm:p-2 transition-colors shrink-0">
-            <Paperclip className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5" />
-          </button>
-          <div className="relative flex-1 min-w-0">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={isConnecting}
-              placeholder={
-                isConnecting ? "Connecting..." : "Ask your advisor..."
-              }
-              className="h-12 w-full rounded-md border border-border bg-muted px-4 pr-12 text-xs text-foreground outline-none focus:border-primary/35 focus:ring-1 focus:ring-primary/20 disabled:opacity-50 sm:h-14 sm:rounded-lg sm:px-6 sm:pr-14 sm:text-sm"
+          ) : (
+            <ChatMessageList
+              messages={messages}
+              isTyping={isTyping}
+              userInitial={displayName}
+              formatAssistant={false}
+              messagesEndRef={messagesEndRef}
             />
-            <button
-              onClick={handleSend}
-              disabled={isConnecting || !input.trim()}
-              className="absolute right-1 sm:right-2 top-1 sm:top-2 h-10 w-10 bg-primary rounded-lg sm:rounded-xl flex items-center justify-center text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:bg-primary/50 shrink-0"
-            >
-              <ArrowUp size={18} className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-          </div>
-          <button className="text-muted-foreground hover:text-foreground p-1.5 sm:p-2 transition-colors shrink-0">
-            <Mic className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5" />
-          </button>
+          )}
         </div>
       </div>
+
+      <ChatComposer
+        value={input}
+        onChange={setInput}
+        onSend={() => void handleSend()}
+        onKeyDown={handleKeyDown}
+        disabled={isConnecting}
+        placeholder={
+          isConnecting ? "Connecting…" : "Ask your AI advisor…"
+        }
+        hint="Enter to send · Shift+Enter for a new line"
+      />
     </div>
   );
 }
-
-
