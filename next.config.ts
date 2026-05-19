@@ -1,6 +1,14 @@
 import type { NextConfig } from "next";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
+  // Avoid picking parent folder when multiple lockfiles exist (e.g. Desktop/package-lock.json).
+  turbopack: {
+    root: projectRoot,
+  },
   images: {
     remotePatterns: [
       {
