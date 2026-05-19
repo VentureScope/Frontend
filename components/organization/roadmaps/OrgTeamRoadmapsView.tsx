@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -17,7 +17,7 @@ import { RoadmapInfoCallout } from "@/components/organization/roadmaps/RoadmapIn
 import { useOrgRoadmapListState } from "@/components/organization/roadmaps/useOrgRoadmapListState";
 import { OrganizationPageHeader } from "@/components/organization/OrganizationPageHeader";
 import { Button } from "@/components/ui/button";
-import { MOCK_ORGANIZATION_ROADMAPS } from "@/lib/organization-roadmaps-data";
+import { loadOrganizationRoadmapsForOrg } from "@/lib/organization-roadmaps-storage";
 import {
   filterOrgTeamRoadmaps,
   getMyProgress,
@@ -25,7 +25,10 @@ import {
   isEnrolledInRoadmap,
   resolveCurrentUserId,
 } from "@/lib/organization-roadmap-utils";
-import type { OrgTeamRoadmapsFilter } from "@/types/organization-roadmap";
+import type {
+  OrganizationRoadmap,
+  OrgTeamRoadmapsFilter,
+} from "@/types/organization-roadmap";
 import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 
@@ -54,14 +57,15 @@ export function OrgTeamRoadmapsView({
   const authUser = useAppStore((s) => s.authData.user);
   const userId = resolveCurrentUserId(authUser?.id as string | undefined);
 
-  const orgRoadmaps = useMemo(
-    () => MOCK_ORGANIZATION_ROADMAPS.filter((r) => r.orgId === orgId),
-    [orgId],
-  );
-
   const [filter, setFilter] = useState<OrgTeamRoadmapsFilter>("all");
-  const { paths, expandedPathIds, handleToggleExpand, handleToggleResource } =
-    useOrgRoadmapListState(orgRoadmaps);
+  const { paths, setPaths, expandedPathIds, handleToggleExpand, handleToggleResource } =
+    useOrgRoadmapListState<OrganizationRoadmap>([]);
+
+  useEffect(() => {
+    setPaths(loadOrganizationRoadmapsForOrg(orgId));
+  }, [orgId, setPaths]);
+
+  const createHref = `/dashboard/organization/${orgId}/roadmaps/new`;
 
   const filtered = useMemo(
     () => filterOrgTeamRoadmaps(paths, userId, filter),
@@ -116,7 +120,7 @@ export function OrgTeamRoadmapsView({
           ))}
         </div>
         <Button asChild size="sm" className="gap-1.5 shrink-0">
-          <Link href="/dashboard/learning-path/new-roadmap">
+          <Link href={createHref}>
             <Plus className="h-4 w-4" />
             Create roadmap
           </Link>

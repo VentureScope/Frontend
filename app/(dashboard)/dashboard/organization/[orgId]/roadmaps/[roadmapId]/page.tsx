@@ -8,11 +8,11 @@ import { RoadmapDetailPageSkeleton } from "@/components/learning-path/LearningPa
 import { ParticipantAvatars } from "@/components/organization/roadmaps/ParticipantAvatars";
 import { RoadmapInfoCallout } from "@/components/organization/roadmaps/RoadmapInfoCallout";
 import type { LearningPath } from "@/app/(dashboard)/dashboard/learning-path/mockData";
+import type { OrganizationRoadmap } from "@/types/organization-roadmap";
 import { MOCK_ORGANIZATIONS } from "@/lib/organizations-data";
-import { MOCK_ORGANIZATION_ROADMAPS } from "@/lib/organization-roadmaps-data";
+import { getOrganizationRoadmapById } from "@/lib/organization-roadmaps-storage";
 import {
   getMyProgress,
-  getRoadmapById,
   isCreatedByUser,
   resolveCurrentUserId,
 } from "@/lib/organization-roadmap-utils";
@@ -64,26 +64,27 @@ export default function OrganizationRoadmapDetailPage({
   const org = MOCK_ORGANIZATIONS.find((o) => o.id === orgId);
   const orgName = org?.name ?? nameFromSlug(orgId);
 
-  const source = useMemo(
-    () => getRoadmapById(MOCK_ORGANIZATION_ROADMAPS, roadmapId),
-    [roadmapId],
+  const [source, setSource] = useState<OrganizationRoadmap | undefined>(
+    undefined,
   );
-
   const [path, setPath] = useState<LearningPath | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!source) {
+    const roadmap = getOrganizationRoadmapById(orgId, roadmapId);
+    setSource(roadmap);
+    if (!roadmap) {
+      setPath(null);
       setLoading(false);
       return;
     }
-    const myProgress = getMyProgress(source, userId);
+    const myProgress = getMyProgress(roadmap, userId);
     setPath({
-      ...source,
+      ...roadmap,
       progress: myProgress,
     });
     setLoading(false);
-  }, [source, userId]);
+  }, [orgId, roadmapId, userId]);
 
   const handleToggleResource = useCallback(
     (moduleId: string, resourceId: string) => {

@@ -64,6 +64,9 @@ export function getDashboardBreadcrumb(pathname: string): string {
     const third = segments[2];
     if (third && ORG_NESTED_LABELS[third]) {
       const fourth = segments[3];
+      if (third === "roadmaps" && fourth === "new") {
+        return `${nameFromOrgSlug(orgSlug)} · New roadmap`;
+      }
       if (third === "roadmaps" && fourth) {
         return `${nameFromOrgSlug(orgSlug)} · Roadmap`;
       }
