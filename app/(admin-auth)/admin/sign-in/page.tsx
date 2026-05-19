@@ -1,46 +1,38 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { ArrowRight, Loader2, Shield } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { adminLogin, getApiErrorMessage } from "@/lib/admin-auth-api";
 import { useAdminStore } from "@/store/useAdminStore";
 import type { AdminSignInPayload } from "@/types/admin-auth";
+import { adminEmeraldBtn, adminInput } from "@/components/admin/ui/admin-styles";
 
-const adminLoginSchema = z.object({
+const schema = z.object({
   email: z.string().email("Enter a valid admin email"),
   password: z.string().min(1, "Password is required"),
 });
 
 export default function AdminSignInPage() {
   const router = useRouter();
-  const setAuthData = useAdminStore((state) => state.setAuthData);
-  const token = useAdminStore((state) => state.authData.token);
+  const setAuthData = useAdminStore((s) => s.setAuthData);
+  const token = useAdminStore((s) => s.authData.token);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
 
   const form = useForm<AdminSignInPayload>({
-    resolver: zodResolver(adminLoginSchema),
+    resolver: zodResolver(schema),
     defaultValues: { email: "", password: "" },
   });
 
+  useEffect(() => setIsHydrated(true), []);
   useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (isHydrated && token) {
-      router.replace("/admin");
-    }
+    if (isHydrated && token) router.replace("/admin");
   }, [isHydrated, token, router]);
 
   async function onSubmit(values: AdminSignInPayload) {
@@ -59,74 +51,69 @@ export default function AdminSignInPage() {
 
   if (!isHydrated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
+      <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-zinc-500">
         Loading…
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-linear-to-b from-primary/5 via-background to-background p-4 sm:p-8">
-      <div className="w-full max-w-md space-y-8 rounded-xl border border-border bg-card p-8 shadow-xl sm:p-10">
-        <div className="space-y-4 text-center sm:text-left">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 sm:mx-0">
-            <Shield className="h-6 w-6 text-primary" />
-          </div>
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-center gap-2 sm:justify-start">
-              <Image
-                src="/logo.png"
-                alt="VentureScope"
-                width={24}
-                height={24}
-                className="h-6 w-6 object-contain"
-              />
-              <span className="text-sm font-semibold text-muted-foreground">
-                VentureScope
-              </span>
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              Admin sign in
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Platform administrators only. This session is separate from the
-              member dashboard.
-            </p>
-          </div>
+    <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-4">
+      <div className="w-full max-w-md border border-zinc-800 bg-zinc-900 p-8">
+        <div className="mb-8 space-y-2">
+          <p className="font-mono text-sm font-semibold text-emerald-400">◈ VentureScope</p>
+          <p className="text-xs text-zinc-600">Admin Console</p>
+          <h1 className="text-xl font-medium text-white">Sign in</h1>
+          <p className="text-sm text-zinc-500">
+            Internal platform administration. Separate from the member dashboard.
+          </p>
         </div>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-          <Field>
-            <FieldLabel htmlFor="admin-email">Email</FieldLabel>
-            <Input
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-1">
+            <label htmlFor="admin-email" className="text-[10px] uppercase tracking-widest text-zinc-600">
+              Email
+            </label>
+            <input
               id="admin-email"
               type="email"
               autoComplete="username"
               placeholder="admin@venturescope.dev"
+              className={adminInput}
               {...form.register("email")}
             />
-            <FieldError>{form.formState.errors.email?.message}</FieldError>
-          </Field>
+            {form.formState.errors.email && (
+              <p className="text-xs text-red-400">{form.formState.errors.email.message}</p>
+            )}
+          </div>
 
-          <Field>
-            <FieldLabel htmlFor="admin-password">Password</FieldLabel>
-            <Input
+          <div className="space-y-1">
+            <label htmlFor="admin-password" className="text-[10px] uppercase tracking-widest text-zinc-600">
+              Password
+            </label>
+            <input
               id="admin-password"
               type="password"
               autoComplete="current-password"
-              placeholder="••••••••"
+              className={adminInput}
               {...form.register("password")}
             />
-            <FieldError>{form.formState.errors.password?.message}</FieldError>
-          </Field>
+            {form.formState.errors.password && (
+              <p className="text-xs text-red-400">{form.formState.errors.password.message}</p>
+            )}
+          </div>
 
-          {apiError ? (
-            <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+          {apiError && (
+            <p className="rounded-md border border-red-800 bg-red-950 px-3 py-2 text-xs text-red-400">
               {apiError}
             </p>
-          ) : null}
+          )}
 
-          <Button type="submit" className="h-11 w-full gap-2" disabled={isSubmitting}>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`${adminEmeraldBtn} flex w-full items-center justify-center gap-2 py-2 disabled:opacity-50`}
+          >
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -134,27 +121,23 @@ export default function AdminSignInPage() {
               </>
             ) : (
               <>
-                Enter admin console
+                Enter command center
                 <ArrowRight className="h-4 w-4" />
               </>
             )}
-          </Button>
+          </button>
         </form>
 
-        <p className="text-center text-xs text-muted-foreground">
-          Demo: <span className="font-mono text-foreground">admin@venturescope.dev</span>{" "}
-          / <span className="font-mono text-foreground">admin123</span>
+        <p className="mt-6 text-center font-mono text-xs text-zinc-600">
+          Demo: admin@venturescope.dev / admin123
         </p>
 
-        <p className="text-center text-sm text-muted-foreground">
-          <Link href="/" className="font-medium text-primary hover:underline">
-            ← Back to VentureScope
+        <p className="mt-4 text-center text-xs text-zinc-500">
+          <Link href="/" className="hover:text-zinc-300">
+            ← VentureScope
           </Link>
           {" · "}
-          <Link
-            href="/sign-in"
-            className="font-medium text-primary hover:underline"
-          >
+          <Link href="/sign-in" className="hover:text-zinc-300">
             Member sign in
           </Link>
         </p>
