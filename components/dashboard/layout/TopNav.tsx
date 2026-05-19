@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, Bell, HelpCircle, Menu } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getUserProfileView } from "@/lib/user-profile";
 import { useAppStore } from "@/store/useAppStore";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -12,9 +14,60 @@ type TopNavProps = {
   onMenuClick?: () => void;
 };
 
+const DASHBOARD_SEARCH_ITEMS = [
+  { label: "Dashboard Overview", path: "/dashboard" },
+  { label: "Learning Path", path: "/dashboard/learning-path" },
+  { label: "New Roadmap", path: "/dashboard/learning-path/new-roadmap" },
+  { label: "AI Advisor", path: "/dashboard/ai-advisor" },
+  { label: "Resume Builder", path: "/dashboard/resume-builder" },
+  { label: "New Resume", path: "/dashboard/resume-builder/new-resume" },
+  { label: "Data Hub", path: "/dashboard/data-hub" },
+  { label: "Market Trends", path: "/dashboard/market-trends" },
+  { label: "Settings", path: "/dashboard/settings" },
+  { label: "Profile", path: "/dashboard/profile" },
+  { label: "Organizations", path: "/dashboard/organization" },
+  { label: "Create Organization", path: "/dashboard/organization/new" },
+  { label: "My Org Profile", path: "/dashboard/organization/profile" },
+  { label: "Org Advisor", path: "/dashboard/organization/advisor" },
+  { label: "Pending Invites", path: "/dashboard/organization/invites" },
+];
+
 export default function TopNav({ breadcrumb, onMenuClick }: TopNavProps) {
+  const router = useRouter();
   const user = useAppStore((state) => state.authData.user);
   const profile = getUserProfileView(user);
+  const [query, setQuery] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    function handleClick(event: MouseEvent) {
+      if (!searchRef.current) return;
+      const target = event.target as Node;
+      if (!searchRef.current.contains(target)) {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const matches = useMemo(() => {
+    const trimmed = query.trim().toLowerCase();
+    if (!trimmed) return DASHBOARD_SEARCH_ITEMS.slice(0, 6);
+    return DASHBOARD_SEARCH_ITEMS.filter((item) =>
+      `${item.label} ${item.path}`.toLowerCase().includes(trimmed),
+    ).slice(0, 6);
+  }, [query]);
+
+  const showResults = isOpen;
+
+  function handleSelect(path: string) {
+    setIsOpen(false);
+    setQuery("");
+    router.push(path);
+  }
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur-md sm:h-[4.5rem] sm:px-8">
@@ -37,15 +90,58 @@ export default function TopNav({ breadcrumb, onMenuClick }: TopNavProps) {
           </h1>
         </div>
 
-        <div className="relative hidden max-w-md flex-1 md:block md:max-w-xs lg:max-w-sm xl:max-w-md">
+        <div
+          ref={searchRef}
+          className="relative hidden max-w-md flex-1 md:block md:max-w-xs lg:max-w-sm xl:max-w-md"
+        >
           <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
             <Search className="h-4 w-4 text-muted-foreground" />
           </div>
           <input
             type="search"
-            placeholder="Search resources..."
+            placeholder="Search resources.."
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setIsOpen(true);
+            }}
+            onFocus={() => setIsOpen(true)}
+            onClick={() => setIsOpen(true)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && matches[0]) {
+                event.preventDefault();
+                handleSelect(matches[0].path);
+              }
+            }}
             className="h-9 w-full rounded-md border border-border bg-muted pl-10 pr-3 text-body text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/35 focus:ring-1 focus:ring-primary/20"
           />
+          {showResults && (
+            <div
+              className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-md border border-border bg-card shadow-lg"
+              onMouseDown={(event) => event.preventDefault()}
+            >
+              {matches.length === 0 ? (
+                <div className="px-3 py-2 text-sm text-muted-foreground">
+                  No matches
+                </div>
+              ) : (
+                matches.map((item) => (
+                  <button
+                    key={item.path}
+                    type="button"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => handleSelect(item.path)}
+                    className="flex w-full items-center justify-between px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
+                  >
+                    <span className="font-medium">{item.label}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {item.path}
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
+          )}
         </div>
       </div>
 
