@@ -1,25 +1,25 @@
-const ADMIN_LABELS: Record<string, string> = {
+const LABELS: Record<string, string> = {
   admin: "Overview",
-  users: "Users",
-  organizations: "Organizations",
-  settings: "Settings",
+  directory: "User Directory",
+  permissions: "Permissions",
+  transcripts: "Transcripts",
+  embeddings: "Embeddings Monitor",
+  "github-syncs": "GitHub Syncs",
+  knowledge: "Knowledge Base",
+  "chat-logs": "Chat Logs",
+  "prompt-config": "Prompt Config",
+  broadcasts: "Broadcasts",
+  alerts: "System Alerts",
+  system: "Technical Health",
+  config: "System Config",
 };
 
-function capitalize(segment: string): string {
-  return segment.charAt(0).toUpperCase() + segment.slice(1);
+function capitalize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 export function getAdminBreadcrumb(pathname: string): string {
-  if (pathname === "/admin" || pathname === "/admin/") {
-    return ADMIN_LABELS.admin;
-  }
-
-  const segments = pathname.replace(/^\/admin\/?/, "").split("/").filter(Boolean);
-  const root = segments[0];
-
-  if (!root) {
-    return ADMIN_LABELS.admin;
-  }
-
-  return ADMIN_LABELS[root] ?? capitalize(root.replace(/-/g, " "));
+  if (pathname === "/admin") return LABELS.admin;
+  const segment = pathname.replace(/^\/admin\/?/, "").split("/")[0];
+  return LABELS[segment] ?? capitalize(segment.replace(/-/g, " "));
 }
