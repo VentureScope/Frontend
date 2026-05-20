@@ -1,5 +1,5 @@
-import { AdminPlaceholder } from "@/components/admin/pages/AdminPlaceholder";
+import { AdminPermissions } from "@/components/admin/pages/AdminPermissions";
 
-export default function Page() {
-  return <AdminPlaceholder title="Permissions" />;
+export default function AdminPermissionsPage() {
+  return <AdminPermissions />;
 }
