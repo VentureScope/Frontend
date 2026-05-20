@@ -1,5 +1,5 @@
-import { AdminPlaceholder } from "@/components/admin/pages/AdminPlaceholder";
+import { AdminTranscripts } from "@/components/admin/pages/AdminTranscripts";
 
 export default function Page() {
-  return <AdminPlaceholder title="Transcripts" description="Monitor transcript parsing jobs and Airflow DAG runs." />;
+  return <AdminTranscripts />;
 }

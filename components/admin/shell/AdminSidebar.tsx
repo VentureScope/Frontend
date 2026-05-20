@@ -7,6 +7,7 @@ import {
   Bell,
   BookOpen,
   Bot,
+  Tags,
   Database,
   FileText,
   GitBranch,
@@ -48,6 +49,7 @@ const NAV: { label: string; items: NavItem[] }[] = [
   {
     label: "Intelligence",
     items: [
+      { name: "Role Taxonomy", href: "/admin/taxonomy", icon: Tags },
       { name: "Knowledge Base", href: "/admin/knowledge", icon: BookOpen },
       { name: "Chat Logs", href: "/admin/chat-logs", icon: MessageSquare },
       { name: "Prompt Config", href: "/admin/prompt-config", icon: Bot },
