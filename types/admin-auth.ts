@@ -1,11 +1,7 @@
-export interface AdminUser {
-  id?: string;
-  email?: string;
-  full_name?: string;
-  role?: string;
-  is_admin?: boolean;
-  profile_picture_url?: string | null;
-}
+import type { AdminUserResponse } from "@/types/admin";
+
+/** Session user — same shape as admin user API response. */
+export type AdminUser = AdminUserResponse;
 
 export interface AdminSignInPayload {
   email: string;

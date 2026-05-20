@@ -20,6 +20,8 @@ export function AdminTopbar() {
       .slice(0, 2)
       .toUpperCase() ?? "AD";
 
+  const displayEmail = user?.email ?? "Administrator";
+
   async function signOut() {
     try {
       await adminLogout();
@@ -64,9 +66,12 @@ export function AdminTopbar() {
         >
           Member app →
         </Link>
+        <span className="hidden max-w-[180px] truncate font-mono text-xs text-zinc-500 md:inline">
+          {displayEmail}
+        </span>
         <div
           className="flex h-8 w-8 items-center justify-center rounded-md border border-zinc-800 bg-zinc-900 font-mono text-xs text-emerald-400"
-          title={user?.email}
+          title={displayEmail}
         >
           {initials}
         </div>

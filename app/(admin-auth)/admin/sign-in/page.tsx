@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { ArrowRight, Loader2 } from "lucide-react";
 import * as z from "zod";
 import { adminLogin, getApiErrorMessage } from "@/lib/admin-auth-api";
+import { isAdminDemoEnabled } from "@/lib/admin-utils";
 import { useAdminStore } from "@/store/useAdminStore";
 import type { AdminSignInPayload } from "@/types/admin-auth";
 import { adminEmeraldBtn, adminInput } from "@/components/admin/ui/admin-styles";
@@ -128,9 +129,11 @@ export default function AdminSignInPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-center font-mono text-xs text-zinc-600">
-          Demo: admin@venturescope.dev / admin123
-        </p>
+        {isAdminDemoEnabled() ? (
+          <p className="mt-6 text-center font-mono text-xs text-zinc-600">
+            Demo: admin@venturescope.dev / admin123
+          </p>
+        ) : null}
 
         <p className="mt-4 text-center text-xs text-zinc-500">
           <Link href="/" className="hover:text-zinc-300">
