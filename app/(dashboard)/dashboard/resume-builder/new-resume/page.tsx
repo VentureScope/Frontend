@@ -9,6 +9,7 @@ import { generateResume } from "@/lib/resume-api";
 import type { TrendingCareer } from "@/types/jobs";
 import { NewRoadmapRolesSkeleton } from "@/components/learning-path/LearningPathSkeletons";
 import { toast } from "sonner";
+import { formatResumeWarningSummary } from "@/lib/resume-warning-links";
 
 const ICONS = ["Cpu", "Share2", "Shield", "BarChart2"] as const;
 
@@ -89,7 +90,7 @@ export default function NewResumePage() {
       const resume = await generateResume(targetRole);
       if (resume.warnings && resume.warnings.length > 0) {
         toast.success("Resume generated with profile gaps.", {
-          description: resume.warnings.slice(0, 2).join(" "),
+          description: `${formatResumeWarningSummary(resume.warnings)} — open links on the resume page.`,
         });
       } else {
         toast.success("Resume generated.");
