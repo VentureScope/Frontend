@@ -1,12 +1,31 @@
+export interface ResumeProject {
+  id: string;
+  name: string;
+  description: string;
+  technologies: string[];
+}
+
+export interface ResumeCertification {
+  id: string;
+  name: string;
+  issuer?: string;
+  year?: string;
+}
+
 export interface Resume {
   id: string;
   title: string;
   company: string;
   lastUpdated: string;
+  createdAt?: string;
   matchScore: number;
   atsStatus: string;
   tags: string[];
   isRecent: boolean;
+  warnings?: string[];
+  technicalSkills?: string[];
+  softSkills?: string[];
+  trendingSkills?: string[];
   image?: string;
   content: {
     summary: string;
@@ -22,7 +41,10 @@ export interface Resume {
       degree: string;
       school: string;
       year: string;
+      field?: string;
     }[];
+    projects: ResumeProject[];
+    certifications: ResumeCertification[];
     skills: string[];
   };
 }
@@ -60,7 +82,9 @@ export const mockResumes: Resume[] = [
           year: "2018"
         }
       ],
-      skills: ["UX Design", "Figma", "Prototyping", "Design Systems"]
+      skills: ["UX Design", "Figma", "Prototyping", "Design Systems"],
+      projects: [],
+      certifications: [],
     }
   },
   {
@@ -94,7 +118,9 @@ export const mockResumes: Resume[] = [
           year: "2017"
         }
       ],
-      skills: ["Creative Direction", "Adobe CC", "Team Leadership"]
+      skills: ["Creative Direction", "Adobe CC", "Team Leadership"],
+      projects: [],
+      certifications: [],
     }
   },
   {
@@ -128,7 +154,9 @@ export const mockResumes: Resume[] = [
           year: "2016"
         }
       ],
-      skills: ["User Interviews", "Usability Testing", "Data Analysis"]
+      skills: ["User Interviews", "Usability Testing", "Data Analysis"],
+      projects: [],
+      certifications: [],
     }
   },
 ];

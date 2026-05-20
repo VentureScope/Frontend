@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Github, RefreshCw } from "lucide-react";
-import { syncGithubProfile, getGithubSyncedData } from "@/lib/auth-api";
+import { syncGithubProfile } from "@/lib/auth-api";
+import { formatHubTimestamp } from "@/lib/data-hub-utils";
 import { GitHubSyncedDataResponse } from "@/types/github";
 import { useAppStore } from "@/store/useAppStore";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,34 +11,58 @@ import { toast } from "sonner";
 
 const GITHUB_OAUTH_SESSION_KEY = "github_oauth_tx";
 
-export default function GitHubCard() {
+type GitHubCardProps = {
+  data?: GitHubSyncedDataResponse | null;
+  loading?: boolean;
+  onRefresh?: () => Promise<void>;
+};
+
+export default function GitHubCard({
+  data: externalData,
+  loading: externalLoading,
+  onRefresh,
+}: GitHubCardProps = {}) {
   const user = useAppStore((state) => state.authData.user);
-  const [data, setData] = useState<GitHubSyncedDataResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const controlled = onRefresh !== undefined;
+
+  const [internalData, setInternalData] =
+    useState<GitHubSyncedDataResponse | null>(null);
+  const [internalLoading, setInternalLoading] = useState(!controlled);
   const [syncing, setSyncing] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
 
+  const data = controlled ? (externalData ?? null) : internalData;
+  const loading = controlled ? !!externalLoading : internalLoading;
+
   async function fetchSyncedData() {
-    setLoading(true);
+    if (controlled && onRefresh) {
+      await onRefresh();
+      return;
+    }
+    setInternalLoading(true);
     setSyncError(null);
     try {
+      const { getGithubSyncedData } = await import("@/lib/auth-api");
       const result = await getGithubSyncedData();
-      setData(result);
-    } catch (error: any) {
-      if (error?.response?.status !== 404) {
-        console.error("Failed to fetch github synced data:", error);
+      setInternalData(result);
+    } catch (error: unknown) {
+      const status = (error as { response?: { status?: number } })?.response
+        ?.status;
+      if (status !== 404) {
         toast.error("Failed to load GitHub data", {
           description: "We couldn't retrieve your GitHub syncing status.",
         });
       }
     } finally {
-      setLoading(false);
+      setInternalLoading(false);
     }
   }
 
   useEffect(() => {
-    fetchSyncedData();
-  }, []);
+    if (!controlled) {
+      void fetchSyncedData();
+    }
+  }, [controlled]);
 
   async function handleSync() {
     setSyncing(true);
@@ -48,7 +73,6 @@ export default function GitHubCard() {
         description: "Executing GitHub sync flow.",
       });
 
-      // If the backend returns an authorization URL, redirect the user
       if (response.authorization_url) {
         const stateFromResponse =
           typeof response.state === "string" && response.state.trim().length > 0
@@ -83,16 +107,15 @@ export default function GitHubCard() {
         return;
       }
 
-      // If it immediately synced without auth redirect, refresh data
       toast.success("GitHub Synchronized");
       await fetchSyncedData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       setSyncError("Failed to initiate sync");
+      const detail = (error as { response?: { data?: { detail?: string } } })
+        ?.response?.data?.detail;
       toast.error("Action Failed", {
-        description:
-          error.response?.data?.detail || "Failed to trigger GitHub sync.",
+        description: detail || "Failed to trigger GitHub sync.",
       });
-      console.error(error);
     } finally {
       setSyncing(false);
     }
@@ -102,7 +125,6 @@ export default function GitHubCard() {
   const displayUsername = data?.github_username || user?.github_username;
   const totalRepos = data?.repositories?.length || 0;
 
-  // Flatten languages across all sync'd repos to get unique language count
   const uniqueLanguages = new Set<string>();
   if (data?.repositories) {
     data.repositories.forEach((repo) => {
@@ -130,13 +152,7 @@ export default function GitHubCard() {
   ];
 
   const formattedDate = data?.synced_at
-    ? new Date(data.synced_at).toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
+    ? formatHubTimestamp(data.synced_at)
     : "Never";
 
   if (loading && !data) {
@@ -158,13 +174,6 @@ export default function GitHubCard() {
             <Skeleton className="h-20 sm:h-24 w-full rounded-xl sm:rounded-lg" />
             <Skeleton className="h-20 sm:h-24 w-full rounded-xl sm:rounded-lg" />
           </div>
-        </div>
-        <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-border pt-4 sm:pt-6 gap-4">
-          <div className="space-y-1 sm:space-y-2 w-full sm:w-auto flex justify-between sm:block">
-            <Skeleton className="h-3 w-16 sm:w-20" />
-            <Skeleton className="h-4 w-24 sm:w-32" />
-          </div>
-          <Skeleton className="h-8 sm:h-10 w-full sm:w-32 rounded-lg" />
         </div>
       </div>
     );
@@ -243,7 +252,8 @@ export default function GitHubCard() {
           </p>
         </div>
         <button
-          onClick={handleSync}
+          type="button"
+          onClick={() => void handleSync()}
           disabled={syncing || loading}
           className={`group flex items-center justify-center w-full sm:w-auto gap-2 text-xs sm:text-sm font-bold transition-all ${
             isConnected
@@ -269,4 +279,3 @@ export default function GitHubCard() {
     </div>
   );
 }
-

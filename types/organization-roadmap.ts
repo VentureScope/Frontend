@@ -8,6 +8,13 @@ export interface RoadmapParticipant {
   progress: number;
 }
 
+/** Source attribution when a user forks a teammate's org roadmap */
+export interface OrgRoadmapForkSource {
+  roadmapId: string;
+  title: string;
+  createdByName: string;
+}
+
 /** Roadmap shared within an organization workspace */
 export interface OrganizationRoadmap extends LearningPath {
   orgId: string;
@@ -17,6 +24,8 @@ export interface OrganizationRoadmap extends LearningPath {
   /** Company practice area id (e.g. frontend, backend) */
   focusAreaId?: string;
   focusAreaTitle?: string;
+  /** Set on personal copies forked from a team roadmap */
+  forkedFrom?: OrgRoadmapForkSource;
 }
 
 /** Declared company area + live team context for roadmap generation */

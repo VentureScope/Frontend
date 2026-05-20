@@ -1,9 +1,12 @@
 import type { OrganizationListItem } from "@/types/organization";
+import { isPersonalFork } from "@/lib/organization-roadmap-fork";
 import type {
   MyRoadmapsTab,
   OrganizationRoadmap,
   OrgTeamRoadmapsFilter,
 } from "@/types/organization-roadmap";
+
+export { isPersonalFork };
 
 export function resolveCurrentUserId(authUserId?: string | null): string {
   return authUserId ?? "user-demo";
@@ -54,10 +57,12 @@ export function filterOrgTeamRoadmaps(
   userId: string,
   filter: OrgTeamRoadmapsFilter,
 ): OrganizationRoadmap[] {
+  /** Personal forks live on My roadmaps, not the shared team list */
+  const teamShared = roadmaps.filter((r) => !isPersonalFork(r));
   if (filter === "created-by-me") {
-    return roadmaps.filter((r) => isCreatedByUser(r, userId));
+    return teamShared.filter((r) => isCreatedByUser(r, userId));
   }
-  return roadmaps;
+  return teamShared;
 }
 
 export function groupRoadmapsByOrg(

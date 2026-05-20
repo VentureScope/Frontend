@@ -472,6 +472,18 @@ export async function getCurrentUserProfile(): Promise<AuthUser> {
   }
 }
 
+export async function retryUserEmbedding(): Promise<{ message: string }> {
+  const path = "/api/users/me/retry-embedding";
+  try {
+    const response = await api.post<{ message: string }>(path);
+    logRequestSuccess("POST", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("POST", path, error);
+    throw error;
+  }
+}
+
 export async function updateCurrentUserSkills(
   payload: UserSkillsPayload,
 ): Promise<void> {

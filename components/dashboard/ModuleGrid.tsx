@@ -1,33 +1,77 @@
-import { BookOpen, HelpCircle, FileText, Send } from "lucide-react";
+"use client";
 
-export default function ModuleGrid() {
+import { BookOpen, HelpCircle, FileText, Send } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ModuleGridSkeleton } from "@/components/dashboard/DashboardSkeletons";
+import { setAdvisorPendingMessage } from "@/lib/advisor-launch";
+import type { GeneratedResumeOut } from "@/types/generated-resume";
+import type { RoadmapListItem } from "@/types/roadmap";
+
+export default function ModuleGrid({
+  activeRoadmap,
+  latestResume,
+  profileMatchPercent,
+  loading,
+}: {
+  activeRoadmap: RoadmapListItem | null;
+  latestResume: GeneratedResumeOut | null;
+  profileMatchPercent: number | null;
+  loading?: boolean;
+}) {
+  const router = useRouter();
+
+  if (loading) {
+    return <ModuleGridSkeleton />;
+  }
+
+  const progress = Math.round(activeRoadmap?.completion_percentage ?? 0);
+  const roadmapHref = activeRoadmap
+    ? `/dashboard/learning-path/${activeRoadmap.id}`
+    : "/dashboard/learning-path/new-roadmap";
+  const resumeHref = latestResume
+    ? `/dashboard/resume-builder/${latestResume.id}`
+    : "/dashboard/resume-builder/new-resume";
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
-      <div className="vs-surface p-6 sm:p-8">
+      <Link
+        href={roadmapHref}
+        className="vs-surface block p-6 transition-colors hover:border-primary/25 sm:p-8"
+      >
         <div className="mb-6 flex items-center justify-between sm:mb-8">
           <div className="vs-icon-tile vs-icon-tile-primary p-2.5 sm:p-3">
             <BookOpen className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
-          <span className="text-label text-primary">Active Module</span>
+          <span className="text-label text-primary">
+            {activeRoadmap ? "Active module" : "Learning path"}
+          </span>
         </div>
         <div className="mb-6 sm:mb-8">
           <h3 className="text-lg font-semibold text-foreground sm:text-xl">
-            Advanced ARIMA Modeling
+            {activeRoadmap?.title ?? "Start a learning roadmap"}
           </h3>
           <p className="text-body text-muted-foreground">
-            Mastering Time Series Analysis
+            {activeRoadmap?.trend_name ?? "Generate a personalized path"}
           </p>
         </div>
-        <div className="space-y-2">
-          <div className="flex justify-between text-label text-muted-foreground">
-            <span>Progress</span>
-            <span>62%</span>
+        {activeRoadmap ? (
+          <div className="space-y-2">
+            <div className="flex justify-between text-label text-muted-foreground">
+              <span>Progress</span>
+              <span>{progress}%</span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary/80 transition-all"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
           </div>
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-            <div className="h-full w-[62%] rounded-full bg-primary/80" />
-          </div>
-        </div>
-      </div>
+        ) : (
+          <p className="text-sm font-medium text-primary">Create roadmap →</p>
+        )}
+      </Link>
 
       <div className="vs-surface p-6 sm:p-8">
         <div className="mb-6 flex items-center justify-between sm:mb-8">
@@ -39,36 +83,71 @@ export default function ModuleGrid() {
         <h3 className="mb-4 text-lg font-semibold text-foreground sm:mb-6 sm:text-xl">
           Ask your advisor anything
         </h3>
-        <div className="relative">
+        <form
+          className="relative"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const fd = new FormData(e.currentTarget);
+            const q = String(fd.get("question") ?? "").trim();
+            if (q) {
+              setAdvisorPendingMessage(q);
+            }
+            router.push("/dashboard/ai-advisor");
+          }}
+        >
           <input
+            name="question"
             placeholder="How can I negotiate my salary?"
             className="text-body w-full rounded-md border border-border bg-muted py-3.5 pr-12 pl-4 text-foreground outline-none placeholder:text-muted-foreground focus:border-primary/35 focus:ring-1 focus:ring-primary/20 sm:py-4"
           />
-          <Send className="absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 cursor-pointer text-primary sm:right-5" />
-        </div>
+          <button
+            type="submit"
+            className="absolute top-1/2 right-4 -translate-y-1/2 text-primary sm:right-5"
+            aria-label="Send to AI advisor"
+          >
+            <Send className="h-4 w-4" />
+          </button>
+        </form>
+        <Link
+          href="/dashboard/ai-advisor"
+          className="mt-3 inline-block text-xs font-semibold text-primary hover:underline"
+        >
+          Open AI Advisor →
+        </Link>
       </div>
 
-      <div className="vs-surface p-6 sm:p-8">
+      <div className="vs-surface flex flex-col p-6 sm:p-8">
         <div className="mb-6 flex items-center justify-between sm:mb-8">
           <div className="vs-icon-tile vs-icon-tile-secondary p-2.5 sm:p-3">
             <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
           <div className="text-right">
-            <p className="text-label text-muted-foreground">ATS Match</p>
-            <p className="text-lg font-semibold text-secondary sm:text-xl">92%</p>
+            <p className="text-label text-muted-foreground">Profile match</p>
+            <p className="text-lg font-semibold text-secondary sm:text-xl">
+              {profileMatchPercent != null ? `${profileMatchPercent}%` : "—"}
+            </p>
           </div>
         </div>
         <h3 className="mb-6 text-lg font-semibold text-foreground sm:mb-8 sm:text-xl">
-          Resume Version 4.2
+          {latestResume ? latestResume.target_role : "No resume yet"}
         </h3>
-        <button
-          type="button"
-          className="text-btn w-full rounded-md border border-border bg-muted py-3 font-medium text-foreground transition-colors hover:bg-muted/80 sm:py-3.5"
-        >
-          Build New Resume
-        </button>
+        <div className="mt-auto flex flex-col gap-2">
+          {latestResume ? (
+            <Link
+              href={resumeHref}
+              className="text-btn w-full rounded-md border border-border bg-muted py-3 text-center font-medium text-foreground transition-colors hover:bg-muted/80 sm:py-3.5"
+            >
+              View resume
+            </Link>
+          ) : null}
+          <Link
+            href="/dashboard/resume-builder/new-resume"
+            className="text-btn w-full rounded-md border border-primary/30 bg-primary/10 py-3 text-center font-medium text-primary transition-colors hover:bg-primary/15 sm:py-3.5"
+          >
+            {latestResume ? "Build new resume" : "Build resume"}
+          </Link>
+        </div>
       </div>
     </div>
   );
 }
-

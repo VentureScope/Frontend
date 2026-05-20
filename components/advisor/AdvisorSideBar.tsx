@@ -19,9 +19,9 @@ export default function AdvisorSideBar() {
     activeSessionId,
     fetchSessions,
     createSession,
+    startNewChatWithMessage,
     setActiveSession,
     deleteSession,
-    sendMessage,
     isLoading,
     isConnecting,
   } = useChatStore();
@@ -35,10 +35,7 @@ export default function AdvisorSideBar() {
   }
 
   async function handleQuickPrompt(text: string) {
-    const id = await createSession(text.slice(0, 48));
-    if (id) {
-      setTimeout(() => sendMessage(text), 400);
-    }
+    await startNewChatWithMessage(text);
   }
 
   if (isLoading && sessions.length === 0) {

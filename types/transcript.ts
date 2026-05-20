@@ -53,3 +53,8 @@ export interface TranscriptConfigResponse {
   created_at: string;
   updated_at: string;
 }
+
+export interface TranscriptListResponse {
+  transcripts: TranscriptResponse[];
+  total_count: number;
+}

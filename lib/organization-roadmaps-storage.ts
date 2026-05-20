@@ -32,6 +32,10 @@ function saveAll(roadmaps: OrganizationRoadmap[]): void {
   sessionStorage.setItem(ORG_ROADMAPS_STORAGE_KEY, JSON.stringify(roadmaps));
 }
 
+export function saveOrganizationRoadmaps(roadmaps: OrganizationRoadmap[]): void {
+  saveAll(roadmaps);
+}
+
 export function loadOrganizationRoadmaps(): OrganizationRoadmap[] {
   return loadAll();
 }

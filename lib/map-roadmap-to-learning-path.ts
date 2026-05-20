@@ -1,4 +1,9 @@
 import type { LearningPath, Module, Resource } from "@/app/(dashboard)/dashboard/learning-path/mockData";
+import {
+  formatRoadmapListFocus,
+  iconNameForTrend,
+  resolveRoadmapDisplayStatus,
+} from "@/lib/roadmap-utils";
 import type { ResourceOut, RoadmapListItem, RoadmapOut, StepOut } from "@/types/roadmap";
 import { stepProgressDone, stepUiStatus } from "@/types/roadmap";
 
@@ -29,14 +34,13 @@ function resourceTypeFromApi(
 
 function resourceMeta(r: ResourceOut): string {
   const bits: string[] = [];
-  if (r.source) {
-    bits.push(r.source);
-  }
   if (r.resource_type) {
-    bits.push(r.resource_type);
+    bits.push(
+      r.resource_type.charAt(0).toUpperCase() + r.resource_type.slice(1),
+    );
   }
-  if (r.url && /^https?:\/\//i.test(r.url.trim())) {
-    bits.push(r.url.trim());
+  if (r.source) {
+    bits.push(r.source.replace(/_/g, " "));
   }
   return bits.join(" · ") || "Resource";
 }
@@ -80,42 +84,149 @@ function roadmapProgress(roadmap: RoadmapOut): number {
   return Math.round((done / steps.length) * 100);
 }
 
+function resolveCompletionPercent(
+  fromApi: number | undefined,
+  fallback: number,
+): number {
+  if (typeof fromApi === "number" && !Number.isNaN(fromApi)) {
+    return Math.round(Math.min(100, Math.max(0, fromApi)));
+  }
+  return fallback;
+}
+
+function derivedRoadmapStatus(
+  roadmap: Pick<
+    RoadmapOut,
+    | "status"
+    | "completion_percentage"
+    | "steps_completed"
+    | "total_steps"
+    | "steps"
+  >,
+  modulesCount: number,
+): string {
+  return resolveRoadmapDisplayStatus({
+    status: roadmap.status,
+    completion_percentage: roadmap.completion_percentage,
+    steps_completed: roadmap.steps_completed,
+    total_steps: roadmap.total_steps ?? modulesCount,
+    steps: roadmap.steps,
+  });
+}
+
 export function roadmapOutToLearningPath(
   roadmap: RoadmapOut,
-  iconName = "BarChart3",
+  iconName?: string,
 ): LearningPath {
   const modules = (roadmap.steps ?? []).map(mapStepToModule);
+  const computed = roadmapProgress(roadmap);
+  const icon = iconName ?? iconNameForTrend(roadmap.trend_name);
+  const displayStatus = derivedRoadmapStatus(roadmap, modules.length);
+
   return {
     id: roadmap.id,
     title: roadmap.title,
-    focus: roadmap.trend_name || "Personalized roadmap",
-    progress: roadmapProgress(roadmap),
-    iconName,
+    focus: formatRoadmapListFocus({
+      id: roadmap.id,
+      title: roadmap.title,
+      trend_name: roadmap.trend_name,
+      total_weeks: roadmap.total_weeks,
+      status: displayStatus,
+      created_at: roadmap.created_at,
+      steps_completed: roadmap.steps_completed,
+      total_steps: roadmap.total_steps ?? modules.length,
+      completion_percentage: roadmap.completion_percentage,
+    }),
+    progress: resolveCompletionPercent(
+      roadmap.completion_percentage,
+      computed,
+    ),
+    iconName: icon,
     isExpanded: modules.length > 0,
     modules,
-    roadmapStatus: roadmap.status,
+    roadmapStatus: displayStatus,
     createdAt: roadmap.created_at,
     trendName: roadmap.trend_name ?? null,
+    goal: roadmap.goal ?? null,
+    summary: roadmap.summary ?? null,
+    totalWeeks: roadmap.total_weeks,
+    stepsCompleted: roadmap.steps_completed,
+    totalSteps: roadmap.total_steps ?? modules.length,
   };
 }
 
-export function roadmapListItemToStubPath(
-  item: RoadmapListItem,
-  iconName = "BarChart3",
-): LearningPath {
-  const trend = item.trend_name?.trim() || "Learning roadmap";
-  const focus = `${trend} · ${item.total_weeks} weeks`;
+export function roadmapListItemToStubPath(item: RoadmapListItem): LearningPath {
+  const displayStatus = resolveRoadmapDisplayStatus({
+    status: item.status,
+    completion_percentage: item.completion_percentage,
+    steps_completed: item.steps_completed,
+    total_steps: item.total_steps,
+  });
 
   return {
     id: item.id,
     title: item.title,
-    focus,
-    progress: 0,
-    iconName,
+    focus: formatRoadmapListFocus({ ...item, status: displayStatus }),
+    progress: resolveCompletionPercent(item.completion_percentage, 0),
+    iconName: iconNameForTrend(item.trend_name),
     isExpanded: false,
     modules: [],
-    roadmapStatus: item.status,
+    roadmapStatus: displayStatus,
     createdAt: item.created_at,
     trendName: item.trend_name ?? null,
+    totalWeeks: item.total_weeks,
+    stepsCompleted: item.steps_completed,
+    totalSteps: item.total_steps,
+  };
+}
+
+/** Apply roadmap-level stats returned after a step progress PATCH */
+export function applyRoadmapProgressStats(
+  path: LearningPath,
+  stats: {
+    completion_percentage: number;
+    roadmap_status: string;
+    steps_completed: number;
+    total_steps: number;
+  },
+): LearningPath {
+  const displayStatus = resolveRoadmapDisplayStatus({
+    status: stats.roadmap_status,
+    completion_percentage: stats.completion_percentage,
+    steps_completed: stats.steps_completed,
+    total_steps: stats.total_steps,
+    steps: path.modules.map((m) => ({
+      id: m.id,
+      week_number: 0,
+      topic: m.title,
+      status: m.status,
+      progress: {
+        status:
+          m.status === "completed"
+            ? "completed"
+            : m.status === "in-progress"
+              ? "in_progress"
+              : "not_started",
+      },
+    })),
+  });
+
+  return {
+    ...path,
+    progress: resolveCompletionPercent(stats.completion_percentage, path.progress),
+    roadmapStatus: displayStatus,
+    stepsCompleted: stats.steps_completed,
+    totalSteps: stats.total_steps,
+    focus: formatRoadmapListFocus({
+      id: path.id,
+      title: path.title,
+      trend_name: path.trendName,
+      total_weeks: path.totalWeeks ?? 0,
+      status: displayStatus,
+      created_at: path.createdAt ?? new Date().toISOString(),
+      steps_completed: stats.steps_completed,
+      total_steps: stats.total_steps,
+      completion_percentage: stats.completion_percentage,
+    }),
   };
 }

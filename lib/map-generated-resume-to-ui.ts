@@ -1,5 +1,10 @@
 import type { Resume } from "@/app/(dashboard)/dashboard/resume-builder/mockData";
 import type { GeneratedResumeOut } from "@/types/generated-resume";
+import {
+  computeAtsLabel,
+  computeResumeMatchScore,
+  formatResumeSubtitle,
+} from "@/lib/resume-utils";
 
 function formatRelativeTime(iso: string): string {
   const t = new Date(iso).getTime();
@@ -21,12 +26,21 @@ function formatRelativeTime(iso: string): string {
   return new Date(iso).toLocaleDateString();
 }
 
+function flattenSkills(api: GeneratedResumeOut): string[] {
+  const technical = api.skills?.technical ?? [];
+  const soft = api.skills?.soft ?? [];
+  const trending = api.trending_skills_highlighted ?? [];
+  const merged = [...technical, ...soft, ...trending];
+  return [...new Set(merged.map((s) => s.trim()).filter(Boolean))];
+}
+
 export function generatedResumeToListingResume(
   api: GeneratedResumeOut,
 ): Resume {
-  const skills = api.skills
-    ? [...(api.skills.technical ?? []), ...(api.skills.soft ?? [])]
-    : api.trending_skills_highlighted ?? [];
+  const technicalSkills = api.skills?.technical ?? [];
+  const softSkills = api.skills?.soft ?? [];
+  const trendingSkills = api.trending_skills_highlighted ?? [];
+  const allSkills = flattenSkills(api);
 
   const experience =
     api.experience?.map((e, i) => ({
@@ -34,7 +48,8 @@ export function generatedResumeToListingResume(
       role: e.role,
       company: e.company,
       duration: e.duration || "",
-      description: e.highlights?.length ? e.highlights : [""],
+      description:
+        e.highlights?.filter((h) => h.trim().length > 0) ?? [],
     })) ?? [];
 
   const education =
@@ -43,59 +58,55 @@ export function generatedResumeToListingResume(
       degree: ed.degree,
       school: ed.institution,
       year: ed.year || "",
+      field: ed.field || undefined,
     })) ?? [];
 
-  const projectSummary =
-    api.projects && api.projects.length > 0
-      ? "\n\n" +
-        api.projects
-          .map((p) =>
-            [p.name, p.description, (p.technologies ?? []).join(", ")]
-              .filter(Boolean)
-              .join(" — "),
-          )
-          .join("\n")
-      : "";
+  const projects =
+    api.projects?.map((p, i) => ({
+      id: `proj-${i}`,
+      name: p.name,
+      description: p.description || "",
+      technologies: p.technologies ?? [],
+    })) ?? [];
 
-  const summary =
-    (api.professional_summary || `Target role: ${api.target_role}.`) +
-    projectSummary;
+  const certifications =
+    api.certifications?.map((c, i) => ({
+      id: `cert-${i}`,
+      name: c.name,
+      issuer: c.issuer || undefined,
+      year: c.year || undefined,
+    })) ?? [];
+
+  const matchScore = computeResumeMatchScore(api);
+  const warnings = api.warnings ?? [];
+
+  const professionalSummary =
+    api.professional_summary?.trim() ||
+    (warnings.length > 0
+      ? `Resume for ${api.target_role}. Complete your profile to enrich missing sections.`
+      : `Resume tailored for ${api.target_role}.`);
 
   return {
     id: api.id,
     title: api.target_role,
-    company: "Generated resume",
+    company: formatResumeSubtitle(api),
     lastUpdated: formatRelativeTime(api.created_at),
-    matchScore: skills.length ? Math.min(99, 70 + Math.min(skills.length, 12)) : 72,
-    atsStatus: skills.length >= 8 ? "Strong" : "Good",
-    tags: (api.trending_skills_highlighted ?? []).slice(0, 3),
+    createdAt: api.created_at,
+    matchScore,
+    atsStatus: computeAtsLabel(api, matchScore),
+    tags: trendingSkills.slice(0, 4),
     isRecent: Date.now() - new Date(api.created_at).getTime() < 86400000,
+    warnings,
+    technicalSkills,
+    softSkills,
+    trendingSkills,
     content: {
-      summary,
-      experience:
-        experience.length > 0
-          ? experience
-          : [
-              {
-                id: "placeholder",
-                role: api.target_role,
-                company: "—",
-                duration: "",
-                description: ["Add experience in your profile to enrich this section."],
-              },
-            ],
-      education:
-        education.length > 0
-          ? education
-          : [
-              {
-                id: "edu-placeholder",
-                degree: "—",
-                school: "—",
-                year: "",
-              },
-            ],
-      skills: skills.length > 0 ? skills : ["Skills pending"],
+      summary: professionalSummary,
+      experience,
+      education,
+      projects,
+      certifications,
+      skills: allSkills.length > 0 ? allSkills : [],
     },
   };
 }

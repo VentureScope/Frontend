@@ -31,10 +31,54 @@ export interface ChatState {
 
   fetchSessions: () => Promise<void>;
   createSession: (title?: string) => Promise<string | null>;
+  /** New session + first user message (e.g. from dashboard overview). */
+  startNewChatWithMessage: (content: string) => Promise<string | null>;
   setActiveSession: (id: string) => Promise<void>;
   sendMessage: (content: string) => void;
   deleteSession: (id: string) => Promise<void>;
   disconnect: () => void;
+}
+
+function waitForChatWebSocket(
+  getState: () => ChatState,
+  sessionId: string,
+  timeoutMs = 15000,
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const started = Date.now();
+
+    const check = () => {
+      const { ws, activeSessionId, error } = getState();
+
+      if (error) {
+        reject(new Error(error));
+        return;
+      }
+
+      if (ws && activeSessionId === sessionId && ws.readyState === WebSocket.OPEN) {
+        resolve();
+        return;
+      }
+
+      if (
+        ws &&
+        (ws.readyState === WebSocket.CLOSING ||
+          ws.readyState === WebSocket.CLOSED)
+      ) {
+        reject(new Error("WebSocket closed before it could connect"));
+        return;
+      }
+
+      if (Date.now() - started > timeoutMs) {
+        reject(new Error("WebSocket connection timed out"));
+        return;
+      }
+
+      window.setTimeout(check, 50);
+    };
+
+    check();
+  });
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -73,6 +117,30 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
+  startNewChatWithMessage: async (content: string) => {
+    const trimmed = content.trim();
+    if (!trimmed) return null;
+
+    get().disconnect();
+
+    const title =
+      trimmed.length > 48 ? `${trimmed.slice(0, 45)}…` : trimmed;
+    const id = await get().createSession(title);
+    if (!id) return null;
+
+    try {
+      await waitForChatWebSocket(get, id);
+      get().sendMessage(trimmed);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "WebSocket connection failed";
+      console.error("Failed to send initial advisor message:", message);
+      set({ error: message, isConnecting: false });
+    }
+
+    return id;
+  },
+
   setActiveSession: async (id: string) => {
     const currentWs = get().ws;
     if (currentWs) {
@@ -98,6 +166,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
         /^http/,
         "ws",
       )}/api/chat/ws/${id}?token=${token}`;
+
+      set({ isConnecting: true });
 
       const ws = new WebSocket(wsUrl);
 
@@ -181,15 +251,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
       ws.onerror = (error) => {
         console.error("WebSocket error:", error);
+        set({
+          isConnecting: false,
+          error: "WebSocket connection failed",
+        });
       };
 
       ws.onclose = () => {
-        set({ ws: null });
+        set({ ws: null, isConnecting: false });
       };
 
       set({ ws });
     } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+      set({ error: error.message, isLoading: false, isConnecting: false });
     }
   },
 

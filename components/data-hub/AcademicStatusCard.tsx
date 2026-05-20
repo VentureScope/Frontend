@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   GraduationCap,
   FileText,
@@ -10,15 +10,17 @@ import {
   Calendar,
   Hash,
   Award,
+  RefreshCw,
 } from "lucide-react";
-import { getLatestTranscript, getTranscriptConfig } from "@/lib/auth-api";
 import {
   TranscriptResponse,
   TranscriptConfigResponse,
+  TranscriptListResponse,
   SemesterSchema,
 } from "@/types/transcript";
+import { formatHubTimestamp, isTranscriptSynced } from "@/lib/data-hub-utils";
+import TranscriptDetailDialog from "@/components/data-hub/TranscriptDetailDialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
 
 /**
  * Finds the latest semester that has meaningful data (non-zero CGPA or graded courses).
@@ -63,46 +65,28 @@ function countCompletedSemesters(semesters: SemesterSchema[]): number {
   ).length;
 }
 
-export default function AcademicStatusCard() {
-  const [transcript, setTranscript] = useState<TranscriptResponse | null>(null);
-  const [config, setConfig] = useState<TranscriptConfigResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+type AcademicStatusCardProps = {
+  transcript?: TranscriptResponse | null;
+  transcriptList?: TranscriptListResponse | null;
+  config?: TranscriptConfigResponse | null;
+  loading?: boolean;
+  onRefresh?: () => Promise<void>;
+};
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [transcriptData, configData] = await Promise.all([
-          getLatestTranscript().catch((err: any) => {
-            if (err.response?.status !== 404) {
-              console.error("Error fetching latest transcript:", err);
-              toast.error("Failed to load transcript data");
-            }
-            return null;
-          }),
-          getTranscriptConfig().catch((err: any) => {
-            console.error("Error fetching transcript config:", err);
-            toast.error("Failed to load transcript configuration");
-            return null;
-          }),
-        ]);
-
-        if (transcriptData) {
-          setTranscript(transcriptData);
-        }
-        if (configData) setConfig(configData);
-      } catch (error) {
-        console.error("Failed to load academic data", error);
-        toast.error("An expected error occurred while fetching records");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
+export default function AcademicStatusCard({
+  transcript = null,
+  transcriptList = null,
+  config = null,
+  loading = false,
+  onRefresh,
+}: AcademicStatusCardProps = {}) {
+  const [showDetail, setShowDetail] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const semesters = transcript?.transcript_data?.semesters || [];
   const latestSemester = findLatestGradedSemester(semesters);
-  const isConnected = semesters.length > 0 && latestSemester !== null;
+  const isConnected = isTranscriptSynced(transcript);
+  const versions = transcriptList?.transcripts ?? [];
 
   const gpaScale = config?.gpa_scale || 4.0;
   const latestCGPA = latestSemester?.cumulative_summary?.cgpa || 0;
@@ -116,14 +100,20 @@ export default function AcademicStatusCard() {
   const academicYear = latestSemester?.academic_year || null;
 
   const formattedDate = transcript?.uploaded_at
-    ? new Date(transcript.uploaded_at).toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
+    ? formatHubTimestamp(transcript.uploaded_at)
     : "Never";
+
+  const handleRefresh = async () => {
+    if (!onRefresh) {
+      return;
+    }
+    setRefreshing(true);
+    try {
+      await onRefresh();
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const versionLabel = transcript?.version
     ? `v${transcript.version}`
@@ -148,7 +138,7 @@ export default function AcademicStatusCard() {
           ? "bg-secondary/10"
           : "bg-destructive/10";
 
-  if (loading && !transcript) {
+  if (loading && !transcript && semesters.length === 0) {
     return (
       <div className="relative rounded-lg sm:rounded-xl border border-border bg-card p-6 sm:p-8 shadow-sm">
         <div className="flex flex-col gap-6 sm:gap-8">
@@ -318,10 +308,26 @@ export default function AcademicStatusCard() {
           </div>
         )}
 
-        {/* Actions */}
+        {versions.length > 1 ? (
+          <div className="rounded-lg border border-border bg-muted/30 p-4">
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              Version history ({transcriptList?.total_count ?? versions.length})
+            </p>
+            <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+              {versions.slice(0, 3).map((v) => (
+                <li key={v.id}>
+                  v{v.version} · {formatHubTimestamp(v.uploaded_at)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
         <div className="flex flex-col sm:flex-row gap-3">
           <button
+            type="button"
             disabled={!isConnected}
+            onClick={() => setShowDetail(true)}
             className={`flex items-center justify-center gap-2 rounded-xl px-4 sm:px-6 py-3 text-xs sm:text-sm font-bold ${isConnected
               ? "bg-muted text-primary hover:bg-muted"
               : "bg-muted text-muted-foreground cursor-not-allowed"
@@ -329,11 +335,29 @@ export default function AcademicStatusCard() {
           >
             <FileText className="h-4 w-4" /> View Full Transcript
           </button>
-          <button className="flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-xs font-bold text-primary-foreground transition-colors hover:bg-primary/90 sm:px-6 sm:text-sm">
-            <UploadCloud className="h-4 w-4" /> Update Records
+          <button
+            type="button"
+            onClick={() => void handleRefresh()}
+            disabled={!onRefresh || refreshing}
+            className="flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-xs font-bold text-primary-foreground transition-colors hover:bg-primary/90 sm:px-6 sm:text-sm disabled:opacity-50"
+          >
+            {refreshing ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <UploadCloud className="h-4 w-4" />
+            )}
+            Refresh from API
           </button>
         </div>
       </div>
+
+      {showDetail && transcript ? (
+        <TranscriptDetailDialog
+          transcript={transcript}
+          gpaScale={gpaScale}
+          onClose={() => setShowDetail(false)}
+        />
+      ) : null}
     </div>
   );
 }
