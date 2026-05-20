@@ -22,6 +22,11 @@ export function Broadcasts() {
 
   return (
     <div className={`${adminPage} grid grid-cols-5 gap-4`}>
+      <div className="col-span-5 rounded-md border border-amber-900/60 bg-amber-950/40 px-4 py-3 text-sm text-amber-200/90">
+        <span className="font-medium text-amber-300">Preview only.</span> Platform
+        broadcasts are not backed by an admin API in OpenAPI yet. Recipient counts and
+        history below are illustrative mock data.
+      </div>
       <div className="col-span-3 border border-zinc-800 bg-zinc-900 p-4">
         <h2 className="mb-4 text-sm font-medium text-white">Send Platform Broadcast</h2>
 

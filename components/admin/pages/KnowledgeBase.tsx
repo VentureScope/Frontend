@@ -27,7 +27,12 @@ export function KnowledgeBase() {
   }, {});
 
   return (
-    <div className={`${adminPage} flex h-[calc(100vh-7rem)] gap-0 border border-zinc-800`}>
+    <div className={adminPage}>
+      <div className="mb-4 rounded-md border border-amber-900/60 bg-amber-950/40 px-4 py-3 text-sm text-amber-200/90">
+        <span className="font-medium text-amber-300">Preview only.</span> Knowledge
+        chunks are mock data until an admin knowledge-base API is available.
+      </div>
+    <div className={`flex h-[calc(100vh-7rem)] gap-0 border border-zinc-800`}>
       <div className="flex w-[300px] shrink-0 flex-col border-r border-zinc-800 bg-zinc-950">
         <div className="space-y-2 border-b border-zinc-800 p-3">
           <input type="search" placeholder="Search chunks…" className={`${adminInput} text-xs`} />
@@ -111,6 +116,7 @@ export function KnowledgeBase() {
           <span>Vector dims: 1536</span>
         </div>
       </div>
+    </div>
     </div>
   );
 }
