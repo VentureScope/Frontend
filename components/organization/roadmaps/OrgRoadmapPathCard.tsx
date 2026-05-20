@@ -5,11 +5,13 @@ import {
   ChevronDown,
   ChevronUp,
   Check,
+  GitFork,
   User,
 } from "lucide-react";
 import ResourceItem from "@/components/learning-path/ResourceItem";
 import { PathCardModulesSkeleton } from "@/components/learning-path/LearningPathSkeletons";
 import { ParticipantAvatars } from "@/components/organization/roadmaps/ParticipantAvatars";
+import { Button } from "@/components/ui/button";
 import type { OrganizationRoadmap } from "@/types/organization-roadmap";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +28,9 @@ type Props = {
   onViewDetails: (id: string) => void;
   isDetailLoading?: boolean;
   showTeamEnrollment?: boolean;
+  canFork?: boolean;
+  onFork?: (id: string) => void;
+  userForkId?: string | null;
 };
 
 export function OrgRoadmapPathCard({
@@ -35,6 +40,9 @@ export function OrgRoadmapPathCard({
   onViewDetails,
   isDetailLoading,
   showTeamEnrollment = true,
+  canFork = false,
+  onFork,
+  userForkId = null,
 }: Props) {
   const learnerCount = roadmap.participants.length;
 
@@ -69,10 +77,34 @@ export function OrgRoadmapPathCard({
               <p className="text-body text-muted-foreground">
                 Focus: {roadmap.focus}
               </p>
-              <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <User className="h-3.5 w-3.5 shrink-0" />
-                Created by {roadmap.createdByName}
-              </p>
+              {roadmap.forkedFrom ? (
+                <p className="text-xs text-muted-foreground">
+                  Forked from{" "}
+                  <span className="font-medium text-foreground">
+                    {roadmap.forkedFrom.title}
+                  </span>{" "}
+                  by {roadmap.forkedFrom.createdByName}
+                </p>
+              ) : (
+                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <User className="h-3.5 w-3.5 shrink-0" />
+                  Created by {roadmap.createdByName}
+                </p>
+              )}
+              {canFork && onFork ? (
+                <div className="pt-2" onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-8 gap-1.5 text-xs"
+                    onClick={() => onFork(roadmap.id)}
+                  >
+                    <GitFork className="h-3.5 w-3.5" />
+                    {userForkId ? "View your fork" : "Fork for myself"}
+                  </Button>
+                </div>
+              ) : null}
               {showTeamEnrollment && learnerCount > 0 && (
                 <div className="flex flex-wrap items-center gap-3 pt-1">
                   <ParticipantAvatars participants={roadmap.participants} />

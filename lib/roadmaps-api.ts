@@ -4,6 +4,7 @@ import type {
   RoadmapListItem,
   RoadmapOut,
   StepProgressUpdate,
+  StepProgressUpdateOut,
 } from "@/types/roadmap";
 
 export async function listRoadmaps(): Promise<RoadmapListItem[]> {
@@ -26,6 +27,10 @@ export async function generateRoadmap(
 export async function updateStepProgress(
   stepId: string,
   body: StepProgressUpdate,
-): Promise<void> {
-  await api.patch(`/api/roadmaps/steps/${stepId}/progress`, body);
+): Promise<StepProgressUpdateOut> {
+  const res = await api.patch<StepProgressUpdateOut>(
+    `/api/roadmaps/steps/${stepId}/progress`,
+    body,
+  );
+  return res.data;
 }

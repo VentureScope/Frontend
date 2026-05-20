@@ -1,11 +1,34 @@
 import { Chrome, ShieldCheck, Zap, Download } from "lucide-react";
+import { isTranscriptSynced } from "@/lib/data-hub-utils";
+import type { TranscriptResponse } from "@/types/transcript";
 
-export default function ExtensionCard() {
+type ExtensionCardProps = {
+  transcript?: TranscriptResponse | null;
+  versionCount?: number;
+};
+
+export default function ExtensionCard({
+  transcript = null,
+  versionCount = 0,
+}: ExtensionCardProps) {
+  const hasRecords = isTranscriptSynced(transcript);
+
   return (
     <div className="vs-surface-accent flex h-full flex-col justify-between p-6 sm:p-8 lg:p-10">
       <div className="space-y-6 sm:space-y-8">
-        <div className="vs-icon-tile vs-icon-tile-secondary h-10 w-10 sm:h-12 sm:w-12">
-          <Chrome className="h-5 w-5 sm:h-6 sm:w-6" />
+        <div className="flex items-start justify-between gap-3">
+          <div className="vs-icon-tile vs-icon-tile-secondary h-10 w-10 sm:h-12 sm:w-12">
+            <Chrome className="h-5 w-5 sm:h-6 sm:w-6" />
+          </div>
+          <span
+            className={
+              hasRecords
+                ? "vs-badge vs-badge-success"
+                : "vs-badge bg-muted text-muted-foreground"
+            }
+          >
+            {hasRecords ? "Records synced" : "Awaiting data"}
+          </span>
         </div>
 
         <div className="space-y-2 sm:space-y-3">
@@ -13,9 +36,16 @@ export default function ExtensionCard() {
             Browser Extension
           </h3>
           <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
-            Automate your academic data extraction. Seamlessly pull grades and
-            transcripts from university portals with one click.
+            Automate academic data extraction. Pull grades and transcripts from
+            university portals — uploads to{" "}
+            <code className="text-[10px]">POST /api/transcripts/</code>.
           </p>
+          {hasRecords && versionCount > 0 ? (
+            <p className="text-xs font-semibold text-primary">
+              {versionCount} transcript version
+              {versionCount === 1 ? "" : "s"} stored on your account.
+            </p>
+          ) : null}
         </div>
 
         <div className="space-y-2 sm:space-y-3">
@@ -43,4 +73,3 @@ export default function ExtensionCard() {
     </div>
   );
 }
-

@@ -19,7 +19,6 @@ import { useResumeBuilderStore } from "@/store/useResumeBuilderStore";
 import { generateResume } from "@/lib/resume-api";
 import { generatedResumeToListingResume } from "@/lib/map-generated-resume-to-ui";
 import type { Resume } from "@/app/(dashboard)/dashboard/resume-builder/mockData";
-import { mockResumes } from "@/app/(dashboard)/dashboard/resume-builder/mockData";
 import { toast } from "sonner";
 
 interface WorkflowItem {
@@ -64,7 +63,7 @@ export default function Step3Editor() {
 
   useEffect(() => {
     if (!selectedRole) {
-      setPreviewResume(mockResumes[0]);
+      setPreviewResume(null);
       setGenLoading(false);
       return;
     }
@@ -79,7 +78,7 @@ export default function Step3Editor() {
       } catch {
         if (!cancelled) {
           toast.error("Could not generate resume from API.");
-          setPreviewResume(mockResumes[0]);
+          setPreviewResume(null);
         }
       } finally {
         if (!cancelled) {
@@ -228,8 +227,12 @@ export default function Step3Editor() {
                   Generating your resume…
                 </p>
               </div>
+            ) : previewResume ? (
+              <ResumePreview resume={previewResume} />
             ) : (
-              <ResumePreview resume={previewResume ?? mockResumes[0]} />
+              <p className="py-24 text-center text-sm text-muted-foreground">
+                Select a role to generate a preview.
+              </p>
             )}
 
             {/* Action Buttons */}

@@ -1,3 +1,7 @@
+import Link from "next/link";
+import { MarketTrendsCardSkeleton } from "@/components/dashboard/DashboardSkeletons";
+import type { InDemandSkill, TrendingCareer } from "@/types/jobs";
+
 const BAR_COLORS = [
   "bg-chart-1/90",
   "bg-chart-1/70",
@@ -8,25 +12,64 @@ const BAR_COLORS = [
   "bg-chart-4",
 ];
 
-export default function MarketTrendsCard() {
-  const bars = [25, 60, 45, 75, 55, 90, 70];
+function barHeights(careers: TrendingCareer[]): number[] {
+  if (careers.length === 0) return [25, 60, 45, 75, 55, 90, 70];
+  const max = Math.max(...careers.map((c) => c.job_count), 1);
+  return careers
+    .slice(0, 7)
+    .map((c) => Math.max(12, Math.round((c.job_count / max) * 100)));
+}
+
+export default function MarketTrendsCard({
+  trending,
+  skills,
+  loading,
+}: {
+  trending: TrendingCareer[];
+  skills: InDemandSkill[];
+  loading?: boolean;
+}) {
+  if (loading) {
+    return <MarketTrendsCardSkeleton />;
+  }
+
+  const bars = barHeights(trending);
+  const lead = trending[0];
+  const growth =
+    lead?.growth_pct != null && lead.growth_pct > 0
+      ? `+${lead.growth_pct.toFixed(0)}%`
+      : lead
+        ? `${lead.job_count.toLocaleString()} openings`
+        : "Live market data";
 
   return (
-    <div className="vs-surface p-6 sm:p-8 lg:p-10">
+    <Link
+      href="/dashboard/market-trends"
+      className="vs-surface block p-6 transition-colors hover:border-primary/25 sm:p-8 lg:p-10"
+    >
       <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:mb-10 sm:flex-row sm:items-end">
         <div>
           <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
-            Market Trends
+            Market trends
           </h2>
           <p className="text-body text-muted-foreground">
-            Full-Stack Dev Demand:{" "}
-            <span className="font-semibold text-success">+12% this month</span>
+            {lead ? (
+              <>
+                {lead.name} demand:{" "}
+                <span className="font-semibold text-success">{growth}</span>
+              </>
+            ) : (
+              "Explore hiring demand and in-demand skills"
+            )}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {["React", "Node.js"].map((tag) => (
-            <span key={tag} className="vs-accent-chip text-label rounded-md px-3 py-1">
-              {tag}
+          {skills.slice(0, 3).map((s) => (
+            <span
+              key={s.skill}
+              className="vs-accent-chip text-label rounded-md px-3 py-1"
+            >
+              {s.skill}
             </span>
           ))}
         </div>
@@ -41,6 +84,10 @@ export default function MarketTrendsCard() {
           />
         ))}
       </div>
-    </div>
+
+      <p className="mt-4 text-xs font-semibold text-primary">
+        View full market insights →
+      </p>
+    </Link>
   );
 }

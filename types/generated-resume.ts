@@ -25,6 +25,12 @@ export interface ProjectSection {
   technologies?: string[];
 }
 
+export interface CertificationSection {
+  name: string;
+  issuer?: string | null;
+  year?: string | null;
+}
+
 export interface GeneratedResumeOut {
   id: string;
   user_id: string;
@@ -34,7 +40,8 @@ export interface GeneratedResumeOut {
   experience?: ExperienceSection[];
   education?: EducationSection[];
   projects?: ProjectSection[];
-  certifications?: { name: string; issuer?: string | null; year?: string | null }[];
+  certifications?: CertificationSection[];
   trending_skills_highlighted?: string[];
   created_at: string;
+  warnings?: string[];
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BarChart3, Building2, Cloud, MapPinned, Plus } from "lucide-react";
@@ -11,7 +11,7 @@ import { useOrgRoadmapListState } from "@/components/organization/roadmaps/useOr
 import { OrganizationPageHeader } from "@/components/organization/OrganizationPageHeader";
 import { Button } from "@/components/ui/button";
 import { MOCK_ORGANIZATIONS } from "@/lib/organizations-data";
-import { MOCK_ORGANIZATION_ROADMAPS } from "@/lib/organization-roadmaps-data";
+import { loadOrganizationRoadmaps } from "@/lib/organization-roadmaps-storage";
 import {
   filterMyRoadmaps,
   getMyProgress,
@@ -20,7 +20,10 @@ import {
   isEnrolledInRoadmap,
   resolveCurrentUserId,
 } from "@/lib/organization-roadmap-utils";
-import type { MyRoadmapsTab } from "@/types/organization-roadmap";
+import type {
+  MyRoadmapsTab,
+  OrganizationRoadmap,
+} from "@/types/organization-roadmap";
 import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 
@@ -49,8 +52,19 @@ export function MyOrganizationRoadmapsView() {
 
   const [activeTab, setActiveTab] = useState<MyRoadmapsTab>("all");
   const [orgFilter, setOrgFilter] = useState<string>(ALL_ORGS_FILTER);
-  const { paths, expandedPathIds, handleToggleExpand, handleToggleResource } =
-    useOrgRoadmapListState(MOCK_ORGANIZATION_ROADMAPS);
+  const { paths, setPaths, expandedPathIds, handleToggleExpand, handleToggleResource } =
+    useOrgRoadmapListState<OrganizationRoadmap>([]);
+
+  useEffect(() => {
+    setPaths(loadOrganizationRoadmaps());
+  }, [setPaths]);
+
+  const createHref =
+    orgFilter !== ALL_ORGS_FILTER
+      ? `/dashboard/organization/${orgFilter}/roadmaps/new`
+      : MOCK_ORGANIZATIONS[0]
+        ? `/dashboard/organization/${MOCK_ORGANIZATIONS[0].id}/roadmaps/new`
+        : "/dashboard/organization";
 
   const selectedOrgName = useMemo(() => {
     if (orgFilter === ALL_ORGS_FILTER) {
@@ -102,7 +116,7 @@ export function MyOrganizationRoadmapsView() {
           <Link href="/dashboard/organization">View organizations</Link>
         </Button>
         <Button asChild size="sm" className="gap-1.5">
-          <Link href="/dashboard/learning-path/new-roadmap">
+          <Link href={createHref}>
             <Plus className="h-4 w-4" />
             New roadmap
           </Link>

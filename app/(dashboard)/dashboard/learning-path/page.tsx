@@ -17,6 +17,7 @@ import {
   roadmapBelongsToTab,
 } from "@/lib/trending-career-segments";
 import {
+  applyRoadmapProgressStats,
   roadmapListItemToStubPath,
   roadmapOutToLearningPath,
 } from "@/lib/map-roadmap-to-learning-path";
@@ -115,6 +116,19 @@ export default function LearningPathPage() {
       });
   }, [paths, activeTabId, futureTrendNames]);
 
+  const tabsWithCounts = useMemo(() => {
+    return tabsData.map((tab) => {
+      const tabId =
+        tab.id === FUTURE_PREDICTIONS_TAB
+          ? FUTURE_PREDICTIONS_TAB
+          : CURRENT_TRENDS_TAB;
+      const count = paths.filter((path) =>
+        roadmapBelongsToTab(path.trendName, tabId, futureTrendNames),
+      ).length;
+      return { ...tab, name: `${tab.name} (${count})` };
+    });
+  }, [paths, futureTrendNames]);
+
   const handleToggleExpand = useCallback((id: string) => {
     setExpandedPathIds((prev) => {
       if (prev.includes(id)) {
@@ -178,9 +192,19 @@ export default function LearningPathPage() {
         .find((p) => p.id === pathId)
         ?.modules.find((m) => m.id === moduleId);
       if (mod) {
-        void syncRoadmapStepProgress(moduleId, mod.resources).catch(() => {
-          toast.error("Could not sync step progress.");
-        });
+        void syncRoadmapStepProgress(moduleId, mod.resources)
+          .then((stats) => {
+            setPaths((p) =>
+              p.map((path) =>
+                path.id === pathId
+                  ? applyRoadmapProgressStats(path, stats)
+                  : path,
+              ),
+            );
+          })
+          .catch(() => {
+            toast.error("Could not sync step progress.");
+          });
       }
       return next;
     });
@@ -190,7 +214,7 @@ export default function LearningPathPage() {
     <div className="mx-auto max-w-6xl">
         <HeaderSection />
         <TabNavigation
-          tabs={tabsData}
+          tabs={tabsWithCounts}
           activeTabId={activeTabId}
           onTabChange={setActiveTabId}
         />

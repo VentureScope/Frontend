@@ -7,6 +7,7 @@ import { ChatComposer } from "@/components/chat/ChatComposer";
 import { cn } from "@/lib/utils";
 import { ChatMessageList } from "@/components/chat/ChatMessageList";
 import { ChatPromptChips } from "@/components/chat/ChatPromptChips";
+import { consumeAdvisorPendingMessage } from "@/lib/advisor-launch";
 import { useChatStore } from "@/store/useChatStore";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -17,11 +18,18 @@ const STARTER_PROMPTS = [
 ];
 
 export default function ChatInterface() {
-  const { activeSession, sendMessage, createSession, isConnecting, isTyping } =
-    useChatStore();
+  const {
+    activeSession,
+    sendMessage,
+    createSession,
+    startNewChatWithMessage,
+    isConnecting,
+    isTyping,
+  } = useChatStore();
   const authUser = useAppStore((s) => s.authData.user);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const pendingLaunchHandled = useRef(false);
 
   const displayName = authUser?.full_name?.split(" ")[0] ?? "there";
   const messages = activeSession?.messages ?? [];
@@ -30,6 +38,14 @@ export default function ChatInterface() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
+
+  useEffect(() => {
+    if (pendingLaunchHandled.current) return;
+    const pending = consumeAdvisorPendingMessage();
+    if (!pending) return;
+    pendingLaunchHandled.current = true;
+    void startNewChatWithMessage(pending);
+  }, [startNewChatWithMessage]);
 
   async function ensureSession() {
     if (activeSession) return activeSession.id;

@@ -40,6 +40,11 @@ export interface LearningPath {
   createdAt?: string;
   /** From API `RoadmapListItem.trend_name` / `RoadmapOut.trend_name` */
   trendName?: string | null;
+  goal?: string | null;
+  summary?: string | null;
+  totalWeeks?: number;
+  stepsCompleted?: number;
+  totalSteps?: number;
 }
 
 export const learningPathsData: LearningPath[] = [

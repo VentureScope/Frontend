@@ -8,14 +8,45 @@ export interface RoadmapParticipant {
   progress: number;
 }
 
+/** Source attribution when a user forks a teammate's org roadmap */
+export interface OrgRoadmapForkSource {
+  roadmapId: string;
+  title: string;
+  createdByName: string;
+}
+
 /** Roadmap shared within an organization workspace */
 export interface OrganizationRoadmap extends LearningPath {
   orgId: string;
   createdByUserId: string;
   createdByName: string;
   participants: RoadmapParticipant[];
+  /** Company practice area id (e.g. frontend, backend) */
+  focusAreaId?: string;
+  focusAreaTitle?: string;
+  /** Set on personal copies forked from a team roadmap */
+  forkedFrom?: OrgRoadmapForkSource;
+}
+
+/** Declared company area + live team context for roadmap generation */
+export interface OrgRoadmapFocusArea {
+  id: string;
+  title: string;
+  description: string;
+  iconName: string;
+  /** Members whose role maps to this area */
+  memberCount: number;
+  memberPreview: string[];
+  topSkills: string[];
+  techStacks: string[];
+  /** Passed to roadmap API as trend_name */
+  generationTrendName: string;
+  badge: string;
+  badgeType: "team-backed" | "profile-only";
 }
 
 export type MyRoadmapsTab = "all" | "enrolled" | "created";
 
 export type OrgTeamRoadmapsFilter = "all" | "created-by-me";
+
+export type OrgRoadmapGenerationSource = "company-area-team";

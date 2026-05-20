@@ -87,7 +87,13 @@ export default function NewResumePage() {
     setIsGenerating(true);
     try {
       const resume = await generateResume(targetRole);
-      toast.success("Resume generated.");
+      if (resume.warnings && resume.warnings.length > 0) {
+        toast.success("Resume generated with profile gaps.", {
+          description: resume.warnings.slice(0, 2).join(" "),
+        });
+      } else {
+        toast.success("Resume generated.");
+      }
       router.push(`/dashboard/resume-builder/${resume.id}`);
     } catch {
       toast.error("Could not generate resume.");

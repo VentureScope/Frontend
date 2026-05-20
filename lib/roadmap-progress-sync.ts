@@ -1,5 +1,6 @@
 import type { Resource } from "@/app/(dashboard)/dashboard/learning-path/mockData";
 import { updateStepProgress } from "@/lib/roadmaps-api";
+import type { StepProgressUpdateOut } from "@/types/roadmap";
 
 function aggregateStepStatus(resources: Resource[]): string {
   const allDone = resources.every((r) => r.status === "completed");
@@ -18,7 +19,7 @@ function aggregateStepStatus(resources: Resource[]): string {
 export async function syncRoadmapStepProgress(
   stepId: string,
   resources: Resource[],
-): Promise<void> {
+): Promise<StepProgressUpdateOut> {
   const status = aggregateStepStatus(resources);
-  await updateStepProgress(stepId, { status });
+  return updateStepProgress(stepId, { status });
 }

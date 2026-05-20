@@ -2,12 +2,18 @@
 
 import { use, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, Share2, MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 import { RoadmapDetailView } from "@/components/roadmap-view/RoadmapDetailView";
 import type { LearningPath } from "../mockData";
 import { getRoadmap } from "@/lib/roadmaps-api";
-import { roadmapOutToLearningPath } from "@/lib/map-roadmap-to-learning-path";
+import {
+  applyRoadmapProgressStats,
+  roadmapOutToLearningPath,
+} from "@/lib/map-roadmap-to-learning-path";
+import {
+  formatRoadmapStatus,
+  roadmapStatusBadgeClass,
+} from "@/lib/roadmap-utils";
 import { syncRoadmapStepProgress } from "@/lib/roadmap-progress-sync";
 import { RoadmapDetailPageSkeleton } from "@/components/learning-path/LearningPathSkeletons";
 import { toast } from "sonner";
@@ -79,9 +85,13 @@ export default function StandaloneRoadmapPage({
         );
         const mod = next.modules.find((m) => m.id === moduleId);
         if (mod) {
-          void syncRoadmapStepProgress(moduleId, mod.resources).catch(() => {
-            toast.error("Could not sync step progress.");
-          });
+          void syncRoadmapStepProgress(moduleId, mod.resources)
+            .then((stats) => {
+              setPath((p) => (p ? applyRoadmapProgressStats(p, stats) : p));
+            })
+            .catch(() => {
+              toast.error("Could not sync step progress.");
+            });
         }
         return next;
       });
@@ -124,29 +134,19 @@ export default function StandaloneRoadmapPage({
             <div>
               <h1 className="text-sm font-bold text-foreground">{path.title}</h1>
               <p className="text-[11px] font-medium text-muted-foreground">
-                Roadmap · API synced
+                {path.totalWeeks != null
+                  ? `${path.totalWeeks} week${path.totalWeeks === 1 ? "" : "s"}`
+                  : "Learning roadmap"}
+                {path.trendName ? ` · ${path.trendName}` : ""}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              className="hidden h-10 gap-2 rounded-full border-border px-5 font-semibold text-muted-foreground sm:flex"
-            >
-              <Share2 size={16} />
-              Share
-            </Button>
-            <Button className="h-10 rounded-lg bg-primary px-6 font-medium text-primary-foreground hover:bg-primary/90">
-              Update Progress
-            </Button>
-            <button
-              type="button"
-              className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
-            >
-              <MoreHorizontal size={20} />
-            </button>
-          </div>
+          {path.roadmapStatus ? (
+            <span className={roadmapStatusBadgeClass(path.roadmapStatus)}>
+              {formatRoadmapStatus(path.roadmapStatus)}
+            </span>
+          ) : null}
         </div>
       </div>
 

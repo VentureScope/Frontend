@@ -29,6 +29,9 @@ export interface RoadmapListItem {
   total_weeks: number;
   status: string;
   created_at: string;
+  steps_completed?: number;
+  total_steps?: number;
+  completion_percentage?: number;
 }
 
 export interface RoadmapOut {
@@ -40,6 +43,22 @@ export interface RoadmapOut {
   status: string;
   created_at: string;
   steps?: StepOut[];
+  summary?: string | null;
+  steps_completed?: number;
+  total_steps?: number;
+  completion_percentage?: number;
+}
+
+/** Response from PATCH /api/roadmaps/steps/{step_id}/progress */
+export interface StepProgressUpdateOut {
+  step_id: string;
+  status: string;
+  completed_at?: string | null;
+  notes?: string | null;
+  roadmap_status: string;
+  steps_completed: number;
+  total_steps: number;
+  completion_percentage: number;
 }
 
 export interface RoadmapGenerateRequest {

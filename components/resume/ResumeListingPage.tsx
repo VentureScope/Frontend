@@ -1,18 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, MoreVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ResumeListSkeleton } from "@/components/resume/ResumeSkeletons";
 import { listResumes } from "@/lib/resume-api";
 import { generatedResumeToListingResume } from "@/lib/map-generated-resume-to-ui";
+import { aggregateResumeAnalytics } from "@/lib/resume-utils";
 import type { Resume } from "@/app/(dashboard)/dashboard/resume-builder/mockData";
+import type { GeneratedResumeOut } from "@/types/generated-resume";
 import { toast } from "sonner";
 
 export default function ResumeListingPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("my-resumes");
+  const [activeTab, setActiveTab] = useState<"my-resumes" | "analytics">(
+    "my-resumes",
+  );
   const [resumes, setResumes] = useState<Resume[]>([]);
+  const [rawResumes, setRawResumes] = useState<GeneratedResumeOut[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -23,6 +28,7 @@ export default function ResumeListingPage() {
       try {
         const list = await listResumes();
         if (!cancelled) {
+          setRawResumes(list);
           setResumes(list.map(generatedResumeToListingResume));
         }
       } catch {
@@ -43,7 +49,13 @@ export default function ResumeListingPage() {
   const filteredResumes = resumes.filter(
     (resume) =>
       resume.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      resume.company.toLowerCase().includes(searchQuery.toLowerCase()),
+      resume.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      resume.content.summary.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
+  const analytics = useMemo(
+    () => aggregateResumeAnalytics(rawResumes),
+    [rawResumes],
   );
 
   return (
@@ -54,11 +66,10 @@ export default function ResumeListingPage() {
             <div className="flex-1">
               <p className="text-label text-primary">Career documents</p>
               <h1 className="text-h1 text-foreground">Resume Builder</h1>
-              <p className="mt-2 text-sm sm:text-base text-muted-foreground">
+              <p className="mt-2 text-sm text-muted-foreground sm:text-base">
                 Construct your professional narrative using AI-optimized
-                <br className="hidden sm:block" />
-                frameworks. Our curator ensures your experience aligns with
-                high-growth market demands.
+                frameworks. Resumes are generated from your profile, GitHub, and
+                transcript data.
               </p>
             </div>
             <button
@@ -86,28 +97,10 @@ export default function ResumeListingPage() {
                   placeholder="Search resumes…"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-lg bg-muted pl-10 pr-4 py-2.5 text-sm border border-border placeholder:text-muted-foreground focus:border-primary focus:bg-card focus:outline-none"
+                  className="w-full rounded-lg border border-border bg-muted py-2.5 pl-10 pr-4 text-sm placeholder:text-muted-foreground focus:border-primary focus:bg-card focus:outline-none"
                 />
               </div>
             </div>
-            <button
-              type="button"
-              className="rounded-lg bg-muted p-2.5 hover:bg-muted/80 transition-colors"
-            >
-              <svg
-                className="h-5 w-5 text-muted-foreground"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10.5 1.5H3a1.5 1.5 0 00-1.5 1.5v16A1.5 1.5 0 003 20.5h18a1.5 1.5 0 001.5-1.5V10.5m-9-8v8m0 0H3m6.5 0h8"
-                />
-              </svg>
-            </button>
           </div>
 
           <div className="mt-6 flex gap-6 border-b border-border">
@@ -120,7 +113,7 @@ export default function ResumeListingPage() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              My Resumes
+              My Resumes ({resumes.length})
             </button>
             <button
               type="button"
@@ -138,19 +131,63 @@ export default function ResumeListingPage() {
           <div className="mt-8 space-y-6">
             {loading ? (
               <ResumeListSkeleton />
+            ) : activeTab === "analytics" ? (
+              <div className="vs-band max-w-lg rounded-lg p-6">
+                <h3 className="font-semibold">Portfolio analytics</h3>
+                {analytics ? (
+                  <dl className="mt-4 space-y-3 text-sm">
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-muted-foreground">Resumes</dt>
+                      <dd className="font-semibold">{analytics.count}</dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-muted-foreground">Avg match score</dt>
+                      <dd className="font-semibold text-primary">
+                        {analytics.avgMatch}%
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-muted-foreground">
+                        Avg skills per resume
+                      </dt>
+                      <dd className="font-semibold">
+                        {analytics.avgSkillsPerResume}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-muted-foreground">
+                        With profile gaps
+                      </dt>
+                      <dd className="font-semibold">
+                        {analytics.withWarnings}
+                      </dd>
+                    </div>
+                  </dl>
+                ) : (
+                  <p className="vs-band-muted mt-2 text-sm">
+                    Generate a resume to see analytics.
+                  </p>
+                )}
+              </div>
             ) : (
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <div className="lg:col-span-2 space-y-6">
+                <div className="space-y-6 lg:col-span-2">
                   {filteredResumes.map((resume) => (
                     <div
                       key={resume.id}
                       className="vs-surface overflow-hidden transition-colors hover:border-primary/20"
                     >
-                      <div className="flex flex-col sm:flex-row gap-4 p-4 sm:p-6">
-                        <div className="flex-shrink-0 w-full sm:w-32 lg:w-40">
-                          <div className="flex aspect-[3/4] items-center justify-center rounded-md border border-primary/15 bg-primary/5">
-                            <p className="px-2 text-center text-xs text-muted-foreground">
-                              Resume Preview
+                      <div className="flex flex-col gap-4 p-4 sm:flex-row sm:p-6">
+                        <div className="w-full shrink-0 sm:w-32 lg:w-40">
+                          <div className="flex aspect-[3/4] flex-col items-center justify-center gap-2 rounded-md border border-primary/15 bg-primary/5 p-3">
+                            <p className="text-center text-2xl font-bold text-primary">
+                              {resume.matchScore}%
+                            </p>
+                            <p className="text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                              Match
+                            </p>
+                            <p className="text-center text-[10px] text-muted-foreground">
+                              ATS {resume.atsStatus}
                             </p>
                           </div>
                         </div>
@@ -158,49 +195,46 @@ export default function ResumeListingPage() {
                         <div className="flex-1">
                           <div className="flex items-start justify-between gap-2">
                             <div>
-                              {resume.isRecent && (
-                                <span className="vs-badge vs-badge-warning mb-2">Recent</span>
-                              )}
-                              <h3 className="text-lg sm:text-xl font-bold text-foreground">
+                              <div className="mb-2 flex flex-wrap gap-2">
+                                {resume.isRecent && (
+                                  <span className="vs-badge vs-badge-warning">
+                                    Recent
+                                  </span>
+                                )}
+                                {(resume.warnings?.length ?? 0) > 0 && (
+                                  <span className="vs-badge vs-badge-warning">
+                                    {resume.warnings!.length} profile gap
+                                    {resume.warnings!.length === 1 ? "" : "s"}
+                                  </span>
+                                )}
+                              </div>
+                              <h3 className="text-lg font-bold text-foreground sm:text-xl">
                                 {resume.title}
                               </h3>
                               <p className="text-sm text-muted-foreground">
                                 {resume.company}
                               </p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Last updated {resume.lastUpdated}
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                Updated {resume.lastUpdated}
                               </p>
+                              {resume.content.summary ? (
+                                <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
+                                  {resume.content.summary}
+                                </p>
+                              ) : null}
                               {resume.tags.length > 0 && (
-                                <p className="text-xs text-muted-foreground mt-2">
+                                <p className="mt-2 text-xs text-primary">
                                   {resume.tags.join(" · ")}
                                 </p>
                               )}
                             </div>
                             <button
                               type="button"
-                              className="p-1.5 hover:bg-muted rounded transition-colors"
+                              className="rounded p-1.5 transition-colors hover:bg-muted"
+                              aria-label="More options"
                             >
                               <MoreVertical className="h-5 w-5 text-muted-foreground" />
                             </button>
-                          </div>
-
-                          <div className="mt-4 grid grid-cols-2 gap-4">
-                            <div>
-                              <p className="text-xs font-semibold text-muted-foreground uppercase">
-                                Match Score
-                              </p>
-                              <p className="mt-1 text-2xl font-bold text-primary">
-                                {resume.matchScore}%
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-xs font-semibold text-muted-foreground uppercase">
-                                ATS Optimization
-                              </p>
-                              <p className="mt-1 text-base font-bold text-foreground">
-                                {resume.atsStatus || "Pending"}
-                              </p>
-                            </div>
                           </div>
 
                           <div className="mt-4 flex gap-3">
@@ -233,17 +267,25 @@ export default function ResumeListingPage() {
                   ))}
 
                   {filteredResumes.length === 0 && (
-                    <div className="text-center py-12 text-muted-foreground">
-                      No resumes yet.{" "}
-                      <button
-                        type="button"
-                        className="text-primary underline"
-                        onClick={() =>
-                          router.push("/dashboard/resume-builder/new-resume")
-                        }
-                      >
-                        Create your first CV
-                      </button>
+                    <div className="py-12 text-center text-muted-foreground">
+                      {resumes.length === 0 ? (
+                        <>
+                          No resumes yet.{" "}
+                          <button
+                            type="button"
+                            className="text-primary underline"
+                            onClick={() =>
+                              router.push(
+                                "/dashboard/resume-builder/new-resume",
+                              )
+                            }
+                          >
+                            Create your first CV
+                          </button>
+                        </>
+                      ) : (
+                        "No resumes match your search."
+                      )}
                     </div>
                   )}
                 </div>
@@ -251,24 +293,39 @@ export default function ResumeListingPage() {
                 <div className="vs-band h-fit rounded-lg p-6">
                   <h3 className="font-semibold">Impact Analysis</h3>
                   <p className="vs-band-muted mt-2 text-xs">
-                    Live scoring uses your generated resume payload (skills,
-                    highlights, trending tags).
+                    Scores are computed from your resume sections: summary,
+                    experience, education, projects, skills, and profile
+                    warnings.
                   </p>
-                  <div className="mt-4 space-y-3">
-                    <div>
-                      <p className="text-xs font-semibold vs-band-muted">
-                        Visibility Factor
-                      </p>
-                      <div className="mt-1 flex items-center justify-between">
-                        <div className="mr-2 h-2 w-full rounded-full bg-inverse-foreground/20">
-                          <div className="h-full w-3/4 rounded-lg bg-primary" />
+                  {analytics ? (
+                    <div className="mt-4 space-y-3">
+                      <div>
+                        <p className="text-xs font-semibold vs-band-muted">
+                          Average match
+                        </p>
+                        <div className="mt-1 flex items-center justify-between">
+                          <div className="mr-2 h-2 w-full rounded-full bg-inverse-foreground/20">
+                            <div
+                              className="h-full rounded-lg bg-primary transition-all"
+                              style={{ width: `${analytics.avgMatch}%` }}
+                            />
+                          </div>
+                          <span className="text-xs font-semibold text-success">
+                            {analytics.avgMatch}%
+                          </span>
                         </div>
-                        <span className="text-xs font-semibold text-success">
-                          +12%
-                        </span>
                       </div>
+                      <p className="text-xs vs-band-muted">
+                        {analytics.count} resume
+                        {analytics.count === 1 ? "" : "s"} · ~
+                        {analytics.avgSkillsPerResume} skills each
+                      </p>
                     </div>
-                  </div>
+                  ) : (
+                    <p className="mt-4 text-xs vs-band-muted">
+                      Create a resume to see impact metrics.
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -278,5 +335,3 @@ export default function ResumeListingPage() {
     </div>
   );
 }
-
-
