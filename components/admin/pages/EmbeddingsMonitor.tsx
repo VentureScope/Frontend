@@ -59,32 +59,52 @@ export function EmbeddingsMonitor() {
         </div>
       ) : null}
 
-      {loading ? (
-        <EmbeddingsMonitorSkeleton />
-      ) : (
-        <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-lg font-medium text-foreground">ML / Embedding Runs</h1>
           <p className="text-sm text-muted-foreground">
-            Training runs from <span className="font-mono">/api/admin/ml/runs</span>.
-            Deploy applies to runs in awaiting_review.
+            Monitor training runs and deploy models awaiting review.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            disabled={actionLoading === "trigger"}
+            disabled={actionLoading === "trigger" || loading}
             onClick={() => void triggerTraining()}
             className={adminPrimaryBtn}
           >
             {actionLoading === "trigger" ? "…" : "Trigger training"}
           </button>
-          <button type="button" onClick={() => void reload()} className={adminGhostBtn}>
+          <button
+            type="button"
+            onClick={() => void reload()}
+            disabled={loading}
+            className={adminGhostBtn}
+          >
             Refresh
           </button>
         </div>
       </div>
+
+      <div className="mb-4 flex flex-wrap gap-1">
+        {STATUS_FILTERS.map((f) => (
+          <button
+            key={f.label}
+            type="button"
+            onClick={() => setStatusFilter(f.id)}
+            className={
+              statusFilter === f.id ? adminFilterBtnActive : adminFilterBtn
+            }
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <EmbeddingsMonitorSkeleton />
+      ) : (
+        <>
       <div className="mb-4 grid grid-cols-3 gap-3">
         <AdminStatCard
           label="Total runs"
@@ -101,21 +121,6 @@ export function EmbeddingsMonitor() {
           value={counts.failed.toLocaleString()}
           valueClassName="text-destructive"
         />
-      </div>
-
-      <div className="mb-4 flex flex-wrap gap-1">
-        {STATUS_FILTERS.map((f) => (
-          <button
-            key={f.label}
-            type="button"
-            onClick={() => setStatusFilter(f.id)}
-            className={
-              statusFilter === f.id ? adminFilterBtnActive : adminFilterBtn
-            }
-          >
-            {f.label}
-          </button>
-        ))}
       </div>
 
           <table className="mb-4 w-full text-sm">

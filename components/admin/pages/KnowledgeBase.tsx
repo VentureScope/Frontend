@@ -28,10 +28,6 @@ export function KnowledgeBase() {
 
   return (
     <div className={adminPage}>
-      <div className="mb-4 rounded-md border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-foreground">
-        <span className="font-medium text-warning">Preview only.</span> Knowledge
-        chunks are mock data until an admin knowledge-base API is available.
-      </div>
     <div className={`flex h-[calc(100vh-7rem)] gap-0 border border-border`}>
       <div className="flex w-[300px] shrink-0 flex-col border-r border-border bg-muted/30">
         <div className="space-y-2 border-b border-border p-3">

@@ -46,26 +46,32 @@ export function AdminTranscripts() {
         </div>
       ) : null}
 
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-lg font-medium text-foreground">Transcript Pipeline</h1>
+          <p className="text-sm text-muted-foreground">
+            Airflow DAGs whose names include transcript or parsing, from pipeline-status.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Link href="/admin/system" className={adminGhostBtn}>
+            Full system health →
+          </Link>
+          <button
+            type="button"
+            onClick={() => void reload()}
+            disabled={loading}
+            className={adminGhostBtn}
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+
       {loading ? (
         <AdminTranscriptsSkeleton />
       ) : (
         <>
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h1 className="text-lg font-medium text-foreground">Transcript Pipeline</h1>
-              <p className="text-sm text-muted-foreground">
-                Airflow DAGs whose names include transcript or parsing, from pipeline-status.
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Link href="/admin/system" className={adminGhostBtn}>
-                Full system health →
-              </Link>
-              <button type="button" onClick={() => void reload()} className={adminGhostBtn}>
-                Refresh
-              </button>
-            </div>
-          </div>
           <div className="mb-4 grid grid-cols-3 gap-3">
             <AdminStatCard
               label="Running"

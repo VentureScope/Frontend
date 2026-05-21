@@ -7,7 +7,7 @@ import {
   Users,
   Terminal,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AboutJoinCta } from "@/components/landing/AboutJoinCta";
 import { AboutJobMarketStats } from "@/components/landing/AboutJobMarketStats";
 import { AboutMarketInsights } from "@/components/landing/AboutMarketInsights";
 import { MarketingPhoto } from "@/components/landing/MarketingPhoto";
@@ -208,12 +208,7 @@ export default function AboutPage() {
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
             The Values Driving Us
           </h2>
-          <Button
-            variant="outline"
-            className="w-full rounded-md border-border font-semibold text-primary hover:bg-primary/5 sm:w-auto"
-          >
-            Join the Movement
-          </Button>
+          <AboutJoinCta />
         </div>
 
         <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">

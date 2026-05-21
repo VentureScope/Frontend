@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import {
   Field,
@@ -49,6 +48,11 @@ import { SettingsAccountInfo } from "@/components/settings/SettingsAccountInfo";
 import { SettingsIntelligenceTab } from "@/components/settings/SettingsIntelligenceTab";
 import { SettingsPremiumPanel } from "@/components/settings/SettingsPremiumPanel";
 import { SettingsCareerInterestsField } from "@/components/settings/SettingsCareerInterestsField";
+import {
+  SettingsMfaBadgeSkeleton,
+  SettingsMfaFactorsSkeleton,
+  SettingsMfaToggleSkeleton,
+} from "@/components/settings/SettingsMfaSkeleton";
 import { mfaGetAAL, mfaDisable } from "@/lib/mfa-api";
 import { useRouter } from "next/navigation";
 import { MFAEnrollModal } from "@/components/mfa/mfa-enroll-modal";
@@ -555,7 +559,9 @@ export default function SettingsPage() {
                         <p className="text-lg font-semibold text-foreground">
                           Two-Factor Authentication
                         </p>
-                        {mfaEnabled ? (
+                        {isMfaLoading ? (
+                          <SettingsMfaBadgeSkeleton />
+                        ) : mfaEnabled ? (
                           <Badge className="border-none bg-success/15 text-success text-label py-1 px-3">
                             Enabled
                           </Badge>
@@ -571,7 +577,7 @@ export default function SettingsPage() {
                       </p>
                     </div>
                     {isMfaLoading ? (
-                      <Skeleton className="h-6 w-12 rounded-full" />
+                      <SettingsMfaToggleSkeleton />
                     ) : (
                       <Switch
                         id="mfa-toggle"
@@ -581,58 +587,68 @@ export default function SettingsPage() {
                     )}
                   </div>
 
-                  {/* Factor List */}
-                  {mfaEnabled && mfaFactors.length > 0 && (
-                    <div className="mt-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-                          Registered Devices
-                        </h4>
-                        <button 
-                          onClick={() => setShowMfaEnrollModal(true)}
-                          disabled={mfaFactors.length >= 3}
-                          className="text-[10px] font-bold uppercase tracking-widest text-primary hover:underline disabled:text-muted-foreground/50 disabled:no-underline"
-                        >
-                          {mfaFactors.length >= 3 ? "Limit Reached (Max 3)" : "+ Add Backup Authenticator"}
-                        </button>
-                      </div>
-                      <div className="grid gap-3">
-                        {mfaFactors.map((f, i) => (
-                          <div 
-                            key={f.factor_id}
-                            className="flex items-center justify-between rounded-lg border border-border bg-muted/50 p-4 transition-colors hover:bg-muted"
+                  {isMfaLoading && mfaEnabled ? (
+                    <SettingsMfaFactorsSkeleton />
+                  ) : (
+                    mfaEnabled &&
+                    mfaFactors.length > 0 && (
+                      <div className="mt-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                            Registered Devices
+                          </h4>
+                          <button
+                            onClick={() => setShowMfaEnrollModal(true)}
+                            disabled={mfaFactors.length >= 3}
+                            className="text-[10px] font-bold uppercase tracking-widest text-primary hover:underline disabled:text-muted-foreground/50 disabled:no-underline"
                           >
-                            <div className="flex items-center gap-4">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-sm text-muted-foreground">
-                                <Smartphone size={20} />
+                            {mfaFactors.length >= 3
+                              ? "Limit Reached (Max 3)"
+                              : "+ Add Backup Authenticator"}
+                          </button>
+                        </div>
+                        <div className="grid gap-3">
+                          {mfaFactors.map((f, i) => (
+                            <div
+                              key={f.factor_id}
+                              className="flex items-center justify-between rounded-lg border border-border bg-muted/50 p-4 transition-colors hover:bg-muted"
+                            >
+                              <div className="flex items-center gap-4">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-sm text-muted-foreground">
+                                  <Smartphone size={20} />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-bold text-foreground">
+                                    {f.friendly_name ||
+                                      `Authenticator ${i + 1}`}
+                                  </p>
+                                  <p className="text-[10px] text-muted-foreground font-medium">
+                                    Added{" "}
+                                    {new Date(
+                                      f.created_at
+                                    ).toLocaleDateString()}
+                                  </p>
+                                </div>
                               </div>
-                              <div>
-                                <p className="text-sm font-bold text-foreground">
-                                  {f.friendly_name || `Authenticator ${i + 1}`}
-                                </p>
-                                <p className="text-[10px] text-muted-foreground font-medium">
-                                  Added {new Date(f.created_at).toLocaleDateString()}
-                                </p>
+                              <div className="flex items-center gap-3">
+                                {mfaFactors.length > 1 && (
+                                  <Badge className="bg-card text-muted-foreground border border-border font-bold text-[9px] uppercase px-2 py-0.5">
+                                    Active
+                                  </Badge>
+                                )}
+                                <button
+                                  onClick={() => onUnenrollClick(f.factor_id)}
+                                  className="rounded-lg p-2 text-muted-foreground/50 transition-colors hover:bg-destructive/10 hover:text-destructive"
+                                  title="Remove Authenticator"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
                               </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                              {mfaFactors.length > 1 && (
-                                <Badge className="bg-card text-muted-foreground border border-border font-bold text-[9px] uppercase px-2 py-0.5">
-                                  Active
-                                </Badge>
-                              )}
-                              <button 
-                                onClick={() => onUnenrollClick(f.factor_id)}
-                                className="rounded-lg p-2 text-muted-foreground/50 transition-colors hover:bg-destructive/10 hover:text-destructive"
-                                title="Remove Authenticator"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )
                   )}
                 </div>
               </div>

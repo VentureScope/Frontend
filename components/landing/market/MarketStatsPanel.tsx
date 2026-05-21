@@ -6,6 +6,7 @@ import { Building2, Layers, Briefcase } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MarketStatsSkeleton } from "@/components/landing/market/MarketPulseSkeletons";
 import { Button } from "@/components/ui/button";
+import { useLandingAuth } from "@/hooks/useLandingAuth";
 import type { JobStats } from "@/types/jobs";
 import {
   formatCompactNumber,
@@ -24,6 +25,7 @@ export function MarketStatsPanel({
   showCta?: boolean;
   variant?: "hero" | "inline";
 }) {
+  const { isAuthenticated, dashboardHref, registerHref } = useLandingAuth();
   const coverage = stats ? marketCoverageIndex(stats) : null;
   const insight = stats ? statsInsight(stats) : null;
 
@@ -93,7 +95,9 @@ export function MarketStatsPanel({
           variant="outline"
           className="relative mt-6 w-full rounded-md border-border py-5 font-medium"
         >
-          <Link href="/register">Build your career profile</Link>
+          <Link href={isAuthenticated ? dashboardHref : registerHref}>
+            {isAuthenticated ? "Open your dashboard" : "Build your career profile"}
+          </Link>
         </Button>
       )}
     </div>

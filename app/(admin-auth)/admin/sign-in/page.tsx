@@ -13,6 +13,7 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { adminLogin, getApiErrorMessage } from "@/lib/admin-auth-api";
+import { markAdminMeRevalidated } from "@/lib/admin-session-validation";
 import { isAdminDemoEnabled } from "@/lib/admin-utils";
 import { resolveAdminReturnPath } from "@/lib/auth-redirect";
 import { useAdminStore } from "@/store/useAdminStore";
@@ -49,6 +50,7 @@ function AdminSignInContent() {
     try {
       const session = await adminLogin(values);
       setAuthData(session);
+      markAdminMeRevalidated();
       router.push(postAuthPath);
     } catch (error) {
       setApiError(getApiErrorMessage(error));

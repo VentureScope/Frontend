@@ -22,7 +22,10 @@ import {
 } from "@/lib/auth-api";
 import { mfaGetAAL } from "@/lib/mfa-api";
 import {
+  RETURN_PATH_PARAM,
   buildMfaChallengeUrl,
+  buildRegisterUrl,
+  getReturnPathFromSearchParams,
   resolveReturnPath,
 } from "@/lib/auth-redirect";
 import { useAppStore } from "@/store/useAppStore";
@@ -40,6 +43,9 @@ const GITHUB_OAUTH_SESSION_KEY = "github_oauth_tx";
 function SignInPageContent() {
   const searchParams = useSearchParams();
   const postAuthPath = resolveReturnPath(searchParams);
+  const returnPathFromQuery = getReturnPathFromSearchParams(searchParams);
+  const registerHref = buildRegisterUrl(returnPathFromQuery);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,10 +67,8 @@ function SignInPageContent() {
   const router = useRouter();
 
   useEffect(() => {
-    if (token) {
-      router.replace(postAuthPath);
-    }
-  }, [token, postAuthPath, router]);
+    setIsHydrated(true);
+  }, []);
 
   const form = useForm<SignInPayload>({
     resolver: zodResolver(loginSchema),
@@ -74,6 +78,19 @@ function SignInPageContent() {
       remember_me: false,
     },
   });
+
+  useEffect(() => {
+    if (!isHydrated || !token) return;
+    router.replace(postAuthPath);
+  }, [isHydrated, token, postAuthPath, router]);
+
+  if (!isHydrated || token) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-muted-foreground">
+        {token ? "Redirecting…" : "Loading…"}
+      </div>
+    );
+  }
 
   async function selectFactor(factor: any) {
     setMfaError(null);
@@ -135,6 +152,9 @@ function SignInPageContent() {
           email: values.email,
           p: btoa(values.password),
         });
+        if (returnPathFromQuery) {
+          params.set(RETURN_PATH_PARAM, returnPathFromQuery);
+        }
         router.push(`/verify-email?${params.toString()}`);
         return;
       }
@@ -601,7 +621,7 @@ function SignInPageContent() {
             <p className="text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{" "}
               <Link
-                href="/register"
+                href={registerHref}
                 className="font-bold text-primary hover:underline"
               >
                 Start for free

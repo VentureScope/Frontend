@@ -1,11 +1,5 @@
-import { AdminPlaceholder } from "@/components/admin/pages/AdminPlaceholder";
+import { AdminSystemConfig } from "@/components/admin/pages/AdminSystemConfig";
 
 export default function Page() {
-  return (
-    <AdminPlaceholder
-      title="System Config"
-      description="Feature flags, rate limits, and environment toggles."
-      noApi
-    />
-  );
+  return <AdminSystemConfig />;
 }

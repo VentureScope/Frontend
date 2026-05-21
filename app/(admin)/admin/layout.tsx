@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminShell } from "@/components/admin/shell/AdminShell";
 import { getCurrentAdminProfile } from "@/lib/admin-auth-api";
+import {
+  hasAdminMeBeenRevalidated,
+  markAdminMeRevalidated,
+} from "@/lib/admin-session-validation";
 import { isAdminDemoEnabled } from "@/lib/admin-utils";
 import {
   buildAdminSignInUrl,
@@ -19,7 +23,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const clearAuth = useAdminStore((state) => state.clearAuth);
   const isAuthenticated = Boolean(token);
   const [isHydrated, setIsHydrated] = useState(false);
-  const [isValidating, setIsValidating] = useState(false);
+  const [isBlockingValidation, setIsBlockingValidation] = useState(false);
+  const backgroundCheckStarted = useRef(false);
+
+  const isDemoSession =
+    token === "demo-admin-session" && isAdminDemoEnabled();
+  const hasTrustedAdmin = user?.is_admin === true;
 
   useEffect(() => {
     setIsHydrated(true);
@@ -27,12 +36,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     if (!isHydrated) return;
+
     if (!isAuthenticated) {
       router.replace(buildAdminSignInUrl(getClientReturnPath()));
       return;
     }
 
-    if (token === "demo-admin-session" && isAdminDemoEnabled()) {
+    if (isDemoSession) {
       return;
     }
 
@@ -42,8 +52,33 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       return;
     }
 
+    async function revalidateInBackground() {
+      try {
+        const profile = await getCurrentAdminProfile();
+        if (!profile.is_admin) {
+          clearAuth();
+          router.replace(buildAdminSignInUrl(getClientReturnPath()));
+          return;
+        }
+        const current = useAdminStore.getState().authData;
+        setAuthData({ ...current, user: profile });
+        markAdminMeRevalidated();
+      } catch {
+        clearAuth();
+        router.replace(buildAdminSignInUrl(getClientReturnPath()));
+      }
+    }
+
+    if (hasTrustedAdmin) {
+      if (!hasAdminMeBeenRevalidated() && !backgroundCheckStarted.current) {
+        backgroundCheckStarted.current = true;
+        void revalidateInBackground();
+      }
+      return;
+    }
+
     let cancelled = false;
-    setIsValidating(true);
+    setIsBlockingValidation(true);
 
     (async () => {
       try {
@@ -56,6 +91,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }
         const current = useAdminStore.getState().authData;
         setAuthData({ ...current, user: profile });
+        markAdminMeRevalidated();
       } catch {
         if (!cancelled) {
           clearAuth();
@@ -63,7 +99,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }
       } finally {
         if (!cancelled) {
-          setIsValidating(false);
+          setIsBlockingValidation(false);
         }
       }
     })();
@@ -75,16 +111,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     isHydrated,
     isAuthenticated,
     token,
+    isDemoSession,
+    hasTrustedAdmin,
     user?.is_admin,
     router,
     setAuthData,
     clearAuth,
   ]);
 
-  if (!isHydrated || !isAuthenticated || isValidating) {
+  if (!isHydrated || !isAuthenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background text-body text-muted-foreground">
-        Verifying admin session…
+        Loading admin session…
+      </div>
+    );
+  }
+
+  if (!isDemoSession && !hasTrustedAdmin && isBlockingValidation) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-body text-muted-foreground">
+        Verifying admin access…
       </div>
     );
   }

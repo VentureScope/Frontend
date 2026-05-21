@@ -6,7 +6,6 @@ const LABELS: Record<string, string> = {
   embeddings: "Embeddings Monitor",
   "github-syncs": "GitHub Syncs",
   knowledge: "Knowledge Base",
-  "chat-logs": "Chat Logs",
   "prompt-config": "Prompt Config",
   broadcasts: "Broadcasts",
   alerts: "System Alerts",

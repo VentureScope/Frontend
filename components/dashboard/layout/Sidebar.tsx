@@ -8,6 +8,7 @@ import {
   Database,
   BarChart3,
   Settings,
+  Shield,
   LogOut,
   Building2,
   MapPinned,
@@ -111,6 +112,7 @@ export default function Sidebar({
   onToggleCollapsed?: () => void;
 }) {
   const clearAuth = useAppStore((state) => state.clearAuth);
+  const isAdmin = useAppStore((state) => Boolean(state.authData.user?.is_admin));
   const router = useRouter();
   const pathname = usePathname();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -270,6 +272,52 @@ export default function Sidebar({
               </ul>
             </div>
           ))}
+
+          {isAdmin ? (
+            <div>
+              {!isCollapsed && (
+                <p className="text-label mb-2 px-3 text-muted-foreground">
+                  Administration
+                </p>
+              )}
+              <ul className="space-y-0.5">
+                <li>
+                  <Link
+                    href="/admin"
+                    onClick={onClose}
+                    title={isCollapsed ? "Admin console" : undefined}
+                    aria-label={isCollapsed ? "Admin console" : undefined}
+                    className={cn(
+                      "flex items-center rounded-md text-btn transition-colors",
+                      isCollapsed
+                        ? "justify-center px-0 py-2.5"
+                        : "w-full gap-3 py-2.5 pl-3 pr-3",
+                      pathname.startsWith("/admin")
+                        ? isCollapsed
+                          ? "bg-primary/10 text-foreground ring-1 ring-primary/20"
+                          : "vs-nav-active"
+                        : isCollapsed
+                          ? "text-muted-foreground hover:bg-primary/5 hover:text-foreground"
+                          : "border-l-2 border-transparent text-muted-foreground hover:bg-primary/5 hover:text-foreground",
+                    )}
+                  >
+                    <Shield
+                      size={18}
+                      className={cn(
+                        "shrink-0",
+                        pathname.startsWith("/admin")
+                          ? "text-primary"
+                          : "text-muted-foreground",
+                      )}
+                    />
+                    {!isCollapsed && (
+                      <span className="truncate">Admin console</span>
+                    )}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          ) : null}
         </nav>
 
         <div className={cn("shrink-0 border-t border-border", isCollapsed ? "p-2" : "p-4")}>

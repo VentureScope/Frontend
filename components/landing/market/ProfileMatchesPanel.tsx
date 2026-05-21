@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { ProfileMatchesSkeleton } from "@/components/landing/market/MarketPulseSkeletons";
 import { Button } from "@/components/ui/button";
+import { useLandingAuth } from "@/hooks/useLandingAuth";
 import type { JobMatch } from "@/types/jobs";
 import {
   MARKET_TOP_K,
@@ -22,6 +23,7 @@ export function ProfileMatchesPanel({
   signedIn: boolean;
   limit?: number;
 }) {
+  const { signInHref, profileHref, dataHubHref } = useLandingAuth();
   const topMatches = matches.slice(0, limit);
   const insight = profileMatchesInsight(topMatches);
 
@@ -37,7 +39,7 @@ export function ProfileMatchesPanel({
           GitHub activity—not just generic listings.
         </p>
         <Button asChild className="mt-4 rounded-lg" size="sm">
-          <Link href="/sign-in">Sign in for matches</Link>
+          <Link href={signInHref}>Sign in for matches</Link>
         </Button>
       </div>
     );
@@ -55,9 +57,19 @@ export function ProfileMatchesPanel({
       {loading ? (
         <ProfileMatchesSkeleton rows={limit} />
       ) : topMatches.length === 0 ? (
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          Complete your profile and connect GitHub to unlock ranked matches.
-        </p>
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Complete your profile and connect GitHub to unlock ranked matches.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline" size="sm" className="rounded-lg">
+              <Link href={profileHref}>Update profile</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="rounded-lg">
+              <Link href={dataHubHref}>Open data hub</Link>
+            </Button>
+          </div>
+        </div>
       ) : (
         <ul className="space-y-3">
           {topMatches.map((m) => {
@@ -92,6 +104,11 @@ export function ProfileMatchesPanel({
             );
           })}
         </ul>
+      )}
+      {signedIn && topMatches.length > 0 && !loading && (
+        <Button asChild variant="outline" size="sm" className="mt-4 w-full rounded-lg">
+          <Link href="/dashboard/market-trends">View all matches</Link>
+        </Button>
       )}
     </div>
   );

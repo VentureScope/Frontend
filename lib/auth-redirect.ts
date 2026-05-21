@@ -59,6 +59,34 @@ export function buildSignInUrl(returnPath?: string | null): string {
   return `/sign-in?${params.toString()}`;
 }
 
+export function buildRegisterUrl(returnPath?: string | null): string {
+  if (!returnPath || !isSafeReturnPath(returnPath)) {
+    return "/register";
+  }
+  const params = new URLSearchParams({ [RETURN_PATH_PARAM]: returnPath });
+  return `/register?${params.toString()}`;
+}
+
+/** Raw return-path from query string, if present and safe. */
+export function getReturnPathFromSearchParams(
+  searchParams: SearchParamsLike,
+): string | null {
+  const candidate =
+    searchParams?.get(RETURN_PATH_PARAM) ??
+    searchParams?.get(LEGACY_REDIRECT_PARAM);
+  return candidate && isSafeReturnPath(candidate) ? candidate : null;
+}
+
+export function appendReturnPathToParams(
+  params: URLSearchParams,
+  searchParams: SearchParamsLike,
+): void {
+  const path = getReturnPathFromSearchParams(searchParams);
+  if (path) {
+    params.set(RETURN_PATH_PARAM, path);
+  }
+}
+
 export function buildAdminSignInUrl(returnPath?: string | null): string {
   if (!returnPath || !isSafeAdminReturnPath(returnPath)) {
     return "/admin/sign-in";

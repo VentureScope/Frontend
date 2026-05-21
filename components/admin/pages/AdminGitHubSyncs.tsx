@@ -49,22 +49,27 @@ export function AdminGitHubSyncs() {
         </div>
       ) : null}
 
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-lg font-medium text-foreground">GitHub Syncs</h1>
+          <p className="text-sm text-muted-foreground">
+            Users with a linked GitHub username from the admin directory.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => void load()}
+          disabled={loading}
+          className={adminGhostBtn}
+        >
+          Refresh
+        </button>
+      </div>
+
       {loading ? (
         <AdminGitHubSyncsSkeleton />
       ) : (
         <>
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h1 className="text-lg font-medium text-foreground">GitHub Syncs</h1>
-              <p className="text-sm text-muted-foreground">
-                Users with a linked GitHub username from the admin user directory. Per-user
-                sync jobs are member-scoped; there is no dedicated admin sync API yet.
-              </p>
-            </div>
-            <button type="button" onClick={() => void load()} className={adminGhostBtn}>
-              Refresh
-            </button>
-          </div>
           <div className="mb-4 grid grid-cols-3 gap-3">
             <AdminStatCard
               label="Linked"
@@ -79,7 +84,7 @@ export function AdminGitHubSyncs() {
             <AdminStatCard
               label="Total accounts"
               value={total.toLocaleString()}
-              subtext="From admin users API"
+              subtext="Directory total"
             />
           </div>
 
