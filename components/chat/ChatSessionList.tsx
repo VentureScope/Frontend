@@ -1,6 +1,10 @@
 "use client";
 
 import { MessageSquarePlus, Trash2 } from "lucide-react";
+import {
+  ChatNewChatButtonSkeleton,
+  ChatSessionItemSkeleton,
+} from "@/components/chat/ChatSkeletons";
 import { cn } from "@/lib/utils";
 
 export type ChatSessionItem = {
@@ -17,6 +21,9 @@ type ChatSessionListProps = {
   onNewChat: () => void;
   newChatLabel?: string;
   emptyLabel?: string;
+  isCreating?: boolean;
+  isBusy?: boolean;
+  deletingId?: string | null;
 };
 
 export function ChatSessionList({
@@ -27,20 +34,30 @@ export function ChatSessionList({
   onNewChat,
   newChatLabel = "New chat",
   emptyLabel = "No conversations yet",
+  isCreating = false,
+  isBusy = false,
+  deletingId = null,
 }: ChatSessionListProps) {
+  const listDisabled = isBusy && !deletingId;
+
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <button
-        type="button"
-        onClick={onNewChat}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/30 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary/30 hover:bg-primary/5"
-      >
-        <MessageSquarePlus className="h-4 w-4 text-primary" />
-        {newChatLabel}
-      </button>
+      {isCreating ? (
+        <ChatNewChatButtonSkeleton />
+      ) : (
+        <button
+          type="button"
+          onClick={onNewChat}
+          disabled={isBusy}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/30 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary/30 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <MessageSquarePlus className="h-4 w-4 text-primary" />
+          {newChatLabel}
+        </button>
+      )}
 
       <div className="min-h-0 flex-1 overflow-y-auto scrollbar-none">
-        {sessions.length === 0 ? (
+        {sessions.length === 0 && !isCreating ? (
           <p className="px-1 py-4 text-center text-xs text-muted-foreground">
             {emptyLabel}
           </p>
@@ -48,6 +65,16 @@ export function ChatSessionList({
           <ul className="space-y-0.5">
             {sessions.map((session) => {
               const active = activeId === session.id;
+              const isDeleting = deletingId === session.id;
+
+              if (isDeleting) {
+                return (
+                  <li key={session.id}>
+                    <ChatSessionItemSkeleton />
+                  </li>
+                );
+              }
+
               return (
                 <li
                   key={session.id}
@@ -59,7 +86,8 @@ export function ChatSessionList({
                   <button
                     type="button"
                     onClick={() => onSelect(session.id)}
-                    className="min-w-0 flex-1 px-3 py-2.5 text-left"
+                    disabled={listDisabled}
+                    className="min-w-0 flex-1 px-3 py-2.5 text-left disabled:cursor-not-allowed"
                   >
                     <p
                       className={cn(
@@ -78,7 +106,8 @@ export function ChatSessionList({
                   <button
                     type="button"
                     onClick={() => onDelete(session.id)}
-                    className="mr-1 shrink-0 rounded-md p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+                    disabled={isBusy}
+                    className="mr-1 shrink-0 rounded-md p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
                     aria-label="Delete conversation"
                   >
                     <Trash2 className="h-3.5 w-3.5" />

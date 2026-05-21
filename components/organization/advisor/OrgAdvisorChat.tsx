@@ -5,10 +5,12 @@ import Link from "next/link";
 import { Bot, Sparkles } from "lucide-react";
 import { CHAT_CONTENT_WIDTH, CHAT_MAIN_PADDING } from "@/components/chat/chat-layout";
 import { ChatComposer } from "@/components/chat/ChatComposer";
+import { ChatConversationSkeleton } from "@/components/chat/ChatSkeletons";
 import { cn } from "@/lib/utils";
 import { ChatMessageList } from "@/components/chat/ChatMessageList";
 import { ChatPromptChips } from "@/components/chat/ChatPromptChips";
 import { ORG_ADVISOR_QUICK_PROMPTS } from "@/lib/org-advisor-mock";
+import { deriveChatTitle } from "@/lib/chat-utils";
 import { MOCK_ORGANIZATIONS } from "@/lib/organizations-data";
 import { useOrgAdvisorStore } from "@/store/useOrgAdvisorStore";
 import { useAppStore } from "@/store/useAppStore";
@@ -18,6 +20,7 @@ export function OrgAdvisorChat() {
   const {
     selectedOrgId,
     isTyping,
+    isSessionBusy,
     createSession,
     sendMessage,
     getActiveSession,
@@ -34,35 +37,36 @@ export function OrgAdvisorChat() {
 
   const displayName = authUser?.full_name?.split(" ")[0] ?? "there";
   const messages = activeSession?.messages ?? [];
-  const showWelcome = !activeSession || messages.length === 0;
+  const showWelcome =
+    !isSessionBusy && (!activeSession || messages.length === 0);
+  const showLoading = isSessionBusy && !isTyping;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  function handleSend() {
-    if (!input.trim() || isTyping) return;
+  async function handleSend() {
+    const text = input.trim();
+    if (!text || isTyping || isSessionBusy) return;
+
     if (!activeSession) {
-      createSession("New conversation", selectedOrgId);
+      await createSession(deriveChatTitle(text), selectedOrgId);
     }
-    sendMessage(input);
+    await sendMessage(text);
     setInput("");
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      void handleSend();
     }
   }
 
-  function runPrompt(prompt: string, label: string) {
-    if (isTyping) return;
-    const id = createSession(label, selectedOrgId);
-    setTimeout(() => {
-      useOrgAdvisorStore.getState().setActiveSession(id);
-      useOrgAdvisorStore.getState().sendMessage(prompt);
-    }, 50);
+  async function runPrompt(prompt: string, label: string) {
+    if (isTyping || isSessionBusy) return;
+    await createSession(label, selectedOrgId);
+    await sendMessage(prompt);
   }
 
   return (
@@ -82,9 +86,11 @@ export function OrgAdvisorChat() {
               {activeSession?.title ?? "Org Advisor"}
             </h1>
             <p className="truncate text-xs text-muted-foreground">
-              {org
-                ? `Planning for ${org.name}`
-                : "Select an organization in the sidebar"}
+              {showLoading
+                ? "Loading conversation…"
+                : org
+                  ? `Planning for ${org.name}`
+                  : "Select an organization in the sidebar"}
             </p>
           </div>
         </div>
@@ -92,7 +98,9 @@ export function OrgAdvisorChat() {
 
       <div className="flex-1 overflow-y-auto scrollbar-none">
         <div className={cn(CHAT_CONTENT_WIDTH, CHAT_MAIN_PADDING)}>
-          {showWelcome ? (
+          {showLoading ? (
+            <ChatConversationSkeleton />
+          ) : showWelcome ? (
             <div className="flex min-h-[40vh] flex-col items-start gap-6 pt-4 text-left">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                 <Sparkles className="h-6 w-6" />
@@ -108,10 +116,10 @@ export function OrgAdvisorChat() {
                 </p>
               </div>
               <ChatPromptChips
-                disabled={isTyping}
+                disabled={isTyping || isSessionBusy}
                 prompts={ORG_ADVISOR_QUICK_PROMPTS.map((item) => ({
                   label: item.label,
-                  onClick: () => runPrompt(item.prompt, item.label),
+                  onClick: () => void runPrompt(item.prompt, item.label),
                 }))}
               />
             </div>
@@ -130,13 +138,15 @@ export function OrgAdvisorChat() {
       <ChatComposer
         value={input}
         onChange={setInput}
-        onSend={handleSend}
+        onSend={() => void handleSend()}
         onKeyDown={handleKeyDown}
-        disabled={isTyping}
+        disabled={isTyping || isSessionBusy}
         placeholder={
-          org
-            ? `Ask about ${org.name}…`
-            : "Ask about hiring, roadmaps, or planning…"
+          isSessionBusy
+            ? "Please wait…"
+            : org
+              ? `Ask about ${org.name}…`
+              : "Ask about hiring, roadmaps, or planning…"
         }
         hint={
           <>

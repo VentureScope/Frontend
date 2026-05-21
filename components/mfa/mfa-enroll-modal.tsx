@@ -95,37 +95,53 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
     setTimeout(() => setCopied(false), 2000);
   }
 
+  const stepDescription =
+    step === "name"
+      ? "Give your authenticator a name to get started."
+      : step === "qr"
+        ? "Scan the QR code with your authenticator app."
+        : step === "verify"
+          ? "Enter the 6-digit code to complete setup."
+          : "Your account is now protected with 2FA.";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div 
-        className="relative w-full max-w-md overflow-hidden rounded-xl bg-card shadow-2xl animate-in zoom-in-95 duration-300"
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm animate-in fade-in duration-200"
+      role="presentation"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-md overflow-hidden rounded-xl border border-border bg-card p-8 shadow-2xl animate-in zoom-in-95 duration-300"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mfa-enroll-title"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
-        <button 
+        <button
+          type="button"
           onClick={onClose}
-          className="absolute right-6 top-6 z-10 rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-muted-foreground transition-colors"
+          className="absolute right-5 top-5 rounded-xl p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          aria-label="Close"
         >
-          <X size={20} />
+          <X size={18} />
         </button>
 
-        {/* Header */}
-        <div className="border-b border-border bg-muted px-8 py-10 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-card/20 backdrop-blur-sm">
-            <ShieldCheck className="h-8 w-8 text-white" />
+        <div className="mb-6 flex items-center gap-4 pr-8">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted">
+            <ShieldCheck className="h-6 w-6 text-primary" />
           </div>
-          <h2 className="text-2xl font-bold text-white">
-            Secure Your Account
-          </h2>
-          <p className="mt-1 text-sm text-blue-100/80 px-4">
-            {step === "name" && "Give your authenticator a name to get started."}
-            {step === "qr" && "Scan the QR code with your authenticator app."}
-            {step === "verify" && "Enter the 6-digit code to complete setup."}
-            {step === "success" && "Your account is now protected with 2FA."}
-          </p>
+          <div>
+            <h2
+              id="mfa-enroll-title"
+              className="text-lg font-semibold text-foreground"
+            >
+              Secure your account
+            </h2>
+            <p className="text-xs text-muted-foreground">{stepDescription}</p>
+          </div>
         </div>
 
-        <div className="p-8">
+        <div>
           {/* STEP 1: NAME */}
           {step === "name" && (
             <div className="space-y-6">
@@ -201,7 +217,7 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
           {step === "verify" && (
             <div className="space-y-6">
               <div className="text-center">
-                <Smartphone className="mx-auto mb-4 h-12 w-12 text-blue-100" />
+                <Smartphone className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
                 <p className="text-sm font-medium text-muted-foreground">
                   Enter the 6-digit code from your app
                 </p>
@@ -239,7 +255,7 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
           {/* STEP 4: SUCCESS */}
           {step === "success" && (
             <div className="flex flex-col items-center py-4 space-y-6">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 animate-bounce">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 animate-bounce">
                 <CheckCircle2 size={48} />
               </div>
               <div className="text-center space-y-2">
@@ -253,7 +269,7 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
                   onSuccess();
                   onClose();
                 }}
-                className="h-12 w-full rounded-xl bg-slate-900 font-bold text-white shadow-lg hover:bg-black"
+                className="h-12 w-full rounded-xl bg-primary font-bold text-primary-foreground shadow-lg hover:bg-primary/90"
               >
                 Done
               </Button>
@@ -262,7 +278,7 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
 
           {/* Error Message */}
           {error && (
-            <p className="mt-4 text-center text-xs font-bold text-rose-500 bg-rose-50 p-3 rounded-lg border border-rose-100">
+            <p className="mt-4 rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-center text-xs font-semibold text-destructive">
               {error}
             </p>
           )}

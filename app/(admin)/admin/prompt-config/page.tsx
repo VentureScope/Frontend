@@ -5,7 +5,6 @@ export default function Page() {
     <AdminPlaceholder
       title="Prompt Config"
       description="Manage system prompts, model routing, and safety policies."
-      noApi
     />
   );
 }

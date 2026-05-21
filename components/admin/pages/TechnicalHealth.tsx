@@ -12,13 +12,16 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { TechnicalHealthSkeleton } from "@/components/admin/AdminSkeletons";
+import {
+  AdminStatCardsSkeleton,
+  AdminTableSkeleton,
+  ChartBlockSkeleton,
+} from "@/components/admin/AdminSkeletons";
 import { AdminStatCard } from "@/components/admin/ui/AdminStatCard";
 import { DagStatusLabel } from "@/components/admin/ui/admin-status";
 import {
   adminErrorBanner,
   adminGhostBtn,
-  adminLoading,
   adminPage,
   adminPageDesc,
   adminPageTitle,
@@ -89,21 +92,39 @@ export function TechnicalHealth() {
     <div className={adminPage}>
       {error ? <div className={adminErrorBanner}>{error}</div> : null}
 
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className={adminPageTitle}>Technical Health</h1>
+          <p className={adminPageDesc}>
+            Pipeline runs, object storage, and error monitoring.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => void reload()}
+          disabled={loading}
+          className={adminGhostBtn}
+        >
+          Refresh
+        </button>
+      </div>
+
       {loading ? (
-        <TechnicalHealthSkeleton />
+        <div className="space-y-6">
+          <section className={`${adminSection} mb-6`}>
+            <p className={`mb-3 ${adminSectionLabel}`}>DAG pipeline status</p>
+            <AdminTableSkeleton columns={4} rows={5} />
+          </section>
+          <ChartBlockSkeleton />
+          <ChartBlockSkeleton />
+          <section className={`${adminSection} space-y-4`}>
+            <p className={adminSectionLabel}>Storage</p>
+            <AdminStatCardsSkeleton count={4} cols={4} />
+            <AdminTableSkeleton columns={5} rows={4} />
+          </section>
+        </div>
       ) : (
         <>
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h1 className={adminPageTitle}>Technical Health</h1>
-              <p className={adminPageDesc}>
-                Pipeline, object storage, and Sentry from admin system APIs.
-              </p>
-            </div>
-            <button type="button" onClick={() => void reload()} className={adminGhostBtn}>
-              Refresh
-            </button>
-          </div>
           <section className={`${adminSection} mb-6`}>
             <p className={`mb-3 ${adminSectionLabel}`}>DAG pipeline status</p>
             {dags.length === 0 ? (
@@ -225,7 +246,7 @@ export function TechnicalHealth() {
             </p>
             {!storage || storage.buckets.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Storage health unavailable or not configured.
+                No storage metrics to display.
               </p>
             ) : (
               <>
@@ -304,7 +325,7 @@ export function TechnicalHealth() {
             <p className={`mb-3 ${adminSectionLabel}`}>Sentry</p>
             {!sentry ? (
               <p className="text-sm text-muted-foreground">
-                Sentry summary unavailable.
+                No Sentry metrics to display.
               </p>
             ) : (
               <>

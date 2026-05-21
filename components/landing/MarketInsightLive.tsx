@@ -18,6 +18,7 @@ import type {
   JobStats,
   TrendingCareer,
 } from "@/types/jobs";
+import { useLandingAuth } from "@/hooks/useLandingAuth";
 import { useAppStore } from "@/store/useAppStore";
 import { SkillDemandPanel } from "@/components/landing/market/SkillDemandPanel";
 import { MarketStatsPanel } from "@/components/landing/market/MarketStatsPanel";
@@ -27,6 +28,8 @@ import { ProfileMatchesPanel } from "@/components/landing/market/ProfileMatchesP
 import { MARKET_TOP_K } from "@/lib/job-market-insights";
 
 export default function MarketInsightLive() {
+  const { isAuthenticated, dashboardHref, registerHref, signInHref } =
+    useLandingAuth();
   const token = useAppStore((s) => s.authData.token);
   const [skills, setSkills] = useState<InDemandSkill[]>([]);
   const [stats, setStats] = useState<JobStats | null>(null);
@@ -116,9 +119,9 @@ export default function MarketInsightLive() {
               Market Insights
             </h1>
             <p className="max-w-xl mx-auto md:mx-0 text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Understand what employers are hiring for right now—trending roles,
-              in-demand skills, and where opportunities cluster across Ethiopia&apos;s
-              tech economy.
+              {isAuthenticated
+                ? "Live hiring signals for your dashboard—compare trends here with personalized matches in your workspace."
+                : "Understand what employers are hiring for right now—trending roles, in-demand skills, and where opportunities cluster across Ethiopia's tech economy."}
             </p>
           </div>
 
@@ -194,24 +197,36 @@ export default function MarketInsightLive() {
               Turn insights into a career plan
             </h2>
             <p className="text-muted-foreground text-sm sm:text-lg max-w-xl mx-auto">
-              Use VentureScope to generate learning roadmaps, tailored resumes,
-              and profile-based job matches—all grounded in the same market data
-              you see here.
+              {isAuthenticated
+                ? "Your dashboard uses this same market data for roadmaps, resumes, and ranked job matches."
+                : "Use VentureScope to generate learning roadmaps, tailored resumes, and profile-based job matches—all grounded in the same market data you see here."}
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-4">
               <Button
                 asChild
                 className="h-12 sm:h-14 w-full sm:w-auto px-6 sm:px-10 rounded-xl bg-primary font-bold hover:bg-primary/90"
               >
-                <Link href="/register">Get started free</Link>
+                <Link href={isAuthenticated ? dashboardHref : registerHref}>
+                  {isAuthenticated ? "Open dashboard" : "Get started free"}
+                </Link>
               </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="h-12 sm:h-14 w-full sm:w-auto px-6 sm:px-10 rounded-xl border-border bg-card font-bold text-muted-foreground hover:bg-muted"
-              >
-                <Link href="/sign-in">Sign in</Link>
-              </Button>
+              {!isAuthenticated ? (
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-12 sm:h-14 w-full sm:w-auto px-6 sm:px-10 rounded-xl border-border bg-card font-bold text-muted-foreground hover:bg-muted"
+                >
+                  <Link href={signInHref}>Sign in</Link>
+                </Button>
+              ) : (
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-12 sm:h-14 w-full sm:w-auto px-6 sm:px-10 rounded-xl border-border bg-card font-bold text-muted-foreground hover:bg-muted"
+                >
+                  <Link href="/dashboard/market-trends">Your matches</Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>

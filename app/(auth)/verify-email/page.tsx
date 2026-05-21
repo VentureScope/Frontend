@@ -13,6 +13,12 @@ import {
   resendOtp,
   verifyEmail,
 } from "@/lib/auth-api";
+import {
+  buildRegisterUrl,
+  buildSignInUrl,
+  getReturnPathFromSearchParams,
+  resolveReturnPath,
+} from "@/lib/auth-redirect";
 import { useAppStore } from "@/store/useAppStore";
 
 const OTP_LENGTH = 6;
@@ -35,10 +41,16 @@ export default function VerifyEmailPage() {
 function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const postAuthPath = resolveReturnPath(searchParams);
+  const returnPathFromQuery = getReturnPathFromSearchParams(searchParams);
+  const registerHref = buildRegisterUrl(returnPathFromQuery);
+  const signInHref = buildSignInUrl(returnPathFromQuery);
   const email = searchParams.get("email") ?? "";
   const rawPassword = searchParams.get("p") ?? "";
   const password = rawPassword ? atob(rawPassword) : "";
 
+  const token = useAppStore((state) => state.authData.token);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [apiError, setApiError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -49,12 +61,34 @@ function VerifyEmailContent() {
   const setAuthData = useAppStore((state) => state.setAuthData);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated || !token) return;
+    router.replace(postAuthPath);
+  }, [isHydrated, token, postAuthPath, router]);
+
   // Redirect if no email provided
   useEffect(() => {
+    if (!isHydrated || token) return;
     if (!email) {
-      router.replace("/register");
+      router.replace(registerHref);
     }
-  }, [email, router]);
+  }, [email, isHydrated, token, registerHref, router]);
+
+  if (!isHydrated || token) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
+        {token ? "Redirecting…" : "Loading…"}
+      </div>
+    );
+  }
+
+  if (!email) {
+    return null;
+  }
 
   // Resend cooldown timer
   useEffect(() => {
@@ -157,14 +191,14 @@ function VerifyEmailContent() {
           const loginResult = await loginUser({ email, password });
           const authSessionData = await buildAuthSessionData(loginResult);
           setAuthData(authSessionData);
-          setTimeout(() => router.push("/"), 800);
+          setTimeout(() => router.push(postAuthPath), 800);
         } catch {
           // Login failed — send them to sign-in page
-          setTimeout(() => router.push("/sign-in"), 1500);
+          setTimeout(() => router.push(signInHref), 1500);
         }
       } else {
         // No password available (came from sign-in flow) — redirect to sign-in
-        setTimeout(() => router.push("/sign-in"), 1500);
+        setTimeout(() => router.push(signInHref), 1500);
       }
     } catch (error) {
       setOtp(Array(OTP_LENGTH).fill(""));
@@ -267,7 +301,7 @@ function VerifyEmailContent() {
           <div className="w-full max-w-sm sm:max-w-md space-y-6">
             {/* Back link */}
             <Link
-              href="/register"
+              href={registerHref}
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-muted-foreground transition-colors"
             >
               <ArrowLeft size={14} />
@@ -386,7 +420,7 @@ function VerifyEmailContent() {
               <p className="text-[11px] text-muted-foreground leading-relaxed">
                 Having trouble?{" "}
                 <Link
-                  href="/sign-in"
+                  href={signInHref}
                   className="font-semibold text-primary hover:underline"
                 >
                   Try signing in

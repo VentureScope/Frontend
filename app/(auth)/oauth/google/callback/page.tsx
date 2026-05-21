@@ -8,13 +8,22 @@ import {
   completeGoogleOAuthCallback,
   getApiErrorMessage,
 } from "@/lib/auth-api";
+import {
+  buildMfaChallengeUrl,
+  DEFAULT_MEMBER_PATH,
+  isSafeReturnPath,
+} from "@/lib/auth-redirect";
 import { mfaGetAAL } from "@/lib/mfa-api";
 import { useAppStore } from "@/store/useAppStore";
 
 const GOOGLE_OAUTH_SESSION_KEY = "google_oauth_tx";
 const OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
 
-function readStoredOAuthState(): { state: string; createdAt: number } | null {
+function readStoredOAuthState(): {
+  state: string;
+  createdAt: number;
+  returnPath?: string;
+} | null {
   const raw = sessionStorage.getItem(GOOGLE_OAUTH_SESSION_KEY);
 
   if (!raw) {
@@ -25,6 +34,7 @@ function readStoredOAuthState(): { state: string; createdAt: number } | null {
     const parsed = JSON.parse(raw) as {
       state?: unknown;
       createdAt?: unknown;
+      returnPath?: unknown;
     };
 
     if (typeof parsed.state !== "string") {
@@ -38,6 +48,8 @@ function readStoredOAuthState(): { state: string; createdAt: number } | null {
     return {
       state: parsed.state,
       createdAt: parsed.createdAt,
+      returnPath:
+        typeof parsed.returnPath === "string" ? parsed.returnPath : undefined,
     };
   } catch {
     return null;
@@ -106,6 +118,11 @@ function GoogleOAuthCallbackContent() {
 
     sessionStorage.removeItem(GOOGLE_OAUTH_SESSION_KEY);
 
+    const returnPath =
+      storedState.returnPath && isSafeReturnPath(storedState.returnPath)
+        ? storedState.returnPath
+        : DEFAULT_MEMBER_PATH;
+
     async function exchangeCode() {
       try {
         console.log("[oauth] Requesting token exchange", {
@@ -121,17 +138,18 @@ function GoogleOAuthCallbackContent() {
 
         // Critical: check AAL before redirecting — OAuth users with MFA
         // enrolled must complete the challenge here, not just on the login page.
+
         try {
           const aal = await mfaGetAAL();
           if (aal.current_level === "aal1" && aal.next_level === "aal2") {
-            router.replace("/mfa-challenge?redirect=/");
+            router.replace(buildMfaChallengeUrl(returnPath));
             return;
           }
         } catch {
           // AAL check failure is non-fatal
         }
 
-        router.replace("/");
+        router.replace(returnPath);
       } catch (exchangeError) {
         console.log("[oauth] Token exchange failed", { exchangeError });
         setStatusMessage(getApiErrorMessage(exchangeError));

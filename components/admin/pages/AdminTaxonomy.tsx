@@ -41,32 +41,21 @@ export function AdminTaxonomy() {
         </div>
       ) : null}
 
-      {loading ? (
-        <AdminTaxonomySkeleton />
-      ) : (
-      <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-lg font-medium text-foreground">Role Taxonomy</h1>
           <p className="text-sm text-muted-foreground">
-            Review unmatched job titles and canonical roles from admin taxonomy APIs.
+            Review unmatched job titles and canonical roles.
           </p>
         </div>
-        <button type="button" onClick={() => void reload()} className={adminGhostBtn}>
+        <button
+          type="button"
+          onClick={() => void reload()}
+          disabled={loading}
+          className={adminGhostBtn}
+        >
           Refresh
         </button>
-      </div>
-
-      <div className="mb-4 grid grid-cols-2 gap-3">
-        <AdminStatCard
-          label="Unmatched (filter)"
-          value={unmatchedTotal.toLocaleString()}
-        />
-        <AdminStatCard
-          label="Canonical roles"
-          value={canonicalTotal.toLocaleString()}
-          valueClassName="text-primary"
-        />
       </div>
 
       <div className="mb-4 flex flex-wrap gap-1">
@@ -84,6 +73,22 @@ export function AdminTaxonomy() {
             {tab.label}
           </button>
         ))}
+      </div>
+
+      {loading ? (
+        <AdminTaxonomySkeleton />
+      ) : (
+      <>
+      <div className="mb-4 grid grid-cols-2 gap-3">
+        <AdminStatCard
+          label="Unmatched (filter)"
+          value={unmatchedTotal.toLocaleString()}
+        />
+        <AdminStatCard
+          label="Canonical roles"
+          value={canonicalTotal.toLocaleString()}
+          valueClassName="text-primary"
+        />
       </div>
 
         <div className="grid grid-cols-2 gap-4">

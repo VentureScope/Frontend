@@ -1,5 +1,10 @@
 import { create } from "zustand";
 import api from "@/lib/api";
+import {
+  deriveChatTitle,
+  isPlaceholderChatTitle,
+  normalizeChatTitle,
+} from "@/lib/chat-utils";
 import { useAppStore } from "./useAppStore";
 
 export interface ChatSession {
@@ -23,17 +28,19 @@ export interface ChatState {
   sessions: ChatSession[];
   activeSessionId: string | null;
   activeSession: ChatSession | null;
-  isLoading: boolean;
+  isFetchingSessions: boolean;
+  isSessionBusy: boolean;
+  deletingSessionId: string | null;
   isConnecting: boolean;
   isTyping: boolean;
   error: string | null;
   ws: WebSocket | null;
 
   fetchSessions: () => Promise<void>;
-  createSession: (title?: string) => Promise<string | null>;
-  /** New session + first user message (e.g. from dashboard overview). */
+  createSession: (title?: string | null) => Promise<string | null>;
   startNewChatWithMessage: (content: string) => Promise<string | null>;
   setActiveSession: (id: string) => Promise<void>;
+  renameSession: (id: string, title: string) => Promise<void>;
   sendMessage: (content: string) => void;
   deleteSession: (id: string) => Promise<void>;
   disconnect: () => void;
@@ -81,38 +88,74 @@ function waitForChatWebSocket(
   });
 }
 
+function applySessionTitle(
+  sessions: ChatSession[],
+  sessionId: string,
+  title: string,
+): ChatSession[] {
+  return sessions.map((s) => (s.id === sessionId ? { ...s, title } : s));
+}
+
 export const useChatStore = create<ChatState>((set, get) => ({
   sessions: [],
   activeSessionId: null,
   activeSession: null,
-  isLoading: false,
+  isFetchingSessions: false,
+  isSessionBusy: false,
+  deletingSessionId: null,
   isConnecting: false,
   isTyping: false,
   error: null,
   ws: null,
 
   fetchSessions: async () => {
-    set({ isLoading: true, error: null });
+    set({ isFetchingSessions: true, error: null });
     try {
       const { data } = await api.get("/api/chat/sessions");
-      set({ sessions: data, isLoading: false });
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+      set({ sessions: data, isFetchingSessions: false });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to load conversations";
+      set({ error: message, isFetchingSessions: false });
     }
   },
 
-  createSession: async (title = "New Chat") => {
-    set({ isLoading: true, error: null });
+  renameSession: async (id, title) => {
+    const trimmed = title.trim();
+    if (!trimmed) return;
     try {
-      const { data } = await api.post("/api/chat/sessions", { title });
+      const { data } = await api.patch(`/api/chat/sessions/${id}`, {
+        title: trimmed,
+      });
+      set((state) => ({
+        sessions: applySessionTitle(state.sessions, id, data.title ?? trimmed),
+        activeSession:
+          state.activeSession?.id === id
+            ? { ...state.activeSession, title: data.title ?? trimmed }
+            : state.activeSession,
+      }));
+    } catch (error) {
+      console.error("Failed to rename session:", error);
+    }
+  },
+
+  createSession: async (title?: string | null) => {
+    const sessionTitle = normalizeChatTitle(title ?? "");
+    set({ isSessionBusy: true, error: null });
+    try {
+      const { data } = await api.post("/api/chat/sessions", {
+        title: sessionTitle,
+      });
       set((state) => ({
         sessions: [data, ...state.sessions],
-        isLoading: false,
+        isSessionBusy: true,
       }));
       await get().setActiveSession(data.id);
       return data.id;
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to create conversation";
+      set({ error: message, isSessionBusy: false });
       return null;
     }
   },
@@ -123,9 +166,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     get().disconnect();
 
-    const title =
-      trimmed.length > 48 ? `${trimmed.slice(0, 45)}…` : trimmed;
-    const id = await get().createSession(title);
+    const id = await get().createSession(deriveChatTitle(trimmed));
     if (!id) return null;
 
     try {
@@ -135,7 +176,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const message =
         err instanceof Error ? err.message : "WebSocket connection failed";
       console.error("Failed to send initial advisor message:", message);
-      set({ error: message, isConnecting: false });
+      set({ error: message, isConnecting: false, isSessionBusy: false });
     }
 
     return id;
@@ -149,16 +190,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     set({
       activeSessionId: id,
-      isLoading: true,
+      isSessionBusy: true,
       error: null,
       activeSession: null,
+      isConnecting: false,
     });
 
     try {
       const { data } = await api.get(`/api/chat/sessions/${id}`);
-      set({ activeSession: data, isLoading: false });
+      set({ activeSession: data, isSessionBusy: false });
 
-      // Connect WebSocket
       const token = useAppStore.getState().authData.token;
       if (!token) throw new Error("No auth token");
 
@@ -183,9 +224,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
             if (!state.activeSession) return state;
             const messages = state.activeSession.messages || [];
             const lastMessage = messages[messages.length - 1];
+            const sessionId = state.activeSession.id;
 
             if (parsed.event === "chunk") {
-              // Append to existing streaming assistant message or create a new one
               if (
                 lastMessage &&
                 lastMessage.role === "assistant" &&
@@ -203,22 +244,41 @@ export const useChatStore = create<ChatState>((set, get) => ({
                     messages: updatedMessages,
                   },
                 };
-              } else {
-                const newMsg: ChatMessage = {
-                  session_id: id,
-                  role: "assistant",
-                  content: parsed.data || "",
-                };
-                return {
-                  isTyping: false,
-                  activeSession: {
-                    ...state.activeSession,
-                    messages: [...messages, newMsg],
-                  },
-                };
               }
-            } else if (parsed.event === "done") {
-              // Assign the message_id when the stream is complete
+
+              const newMsg: ChatMessage = {
+                session_id: sessionId,
+                role: "assistant",
+                content: parsed.data || "",
+              };
+              return {
+                isTyping: false,
+                activeSession: {
+                  ...state.activeSession,
+                  messages: [...messages, newMsg],
+                },
+              };
+            }
+
+            if (parsed.event === "done") {
+              let nextSessions = state.sessions;
+              let nextActive = state.activeSession;
+              const serverTitle =
+                typeof parsed.session_title === "string"
+                  ? parsed.session_title
+                  : typeof parsed.title === "string"
+                    ? parsed.title
+                    : null;
+
+              if (serverTitle && !isPlaceholderChatTitle(serverTitle)) {
+                nextSessions = applySessionTitle(
+                  nextSessions,
+                  sessionId,
+                  serverTitle,
+                );
+                nextActive = { ...nextActive, title: serverTitle };
+              }
+
               if (
                 lastMessage &&
                 lastMessage.role === "assistant" &&
@@ -231,26 +291,34 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 };
                 return {
                   isTyping: false,
+                  sessions: nextSessions,
                   activeSession: {
-                    ...state.activeSession,
+                    ...nextActive,
                     messages: updatedMessages,
                   },
                 };
               }
-            } else if (parsed.event === "error") {
+
+              return {
+                isTyping: false,
+                sessions: nextSessions,
+                activeSession: nextActive,
+              };
+            }
+
+            if (parsed.event === "error") {
               console.error("AI Error:", parsed.detail);
               return { isTyping: false };
             }
 
-            return state; // No state change for other events like "notification"
+            return state;
           });
         } catch (e) {
           console.error("WebSocket message parse error:", e);
         }
       };
 
-      ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
+      ws.onerror = () => {
         set({
           isConnecting: false,
           error: "WebSocket connection failed",
@@ -262,13 +330,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
       };
 
       set({ ws });
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false, isConnecting: false });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to load conversation";
+      set({
+        error: message,
+        isSessionBusy: false,
+        isConnecting: false,
+      });
     }
   },
 
   sendMessage: (content: string) => {
-    const { ws, activeSessionId, activeSession } = get();
+    const { ws, activeSessionId, activeSession, sessions } = get();
     if (
       !ws ||
       ws.readyState !== WebSocket.OPEN ||
@@ -279,37 +353,63 @@ export const useChatStore = create<ChatState>((set, get) => ({
       return;
     }
 
+    const trimmed = content.trim();
+    if (!trimmed) return;
+
+    const userCount = (activeSession.messages ?? []).filter(
+      (m) => m.role === "user",
+    ).length;
+    const shouldRename =
+      userCount === 0 && isPlaceholderChatTitle(activeSession.title);
+
     const newMsg: ChatMessage = {
       session_id: activeSessionId,
       role: "user",
-      content,
+      content: trimmed,
     };
+
+    const nextTitle = shouldRename ? deriveChatTitle(trimmed) : activeSession.title;
 
     set((state) => ({
       activeSession: {
         ...state.activeSession!,
+        title: nextTitle,
         messages: [...(state.activeSession!.messages || []), newMsg],
       },
+      sessions: shouldRename
+        ? applySessionTitle(state.sessions, activeSessionId, nextTitle)
+        : state.sessions,
       isTyping: true,
     }));
 
-    // Send payload formatted as a JSON object, try "message" instead of "content"
-    ws.send(JSON.stringify({ event: "message", message: content }));
+    if (shouldRename) {
+      void get().renameSession(activeSessionId, nextTitle);
+    }
+
+    ws.send(JSON.stringify({ event: "message", message: trimmed }));
   },
 
   deleteSession: async (id: string) => {
+    set({ deletingSessionId: id, isSessionBusy: true, error: null });
     try {
       await api.delete(`/api/chat/sessions/${id}`);
+      const wasActive = get().activeSessionId === id;
+      if (wasActive) get().disconnect();
+
       set((state) => ({
         sessions: state.sessions.filter((s) => s.id !== id),
-        activeSession:
-          state.activeSessionId === id ? null : state.activeSession,
-        activeSessionId:
-          state.activeSessionId === id ? null : state.activeSessionId,
+        activeSession: wasActive ? null : state.activeSession,
+        activeSessionId: wasActive ? null : state.activeSessionId,
+        deletingSessionId: null,
+        isSessionBusy: false,
       }));
-      if (get().activeSessionId === id) get().disconnect();
     } catch (error) {
       console.error(error);
+      set({
+        deletingSessionId: null,
+        isSessionBusy: false,
+        error: "Failed to delete conversation",
+      });
     }
   },
 
@@ -317,7 +417,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const { ws } = get();
     if (ws) {
       ws.close();
-      set({ ws: null });
+      set({ ws: null, isConnecting: false });
     }
   },
 }));

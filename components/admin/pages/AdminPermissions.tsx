@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Shield } from "lucide-react";
-import { AdminPermissionsSkeleton } from "@/components/admin/AdminSkeletons";
+import { AdminPermissionsTableSkeleton } from "@/components/admin/AdminSkeletons";
 import { toast } from "sonner";
 import { AdminRoleBadge, StatusDot } from "@/components/admin/ui/AdminBadge";
 import {
@@ -82,10 +82,6 @@ export function AdminPermissions() {
         </div>
       ) : null}
 
-      {loading ? (
-        <AdminPermissionsSkeleton />
-      ) : (
-      <>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="mb-2 flex items-center gap-2">
@@ -115,10 +111,13 @@ export function AdminPermissions() {
           className={`${adminInput} w-56 text-xs`}
         />
         <span className="font-mono text-xs text-muted-foreground">
-          {filtered.length} administrator{filtered.length === 1 ? "" : "s"}
+          {loading ? "…" : `${filtered.length} administrator${filtered.length === 1 ? "" : "s"}`}
         </span>
       </div>
 
+      {loading ? (
+        <AdminPermissionsTableSkeleton />
+      ) : (
       <div className="border border-border">
         {filtered.length === 0 ? (
           <p className="py-16 text-center text-sm text-muted-foreground">
@@ -181,7 +180,6 @@ export function AdminPermissions() {
           </table>
         )}
       </div>
-      </>
       )}
     </div>
   );

@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -17,6 +17,13 @@ import {
   getGoogleOAuthLoginUrl,
   getGithubOAuthLoginUrl,
 } from "@/lib/auth-api";
+import {
+  RETURN_PATH_PARAM,
+  buildSignInUrl,
+  getReturnPathFromSearchParams,
+  resolveReturnPath,
+} from "@/lib/auth-redirect";
+import { useAppStore } from "@/store/useAppStore";
 import { RegisterPayload } from "@/types/auth";
 
 // ─── Password Strength ────────────────────────────────────────────────────────
@@ -92,7 +99,13 @@ const GITHUB_OAUTH_SESSION_KEY = "github_oauth_tx";
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function RegisterPage() {
+function RegisterPageContent() {
+  const searchParams = useSearchParams();
+  const postAuthPath = resolveReturnPath(searchParams);
+  const returnPathFromQuery = getReturnPathFromSearchParams(searchParams);
+  const signInHref = buildSignInUrl(returnPathFromQuery);
+  const token = useAppStore((state) => state.authData.token);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -100,6 +113,10 @@ export default function RegisterPage() {
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const [isGithubSubmitting, setIsGithubSubmitting] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -114,9 +131,21 @@ export default function RegisterPage() {
     mode: "onChange",
   });
 
-  // Watch password live for the strength indicator
   const passwordValue = form.watch("password");
   const strength = useMemo(() => getStrength(passwordValue ?? ""), [passwordValue]);
+
+  useEffect(() => {
+    if (!isHydrated || !token) return;
+    router.replace(postAuthPath);
+  }, [isHydrated, token, postAuthPath, router]);
+
+  if (!isHydrated || token) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-muted-foreground">
+        {token ? "Redirecting…" : "Loading…"}
+      </div>
+    );
+  }
 
   async function onGoogleSignIn() {
     setApiError(null);
@@ -125,7 +154,11 @@ export default function RegisterPage() {
       const { authorization_url, state } = await getGoogleOAuthLoginUrl();
       sessionStorage.setItem(
         GOOGLE_OAUTH_SESSION_KEY,
-        JSON.stringify({ state, createdAt: Date.now() }),
+        JSON.stringify({
+          state,
+          createdAt: Date.now(),
+          returnPath: postAuthPath,
+        }),
       );
       window.location.href = authorization_url;
     } catch (error) {
@@ -141,7 +174,12 @@ export default function RegisterPage() {
       const { authorization_url, state } = await getGithubOAuthLoginUrl();
       sessionStorage.setItem(
         GITHUB_OAUTH_SESSION_KEY,
-        JSON.stringify({ state, createdAt: Date.now(), flow: "register" }),
+        JSON.stringify({
+          state,
+          createdAt: Date.now(),
+          flow: "register",
+          returnUrl: postAuthPath,
+        }),
       );
       window.location.href = authorization_url;
     } catch (error) {
@@ -168,6 +206,9 @@ export default function RegisterPage() {
         email: values.email,
         p: btoa(values.password),
       });
+      if (returnPathFromQuery) {
+        params.set(RETURN_PATH_PARAM, returnPathFromQuery);
+      }
       router.push(`/verify-email?${params.toString()}`);
     } catch (error) {
       setApiError(getApiErrorMessage(error));
@@ -491,7 +532,7 @@ export default function RegisterPage() {
               <p className="text-muted-foreground">
                 Already have an account?{" "}
                 <Link
-                  href="/sign-in"
+                  href={signInHref}
                   className="font-semibold text-primary hover:underline"
                 >
                   Sign In to Workspace
@@ -513,5 +554,19 @@ export default function RegisterPage() {
         </section>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center text-muted-foreground">
+          Loading…
+        </div>
+      }
+    >
+      <RegisterPageContent />
+    </Suspense>
   );
 }

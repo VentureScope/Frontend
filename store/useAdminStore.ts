@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { clearAdminMeRevalidated } from "@/lib/admin-session-validation";
 import type { AdminSessionData } from "@/types/admin-auth";
 
 const ADMIN_STORAGE_KEY = "admin-storage";
@@ -48,6 +49,7 @@ export const useAdminStore = create<AdminState>()(
         set({ authData });
       },
       clearAuth: () => {
+        clearAdminMeRevalidated();
         clearAdminBrowserStorage();
         set({ authData: EMPTY_ADMIN_SESSION });
       },

@@ -1,5 +1,8 @@
 import api from "@/lib/api";
-import type { NotificationListResponse } from "@/types/notifications";
+import type {
+  NotificationItem,
+  NotificationListResponse,
+} from "@/types/notifications";
 
 export async function listNotifications(params?: {
   page?: number;
@@ -12,6 +15,19 @@ export async function listNotifications(params?: {
   return res.data;
 }
 
+export async function markNotificationRead(
+  notificationId: string,
+): Promise<NotificationItem> {
+  const res = await api.patch<NotificationItem>(
+    `/api/notifications/${notificationId}/read`,
+  );
+  return res.data;
+}
+
 export async function markAllNotificationsRead(): Promise<void> {
   await api.post("/api/notifications/mark-all-read");
+}
+
+export async function deleteNotification(notificationId: string): Promise<void> {
+  await api.delete(`/api/notifications/${notificationId}`);
 }

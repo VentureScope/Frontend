@@ -1,13 +1,16 @@
 ﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Bot, Sparkles } from "lucide-react";
 import { CHAT_CONTENT_WIDTH, CHAT_MAIN_PADDING } from "@/components/chat/chat-layout";
 import { ChatComposer } from "@/components/chat/ChatComposer";
+import { ChatConversationSkeleton } from "@/components/chat/ChatSkeletons";
 import { cn } from "@/lib/utils";
 import { ChatMessageList } from "@/components/chat/ChatMessageList";
 import { ChatPromptChips } from "@/components/chat/ChatPromptChips";
 import { consumeAdvisorPendingMessage } from "@/lib/advisor-launch";
+import { deriveChatTitle } from "@/lib/chat-utils";
 import { useChatStore } from "@/store/useChatStore";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -18,13 +21,17 @@ const STARTER_PROMPTS = [
 ];
 
 export default function ChatInterface() {
+  const searchParams = useSearchParams();
   const {
     activeSession,
+    activeSessionId,
     sendMessage,
     createSession,
     startNewChatWithMessage,
+    setActiveSession,
     isConnecting,
     isTyping,
+    isSessionBusy,
   } = useChatStore();
   const authUser = useAppStore((s) => s.authData.user);
   const [input, setInput] = useState("");
@@ -33,7 +40,9 @@ export default function ChatInterface() {
 
   const displayName = authUser?.full_name?.split(" ")[0] ?? "there";
   const messages = activeSession?.messages ?? [];
-  const showWelcome = !activeSession || messages.length === 0;
+  const showWelcome =
+    !isSessionBusy && (!activeSession || messages.length === 0);
+  const showLoading = isSessionBusy && !isTyping;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -47,15 +56,24 @@ export default function ChatInterface() {
     void startNewChatWithMessage(pending);
   }, [startNewChatWithMessage]);
 
-  async function ensureSession() {
+  useEffect(() => {
+    const sessionId = searchParams.get("session");
+    if (!sessionId || activeSessionId === sessionId) return;
+    void setActiveSession(sessionId);
+  }, [searchParams, activeSessionId, setActiveSession]);
+
+  async function ensureSession(firstMessage?: string) {
     if (activeSession) return activeSession.id;
-    return createSession("New conversation");
+    return createSession(
+      firstMessage ? deriveChatTitle(firstMessage) : undefined,
+    );
   }
 
   async function handleSend() {
-    if (!input.trim() || isConnecting) return;
-    await ensureSession();
-    sendMessage(input);
+    const text = input.trim();
+    if (!text || isConnecting || isSessionBusy) return;
+    await ensureSession(text);
+    sendMessage(text);
     setInput("");
   }
 
@@ -67,9 +85,8 @@ export default function ChatInterface() {
   }
 
   async function runPrompt(text: string) {
-    if (isConnecting) return;
-    await ensureSession();
-    sendMessage(text);
+    if (isConnecting || isSessionBusy) return;
+    await startNewChatWithMessage(text);
   }
 
   return (
@@ -89,7 +106,11 @@ export default function ChatInterface() {
               {activeSession?.title ?? "AI Advisor"}
             </h1>
             <p className="text-xs text-muted-foreground">
-              {isConnecting ? "Connecting…" : "Career guidance for your profile"}
+              {showLoading
+                ? "Loading conversation…"
+                : isConnecting
+                  ? "Connecting…"
+                  : "Career guidance for your profile"}
             </p>
           </div>
         </div>
@@ -97,7 +118,9 @@ export default function ChatInterface() {
 
       <div className="flex-1 overflow-y-auto scrollbar-none">
         <div className={cn(CHAT_CONTENT_WIDTH, CHAT_MAIN_PADDING)}>
-          {showWelcome ? (
+          {showLoading ? (
+            <ChatConversationSkeleton />
+          ) : showWelcome ? (
             <div className="flex min-h-[40vh] flex-col items-start gap-6 pt-4 text-left">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                 <Sparkles className="h-6 w-6" />
@@ -112,7 +135,7 @@ export default function ChatInterface() {
                 </p>
               </div>
               <ChatPromptChips
-                disabled={isConnecting}
+                disabled={isConnecting || isSessionBusy}
                 prompts={STARTER_PROMPTS.map((label) => ({
                   label,
                   onClick: () => void runPrompt(label),
@@ -124,7 +147,7 @@ export default function ChatInterface() {
               messages={messages}
               isTyping={isTyping}
               userInitial={displayName}
-              formatAssistant={false}
+              formatAssistant
               messagesEndRef={messagesEndRef}
             />
           )}
@@ -136,9 +159,13 @@ export default function ChatInterface() {
         onChange={setInput}
         onSend={() => void handleSend()}
         onKeyDown={handleKeyDown}
-        disabled={isConnecting}
+        disabled={isConnecting || isSessionBusy}
         placeholder={
-          isConnecting ? "Connecting…" : "Ask your AI advisor…"
+          isSessionBusy
+            ? "Please wait…"
+            : isConnecting
+              ? "Connecting…"
+              : "Ask your AI advisor…"
         }
         hint="Enter to send · Shift+Enter for a new line"
       />

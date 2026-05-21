@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -21,6 +21,13 @@ import {
   loginUser,
 } from "@/lib/auth-api";
 import { mfaGetAAL } from "@/lib/mfa-api";
+import {
+  RETURN_PATH_PARAM,
+  buildMfaChallengeUrl,
+  buildRegisterUrl,
+  getReturnPathFromSearchParams,
+  resolveReturnPath,
+} from "@/lib/auth-redirect";
 import { useAppStore } from "@/store/useAppStore";
 import { SignInPayload } from "@/types/auth";
 
@@ -33,7 +40,12 @@ const loginSchema = z.object({
 const GOOGLE_OAUTH_SESSION_KEY = "google_oauth_tx";
 const GITHUB_OAUTH_SESSION_KEY = "github_oauth_tx";
 
-export default function SignInPage() {
+function SignInPageContent() {
+  const searchParams = useSearchParams();
+  const postAuthPath = resolveReturnPath(searchParams);
+  const returnPathFromQuery = getReturnPathFromSearchParams(searchParams);
+  const registerHref = buildRegisterUrl(returnPathFromQuery);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,7 +63,12 @@ export default function SignInPage() {
   const [mfaError, setMfaError] = useState<string | null>(null);
 
   const setAuthData = useAppStore((state) => state.setAuthData);
+  const token = useAppStore((state) => state.authData.token);
   const router = useRouter();
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const form = useForm<SignInPayload>({
     resolver: zodResolver(loginSchema),
@@ -61,6 +78,19 @@ export default function SignInPage() {
       remember_me: false,
     },
   });
+
+  useEffect(() => {
+    if (!isHydrated || !token) return;
+    router.replace(postAuthPath);
+  }, [isHydrated, token, postAuthPath, router]);
+
+  if (!isHydrated || token) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-muted-foreground">
+        {token ? "Redirecting…" : "Loading…"}
+      </div>
+    );
+  }
 
   async function selectFactor(factor: any) {
     setMfaError(null);
@@ -114,7 +144,7 @@ export default function SignInPage() {
         console.error("MFA Check failed", err);
       }
 
-      router.push("/");
+      router.push(postAuthPath);
     } catch (error) {
       // 403 means email not verified — redirect to OTP verification page
       if (error instanceof AxiosError && error.response?.status === 403) {
@@ -122,6 +152,9 @@ export default function SignInPage() {
           email: values.email,
           p: btoa(values.password),
         });
+        if (returnPathFromQuery) {
+          params.set(RETURN_PATH_PARAM, returnPathFromQuery);
+        }
         router.push(`/verify-email?${params.toString()}`);
         return;
       }
@@ -144,7 +177,7 @@ export default function SignInPage() {
         challenge_id: challengeId,
         code: mfaCode,
       });
-      router.push("/");
+      router.push(postAuthPath);
     } catch (err) {
       setMfaError(getApiErrorMessage(err));
       setMfaCode("");
@@ -176,6 +209,7 @@ export default function SignInPage() {
         JSON.stringify({
           state,
           createdAt: Date.now(),
+          returnPath: postAuthPath,
         }),
       );
       console.log("[oauth] Redirecting to Google authorization URL", {
@@ -204,6 +238,7 @@ export default function SignInPage() {
           state,
           createdAt: Date.now(),
           flow: "sign-in",
+          returnUrl: postAuthPath,
         }),
       );
 
@@ -586,7 +621,7 @@ export default function SignInPage() {
             <p className="text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{" "}
               <Link
-                href="/register"
+                href={registerHref}
                 className="font-bold text-primary hover:underline"
               >
                 Start for free
@@ -596,6 +631,20 @@ export default function SignInPage() {
         </section>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center text-muted-foreground">
+          Loading…
+        </div>
+      }
+    >
+      <SignInPageContent />
+    </Suspense>
   );
 }
 

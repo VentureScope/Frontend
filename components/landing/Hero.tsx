@@ -1,11 +1,19 @@
+"use client";
+
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { MarketingPhoto } from "@/components/landing/MarketingPhoto";
+import { useLandingAuth } from "@/hooks/useLandingAuth";
 import { marketingImages } from "@/lib/marketing-images";
 
 export default function Hero() {
+  const { isHydrated, isAuthenticated, dashboardHref, registerHref } =
+    useLandingAuth();
   const { src, alt } = marketingImages.landingHero;
+
+  const primaryHref = isAuthenticated ? dashboardHref : registerHref;
+  const primaryLabel = isAuthenticated ? "Go to Dashboard" : "Join the Beta";
 
   return (
     <section className="relative overflow-hidden bg-linear-to-b from-primary/5 via-background to-background pb-20 pt-20 lg:pb-32 lg:pt-32">
@@ -18,7 +26,7 @@ export default function Hero() {
           <div className="space-y-8">
             <div className="vs-accent-chip inline-flex items-center gap-2 rounded-md px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest">
               <Sparkles className="h-3 w-3" />
-              The Intelligence Layer
+              {isAuthenticated ? "Your workspace" : "The Intelligence Layer"}
             </div>
 
             <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-7xl">
@@ -29,28 +37,38 @@ export default function Hero() {
             </h1>
 
             <p className="max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Data-driven career guidance for the next generation of Ethiopian
-              tech leaders. Bridge the gap between education and global
-              employability.
+              {isAuthenticated
+                ? "Pick up where you left off—roadmaps, resumes, market matches, and AI guidance are ready in your dashboard."
+                : "Data-driven career guidance for the next generation of Ethiopian tech leaders. Bridge the gap between education and global employability."}
             </p>
 
             <div className="flex flex-col flex-wrap gap-4 sm:flex-row">
-              <Button
-                asChild
-                size="lg"
-                className="h-14 w-full rounded-md px-8 font-semibold sm:w-auto"
-              >
-                <Link href="/register" className="flex w-full justify-center">
-                  Join the Beta <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
+              {isHydrated ? (
+                <Button
+                  asChild
+                  size="lg"
+                  className="h-14 w-full rounded-md px-8 font-semibold sm:w-auto"
+                >
+                  <Link href={primaryHref} className="flex w-full justify-center">
+                    {primaryLabel} <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              ) : (
+                <div className="h-14 w-full rounded-md bg-muted sm:w-40" />
+              )}
               <Button
                 size="lg"
                 variant="outline"
                 className="h-14 w-full rounded-md border-primary/25 px-8 font-semibold text-primary hover:bg-primary/5 sm:w-auto"
                 asChild
               >
-                <Link href="/market-insight">Explore Trends</Link>
+                <Link
+                  href={
+                    isAuthenticated ? "/dashboard/market-trends" : "/market-insight"
+                  }
+                >
+                  {isAuthenticated ? "Your market trends" : "Explore trends"}
+                </Link>
               </Button>
             </div>
           </div>
@@ -82,4 +100,3 @@ export default function Hero() {
     </section>
   );
 }
-

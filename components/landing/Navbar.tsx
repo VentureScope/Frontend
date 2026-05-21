@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, LogOut } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { logoutUser } from "@/lib/auth-api";
+import { useLandingAuth } from "@/hooks/useLandingAuth";
 import { useAppStore } from "@/store/useAppStore";
 
 const NAV_LINKS = [
@@ -18,10 +19,14 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const pathname = usePathname();
-  const token = useAppStore((state) => state.authData.token);
+  const {
+    isHydrated,
+    isAuthenticated,
+    dashboardHref,
+    signInHref,
+    registerHref,
+  } = useLandingAuth();
   const clearAuth = useAppStore((state) => state.clearAuth);
-  const isAuthenticated = Boolean(token);
-  // const isAuthenticated = true;
   const navLinks = NAV_LINKS;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -138,14 +143,16 @@ export default function Navbar() {
           {/* Desktop Actions */}
           <div className="hidden items-center gap-4 md:flex">
             <ThemeToggle />
-            {isAuthenticated ? (
+            {!isHydrated ? (
+              <div className="h-10 w-44 rounded-lg bg-muted" aria-hidden />
+            ) : isAuthenticated ? (
               <>
                 <Button
                   asChild
                   variant="outline"
                   className="rounded-full border-primary/50 px-6 text-foreground hover:bg-muted hover:text-foreground"
                 >
-                  <Link href="/dashboard">Dashboard</Link>
+                  <Link href={dashboardHref}>Dashboard</Link>
                 </Button>
                 <Button
                   type="button"
@@ -161,7 +168,7 @@ export default function Navbar() {
             ) : (
               <>
                 <Link
-                  href="/sign-in"
+                  href={signInHref}
                   className="text-btn font-medium text-foreground hover:text-primary"
                 >
                   Sign In
@@ -170,7 +177,7 @@ export default function Navbar() {
                   asChild
                   className="rounded-lg bg-primary px-6 text-primary-foreground hover:bg-primary/90"
                 >
-                  <Link href="/register">Get Started</Link>
+                  <Link href={registerHref}>Get Started</Link>
                 </Button>
               </>
             )}
@@ -254,7 +261,9 @@ export default function Navbar() {
           </div>
 
           <div className="mt-8 flex flex-col gap-4 border-t border-border pt-8">
-            {isAuthenticated ? (
+            {!isHydrated ? (
+              <div className="h-24 w-full rounded-lg bg-muted" aria-hidden />
+            ) : isAuthenticated ? (
               <>
                 <Button
                   asChild
@@ -262,7 +271,7 @@ export default function Navbar() {
                   className="w-full justify-center rounded-lg border-primary/50 py-6 text-base font-medium hover:bg-muted"
                 >
                   <Link
-                    href="/dashboard"
+                    href={dashboardHref}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Dashboard
@@ -287,7 +296,7 @@ export default function Navbar() {
                   className="w-full justify-center rounded-lg border-border py-6 text-base font-bold text-foreground hover:bg-muted"
                 >
                   <Link
-                    href="/sign-in"
+                    href={signInHref}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Sign In
@@ -298,7 +307,7 @@ export default function Navbar() {
                   className="w-full justify-center rounded-lg bg-primary py-6 text-base font-medium text-primary-foreground hover:bg-primary/90"
                 >
                   <Link
-                    href="/register"
+                    href={registerHref}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Get Started

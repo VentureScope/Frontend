@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ArrowRight, Loader2, Shield } from "lucide-react";
@@ -13,7 +13,9 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { adminLogin, getApiErrorMessage } from "@/lib/admin-auth-api";
+import { markAdminMeRevalidated } from "@/lib/admin-session-validation";
 import { isAdminDemoEnabled } from "@/lib/admin-utils";
+import { resolveAdminReturnPath } from "@/lib/auth-redirect";
 import { useAdminStore } from "@/store/useAdminStore";
 import type { AdminSignInPayload } from "@/types/admin-auth";
 
@@ -22,8 +24,10 @@ const schema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-export default function AdminSignInPage() {
+function AdminSignInContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const postAuthPath = resolveAdminReturnPath(searchParams);
   const setAuthData = useAdminStore((s) => s.setAuthData);
   const token = useAdminStore((s) => s.authData.token);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -37,8 +41,8 @@ export default function AdminSignInPage() {
 
   useEffect(() => setIsHydrated(true), []);
   useEffect(() => {
-    if (isHydrated && token) router.replace("/admin");
-  }, [isHydrated, token, router]);
+    if (isHydrated && token) router.replace(postAuthPath);
+  }, [isHydrated, token, postAuthPath, router]);
 
   async function onSubmit(values: AdminSignInPayload) {
     setApiError(null);
@@ -46,7 +50,8 @@ export default function AdminSignInPage() {
     try {
       const session = await adminLogin(values);
       setAuthData(session);
-      router.push("/admin");
+      markAdminMeRevalidated();
+      router.push(postAuthPath);
     } catch (error) {
       setApiError(getApiErrorMessage(error));
     } finally {
@@ -154,5 +159,19 @@ export default function AdminSignInPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function AdminSignInPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center text-muted-foreground">
+          Loading…
+        </div>
+      }
+    >
+      <AdminSignInContent />
+    </Suspense>
   );
 }

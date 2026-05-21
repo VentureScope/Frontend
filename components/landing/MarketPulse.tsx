@@ -14,12 +14,14 @@ import { SkillDemandPanel } from "@/components/landing/market/SkillDemandPanel";
 import { TrendingRolesPanel } from "@/components/landing/market/TrendingRolesPanel";
 import { MarketStatsPanel } from "@/components/landing/market/MarketStatsPanel";
 import { MARKET_TOP_K, statsInsight } from "@/lib/job-market-insights";
+import { useLandingAuth } from "@/hooks/useLandingAuth";
 import { getMarketPulseFallbackData } from "@/lib/market-pulse-fallback";
 import { MarketPulseGridSkeleton } from "@/components/landing/market/MarketPulseSkeletons";
 
 const HOME_TRENDING_LIMIT = 3;
 
 export default function MarketPulse() {
+  const { isAuthenticated } = useLandingAuth();
   const [skills, setSkills] = useState<InDemandSkill[]>([]);
   const [trending, setTrending] = useState<TrendingCareer[]>([]);
   const [stats, setStats] = useState<JobStats | null>(null);
@@ -109,8 +111,15 @@ export default function MarketPulse() {
               size="lg"
               className="h-12 shrink-0 rounded-md px-7 font-semibold"
             >
-              <Link href="/market-insight" className="gap-2">
-                Full market report
+              <Link
+                href={
+                  isAuthenticated
+                    ? "/dashboard/market-trends"
+                    : "/market-insight"
+                }
+                className="gap-2"
+              >
+                {isAuthenticated ? "Your market trends" : "Full market report"}
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
             </Button>

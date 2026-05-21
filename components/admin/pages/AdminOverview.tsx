@@ -32,18 +32,24 @@ export function AdminOverview() {
         </div>
       ) : null}
 
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">
+          Platform activity at a glance.
+        </p>
+        <button
+          type="button"
+          onClick={() => void reload()}
+          disabled={loading}
+          className={adminGhostBtn}
+        >
+          Refresh
+        </button>
+      </div>
+
       {loading ? (
         <AdminOverviewSkeleton />
       ) : (
         <>
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-muted-foreground">
-              Live metrics from admin users, ML runs, notifications, and pipeline APIs.
-            </p>
-            <button type="button" onClick={() => void reload()} className={adminGhostBtn}>
-              Refresh
-            </button>
-          </div>
           <div className="grid grid-cols-4 gap-3">
             <AdminStatCard
               label="Active Users"

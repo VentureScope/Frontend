@@ -133,7 +133,7 @@ export function AdminListSkeleton({ rows = 6 }: { rows?: number }) {
   );
 }
 
-function ChartBlockSkeleton({ tall = false }: { tall?: boolean }) {
+export function ChartBlockSkeleton({ tall = false }: { tall?: boolean }) {
   return (
     <div className={cn(adminSection, "mb-6 space-y-3")}>
       <AdminSk className="h-3 w-36" />
@@ -147,10 +147,6 @@ function ChartBlockSkeleton({ tall = false }: { tall?: boolean }) {
 export function AdminOverviewSkeleton() {
   return (
     <div className="space-y-4">
-      <div className="mb-4 flex justify-between gap-3">
-        <AdminSk className="h-4 w-full max-w-lg" />
-        <AdminSk className="h-9 w-20 rounded-md" />
-      </div>
       <AdminStatCardsSkeleton count={4} cols={4} />
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-5">
         <div className={cn(adminCard, "space-y-3 p-4 lg:col-span-3")}>
@@ -181,83 +177,45 @@ export function AdminOverviewSkeleton() {
   );
 }
 
-export function UserDirectorySkeleton() {
+export function UserDirectoryTableSkeleton() {
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <AdminSk className="h-7 w-36" />
-          <AdminSk className="h-6 w-20 rounded-sm" />
-        </div>
-        <AdminSk className="h-10 w-56 rounded-md" />
-      </div>
-      <AdminTabsSkeleton count={4} />
+    <>
       <AdminTableSkeleton columns={6} rows={10} />
-      <div className="flex justify-between pt-2">
+      <div className="mt-4 flex justify-between pt-2">
         <AdminSk className="h-4 w-32" />
         <div className="flex gap-2">
           <AdminSk className="h-9 w-24 rounded-md" />
           <AdminSk className="h-9 w-24 rounded-md" />
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
-export function AdminPermissionsSkeleton() {
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap justify-between gap-4">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <AdminSk className="h-5 w-5 rounded" />
-            <AdminSk className="h-7 w-36" />
-          </div>
-          <AdminSk className="h-4 w-full max-w-xl" />
-        </div>
-        <AdminSk className="h-9 w-36 rounded-md" />
-      </div>
-      <div className="flex gap-3">
-        <AdminSk className="h-10 w-56 rounded-md" />
-        <AdminSk className="h-4 w-28" />
-      </div>
-      <AdminTableSkeleton columns={4} rows={6} />
-    </div>
-  );
+export function AdminPermissionsTableSkeleton() {
+  return <AdminTableSkeleton columns={4} rows={6} />;
 }
 
+/** @deprecated Use AdminListSkeleton directly for alert list loading */
 export function AdminAlertsSkeleton() {
-  return (
-    <div className="space-y-4">
-      <AdminPageHeaderSkeleton actionCount={2} />
-      <AdminFilterChipsSkeleton count={3} />
-      <div className="flex gap-4">
-        <AdminSk className="h-4 w-24" />
-        <AdminSk className="h-4 w-4 rounded" />
-      </div>
-      <AdminListSkeleton rows={8} />
-    </div>
-  );
+  return <AdminListSkeleton rows={8} />;
 }
 
 export function TechnicalHealthSkeleton() {
   return (
-    <div className="space-y-4">
-      <AdminPageHeaderSkeleton actionCount={1} />
-      <ChartBlockSkeleton />
-      <ChartBlockSkeleton />
-      <div className={cn(adminSection, "mb-6 space-y-4")}>
+    <div className="space-y-6">
+      <section className={cn(adminSection, "space-y-4")}>
         <AdminSk className="h-3 w-40" />
-        <AdminSk className="h-4 w-32" />
-        <AdminSk className="h-10 w-full max-w-md rounded-lg" />
         <AdminTableSkeleton columns={4} rows={5} />
-      </div>
-      <div className={cn(adminSection, "space-y-4")}>
+      </section>
+      <ChartBlockSkeleton />
+      <ChartBlockSkeleton />
+      <section className={cn(adminSection, "space-y-4")}>
         <AdminSk className="h-3 w-20" />
         <AdminStatCardsSkeleton count={4} cols={4} />
         <AdminSk className="h-40 w-full rounded-lg" />
         <AdminTableSkeleton columns={5} rows={4} />
-      </div>
+      </section>
     </div>
   );
 }
@@ -265,7 +223,6 @@ export function TechnicalHealthSkeleton() {
 export function AdminTranscriptsSkeleton() {
   return (
     <div className="space-y-4">
-      <AdminPageHeaderSkeleton actionCount={2} />
       <AdminStatCardsSkeleton count={3} cols={3} />
       <ChartBlockSkeleton />
       <AdminTableSkeleton columns={5} rows={6} />
@@ -276,9 +233,7 @@ export function AdminTranscriptsSkeleton() {
 export function EmbeddingsMonitorSkeleton() {
   return (
     <div className="space-y-4">
-      <AdminPageHeaderSkeleton actionCount={2} />
       <AdminStatCardsSkeleton count={3} cols={3} />
-      <AdminFilterChipsSkeleton count={5} />
       <AdminTableSkeleton columns={7} rows={10} />
       <div className="flex justify-between pt-2">
         <AdminSk className="h-4 w-40" />
@@ -294,7 +249,6 @@ export function EmbeddingsMonitorSkeleton() {
 export function AdminGitHubSyncsSkeleton() {
   return (
     <div className="space-y-4">
-      <AdminPageHeaderSkeleton actionCount={1} />
       <AdminStatCardsSkeleton count={3} cols={3} />
       <AdminTableSkeleton columns={5} rows={8} />
     </div>
@@ -304,9 +258,7 @@ export function AdminGitHubSyncsSkeleton() {
 export function AdminTaxonomySkeleton() {
   return (
     <div className="space-y-4">
-      <AdminPageHeaderSkeleton actionCount={1} />
       <AdminStatCardsSkeleton count={2} cols={2} />
-      <AdminFilterChipsSkeleton count={4} />
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="border border-border bg-card">
           <AdminSk className="h-10 w-full border-b border-border" />

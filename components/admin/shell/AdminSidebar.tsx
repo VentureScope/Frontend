@@ -16,7 +16,6 @@ import {
   GitBranch,
   HardDrive,
   LayoutDashboard,
-  MessageSquare,
   PanelLeftClose,
   PanelLeftOpen,
   Server,
@@ -95,12 +94,6 @@ const NAV: NavGroup[] = [
         name: "Knowledge Base",
         href: "/admin/knowledge",
         icon: BookOpen,
-      },
-      {
-        type: "link",
-        name: "Chat Logs",
-        href: "/admin/chat-logs",
-        icon: MessageSquare,
       },
       {
         type: "link",

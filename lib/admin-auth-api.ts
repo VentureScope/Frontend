@@ -120,6 +120,13 @@ export async function adminLogin(
   return session;
 }
 
+export async function updateAdminProfile(payload: {
+  full_name?: string | null;
+}): Promise<AdminUserResponse> {
+  const res = await adminApi.patch<AdminUserResponse>("/api/users/me", payload);
+  return res.data;
+}
+
 export async function adminLogout(): Promise<void> {
   const { token } = useAdminStore.getState().authData;
   if (token && token !== "demo-admin-session") {

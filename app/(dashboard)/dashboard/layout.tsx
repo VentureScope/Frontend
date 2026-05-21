@@ -13,6 +13,11 @@ import TopNav from "@/components/dashboard/layout/TopNav";
 import { useAppStore } from "@/store/useAppStore";
 import { mfaGetAAL } from "@/lib/mfa-api";
 import { getDashboardBreadcrumb } from "@/lib/dashboard-breadcrumb";
+import {
+  buildMfaChallengeUrl,
+  buildSignInUrl,
+  getClientReturnPath,
+} from "@/lib/auth-redirect";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -41,7 +46,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
 
     if (!isAuthenticated) {
-      router.replace("/sign-in");
+      router.replace(buildSignInUrl(getClientReturnPath()));
       return;
     }
 
@@ -52,8 +57,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         // If user has MFA enabled (aal2 next level) but is currently at aal1,
         // redirect to challenge page.
         if (aal.current_level === "aal1" && aal.next_level === "aal2") {
-          const currentPath = window.location.pathname;
-          router.replace(`/mfa-challenge?redirect=${encodeURIComponent(currentPath)}`);
+          router.replace(buildMfaChallengeUrl(getClientReturnPath()));
         }
       } catch (err) {
         console.error("MFA check failed", err);

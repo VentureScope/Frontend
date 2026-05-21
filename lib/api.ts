@@ -1,4 +1,9 @@
 import axios from "axios";
+import {
+  buildSignInUrl,
+  getClientReturnPath,
+  isProtectedMemberPath,
+} from "@/lib/auth-redirect";
 import { useAppStore } from "@/store/useAppStore";
 
 // Create a standard base API instance
@@ -35,9 +40,19 @@ api.interceptors.response.use(
   (error) => {
     if (error.response) {
       // Handle known HTTP errors globally (e.g., redirect on 401)
-      if (error.response.status === 401) {
-        // e.g., trigger an action to clear auth state or redirect to login
-        console.warn("Unauthorized. Please log in again.");
+      if (error.response.status === 401 && typeof window !== "undefined") {
+        const pathname = window.location.pathname;
+        const hadSession = Boolean(useAppStore.getState().authData.token);
+        useAppStore.getState().clearAuth();
+        if (
+          hadSession &&
+          isProtectedMemberPath(pathname) &&
+          !pathname.startsWith("/sign-in")
+        ) {
+          window.location.replace(buildSignInUrl(getClientReturnPath()));
+        } else {
+          console.warn("Unauthorized. Please log in again.");
+        }
       }
     } else {
       console.error("Network Error:", error.message);

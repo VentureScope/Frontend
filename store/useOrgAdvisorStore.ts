@@ -1,5 +1,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import {
+  deriveChatTitle,
+  isPlaceholderChatTitle,
+  normalizeChatTitle,
+} from "@/lib/chat-utils";
 import { MOCK_ORGANIZATIONS } from "@/lib/organizations-data";
 import { mockOrgAdvisorReply } from "@/lib/org-advisor-mock";
 
@@ -27,12 +32,14 @@ interface OrgAdvisorState {
   sessions: OrgAdvisorSession[];
   activeSessionId: string | null;
   isTyping: boolean;
+  isSessionBusy: boolean;
+  deletingSessionId: string | null;
 
   setSelectedOrgId: (orgId: string) => void;
-  createSession: (title?: string, orgId?: string) => string;
+  createSession: (title?: string, orgId?: string) => Promise<string>;
   setActiveSession: (id: string | null) => void;
-  deleteSession: (id: string) => void;
-  sendMessage: (content: string) => void;
+  deleteSession: (id: string) => Promise<void>;
+  sendMessage: (content: string) => Promise<void>;
   getActiveSession: () => OrgAdvisorSession | null;
 }
 
@@ -43,15 +50,21 @@ export const useOrgAdvisorStore = create<OrgAdvisorState>()(
       sessions: [],
       activeSessionId: null,
       isTyping: false,
+      isSessionBusy: false,
+      deletingSessionId: null,
 
       setSelectedOrgId: (orgId) => set({ selectedOrgId: orgId }),
 
-      createSession: (title = "New conversation", orgId) => {
+      createSession: async (title, orgId) => {
+        set({ isSessionBusy: true });
+        await new Promise((r) => window.setTimeout(r, 120));
+
         const id = newId("org-chat");
         const org = orgId ?? get().selectedOrgId;
+        const sessionTitle = normalizeChatTitle(title ?? "");
         const session: OrgAdvisorSession = {
           id,
-          title,
+          title: sessionTitle,
           orgId: org,
           messages: [],
           updatedAt: new Date().toISOString(),
@@ -59,38 +72,56 @@ export const useOrgAdvisorStore = create<OrgAdvisorState>()(
         set((state) => ({
           sessions: [session, ...state.sessions],
           activeSessionId: id,
+          isSessionBusy: false,
         }));
         return id;
       },
 
-      setActiveSession: (id) => set({ activeSessionId: id }),
+      setActiveSession: (id) => {
+        if (!id) {
+          set({ activeSessionId: null, isSessionBusy: false });
+          return;
+        }
+        set({ isSessionBusy: true, activeSessionId: id });
+        window.setTimeout(() => {
+          set({ isSessionBusy: false });
+        }, 80);
+      },
 
-      deleteSession: (id) =>
+      deleteSession: async (id) => {
+        set({ deletingSessionId: id, isSessionBusy: true });
+        await new Promise((r) => window.setTimeout(r, 150));
         set((state) => ({
           sessions: state.sessions.filter((s) => s.id !== id),
           activeSessionId:
             state.activeSessionId === id ? null : state.activeSessionId,
-        })),
+          deletingSessionId: null,
+          isSessionBusy: false,
+        }));
+      },
 
       getActiveSession: () => {
         const { sessions, activeSessionId } = get();
         return sessions.find((s) => s.id === activeSessionId) ?? null;
       },
 
-      sendMessage: (content) => {
+      sendMessage: async (content) => {
         const trimmed = content.trim();
-        if (!trimmed) return;
+        if (!trimmed || get().isSessionBusy) return;
 
         let { activeSessionId, sessions, selectedOrgId } = get();
         let session = sessions.find((s) => s.id === activeSessionId);
 
         if (!session) {
-          const newId = get().createSession("Org planning chat");
-          session = get().sessions.find((s) => s.id === newId);
-          activeSessionId = newId;
+          await get().createSession(
+            normalizeChatTitle(""),
+            selectedOrgId,
+          );
+          activeSessionId = get().activeSessionId;
+          session = get().sessions.find((s) => s.id === activeSessionId);
         }
 
-        if (!session) return;
+        if (!session || !activeSessionId) return;
 
         const sessionId = session.id;
 
@@ -101,9 +132,10 @@ export const useOrgAdvisorStore = create<OrgAdvisorState>()(
           createdAt: new Date().toISOString(),
         };
 
+        const userCount = session.messages.filter((m) => m.role === "user").length;
         const updatedTitle =
-          session.messages.length === 0
-            ? trimmed.slice(0, 48) + (trimmed.length > 48 ? "…" : "")
+          userCount === 0 && isPlaceholderChatTitle(session.title)
+            ? deriveChatTitle(trimmed)
             : session.title;
 
         set((state) => ({
@@ -122,7 +154,7 @@ export const useOrgAdvisorStore = create<OrgAdvisorState>()(
 
         const org =
           MOCK_ORGANIZATIONS.find(
-            (o) => o.id === (session.orgId || selectedOrgId),
+            (o) => o.id === (session!.orgId || selectedOrgId),
           ) ?? null;
 
         window.setTimeout(() => {

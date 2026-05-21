@@ -9,6 +9,11 @@ import {
   getApiErrorMessage,
   syncGithubProfile,
 } from "@/lib/auth-api";
+import {
+  buildMfaChallengeUrl,
+  DEFAULT_MEMBER_PATH,
+  isSafeReturnPath,
+} from "@/lib/auth-redirect";
 import { mfaGetAAL } from "@/lib/mfa-api";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -101,7 +106,10 @@ function GithubCallbackContent() {
 
           const isFullProfile =
             sessionData.user?.full_name && sessionData.user?.career_interest !== "undecided";
-          const returnUrl = tx.returnUrl || "/dashboard";
+          const returnUrl =
+            tx.returnUrl && isSafeReturnPath(tx.returnUrl)
+              ? tx.returnUrl
+              : DEFAULT_MEMBER_PATH;
 
           setTimeout(async () => {
             if (!isFullProfile) {
@@ -111,7 +119,7 @@ function GithubCallbackContent() {
               try {
                 const aal = await mfaGetAAL();
                 if (aal.current_level === "aal1" && aal.next_level === "aal2") {
-                  router.replace("/mfa-challenge?redirect=" + returnUrl);
+                  router.replace(buildMfaChallengeUrl(returnUrl));
                   return;
                 }
               } catch (e) {

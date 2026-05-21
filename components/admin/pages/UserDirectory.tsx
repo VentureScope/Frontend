@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
-import { UserDirectorySkeleton } from "@/components/admin/AdminSkeletons";
+import { UserDirectoryTableSkeleton } from "@/components/admin/AdminSkeletons";
 import { toast } from "sonner";
 import { AdminDrawer } from "@/components/admin/ui/AdminDrawer";
 import { AdminRoleBadge, StatusDot } from "@/components/admin/ui/AdminBadge";
@@ -119,15 +119,11 @@ export function UserDirectory() {
         </div>
       ) : null}
 
-      {loading ? (
-        <UserDirectorySkeleton />
-      ) : (
-      <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <h1 className="text-lg font-medium text-foreground">User Directory</h1>
           <span className="rounded-sm bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
-            {total.toLocaleString()} users
+            {loading ? "…" : `${total.toLocaleString()} users`}
           </span>
         </div>
         <input
@@ -156,6 +152,10 @@ export function UserDirectory() {
         ))}
       </div>
 
+      {loading ? (
+        <UserDirectoryTableSkeleton />
+      ) : (
+      <>
       <div className="relative overflow-x-auto border border-border">
         {users.length === 0 ? (
           <p className="py-16 text-center text-sm text-muted-foreground">No users match this view.</p>
@@ -248,11 +248,6 @@ export function UserDirectory() {
         </div>
       ) : null}
 
-      {search.trim() ? (
-        <p className="mt-2 text-xs text-muted-foreground">
-          Search filters users loaded from the current API page (up to 100).
-        </p>
-      ) : null}
       </>
       )}
 
