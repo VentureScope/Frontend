@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { AdminShell } from "@/components/admin/shell/AdminShell";
 import { getCurrentAdminProfile } from "@/lib/admin-auth-api";
 import { isAdminDemoEnabled } from "@/lib/admin-utils";
+import {
+  buildAdminSignInUrl,
+  getClientReturnPath,
+} from "@/lib/auth-redirect";
 import { useAdminStore } from "@/store/useAdminStore";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -24,7 +28,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     if (!isHydrated) return;
     if (!isAuthenticated) {
-      router.replace("/admin/sign-in");
+      router.replace(buildAdminSignInUrl(getClientReturnPath()));
       return;
     }
 
@@ -34,7 +38,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     if (user?.is_admin === false) {
       clearAuth();
-      router.replace("/admin/sign-in");
+      router.replace(buildAdminSignInUrl(getClientReturnPath()));
       return;
     }
 
@@ -47,7 +51,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (cancelled) return;
         if (!profile.is_admin) {
           clearAuth();
-          router.replace("/admin/sign-in");
+          router.replace(buildAdminSignInUrl(getClientReturnPath()));
           return;
         }
         const current = useAdminStore.getState().authData;
@@ -55,7 +59,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       } catch {
         if (!cancelled) {
           clearAuth();
-          router.replace("/admin/sign-in");
+          router.replace(buildAdminSignInUrl(getClientReturnPath()));
         }
       } finally {
         if (!cancelled) {

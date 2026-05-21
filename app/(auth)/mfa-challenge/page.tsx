@@ -12,6 +12,7 @@ import {
   mfaGetAAL,
 } from "@/lib/mfa-api";
 import { getApiErrorMessage } from "@/lib/auth-api";
+import { resolveReturnPath } from "@/lib/auth-redirect";
 import { MFAFactor } from "@/types/mfa";
 
 // ── OTP input (6 boxes) ───────────────────────────────────────────────────────
@@ -80,7 +81,7 @@ function OTPInput({
 function MFAChallengeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") ?? "/";
+  const redirectTo = resolveReturnPath(searchParams);
 
   const [factors, setFactors] = useState<MFAFactor[]>([]);
   const [selectedFactor, setSelectedFactor] = useState<MFAFactor | null>(null);

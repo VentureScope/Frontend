@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Bot, Sparkles } from "lucide-react";
 import { CHAT_CONTENT_WIDTH, CHAT_MAIN_PADDING } from "@/components/chat/chat-layout";
 import { ChatComposer } from "@/components/chat/ChatComposer";
@@ -18,11 +19,14 @@ const STARTER_PROMPTS = [
 ];
 
 export default function ChatInterface() {
+  const searchParams = useSearchParams();
   const {
     activeSession,
+    activeSessionId,
     sendMessage,
     createSession,
     startNewChatWithMessage,
+    setActiveSession,
     isConnecting,
     isTyping,
   } = useChatStore();
@@ -46,6 +50,12 @@ export default function ChatInterface() {
     pendingLaunchHandled.current = true;
     void startNewChatWithMessage(pending);
   }, [startNewChatWithMessage]);
+
+  useEffect(() => {
+    const sessionId = searchParams.get("session");
+    if (!sessionId || activeSessionId === sessionId) return;
+    void setActiveSession(sessionId);
+  }, [searchParams, activeSessionId, setActiveSession]);
 
   async function ensureSession() {
     if (activeSession) return activeSession.id;

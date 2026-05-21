@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, Bell, HelpCircle, Menu } from "lucide-react";
+import { Search, HelpCircle, Menu } from "lucide-react";
+import { NotificationPanel } from "@/components/dashboard/layout/NotificationPanel";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getUserProfileView } from "@/lib/user-profile";
@@ -38,6 +39,7 @@ export default function TopNav({ breadcrumb, onMenuClick }: TopNavProps) {
   const profile = getUserProfileView(user);
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -147,14 +149,10 @@ export default function TopNav({ breadcrumb, onMenuClick }: TopNavProps) {
 
       <div className="flex shrink-0 items-center gap-2 sm:gap-4">
         <ThemeToggle />
-        <button
-          type="button"
-          className="relative hidden rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:block"
-          aria-label="Notifications"
-        >
-          <Bell size={20} />
-          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
-        </button>
+        <NotificationPanel
+          open={notificationsOpen}
+          onOpenChange={setNotificationsOpen}
+        />
         <button
           type="button"
           className="hidden rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:block"

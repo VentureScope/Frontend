@@ -1,5 +1,9 @@
 import axios from "axios";
 import {
+  buildAdminSignInUrl,
+  getClientReturnPath,
+} from "@/lib/auth-redirect";
+import {
   adminQueryParams,
   type AdminQueryValue,
 } from "@/lib/admin-query-params";
@@ -47,7 +51,7 @@ adminApi.interceptors.response.use(
       const hadSession = Boolean(useAdminStore.getState().authData.token);
       useAdminStore.getState().clearAuth();
       if (hadSession && !window.location.pathname.startsWith("/admin/sign-in")) {
-        window.location.replace("/admin/sign-in");
+        window.location.replace(buildAdminSignInUrl(getClientReturnPath()));
       }
     }
     return Promise.reject(error);

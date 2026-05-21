@@ -53,6 +53,7 @@ export function jobMatchToPercent(match: JobMatch | undefined): number | null {
 
 export function notificationSourceLabel(type: string): string {
   const t = type.toLowerCase();
+  if (t.includes("chat")) return "AI Advisor";
   if (t.includes("roadmap") || t.includes("learning")) return "Learning Path";
   if (t.includes("resume")) return "Resume Builder";
   if (t.includes("transcript") || t.includes("academic")) return "Data Hub";
@@ -63,6 +64,7 @@ export function notificationSourceLabel(type: string): string {
 
 export function notificationBadgeClass(type: string): string {
   const t = type.toLowerCase();
+  if (t.includes("chat")) return "vs-badge vs-badge-accent";
   if (t.includes("roadmap") || t.includes("learning")) {
     return "vs-badge vs-badge-accent";
   }
@@ -75,6 +77,7 @@ export function notificationBadgeClass(type: string): string {
 
 export function notificationDotClass(type: string): string {
   const t = type.toLowerCase();
+  if (t.includes("chat")) return "bg-accent";
   if (t.includes("resume")) return "bg-warning";
   if (t.includes("roadmap")) return "bg-accent";
   return "bg-success";
@@ -90,17 +93,22 @@ export type DashboardActivityItem = {
   href: string;
 };
 
+export function getNotificationHref(n: NotificationItem): string {
+  const meta = n.metadata_ ?? {};
+  if (typeof meta.href === "string") return meta.href;
+  if (typeof meta.link === "string") return meta.link;
+
+  const t = n.notification_type.toLowerCase();
+  if (t.includes("chat") && typeof meta.session_id === "string") {
+    return `/dashboard/ai-advisor?session=${encodeURIComponent(meta.session_id)}`;
+  }
+
+  return notificationDefaultHref(n.notification_type);
+}
+
 export function mapNotificationToActivity(
   n: NotificationItem,
 ): DashboardActivityItem {
-  const meta = n.metadata_ ?? {};
-  const href =
-    typeof meta.href === "string"
-      ? meta.href
-      : typeof meta.link === "string"
-        ? meta.link
-        : notificationDefaultHref(n.notification_type);
-
   return {
     id: n.id,
     title: n.title,
@@ -108,12 +116,13 @@ export function mapNotificationToActivity(
     badge: notificationSourceLabel(n.notification_type),
     badgeClass: notificationBadgeClass(n.notification_type),
     dotClass: notificationDotClass(n.notification_type),
-    href,
+    href: getNotificationHref(n),
   };
 }
 
 function notificationDefaultHref(notificationType: string): string {
   const t = notificationType.toLowerCase();
+  if (t.includes("chat")) return "/dashboard/ai-advisor";
   if (t.includes("roadmap") || t.includes("learning")) {
     return "/dashboard/learning-path";
   }
