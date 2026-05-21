@@ -3,6 +3,7 @@ export type MlRunStatus =
   | "awaiting_review"
   | "deployed"
   | "superseded"
+  | "suspended"
   | "failed"
   | string;
 

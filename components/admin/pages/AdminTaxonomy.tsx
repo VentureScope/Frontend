@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { AdminTaxonomySkeleton } from "@/components/admin/AdminSkeletons";
 import { AdminStatCard } from "@/components/admin/ui/AdminStatCard";
 import {
   adminEmeraldBtn,
@@ -35,6 +35,16 @@ export function AdminTaxonomy() {
 
   return (
     <div className={adminPage}>
+      {error ? (
+        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+        </div>
+      ) : null}
+
+      {loading ? (
+        <AdminTaxonomySkeleton />
+      ) : (
+      <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-lg font-medium text-foreground">Role Taxonomy</h1>
@@ -46,12 +56,6 @@ export function AdminTaxonomy() {
           Refresh
         </button>
       </div>
-
-      {error ? (
-        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
-      ) : null}
 
       <div className="mb-4 grid grid-cols-2 gap-3">
         <AdminStatCard
@@ -82,12 +86,6 @@ export function AdminTaxonomy() {
         ))}
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          Loading taxonomy…
-        </div>
-      ) : (
         <div className="grid grid-cols-2 gap-4">
           <div className="border border-border bg-card">
             <p className="border-b border-border px-4 py-2 text-sm font-medium text-foreground">
@@ -208,6 +206,7 @@ export function AdminTaxonomy() {
             </table>
           </div>
         </div>
+      </>
       )}
     </div>
   );

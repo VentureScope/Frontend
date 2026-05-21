@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { AdminGitHubSyncsSkeleton } from "@/components/admin/AdminSkeletons";
 import { AdminStatCard } from "@/components/admin/ui/AdminStatCard";
 import { adminGhostBtn, adminPage } from "@/components/admin/ui/admin-styles";
 import { listAdminUsers } from "@/lib/admin-users-api";
@@ -43,19 +43,6 @@ export function AdminGitHubSyncs() {
 
   return (
     <div className={adminPage}>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-lg font-medium text-foreground">GitHub Syncs</h1>
-          <p className="text-sm text-muted-foreground">
-            Users with a linked GitHub username from the admin user directory. Per-user
-            sync jobs are member-scoped; there is no dedicated admin sync API yet.
-          </p>
-        </div>
-        <button type="button" onClick={() => void load()} className={adminGhostBtn}>
-          Refresh
-        </button>
-      </div>
-
       {error ? (
         <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
@@ -63,15 +50,24 @@ export function AdminGitHubSyncs() {
       ) : null}
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          Loading users…
-        </div>
+        <AdminGitHubSyncsSkeleton />
       ) : (
         <>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h1 className="text-lg font-medium text-foreground">GitHub Syncs</h1>
+              <p className="text-sm text-muted-foreground">
+                Users with a linked GitHub username from the admin user directory. Per-user
+                sync jobs are member-scoped; there is no dedicated admin sync API yet.
+              </p>
+            </div>
+            <button type="button" onClick={() => void load()} className={adminGhostBtn}>
+              Refresh
+            </button>
+          </div>
           <div className="mb-4 grid grid-cols-3 gap-3">
             <AdminStatCard
-              label="Linked (sample)"
+              label="Linked"
               value={String(linked.length)}
               subtext={`of ${users.length} on this page`}
               valueClassName="text-primary"

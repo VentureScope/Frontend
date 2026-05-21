@@ -52,6 +52,8 @@ export interface StorageBucketView {
 export interface StorageHealthView {
   buckets: StorageBucketView[];
   totalBytes: number | null;
+  /** DO Spaces bucket name from API root `bucket`. */
+  bucketName: string | null;
 }
 
 export interface PipelineRunsChartPoint {

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { AdminOverviewSkeleton } from "@/components/admin/AdminSkeletons";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import { AdminActionBadge } from "@/components/admin/ui/AdminBadge";
 import { AdminStatCard } from "@/components/admin/ui/AdminStatCard";
@@ -21,20 +21,11 @@ const DONUT_COLORS: Record<string, string> = {
 };
 
 export function AdminOverview() {
-  const { stats, activity, donut, dags, loading, error, reload } =
+  const { stats, activity, donut, dags, unreadAlerts, loading, error, reload } =
     useAdminOverview();
 
   return (
     <div className={adminPage}>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
-          Live metrics from admin users, ML runs, notifications, and pipeline APIs.
-        </p>
-        <button type="button" onClick={() => void reload()} className={adminGhostBtn}>
-          Refresh
-        </button>
-      </div>
-
       {error ? (
         <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
@@ -42,12 +33,17 @@ export function AdminOverview() {
       ) : null}
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          Loading overview…
-        </div>
+        <AdminOverviewSkeleton />
       ) : (
         <>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground">
+              Live metrics from admin users, ML runs, notifications, and pipeline APIs.
+            </p>
+            <button type="button" onClick={() => void reload()} className={adminGhostBtn}>
+              Refresh
+            </button>
+          </div>
           <div className="grid grid-cols-4 gap-3">
             <AdminStatCard
               label="Active Users"
@@ -58,17 +54,17 @@ export function AdminOverview() {
             <Link href="/admin/embeddings" className="block">
               <AdminStatCard
                 label="Failed ML Runs"
-                value={stats.failedEmbeddings.value}
-                subtext={stats.failedEmbeddings.hint}
+                value={stats.failedMlRuns.value}
+                subtext={stats.failedMlRuns.hint}
                 valueClassName="text-destructive"
                 subtextClassName="text-destructive"
               />
             </Link>
-            <Link href="/admin/transcripts" className="block">
+            <Link href="/admin/system" className="block">
               <AdminStatCard
-                label="Pending Transcripts"
-                value={stats.pendingTranscripts.value}
-                subtext={stats.pendingTranscripts.hint}
+                label="Running DAGs"
+                value={stats.runningDags.value}
+                subtext={stats.runningDags.hint}
                 valueClassName="text-warning"
                 subtextClassName="text-warning"
               />
@@ -86,7 +82,8 @@ export function AdminOverview() {
               <div className="mb-3 flex items-center justify-between border-b border-border pb-2">
                 <span className="text-sm font-medium text-foreground">Recent Activity</span>
                 <Link href="/admin/alerts" className="text-xs text-muted-foreground hover:text-foreground">
-                  View alerts →
+                  View alerts
+                  {unreadAlerts > 0 ? ` (${unreadAlerts})` : ""} →
                 </Link>
               </div>
               {activity.length === 0 ? (

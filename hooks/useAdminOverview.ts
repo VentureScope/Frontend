@@ -16,35 +16,66 @@ import type { AdminDagStatusRow } from "@/types/admin-system";
 
 export type OverviewStats = {
   activeUsers: { value: string; subtext: string };
-  failedEmbeddings: { value: string; hint: string };
-  pendingTranscripts: { value: string; hint: string };
+  failedMlRuns: { value: string; hint: string };
+  runningDags: { value: string; hint: string };
   aiChatsToday: { value: string; delta: string };
 };
 
 const EMPTY_STATS: OverviewStats = {
   activeUsers: { value: "—", subtext: "Loading…" },
-  failedEmbeddings: { value: "—", hint: "" },
-  pendingTranscripts: { value: "—", hint: "" },
+  failedMlRuns: { value: "—", hint: "" },
+  runningDags: { value: "—", hint: "" },
   aiChatsToday: { value: "—", delta: "No admin API" },
 };
 
 function estimateActiveUsers(
   total: number,
   sample: { is_active: boolean }[],
+  perPage: number,
 ): { value: string; subtext: string } {
-  if (sample.length === 0) {
-    return { value: String(total), subtext: `${total} accounts` };
+  if (total === 0) {
+    return { value: "0", subtext: "No accounts" };
   }
+  if (sample.length === 0) {
+    return {
+      value: total.toLocaleString(),
+      subtext: `${total.toLocaleString()} total accounts`,
+    };
+  }
+
   const activeInSample = sample.filter((u) => u.is_active).length;
   const ratio = activeInSample / sample.length;
   const estimated = Math.round(total * ratio);
-  const inactive = total - estimated;
+  const inactiveEst = Math.max(0, total - estimated);
+
+  const subtext =
+    sample.length < total
+      ? `~${estimated.toLocaleString()} active (est. from ${Math.min(perPage, sample.length)} of ${total.toLocaleString()})`
+      : inactiveEst > 0
+        ? `${inactiveEst.toLocaleString()} inactive`
+        : "All accounts active";
+
   return {
     value: estimated.toLocaleString(),
-    subtext:
-      inactive > 0
-        ? `${inactive.toLocaleString()} inactive`
-        : "All active in sample",
+    subtext,
+  };
+}
+
+function pipelineOverviewStats(dagList: AdminDagStatusRow[]) {
+  const running = dagList.filter((d) => d.status === "running").length;
+  const failed = dagList.filter((d) => d.status === "failed").length;
+  const success = dagList.filter((d) => d.status === "success").length;
+
+  return {
+    runningDags: {
+      value: String(running),
+      hint:
+        failed > 0
+          ? `${failed} failed · ${success} success`
+          : dagList.length > 0
+            ? `${success} success · ${dagList.length} DAGs`
+            : "No DAG status",
+    },
   };
 }
 
@@ -53,6 +84,7 @@ export function useAdminOverview() {
   const [activity, setActivity] = useState<OverviewActivityRow[]>([]);
   const [donut, setDonut] = useState<PipelineDonutSlice[]>([]);
   const [dags, setDags] = useState<AdminDagStatusRow[]>([]);
+  const [unreadAlerts, setUnreadAlerts] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,40 +109,30 @@ export function useAdminOverview() {
 
       setDags(dagList);
       setDonut(buildPipelineDonutFromDags(dagList));
+      setUnreadAlerts(notifications?.unread_count ?? 0);
       setActivity(
         notifications
           ? notificationsToActivity(notifications.items, 8)
           : [],
       );
 
-      const transcriptDags = dagList.filter((d) =>
-        d.name.toLowerCase().includes("transcript"),
-      );
-      const pendingTranscript = transcriptDags.filter(
-        (d) => d.status === "running",
-      ).length;
-      const failedTranscript = transcriptDags.filter(
-        (d) => d.status === "failed",
-      ).length;
+      const pipelineStats = pipelineOverviewStats(dagList);
 
       setStats({
         activeUsers: users
-          ? estimateActiveUsers(users.total, users.items)
+          ? estimateActiveUsers(users.total, users.items, users.per_page)
           : { value: "—", subtext: "Unavailable" },
-        failedEmbeddings: {
+        failedMlRuns: {
           value: String(failedMl?.total ?? 0),
-          hint: failedMl && failedMl.total > 0 ? "View ML runs →" : "None failed",
-        },
-        pendingTranscripts: {
-          value: String(pendingTranscript),
           hint:
-            failedTranscript > 0
-              ? `${failedTranscript} DAG failed`
-              : "From pipeline status",
+            failedMl && failedMl.total > 0
+              ? "View ML runs →"
+              : "No failed runs",
         },
+        runningDags: pipelineStats.runningDags,
         aiChatsToday: {
           value: "—",
-          delta: "Member-scoped API only",
+          delta: "No admin API",
         },
       });
     } catch (err) {
@@ -129,6 +151,7 @@ export function useAdminOverview() {
     activity,
     donut,
     dags,
+    unreadAlerts,
     loading,
     error,
     reload: load,

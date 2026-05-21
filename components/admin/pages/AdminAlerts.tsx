@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { AdminListSkeleton } from "@/components/admin/AdminSkeletons";
 import { AdminActionBadge } from "@/components/admin/ui/AdminBadge";
 import { adminGhostBtn, adminPage } from "@/components/admin/ui/admin-styles";
 import { useAdminAlerts } from "@/hooks/useAdminAlerts";
@@ -99,13 +99,11 @@ export function AdminAlerts() {
         </div>
       ) : null}
 
+      {loading ? (
+        <AdminListSkeleton rows={8} />
+      ) : (
       <div className="border border-border">
-        {loading ? (
-          <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            Loading alerts…
-          </div>
-        ) : items.length === 0 ? (
+        {items.length === 0 ? (
           <p className="py-16 text-center text-sm text-muted-foreground">
             No alerts match this filter.
           </p>
@@ -150,6 +148,7 @@ export function AdminAlerts() {
           </ul>
         )}
       </div>
+      )}
     </div>
   );
 }

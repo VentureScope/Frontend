@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, Loader2, MoreHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import { UserDirectorySkeleton } from "@/components/admin/AdminSkeletons";
 import { toast } from "sonner";
 import { AdminDrawer } from "@/components/admin/ui/AdminDrawer";
 import { AdminRoleBadge, StatusDot } from "@/components/admin/ui/AdminBadge";
@@ -105,11 +106,28 @@ export function UserDirectory() {
 
   return (
     <div className={adminPage}>
+      {error ? (
+        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+          <button
+            type="button"
+            onClick={() => void reload()}
+            className="ml-3 text-xs underline"
+          >
+            Retry
+          </button>
+        </div>
+      ) : null}
+
+      {loading ? (
+        <UserDirectorySkeleton />
+      ) : (
+      <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <h1 className="text-lg font-medium text-foreground">User Directory</h1>
           <span className="rounded-sm bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
-            {loading ? "…" : `${total.toLocaleString()} users`}
+            {total.toLocaleString()} users
           </span>
         </div>
         <input
@@ -138,26 +156,8 @@ export function UserDirectory() {
         ))}
       </div>
 
-      {error ? (
-        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-          <button
-            type="button"
-            onClick={() => void reload()}
-            className="ml-3 text-xs underline"
-          >
-            Retry
-          </button>
-        </div>
-      ) : null}
-
       <div className="relative overflow-x-auto border border-border">
-        {loading ? (
-          <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            Loading users…
-          </div>
-        ) : users.length === 0 ? (
+        {users.length === 0 ? (
           <p className="py-16 text-center text-sm text-muted-foreground">No users match this view.</p>
         ) : (
           <table className="w-full text-sm">
@@ -253,6 +253,8 @@ export function UserDirectory() {
           Search filters users loaded from the current API page (up to 100).
         </p>
       ) : null}
+      </>
+      )}
 
       <AdminDrawer
         open={!!selected}

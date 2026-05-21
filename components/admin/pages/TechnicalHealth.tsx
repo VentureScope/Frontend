@@ -12,7 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Loader2 } from "lucide-react";
+import { TechnicalHealthSkeleton } from "@/components/admin/AdminSkeletons";
 import { AdminStatCard } from "@/components/admin/ui/AdminStatCard";
 import { DagStatusLabel } from "@/components/admin/ui/admin-status";
 import {
@@ -87,27 +87,23 @@ export function TechnicalHealth() {
 
   return (
     <div className={adminPage}>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className={adminPageTitle}>Technical Health</h1>
-          <p className={adminPageDesc}>
-            Pipeline, object storage, and Sentry from admin system APIs.
-          </p>
-        </div>
-        <button type="button" onClick={() => void reload()} className={adminGhostBtn}>
-          Refresh
-        </button>
-      </div>
-
       {error ? <div className={adminErrorBanner}>{error}</div> : null}
 
       {loading ? (
-        <div className={adminLoading}>
-          <Loader2 className="h-5 w-5 animate-spin" />
-          Loading system health…
-        </div>
+        <TechnicalHealthSkeleton />
       ) : (
         <>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h1 className={adminPageTitle}>Technical Health</h1>
+              <p className={adminPageDesc}>
+                Pipeline, object storage, and Sentry from admin system APIs.
+              </p>
+            </div>
+            <button type="button" onClick={() => void reload()} className={adminGhostBtn}>
+              Refresh
+            </button>
+          </div>
           <section className={`${adminSection} mb-6`}>
             <p className={`mb-3 ${adminSectionLabel}`}>DAG pipeline status</p>
             {dags.length === 0 ? (
@@ -219,7 +215,14 @@ export function TechnicalHealth() {
           ) : null}
 
           <section id="storage" className={`${adminSection} mb-6`}>
-            <p className={`mb-3 ${adminSectionLabel}`}>Model storage (DO Spaces)</p>
+            <p className={`mb-3 ${adminSectionLabel}`}>
+              Model storage (DO Spaces)
+              {storage?.bucketName ? (
+                <span className="ml-2 font-mono text-xs font-normal text-muted-foreground">
+                  {storage.bucketName}
+                </span>
+              ) : null}
+            </p>
             {!storage || storage.buckets.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 Storage health unavailable or not configured.

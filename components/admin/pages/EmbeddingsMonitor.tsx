@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { EmbeddingsMonitorSkeleton } from "@/components/admin/AdminSkeletons";
 import { AdminStatCard } from "@/components/admin/ui/AdminStatCard";
 import { MlStatusLabel } from "@/components/admin/ui/admin-status";
 import {
@@ -20,6 +20,7 @@ const STATUS_FILTERS = [
   { id: "awaiting_review", label: "Awaiting review" },
   { id: "training", label: "Training" },
   { id: "deployed", label: "Deployed" },
+  { id: "suspended", label: "Suspended" },
 ] as const;
 
 export function EmbeddingsMonitor() {
@@ -52,6 +53,16 @@ export function EmbeddingsMonitor() {
 
   return (
     <div className={adminPage}>
+      {error ? (
+        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+        </div>
+      ) : null}
+
+      {loading ? (
+        <EmbeddingsMonitorSkeleton />
+      ) : (
+        <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-lg font-medium text-foreground">ML / Embedding Runs</h1>
@@ -74,13 +85,6 @@ export function EmbeddingsMonitor() {
           </button>
         </div>
       </div>
-
-      {error ? (
-        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
-      ) : null}
-
       <div className="mb-4 grid grid-cols-3 gap-3">
         <AdminStatCard
           label="Total runs"
@@ -114,13 +118,6 @@ export function EmbeddingsMonitor() {
         ))}
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          Loading ML runs…
-        </div>
-      ) : (
-        <>
           <table className="mb-4 w-full text-sm">
             <thead>
               <tr className="border-b border-border">

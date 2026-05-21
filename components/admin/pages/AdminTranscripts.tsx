@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { AdminTranscriptsSkeleton } from "@/components/admin/AdminSkeletons";
 import {
   Bar,
   BarChart,
@@ -40,23 +40,6 @@ export function AdminTranscripts() {
 
   return (
     <div className={adminPage}>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-lg font-medium text-foreground">Transcript Pipeline</h1>
-          <p className="text-sm text-muted-foreground">
-            Airflow DAGs whose names include transcript or parsing, from pipeline-status.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Link href="/admin/system" className={adminGhostBtn}>
-            Full system health →
-          </Link>
-          <button type="button" onClick={() => void reload()} className={adminGhostBtn}>
-            Refresh
-          </button>
-        </div>
-      </div>
-
       {error ? (
         <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
@@ -64,12 +47,25 @@ export function AdminTranscripts() {
       ) : null}
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          Loading pipeline…
-        </div>
+        <AdminTranscriptsSkeleton />
       ) : (
         <>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h1 className="text-lg font-medium text-foreground">Transcript Pipeline</h1>
+              <p className="text-sm text-muted-foreground">
+                Airflow DAGs whose names include transcript or parsing, from pipeline-status.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Link href="/admin/system" className={adminGhostBtn}>
+                Full system health →
+              </Link>
+              <button type="button" onClick={() => void reload()} className={adminGhostBtn}>
+                Refresh
+              </button>
+            </div>
+          </div>
           <div className="mb-4 grid grid-cols-3 gap-3">
             <AdminStatCard
               label="Running"

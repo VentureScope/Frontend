@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { Loader2, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
+import { AdminPermissionsSkeleton } from "@/components/admin/AdminSkeletons";
 import { toast } from "sonner";
 import { AdminRoleBadge, StatusDot } from "@/components/admin/ui/AdminBadge";
 import {
@@ -72,6 +73,19 @@ export function AdminPermissions() {
 
   return (
     <div className={adminPage}>
+      {error ? (
+        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+          <button type="button" onClick={() => void load()} className="ml-3 underline">
+            Retry
+          </button>
+        </div>
+      ) : null}
+
+      {loading ? (
+        <AdminPermissionsSkeleton />
+      ) : (
+      <>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="mb-2 flex items-center gap-2">
@@ -101,26 +115,12 @@ export function AdminPermissions() {
           className={`${adminInput} w-56 text-xs`}
         />
         <span className="font-mono text-xs text-muted-foreground">
-          {loading ? "…" : `${filtered.length} administrator${filtered.length === 1 ? "" : "s"}`}
+          {filtered.length} administrator{filtered.length === 1 ? "" : "s"}
         </span>
       </div>
 
-      {error ? (
-        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-          <button type="button" onClick={() => void load()} className="ml-3 underline">
-            Retry
-          </button>
-        </div>
-      ) : null}
-
       <div className="border border-border">
-        {loading ? (
-          <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            Loading administrators…
-          </div>
-        ) : filtered.length === 0 ? (
+        {filtered.length === 0 ? (
           <p className="py-16 text-center text-sm text-muted-foreground">
             No administrators found. Promote a user in the directory.
           </p>
@@ -181,6 +181,8 @@ export function AdminPermissions() {
           </table>
         )}
       </div>
+      </>
+      )}
     </div>
   );
 }

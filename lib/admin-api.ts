@@ -1,4 +1,8 @@
 import axios from "axios";
+import {
+  adminQueryParams,
+  type AdminQueryValue,
+} from "@/lib/admin-query-params";
 import { useAdminStore } from "@/store/useAdminStore";
 
 /** Axios instance for admin routes — uses admin session token only. */
@@ -17,6 +21,20 @@ adminApi.interceptors.request.use(
       const scheme = tokenType?.trim() || "Bearer";
       config.headers.Authorization = `${scheme} ${token}`;
     }
+
+    if (
+      config.params &&
+      typeof config.params === "object" &&
+      !(config.params instanceof URLSearchParams)
+    ) {
+      config.params = adminQueryParams(
+        config.params as Record<
+          string,
+          AdminQueryValue | undefined | null
+        >,
+      );
+    }
+
     return config;
   },
   (error) => Promise.reject(error),

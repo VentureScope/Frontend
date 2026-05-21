@@ -80,7 +80,7 @@ export async function buildAdminSessionData(
   let user: AdminUserResponse | null = null;
 
   if (authResult.user && authResult.user.id) {
-    user = authResult.user as AdminUserResponse;
+    user = authResult.user as unknown as AdminUserResponse;
   } else {
     user = await fetchAdminProfile(token, tokenType);
   }
