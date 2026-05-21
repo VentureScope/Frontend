@@ -45,8 +45,8 @@ export function AdminGitHubSyncs() {
     <div className={adminPage}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-medium text-white">GitHub Syncs</h1>
-          <p className="text-sm text-zinc-500">
+          <h1 className="text-lg font-medium text-foreground">GitHub Syncs</h1>
+          <p className="text-sm text-muted-foreground">
             Users with a linked GitHub username from the admin user directory. Per-user
             sync jobs are member-scoped; there is no dedicated admin sync API yet.
           </p>
@@ -57,13 +57,13 @@ export function AdminGitHubSyncs() {
       </div>
 
       {error ? (
-        <div className="mb-4 rounded-md border border-red-800 bg-red-950/50 px-4 py-3 text-sm text-red-400">
+        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 py-24 text-sm text-zinc-500">
+        <div className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
           Loading users…
         </div>
@@ -74,7 +74,7 @@ export function AdminGitHubSyncs() {
               label="Linked (sample)"
               value={String(linked.length)}
               subtext={`of ${users.length} on this page`}
-              valueClassName="text-emerald-400"
+              valueClassName="text-primary"
             />
             <AdminStatCard
               label="Active + linked"
@@ -89,11 +89,11 @@ export function AdminGitHubSyncs() {
 
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-800">
+              <tr className="border-b border-border">
                 {["User", "GitHub", "Role", "Status", ""].map((col) => (
                   <th
                     key={col || "action"}
-                    className="px-3 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-zinc-500"
+                    className="px-3 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-muted-foreground"
                   >
                     {col}
                   </th>
@@ -103,7 +103,7 @@ export function AdminGitHubSyncs() {
             <tbody>
               {linked.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-3 py-8 text-center text-zinc-500">
+                  <td colSpan={5} className="px-3 py-8 text-center text-muted-foreground">
                     No users with github_username in the current page.
                   </td>
                 </tr>
@@ -111,29 +111,29 @@ export function AdminGitHubSyncs() {
                 linked.map((u) => (
                   <tr
                     key={u.id}
-                    className="border-b border-zinc-800/50 odd:bg-zinc-900 hover:bg-zinc-800/40"
+                    className="border-b border-border/60 odd:bg-card hover:bg-muted/40"
                   >
                     <td className="px-3 py-2">
-                      <p className="text-xs text-white">{u.full_name || u.email}</p>
-                      <p className="font-mono text-[10px] text-zinc-500">{u.email}</p>
+                      <p className="text-xs text-foreground">{u.full_name || u.email}</p>
+                      <p className="font-mono text-[10px] text-muted-foreground">{u.email}</p>
                     </td>
-                    <td className="px-3 py-2 font-mono text-xs text-emerald-400">
+                    <td className="px-3 py-2 font-mono text-xs text-primary">
                       @{u.github_username}
                     </td>
-                    <td className="px-3 py-2 font-mono text-xs text-zinc-400">
+                    <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                       {u.role}
                     </td>
                     <td className="px-3 py-2 font-mono text-xs">
                       {u.is_active ? (
-                        <span className="text-emerald-400">active</span>
+                        <span className="text-primary">active</span>
                       ) : (
-                        <span className="text-zinc-500">inactive</span>
+                        <span className="text-muted-foreground">inactive</span>
                       )}
                     </td>
                     <td className="px-3 py-2">
                       <Link
                         href="/admin/directory"
-                        className="text-xs text-zinc-400 hover:text-white"
+                        className="text-xs text-muted-foreground hover:text-foreground"
                       >
                         Directory →
                       </Link>

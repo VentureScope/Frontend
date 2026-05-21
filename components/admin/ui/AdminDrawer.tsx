@@ -1,7 +1,6 @@
 "use client";
 
 import { X } from "lucide-react";
-
 type Props = {
   open: boolean;
   title: string;
@@ -15,21 +14,21 @@ export function AdminDrawer({ open, title, onClose, children }: Props) {
   return (
     <>
       <div
-        className="fixed inset-0 z-40 bg-black/50"
+        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
         role="presentation"
         onClick={onClose}
       />
       <aside
-        className={`fixed top-0 right-0 z-50 flex h-full w-[400px] flex-col border-l border-zinc-800 bg-zinc-900 transition-transform duration-200 ${
+        className={`fixed top-0 right-0 z-50 flex h-full w-full max-w-md flex-col border-l border-border bg-card shadow-xl transition-transform duration-200 sm:w-[400px] ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between border-b border-zinc-800 p-4">
-          <h2 className="text-sm font-medium text-white">{title}</h2>
+        <div className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
+          <h2 className="text-sm font-semibold text-foreground">{title}</h2>
           <button
             type="button"
             onClick={onClose}
-            className="text-zinc-500 hover:text-white"
+            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             aria-label="Close"
           >
             <X size={16} />

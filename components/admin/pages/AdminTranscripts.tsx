@@ -12,22 +12,18 @@ import {
   YAxis,
 } from "recharts";
 import { AdminStatCard } from "@/components/admin/ui/AdminStatCard";
-import { adminGhostBtn, adminPage } from "@/components/admin/ui/admin-styles";
+import { DagStatusLabel } from "@/components/admin/ui/admin-status";
+import {
+  adminGhostBtn,
+  adminPage,
+  adminPageDesc,
+  adminPageTitle,
+  adminSection,
+  adminSectionLabel,
+  adminTableRow,
+  adminTableTh,
+} from "@/components/admin/ui/admin-styles";
 import { useAdminSystemHealth } from "@/hooks/useAdminSystemHealth";
-import type { DagRunStatus } from "@/types/admin-system";
-
-function dagStatusLabel(status: DagRunStatus) {
-  switch (status) {
-    case "success":
-      return <span className="font-mono text-xs text-emerald-400">✓ success</span>;
-    case "failed":
-      return <span className="font-mono text-xs text-red-400">✗ failed</span>;
-    case "running":
-      return <span className="font-mono text-xs text-amber-400">● running</span>;
-    default:
-      return <span className="font-mono text-xs text-zinc-500">—</span>;
-  }
-}
 
 function isTranscriptDag(name: string) {
   const n = name.toLowerCase();
@@ -46,8 +42,8 @@ export function AdminTranscripts() {
     <div className={adminPage}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-medium text-white">Transcript Pipeline</h1>
-          <p className="text-sm text-zinc-500">
+          <h1 className="text-lg font-medium text-foreground">Transcript Pipeline</h1>
+          <p className="text-sm text-muted-foreground">
             Airflow DAGs whose names include transcript or parsing, from pipeline-status.
           </p>
         </div>
@@ -62,13 +58,13 @@ export function AdminTranscripts() {
       </div>
 
       {error ? (
-        <div className="mb-4 rounded-md border border-red-800 bg-red-950/50 px-4 py-3 text-sm text-red-400">
+        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 py-24 text-sm text-zinc-500">
+        <div className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
           Loading pipeline…
         </div>
@@ -78,62 +74,67 @@ export function AdminTranscripts() {
             <AdminStatCard
               label="Running"
               value={String(running)}
-              valueClassName="text-amber-400"
+              valueClassName="text-warning"
             />
             <AdminStatCard
               label="Failed"
               value={String(failed)}
-              valueClassName="text-red-400"
+              valueClassName="text-destructive"
             />
             <AdminStatCard
               label="Success (latest)"
               value={String(success)}
-              valueClassName="text-emerald-400"
+              valueClassName="text-primary"
             />
           </div>
 
           {pipelineRuns && pipelineRuns.chartPoints.length > 0 ? (
-            <div className="mb-6 border border-zinc-800 bg-zinc-900 p-4">
-              <p className="mb-3 text-sm font-medium text-white">
+            <div className="mb-6 border border-border bg-card p-4">
+              <p className="mb-3 text-sm font-medium text-foreground">
                 Pipeline runs (14 days)
               </p>
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={pipelineRuns.chartPoints}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                    <XAxis dataKey="label" tick={{ fill: "#71717a", fontSize: 10 }} />
-                    <YAxis tick={{ fill: "#71717a", fontSize: 10 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
+                    />
+                    <YAxis
+                      tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
+                    />
                     <Tooltip
                       contentStyle={{
                         background: "#18181b",
                         border: "1px solid #3f3f46",
                       }}
                     />
-                    <Bar dataKey="success" fill="#34d399" name="Success" />
-                    <Bar dataKey="failed" fill="#f87171" name="Failed" />
+                    <Bar dataKey="success" fill="var(--chart-1)" name="Success" />
+                    <Bar dataKey="failed" fill="var(--destructive)" name="Failed" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
           ) : null}
 
-          <div className="border border-zinc-800 bg-zinc-900">
-            <p className="border-b border-zinc-800 px-4 py-2 text-sm font-medium text-white">
+          <div className="border border-border bg-card">
+            <p className="border-b border-border px-4 py-2 text-sm font-medium text-foreground">
               Transcript DAGs
             </p>
             {transcriptDags.length === 0 ? (
-              <p className="px-4 py-8 text-sm text-zinc-500">
+              <p className="px-4 py-8 text-sm text-muted-foreground">
                 No transcript-related DAGs in the latest status response. Showing all
                 DAGs below.
               </p>
             ) : null}
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-800">
+                <tr className="border-b border-border">
                   {["DAG", "Last run", "Status", "Duration", ""].map((col) => (
                     <th
                       key={col || "link"}
-                      className="px-3 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-zinc-500"
+                      className="px-3 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-muted-foreground"
                     >
                       {col}
                     </th>
@@ -144,16 +145,18 @@ export function AdminTranscripts() {
                 {(transcriptDags.length > 0 ? transcriptDags : dags).map((dag) => (
                   <tr
                     key={dag.name}
-                    className="border-b border-zinc-800/50 odd:bg-zinc-950"
+                    className="border-b border-border/60 odd:bg-muted/30"
                   >
-                    <td className="px-3 py-2 font-mono text-xs text-zinc-300">
+                    <td className="px-3 py-2 font-mono text-xs text-foreground">
                       {dag.name}
                     </td>
-                    <td className="px-3 py-2 font-mono text-xs text-zinc-400">
+                    <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                       {dag.lastRun}
                     </td>
-                    <td className="px-3 py-2">{dagStatusLabel(dag.status)}</td>
-                    <td className="px-3 py-2 font-mono text-xs text-zinc-400">
+                    <td className="px-3 py-2">
+                      <DagStatusLabel status={dag.status} />
+                    </td>
+                    <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                       {dag.duration}
                     </td>
                     <td className="px-3 py-2">
@@ -162,7 +165,7 @@ export function AdminTranscripts() {
                           href={dag.airflowUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-zinc-400 hover:text-white"
+                          className="text-xs text-muted-foreground hover:text-foreground"
                         >
                           Airflow ↗
                         </a>

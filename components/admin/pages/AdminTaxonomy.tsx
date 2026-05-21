@@ -37,8 +37,8 @@ export function AdminTaxonomy() {
     <div className={adminPage}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-medium text-white">Role Taxonomy</h1>
-          <p className="text-sm text-zinc-500">
+          <h1 className="text-lg font-medium text-foreground">Role Taxonomy</h1>
+          <p className="text-sm text-muted-foreground">
             Review unmatched job titles and canonical roles from admin taxonomy APIs.
           </p>
         </div>
@@ -48,7 +48,7 @@ export function AdminTaxonomy() {
       </div>
 
       {error ? (
-        <div className="mb-4 rounded-md border border-red-800 bg-red-950/50 px-4 py-3 text-sm text-red-400">
+        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
@@ -61,7 +61,7 @@ export function AdminTaxonomy() {
         <AdminStatCard
           label="Canonical roles"
           value={canonicalTotal.toLocaleString()}
-          valueClassName="text-emerald-400"
+          valueClassName="text-primary"
         />
       </div>
 
@@ -73,8 +73,8 @@ export function AdminTaxonomy() {
             onClick={() => setStatusFilter(tab.id)}
             className={`rounded-md border px-3 py-1 text-xs ${
               statusFilter === tab.id
-                ? "border-emerald-800 text-emerald-400"
-                : "border-zinc-800 text-zinc-500 hover:text-zinc-300"
+                ? "border-primary/30 text-primary"
+                : "border-border text-muted-foreground hover:text-foreground"
             }`}
           >
             {tab.label}
@@ -83,23 +83,23 @@ export function AdminTaxonomy() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 py-24 text-sm text-zinc-500">
+        <div className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
           Loading taxonomy…
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4">
-          <div className="border border-zinc-800 bg-zinc-900">
-            <p className="border-b border-zinc-800 px-4 py-2 text-sm font-medium text-white">
+          <div className="border border-border bg-card">
+            <p className="border-b border-border px-4 py-2 text-sm font-medium text-foreground">
               Unmatched titles
             </p>
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-800">
+                <tr className="border-b border-border">
                   {["Title", "Occurrences", "Status", "Actions"].map((col) => (
                     <th
                       key={col}
-                      className="px-3 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-zinc-500"
+                      className="px-3 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-muted-foreground"
                     >
                       {col}
                     </th>
@@ -109,7 +109,7 @@ export function AdminTaxonomy() {
               <tbody>
                 {unmatched.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-3 py-8 text-center text-zinc-500">
+                    <td colSpan={4} className="px-3 py-8 text-center text-muted-foreground">
                       No unmatched roles for this filter.
                     </td>
                   </tr>
@@ -117,21 +117,21 @@ export function AdminTaxonomy() {
                   unmatched.map((row) => (
                     <tr
                       key={row.id}
-                      className="border-b border-zinc-800/50 odd:bg-zinc-950"
+                      className="border-b border-border/60 odd:bg-muted/30"
                     >
                       <td className="px-3 py-2">
-                        <p className="text-xs text-white">{row.cleaned_title}</p>
-                        <p className="truncate font-mono text-[10px] text-zinc-500">
+                        <p className="text-xs text-foreground">{row.cleaned_title}</p>
+                        <p className="truncate font-mono text-[10px] text-muted-foreground">
                           {row.raw_title}
                         </p>
-                        <p className="text-[10px] text-zinc-600">
+                        <p className="text-[10px] text-muted-foreground">
                           {formatAdminTimestamp(row.first_seen_at)}
                         </p>
                       </td>
-                      <td className="px-3 py-2 font-mono text-xs text-zinc-400">
+                      <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                         {row.occurrences}
                       </td>
-                      <td className="px-3 py-2 font-mono text-xs text-zinc-400">
+                      <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                         {row.status}
                       </td>
                       <td className="px-3 py-2">
@@ -155,7 +155,7 @@ export function AdminTaxonomy() {
                             </button>
                           </div>
                         ) : (
-                          <span className="text-xs text-zinc-600">—</span>
+                          <span className="text-xs text-muted-foreground">—</span>
                         )}
                       </td>
                     </tr>
@@ -165,17 +165,17 @@ export function AdminTaxonomy() {
             </table>
           </div>
 
-          <div className="border border-zinc-800 bg-zinc-900">
-            <p className="border-b border-zinc-800 px-4 py-2 text-sm font-medium text-white">
+          <div className="border border-border bg-card">
+            <p className="border-b border-border px-4 py-2 text-sm font-medium text-foreground">
               Canonical roles
             </p>
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-800">
+                <tr className="border-b border-border">
                   {["Title", "Added"].map((col) => (
                     <th
                       key={col}
-                      className="px-3 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-zinc-500"
+                      className="px-3 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-muted-foreground"
                     >
                       {col}
                     </th>
@@ -185,7 +185,7 @@ export function AdminTaxonomy() {
               <tbody>
                 {canonical.length === 0 ? (
                   <tr>
-                    <td colSpan={2} className="px-3 py-8 text-center text-zinc-500">
+                    <td colSpan={2} className="px-3 py-8 text-center text-muted-foreground">
                       No canonical roles returned.
                     </td>
                   </tr>
@@ -193,12 +193,12 @@ export function AdminTaxonomy() {
                   canonical.slice(0, 50).map((row) => (
                     <tr
                       key={row.id}
-                      className="border-b border-zinc-800/50 odd:bg-zinc-950"
+                      className="border-b border-border/60 odd:bg-muted/30"
                     >
-                      <td className="px-3 py-2 text-xs text-zinc-200">
+                      <td className="px-3 py-2 text-xs text-foreground">
                         {row.canonical_title}
                       </td>
-                      <td className="px-3 py-2 font-mono text-xs text-zinc-500">
+                      <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                         {formatAdminTimestamp(row.created_at)}
                       </td>
                     </tr>

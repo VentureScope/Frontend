@@ -34,14 +34,14 @@ export function AdminAlerts() {
     <div className={adminPage}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-medium text-white">System Alerts</h1>
-          <p className="text-sm text-zinc-500">
+          <h1 className="text-lg font-medium text-foreground">System Alerts</h1>
+          <p className="text-sm text-muted-foreground">
             Pipeline and Sentry webhook notifications, newest first.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {unreadCount > 0 ? (
-            <span className="rounded-sm bg-amber-950 px-2 py-0.5 font-mono text-xs text-amber-400">
+            <span className="rounded-sm bg-amber-950 px-2 py-0.5 font-mono text-xs text-warning">
               {unreadCount} unread
             </span>
           ) : null}
@@ -74,39 +74,39 @@ export function AdminAlerts() {
               onClick={() => setSource(f.id)}
               className={`rounded-md border px-3 py-1 text-xs ${
                 source === f.id
-                  ? "border-emerald-800 text-emerald-400"
-                  : "border-zinc-800 text-zinc-500 hover:text-zinc-300"
+                  ? "border-primary/30 text-primary"
+                  : "border-border text-muted-foreground hover:text-foreground"
               }`}
             >
               {f.label}
             </button>
           ))}
         </div>
-        <label className="flex items-center gap-2 text-xs text-zinc-400">
+        <label className="flex items-center gap-2 text-xs text-muted-foreground">
           <input
             type="checkbox"
             checked={unreadOnly}
             onChange={(e) => setUnreadOnly(e.target.checked)}
-            className="rounded border-zinc-700"
+            className="rounded border-border"
           />
           Unread only
         </label>
       </div>
 
       {error ? (
-        <div className="mb-4 rounded-md border border-red-800 bg-red-950/50 px-4 py-3 text-sm text-red-400">
+        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
 
-      <div className="border border-zinc-800">
+      <div className="border border-border">
         {loading ? (
-          <div className="flex items-center justify-center gap-2 py-16 text-sm text-zinc-500">
+          <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
             <Loader2 className="h-5 w-5 animate-spin" />
             Loading alerts…
           </div>
         ) : items.length === 0 ? (
-          <p className="py-16 text-center text-sm text-zinc-500">
+          <p className="py-16 text-center text-sm text-muted-foreground">
             No alerts match this filter.
           </p>
         ) : (
@@ -114,8 +114,8 @@ export function AdminAlerts() {
             {items.map((item) => (
               <li
                 key={item.id}
-                className={`flex gap-4 border-b border-zinc-800/50 px-4 py-4 last:border-b-0 ${
-                  item.is_read ? "bg-zinc-900/50" : "bg-zinc-900"
+                className={`flex gap-4 border-b border-border/60 px-4 py-4 last:border-b-0 ${
+                  item.is_read ? "bg-card/50" : "bg-card"
                 }`}
               >
                 <div className="min-w-0 flex-1 space-y-1">
@@ -124,15 +124,15 @@ export function AdminAlerts() {
                       {item.source.toUpperCase()}
                     </AdminActionBadge>
                     {!item.is_read ? (
-                      <span className="font-mono text-[10px] text-amber-400">NEW</span>
+                      <span className="font-mono text-[10px] text-warning">NEW</span>
                     ) : null}
-                    <span className="font-mono text-[10px] text-zinc-600">
+                    <span className="font-mono text-[10px] text-muted-foreground">
                       {formatAdminTimestamp(item.created_at)}
                     </span>
                   </div>
-                  <p className="text-sm font-medium text-white">{item.title}</p>
+                  <p className="text-sm font-medium text-foreground">{item.title}</p>
                   {item.body ? (
-                    <p className="text-sm text-zinc-400">{item.body}</p>
+                    <p className="text-sm text-muted-foreground">{item.body}</p>
                   ) : null}
                 </div>
                 {!item.is_read ? (

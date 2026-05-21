@@ -79,7 +79,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!isHydrated || !isAuthenticated || isValidating) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-950 font-mono text-sm text-zinc-500">
+      <div className="flex min-h-screen items-center justify-center bg-background text-body text-muted-foreground">
         Verifying admin session…
       </div>
     );

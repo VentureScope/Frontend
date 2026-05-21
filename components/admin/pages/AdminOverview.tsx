@@ -5,22 +5,20 @@ import { Loader2 } from "lucide-react";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import { AdminActionBadge } from "@/components/admin/ui/AdminBadge";
 import { AdminStatCard } from "@/components/admin/ui/AdminStatCard";
-import { adminGhostBtn, adminPage } from "@/components/admin/ui/admin-styles";
+import { DagStatusLabel } from "@/components/admin/ui/admin-status";
+import {
+  adminGhostBtn,
+  adminPage,
+  adminTableRow,
+  adminTableTh,
+} from "@/components/admin/ui/admin-styles";
 import { useAdminOverview } from "@/hooks/useAdminOverview";
-import type { DagRunStatus } from "@/types/admin-system";
 
-function dagStatusLabel(status: DagRunStatus) {
-  switch (status) {
-    case "success":
-      return <span className="font-mono text-xs text-emerald-400">✓ success</span>;
-    case "failed":
-      return <span className="font-mono text-xs text-red-400">✗ failed</span>;
-    case "running":
-      return <span className="font-mono text-xs text-amber-400">● running</span>;
-    default:
-      return <span className="font-mono text-xs text-zinc-500">— unknown</span>;
-  }
-}
+const DONUT_COLORS: Record<string, string> = {
+  Success: "var(--chart-1)",
+  Running: "var(--warning)",
+  Failed: "var(--destructive)",
+};
 
 export function AdminOverview() {
   const { stats, activity, donut, dags, loading, error, reload } =
@@ -29,7 +27,7 @@ export function AdminOverview() {
   return (
     <div className={adminPage}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-muted-foreground">
           Live metrics from admin users, ML runs, notifications, and pipeline APIs.
         </p>
         <button type="button" onClick={() => void reload()} className={adminGhostBtn}>
@@ -38,13 +36,13 @@ export function AdminOverview() {
       </div>
 
       {error ? (
-        <div className="mb-4 rounded-md border border-red-800 bg-red-950/50 px-4 py-3 text-sm text-red-400">
+        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 py-24 text-sm text-zinc-500">
+        <div className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
           Loading overview…
         </div>
@@ -55,15 +53,15 @@ export function AdminOverview() {
               label="Active Users"
               value={stats.activeUsers.value}
               subtext={stats.activeUsers.subtext}
-              subtextClassName="text-emerald-400"
+              subtextClassName="text-primary"
             />
             <Link href="/admin/embeddings" className="block">
               <AdminStatCard
                 label="Failed ML Runs"
                 value={stats.failedEmbeddings.value}
                 subtext={stats.failedEmbeddings.hint}
-                valueClassName="text-red-400"
-                subtextClassName="text-red-400"
+                valueClassName="text-destructive"
+                subtextClassName="text-destructive"
               />
             </Link>
             <Link href="/admin/transcripts" className="block">
@@ -71,41 +69,41 @@ export function AdminOverview() {
                 label="Pending Transcripts"
                 value={stats.pendingTranscripts.value}
                 subtext={stats.pendingTranscripts.hint}
-                valueClassName="text-amber-400"
-                subtextClassName="text-amber-400"
+                valueClassName="text-warning"
+                subtextClassName="text-warning"
               />
             </Link>
             <AdminStatCard
               label="AI Chats Today"
               value={stats.aiChatsToday.value}
               subtext={stats.aiChatsToday.delta}
-              subtextClassName="text-zinc-500"
+              subtextClassName="text-muted-foreground"
             />
           </div>
 
           <div className="grid grid-cols-5 gap-3">
-            <div className="col-span-3 border border-zinc-800 bg-zinc-900 p-4">
-              <div className="mb-3 flex items-center justify-between border-b border-zinc-800 pb-2">
-                <span className="text-sm font-medium text-white">Recent Activity</span>
-                <Link href="/admin/alerts" className="text-xs text-zinc-500 hover:text-white">
+            <div className="col-span-3 border border-border bg-card p-4">
+              <div className="mb-3 flex items-center justify-between border-b border-border pb-2">
+                <span className="text-sm font-medium text-foreground">Recent Activity</span>
+                <Link href="/admin/alerts" className="text-xs text-muted-foreground hover:text-foreground">
                   View alerts →
                 </Link>
               </div>
               {activity.length === 0 ? (
-                <p className="py-6 text-sm text-zinc-500">No notifications yet.</p>
+                <p className="py-6 text-sm text-muted-foreground">No notifications yet.</p>
               ) : (
                 <ul>
                   {activity.map((row) => (
                     <li
                       key={row.id}
-                      className="flex items-center gap-3 border-b border-zinc-800/50 py-2 text-xs"
+                      className="flex items-center gap-3 border-b border-border/60 py-2 text-xs"
                     >
-                      <span className="w-20 shrink-0 font-mono text-zinc-500">
+                      <span className="w-20 shrink-0 font-mono text-muted-foreground">
                         {row.time}
                       </span>
                       <AdminActionBadge tone={row.badgeTone}>{row.badge}</AdminActionBadge>
-                      <span className="text-zinc-300">
-                        <span className="text-zinc-400">{row.actor}</span> → {row.target}
+                      <span className="text-foreground">
+                        <span className="text-muted-foreground">{row.actor}</span> → {row.target}
                       </span>
                     </li>
                   ))}
@@ -113,10 +111,10 @@ export function AdminOverview() {
               )}
             </div>
 
-            <div className="col-span-2 border border-zinc-800 bg-zinc-900 p-4">
-              <p className="mb-2 text-sm font-medium text-white">Pipeline Health</p>
+            <div className="col-span-2 border border-border bg-card p-4">
+              <p className="mb-2 text-sm font-medium text-foreground">Pipeline Health</p>
               {donut.length === 0 ? (
-                <p className="py-12 text-center text-sm text-zinc-500">
+                <p className="py-12 text-center text-sm text-muted-foreground">
                   No DAG status data.
                 </p>
               ) : (
@@ -132,7 +130,10 @@ export function AdminOverview() {
                           stroke="none"
                         >
                           {donut.map((entry) => (
-                            <Cell key={entry.name} fill={entry.color} />
+                            <Cell
+                              key={entry.name}
+                              fill={DONUT_COLORS[entry.name] ?? entry.color}
+                            />
                           ))}
                         </Pie>
                       </PieChart>
@@ -142,14 +143,16 @@ export function AdminOverview() {
                     {donut.map((s) => (
                       <li
                         key={s.name}
-                        className="flex items-center gap-2 text-xs text-zinc-400"
+                        className="flex items-center gap-2 text-xs text-muted-foreground"
                       >
                         <span
                           className="h-2 w-2 rounded-full"
-                          style={{ backgroundColor: s.color }}
+                          style={{
+                            backgroundColor: DONUT_COLORS[s.name] ?? s.color,
+                          }}
                         />
                         {s.name}
-                        <span className="ml-auto font-mono text-zinc-300">
+                        <span className="ml-auto font-mono text-foreground">
                           {s.value.toLocaleString()}
                         </span>
                       </li>
@@ -161,24 +164,21 @@ export function AdminOverview() {
           </div>
 
           <div>
-            <div className="mb-2 flex items-center justify-between border-b border-zinc-800 pb-2">
-              <span className="text-sm font-medium text-white">DAG Pipeline Status</span>
+            <div className="mb-2 flex items-center justify-between border-b border-border pb-2">
+              <span className="text-sm font-medium text-foreground">DAG Pipeline Status</span>
               <Link href="/admin/system" className={adminGhostBtn}>
                 Technical health →
               </Link>
             </div>
             {dags.length === 0 ? (
-              <p className="py-6 text-sm text-zinc-500">No pipeline DAGs returned.</p>
+              <p className="py-6 text-sm text-muted-foreground">No pipeline DAGs returned.</p>
             ) : (
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-zinc-800">
+                  <tr className="border-b border-border">
                     {["DAG Name", "Last Run", "Status", "Duration", "Action"].map(
                       (col) => (
-                        <th
-                          key={col}
-                          className="px-3 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-zinc-500"
-                        >
+                        <th key={col} className={adminTableTh}>
                           {col}
                         </th>
                       ),
@@ -189,16 +189,18 @@ export function AdminOverview() {
                   {dags.map((dag) => (
                     <tr
                       key={dag.name}
-                      className="border-b border-zinc-800/50 odd:bg-zinc-900 transition-colors hover:bg-zinc-800/40"
+                      className={adminTableRow}
                     >
-                      <td className="px-3 py-2 font-mono text-xs text-zinc-300">
+                      <td className="px-3 py-2 font-mono text-xs text-foreground">
                         {dag.name}
                       </td>
-                      <td className="px-3 py-2 font-mono text-xs text-zinc-400">
+                      <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                         {dag.lastRun}
                       </td>
-                      <td className="px-3 py-2">{dagStatusLabel(dag.status)}</td>
-                      <td className="px-3 py-2 font-mono text-xs text-zinc-400">
+                      <td className="px-3 py-2">
+                        <DagStatusLabel status={dag.status} />
+                      </td>
+                      <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                         {dag.duration}
                       </td>
                       <td className="px-3 py-2">
@@ -207,12 +209,12 @@ export function AdminOverview() {
                             href={dag.airflowUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-zinc-400 hover:text-white"
+                            className="text-xs text-muted-foreground hover:text-foreground"
                           >
                             Open in Airflow ↗
                           </a>
                         ) : (
-                          <span className="text-xs text-zinc-600">—</span>
+                          <span className="text-xs text-muted-foreground">—</span>
                         )}
                       </td>
                     </tr>

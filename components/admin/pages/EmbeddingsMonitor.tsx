@@ -3,10 +3,13 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { AdminStatCard } from "@/components/admin/ui/AdminStatCard";
+import { MlStatusLabel } from "@/components/admin/ui/admin-status";
 import {
-  adminEmeraldBtn,
+  adminFilterBtn,
+  adminFilterBtnActive,
   adminGhostBtn,
   adminPage,
+  adminPrimaryBtn,
 } from "@/components/admin/ui/admin-styles";
 import { useAdminMlRuns } from "@/hooks/useAdminMlRuns";
 import { formatAdminTimestamp } from "@/lib/admin-response-parsers";
@@ -18,22 +21,6 @@ const STATUS_FILTERS = [
   { id: "training", label: "Training" },
   { id: "deployed", label: "Deployed" },
 ] as const;
-
-function statusBadge(status: string) {
-  if (status === "failed") {
-    return <span className="font-mono text-xs text-red-400">✗ failed</span>;
-  }
-  if (status === "training") {
-    return <span className="font-mono text-xs text-amber-400">● training</span>;
-  }
-  if (status === "awaiting_review") {
-    return <span className="font-mono text-xs text-amber-400">◆ review</span>;
-  }
-  if (status === "deployed") {
-    return <span className="font-mono text-xs text-emerald-400">✓ deployed</span>;
-  }
-  return <span className="font-mono text-xs text-zinc-400">{status}</span>;
-}
 
 export function EmbeddingsMonitor() {
   const {
@@ -67,8 +54,8 @@ export function EmbeddingsMonitor() {
     <div className={adminPage}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-medium text-white">ML / Embedding Runs</h1>
-          <p className="text-sm text-zinc-500">
+          <h1 className="text-lg font-medium text-foreground">ML / Embedding Runs</h1>
+          <p className="text-sm text-muted-foreground">
             Training runs from <span className="font-mono">/api/admin/ml/runs</span>.
             Deploy applies to runs in awaiting_review.
           </p>
@@ -78,7 +65,7 @@ export function EmbeddingsMonitor() {
             type="button"
             disabled={actionLoading === "trigger"}
             onClick={() => void triggerTraining()}
-            className={adminEmeraldBtn}
+            className={adminPrimaryBtn}
           >
             {actionLoading === "trigger" ? "…" : "Trigger training"}
           </button>
@@ -89,7 +76,7 @@ export function EmbeddingsMonitor() {
       </div>
 
       {error ? (
-        <div className="mb-4 rounded-md border border-red-800 bg-red-950/50 px-4 py-3 text-sm text-red-400">
+        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
@@ -98,17 +85,17 @@ export function EmbeddingsMonitor() {
         <AdminStatCard
           label="Total runs"
           value={counts.total.toLocaleString()}
-          valueClassName="text-emerald-400"
+          valueClassName="text-primary"
         />
         <AdminStatCard
           label="Awaiting review"
           value={counts.awaiting.toLocaleString()}
-          valueClassName="text-amber-400"
+          valueClassName="text-warning"
         />
         <AdminStatCard
           label="Failed"
           value={counts.failed.toLocaleString()}
-          valueClassName="text-red-400"
+          valueClassName="text-destructive"
         />
       </div>
 
@@ -118,11 +105,9 @@ export function EmbeddingsMonitor() {
             key={f.label}
             type="button"
             onClick={() => setStatusFilter(f.id)}
-            className={`rounded-md border px-3 py-1 text-xs ${
-              statusFilter === f.id
-                ? "border-emerald-800 text-emerald-400"
-                : "border-zinc-800 text-zinc-500 hover:text-zinc-300"
-            }`}
+            className={
+              statusFilter === f.id ? adminFilterBtnActive : adminFilterBtn
+            }
           >
             {f.label}
           </button>
@@ -130,7 +115,7 @@ export function EmbeddingsMonitor() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 py-24 text-sm text-zinc-500">
+        <div className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
           Loading ML runs…
         </div>
@@ -138,7 +123,7 @@ export function EmbeddingsMonitor() {
         <>
           <table className="mb-4 w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-800">
+              <tr className="border-b border-border">
                 {[
                   "Run ID",
                   "Model",
@@ -150,7 +135,7 @@ export function EmbeddingsMonitor() {
                 ].map((col) => (
                   <th
                     key={col}
-                    className="px-3 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-zinc-500"
+                    className="px-3 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-muted-foreground"
                   >
                     {col}
                   </th>
@@ -160,7 +145,7 @@ export function EmbeddingsMonitor() {
             <tbody>
               {items.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-zinc-500">
+                  <td colSpan={7} className="px-3 py-8 text-center text-muted-foreground">
                     No runs match this filter.
                   </td>
                 </tr>
@@ -168,23 +153,25 @@ export function EmbeddingsMonitor() {
                 items.map((row) => (
                   <tr
                     key={row.id}
-                    className="border-b border-zinc-800/50 odd:bg-zinc-900 hover:bg-zinc-800/40"
+                    className="border-b border-border/60 odd:bg-card hover:bg-muted/40"
                   >
-                    <td className="max-w-[120px] truncate px-3 py-2 font-mono text-xs text-zinc-300">
+                    <td className="max-w-[120px] truncate px-3 py-2 font-mono text-xs text-foreground">
                       {row.id}
                     </td>
-                    <td className="px-3 py-2 font-mono text-xs text-zinc-400">
+                    <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                       {row.model_type}
                     </td>
-                    <td className="px-3 py-2">{statusBadge(row.status)}</td>
-                    <td className="px-3 py-2 font-mono text-xs text-zinc-400">
+                    <td className="px-3 py-2">
+                      <MlStatusLabel status={row.status} />
+                    </td>
+                    <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                       {formatAdminTimestamp(row.created_at)}
                     </td>
-                    <td className="px-3 py-2 font-mono text-xs text-zinc-400">
+                    <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                       {row.accuracy ?? "—"}
                     </td>
                     <td
-                      className="max-w-[200px] truncate px-3 py-2 text-xs text-zinc-500"
+                      className="max-w-[200px] truncate px-3 py-2 text-xs text-muted-foreground"
                       title={row.metrics_summary ?? undefined}
                     >
                       {row.metrics_summary ?? "—"}
@@ -200,7 +187,7 @@ export function EmbeddingsMonitor() {
                           {actionLoading === row.id ? "…" : "Deploy"}
                         </button>
                       ) : (
-                        <span className="text-xs text-zinc-600">—</span>
+                        <span className="text-xs text-muted-foreground">—</span>
                       )}
                     </td>
                   </tr>
@@ -210,7 +197,7 @@ export function EmbeddingsMonitor() {
           </table>
 
           {pages > 1 ? (
-            <div className="flex items-center justify-between text-xs text-zinc-500">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span>
                 Page {page} of {pages} · {total} runs
               </span>

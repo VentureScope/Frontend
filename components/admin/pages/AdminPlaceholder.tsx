@@ -1,7 +1,8 @@
+import { adminCard, adminPageDesc, adminPageTitle } from "@/components/admin/ui/admin-styles";
+
 type Props = {
   title: string;
   description?: string;
-  /** When true, shows that no OpenAPI admin endpoint exists yet. */
   noApi?: boolean;
 };
 
@@ -11,15 +12,14 @@ export function AdminPlaceholder({
   noApi = false,
 }: Props) {
   return (
-    <div className="min-w-[1280px] space-y-3 border border-zinc-800 bg-zinc-900 p-6">
-      <h1 className="text-lg font-medium text-white">{title}</h1>
-      <p className="max-w-xl text-sm text-zinc-500">{description}</p>
+    <div className={`${adminCard} space-y-3 p-6`}>
+      <h1 className={adminPageTitle}>{title}</h1>
+      <p className={`max-w-xl ${adminPageDesc}`}>{description}</p>
       {noApi ? (
-        <div className="max-w-xl rounded-md border border-amber-900/60 bg-amber-950/40 px-4 py-3 text-sm text-amber-200/90">
-          <span className="font-medium text-amber-300">Not in API yet.</span>{" "}
-          There is no <span className="font-mono text-amber-400">/api/admin/…</span>{" "}
-          endpoint for this screen in the current OpenAPI spec. Navigation is kept for
-          product planning; data shown elsewhere on the admin console uses live APIs.
+        <div className="max-w-xl rounded-md border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-foreground">
+          <span className="font-medium text-warning">Not in API yet.</span>{" "}
+          There is no admin endpoint for this screen in the current OpenAPI spec.
+          Navigation is kept for planning; other admin pages use live APIs.
         </div>
       ) : null}
     </div>

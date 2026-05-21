@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -14,22 +14,21 @@ import {
 } from "recharts";
 import { Loader2 } from "lucide-react";
 import { AdminStatCard } from "@/components/admin/ui/AdminStatCard";
-import { adminGhostBtn, adminPage } from "@/components/admin/ui/admin-styles";
+import { DagStatusLabel } from "@/components/admin/ui/admin-status";
+import {
+  adminErrorBanner,
+  adminGhostBtn,
+  adminLoading,
+  adminPage,
+  adminPageDesc,
+  adminPageTitle,
+  adminSection,
+  adminSectionLabel,
+  adminTableRow,
+  adminTableTh,
+} from "@/components/admin/ui/admin-styles";
+import { SelectField } from "@/components/ui/select-field";
 import { useAdminSystemHealth } from "@/hooks/useAdminSystemHealth";
-import type { DagRunStatus } from "@/types/admin-system";
-
-function dagStatusLabel(status: DagRunStatus) {
-  switch (status) {
-    case "success":
-      return <span className="font-mono text-xs text-emerald-400">✓ success</span>;
-    case "failed":
-      return <span className="font-mono text-xs text-red-400">✗ failed</span>;
-    case "running":
-      return <span className="font-mono text-xs text-amber-400">● running</span>;
-    default:
-      return <span className="font-mono text-xs text-zinc-500">— unknown</span>;
-  }
-}
 
 function formatBytesLabel(bytes: number | null): string {
   if (bytes == null) return "—";
@@ -40,11 +39,49 @@ function formatBytesLabel(bytes: number | null): string {
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
 }
 
+const CHART_GRID = "var(--border)";
+const CHART_TICK = "var(--muted-foreground)";
+const CHART_SUCCESS = "var(--chart-1)";
+const CHART_FAILED = "var(--destructive)";
+
 export function TechnicalHealth() {
   const { dags, pipelineRuns, storage, sentry, loading, error, reload } =
     useAdminSystemHealth(7);
-  const [storageBucketIdx, setStorageBucketIdx] = useState(0);
+  const [storageBucketKey, setStorageBucketKey] = useState("0");
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash !== "#storage") return;
+    const el = document.getElementById("storage");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [loading]);
+
+  const bucketOptions = useMemo(
+    () =>
+      (storage?.buckets ?? []).map((b, i) => ({
+        value: String(i),
+        label: b.label,
+      })),
+    [storage?.buckets],
+  );
+
+  useEffect(() => {
+    if (bucketOptions.length === 0) {
+      setStorageBucketKey("0");
+      return;
+    }
+    const idx = Number(storageBucketKey);
+    if (Number.isNaN(idx) || idx >= bucketOptions.length) {
+      setStorageBucketKey("0");
+    }
+  }, [bucketOptions, storageBucketKey]);
+
+  const storageBucketIdx = Math.min(
+    Number(storageBucketKey) || 0,
+    Math.max(0, (storage?.buckets.length ?? 1) - 1),
+  );
   const activeBucket = storage?.buckets[storageBucketIdx] ?? null;
   const files = activeBucket?.files ?? [];
 
@@ -52,8 +89,8 @@ export function TechnicalHealth() {
     <div className={adminPage}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-medium text-white">Technical Health</h1>
-          <p className="text-sm text-zinc-500">
+          <h1 className={adminPageTitle}>Technical Health</h1>
+          <p className={adminPageDesc}>
             Pipeline, object storage, and Sentry from admin system APIs.
           </p>
         </div>
@@ -62,34 +99,27 @@ export function TechnicalHealth() {
         </button>
       </div>
 
-      {error ? (
-        <div className="mb-4 rounded-md border border-red-800 bg-red-950/50 px-4 py-3 text-sm text-red-400">
-          {error}
-        </div>
-      ) : null}
+      {error ? <div className={adminErrorBanner}>{error}</div> : null}
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 py-24 text-sm text-zinc-500">
+        <div className={adminLoading}>
           <Loader2 className="h-5 w-5 animate-spin" />
           Loading system health…
         </div>
       ) : (
         <>
-          <section className="mb-6 border border-zinc-800 bg-zinc-900 p-4">
-            <p className="mb-3 text-[10px] uppercase tracking-widest text-zinc-600">
-              DAG pipeline status
-            </p>
+          <section className={`${adminSection} mb-6`}>
+            <p className={`mb-3 ${adminSectionLabel}`}>DAG pipeline status</p>
             {dags.length === 0 ? (
-              <p className="text-sm text-zinc-500">No pipeline status returned.</p>
+              <p className="text-sm text-muted-foreground">
+                No pipeline status returned.
+              </p>
             ) : (
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-zinc-800">
+                  <tr className="border-b border-border">
                     {["DAG", "Last run", "Status", "Duration", ""].map((col) => (
-                      <th
-                        key={col || "link"}
-                        className="px-3 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-zinc-500"
-                      >
+                      <th key={col || "link"} className={adminTableTh}>
                         {col}
                       </th>
                     ))}
@@ -97,18 +127,17 @@ export function TechnicalHealth() {
                 </thead>
                 <tbody>
                   {dags.map((dag) => (
-                    <tr
-                      key={dag.name}
-                      className="border-b border-zinc-800/50 odd:bg-zinc-950"
-                    >
-                      <td className="px-3 py-2 font-mono text-xs text-zinc-300">
+                    <tr key={dag.name} className={adminTableRow}>
+                      <td className="px-3 py-2 font-mono text-xs text-foreground">
                         {dag.name}
                       </td>
-                      <td className="px-3 py-2 font-mono text-xs text-zinc-400">
+                      <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                         {dag.lastRun}
                       </td>
-                      <td className="px-3 py-2">{dagStatusLabel(dag.status)}</td>
-                      <td className="px-3 py-2 font-mono text-xs text-zinc-400">
+                      <td className="px-3 py-2">
+                        <DagStatusLabel status={dag.status} />
+                      </td>
+                      <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                         {dag.duration}
                       </td>
                       <td className="px-3 py-2">
@@ -117,12 +146,12 @@ export function TechnicalHealth() {
                             href={dag.airflowUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-zinc-400 hover:text-white"
+                            className="text-xs text-primary hover:underline"
                           >
                             Airflow ↗
                           </a>
                         ) : (
-                          <span className="text-xs text-zinc-600">—</span>
+                          <span className="text-xs text-muted-foreground">—</span>
                         )}
                       </td>
                     </tr>
@@ -133,37 +162,52 @@ export function TechnicalHealth() {
           </section>
 
           {pipelineRuns && pipelineRuns.chartPoints.length > 0 ? (
-            <section className="mb-6 border border-zinc-800 bg-zinc-900 p-4">
-              <p className="mb-3 text-[10px] uppercase tracking-widest text-zinc-600">
-                ETL run history (7 days)
-              </p>
+            <section className={`${adminSection} mb-6`}>
+              <p className={`mb-3 ${adminSectionLabel}`}>ETL run history (7 days)</p>
               <div className="h-48">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={pipelineRuns.chartPoints}>
-                    <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
+                    <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
                     <XAxis
                       dataKey="label"
-                      tick={{ fill: "#71717a", fontSize: 10 }}
+                      tick={{ fill: CHART_TICK, fontSize: 10 }}
                     />
-                    <YAxis tick={{ fill: "#71717a", fontSize: 10 }} allowDecimals={false} />
+                    <YAxis
+                      tick={{ fill: CHART_TICK, fontSize: 10 }}
+                      allowDecimals={false}
+                    />
                     <Tooltip
                       contentStyle={{
-                        background: "#18181b",
-                        border: "1px solid #3f3f46",
+                        background: "var(--card)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "var(--radius)",
                         fontSize: 12,
+                        color: "var(--foreground)",
                       }}
                     />
-                    <Bar dataKey="success" stackId="a" fill="#34d399" name="Success" />
-                    <Bar dataKey="failed" stackId="a" fill="#f87171" name="Failed" />
+                    <Bar
+                      dataKey="success"
+                      stackId="a"
+                      fill={CHART_SUCCESS}
+                      name="Success"
+                    />
+                    <Bar
+                      dataKey="failed"
+                      stackId="a"
+                      fill={CHART_FAILED}
+                      name="Failed"
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
               {pipelineRuns.taskDurations.length > 0 ? (
                 <div className="mt-4">
-                  <p className="mb-2 text-xs text-zinc-500">Latest run task durations</p>
-                  <ul className="space-y-1 font-mono text-xs text-zinc-400">
+                  <p className="mb-2 text-xs text-muted-foreground">
+                    Latest run task durations
+                  </p>
+                  <ul className="space-y-1 font-mono text-xs text-muted-foreground">
                     {pipelineRuns.taskDurations.slice(0, 8).map((t) => (
-                      <li key={t.task} className="flex justify-between">
+                      <li key={t.task} className="flex justify-between gap-4">
                         <span>{t.task}</span>
                         <span>{t.durationSec}s</span>
                       </li>
@@ -174,102 +218,91 @@ export function TechnicalHealth() {
             </section>
           ) : null}
 
-          <section id="storage" className="mb-6 border border-zinc-800 bg-zinc-900 p-4">
-            <p className="mb-3 text-[10px] uppercase tracking-widest text-zinc-600">
-              Model storage (DO Spaces)
-            </p>
+          <section id="storage" className={`${adminSection} mb-6`}>
+            <p className={`mb-3 ${adminSectionLabel}`}>Model storage (DO Spaces)</p>
             {!storage || storage.buckets.length === 0 ? (
-              <p className="text-sm text-zinc-500">
+              <p className="text-sm text-muted-foreground">
                 Storage health unavailable or not configured.
               </p>
             ) : (
               <>
                 {storage.totalBytes != null ? (
-                  <p className="mb-3 font-mono text-xs text-zinc-400">
+                  <p className="mb-4 font-mono text-xs text-muted-foreground">
                     Total: {formatBytesLabel(storage.totalBytes)}
                   </p>
                 ) : null}
-                <div className="flex gap-4">
-                  <ul className="w-[200px] shrink-0 space-y-1 text-xs">
-                    {storage.buckets.map((b, i) => (
-                      <li key={b.label}>
-                        <button
-                          type="button"
-                          onClick={() => setStorageBucketIdx(i)}
-                          className={`w-full cursor-pointer px-2 py-1 text-left ${
-                            storageBucketIdx === i
-                              ? "bg-zinc-800 text-white"
-                              : "text-zinc-400 hover:text-white"
-                          }`}
+                <div className="mb-4 max-w-md">
+                  <SelectField
+                    label="Storage bucket"
+                    value={storageBucketKey}
+                    onChange={setStorageBucketKey}
+                    options={bucketOptions}
+                    hint={
+                      activeBucket?.lastModified
+                        ? `Last modified: ${activeBucket.lastModified}`
+                        : undefined
+                    }
+                  />
+                </div>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      {["File", "Size", "Modified", ""].map((col) => (
+                        <th key={col || "url"} className={adminTableTh}>
+                          {col}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {files.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={4}
+                          className="px-3 py-6 text-center text-xs text-muted-foreground"
                         >
-                          {b.label}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                  <table className="min-w-0 flex-1 text-sm">
-                    <thead>
-                      <tr className="border-b border-zinc-800">
-                        {["File", "Size", "Modified", ""].map((col) => (
-                          <th
-                            key={col || "url"}
-                            className="px-3 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-zinc-500"
-                          >
-                            {col}
-                          </th>
-                        ))}
+                          No files in this bucket.
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {files.length === 0 ? (
-                        <tr>
-                          <td
-                            colSpan={4}
-                            className="px-3 py-6 text-center text-xs text-zinc-500"
-                          >
-                            No files in this bucket.
+                    ) : (
+                      files.map((file) => (
+                        <tr key={file.name} className={adminTableRow}>
+                          <td className="px-3 py-2 font-mono text-xs text-foreground">
+                            {file.name}
+                          </td>
+                          <td className="px-3 py-2 text-xs text-muted-foreground">
+                            {file.size}
+                          </td>
+                          <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
+                            {file.modified}
+                          </td>
+                          <td className="px-3 py-2">
+                            {file.url ? (
+                              <a
+                                href={file.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-primary hover:underline"
+                              >
+                                Open ↗
+                              </a>
+                            ) : null}
                           </td>
                         </tr>
-                      ) : (
-                        files.map((file) => (
-                          <tr key={file.name} className="border-b border-zinc-800/50">
-                            <td className="px-3 py-2 font-mono text-xs text-zinc-300">
-                              {file.name}
-                            </td>
-                            <td className="px-3 py-2 text-xs text-zinc-400">
-                              {file.size}
-                            </td>
-                            <td className="px-3 py-2 font-mono text-xs text-zinc-400">
-                              {file.modified}
-                            </td>
-                            <td className="px-3 py-2">
-                              {file.url ? (
-                                <a
-                                  href={file.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-xs text-zinc-400 hover:text-white"
-                                >
-                                  Open ↗
-                                </a>
-                              ) : null}
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </>
             )}
           </section>
 
-          <section className="border border-zinc-800 bg-zinc-900 p-4">
-            <p className="mb-3 text-[10px] uppercase tracking-widest text-zinc-600">
-              Sentry
-            </p>
+          <section className={adminSection}>
+            <p className={`mb-3 ${adminSectionLabel}`}>Sentry</p>
             {!sentry ? (
-              <p className="text-sm text-zinc-500">Sentry summary unavailable.</p>
+              <p className="text-sm text-muted-foreground">
+                Sentry summary unavailable.
+              </p>
             ) : (
               <>
                 <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -289,13 +322,16 @@ export function TechnicalHealth() {
                   <div className="mb-4 h-40">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={sentry.sparkline}>
-                        <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
-                        <XAxis dataKey="day" tick={{ fill: "#71717a", fontSize: 10 }} />
-                        <YAxis tick={{ fill: "#71717a", fontSize: 10 }} />
+                        <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+                        <XAxis
+                          dataKey="day"
+                          tick={{ fill: CHART_TICK, fontSize: 10 }}
+                        />
+                        <YAxis tick={{ fill: CHART_TICK, fontSize: 10 }} />
                         <Line
                           type="monotone"
                           dataKey="count"
-                          stroke="#34d399"
+                          stroke={CHART_SUCCESS}
                           dot={false}
                           name="Events"
                         />
@@ -307,12 +343,9 @@ export function TechnicalHealth() {
                 {sentry.topIssues.length > 0 ? (
                   <table className="mb-4 w-full text-sm">
                     <thead>
-                      <tr className="border-b border-zinc-800">
+                      <tr className="border-b border-border">
                         {["Issue", "Service", "Seen", "Last", ""].map((col) => (
-                          <th
-                            key={col || "link"}
-                            className="px-3 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-zinc-500"
-                          >
+                          <th key={col || "link"} className={adminTableTh}>
                             {col}
                           </th>
                         ))}
@@ -322,18 +355,18 @@ export function TechnicalHealth() {
                       {sentry.topIssues.map((issue) => (
                         <tr
                           key={`${issue.title}-${issue.url}`}
-                          className="border-b border-zinc-800/50"
+                          className={adminTableRow}
                         >
-                          <td className="px-3 py-2 text-xs text-zinc-300">
+                          <td className="px-3 py-2 text-xs text-foreground">
                             {issue.title}
                           </td>
-                          <td className="px-3 py-2 font-mono text-xs text-zinc-500">
+                          <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                             {issue.service}
                           </td>
-                          <td className="px-3 py-2 font-mono text-xs text-zinc-400">
+                          <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                             {issue.timesSeen}
                           </td>
-                          <td className="px-3 py-2 text-xs text-zinc-400">
+                          <td className="px-3 py-2 text-xs text-muted-foreground">
                             {issue.lastSeen}
                           </td>
                           <td className="px-3 py-2">
@@ -341,7 +374,7 @@ export function TechnicalHealth() {
                               href={issue.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-zinc-400 hover:text-white"
+                              className="text-xs text-primary hover:underline"
                             >
                               sentry.io ↗
                             </a>
@@ -351,7 +384,9 @@ export function TechnicalHealth() {
                     </tbody>
                   </table>
                 ) : (
-                  <p className="mb-4 text-sm text-zinc-500">No top issues returned.</p>
+                  <p className="mb-4 text-sm text-muted-foreground">
+                    No top issues returned.
+                  </p>
                 )}
 
                 <div className="flex flex-wrap gap-4 text-xs">
@@ -360,7 +395,7 @@ export function TechnicalHealth() {
                       href={sentry.links.issues}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-zinc-400 hover:text-white"
+                      className="text-primary hover:underline"
                     >
                       Open issues ↗
                     </a>
@@ -370,7 +405,7 @@ export function TechnicalHealth() {
                       href={sentry.links.performance}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-zinc-400 hover:text-white"
+                      className="text-primary hover:underline"
                     >
                       Performance ↗
                     </a>
@@ -380,7 +415,7 @@ export function TechnicalHealth() {
                       href={sentry.links.alerts}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-zinc-400 hover:text-white"
+                      className="text-primary hover:underline"
                     >
                       Alerts ↗
                     </a>

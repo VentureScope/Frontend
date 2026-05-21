@@ -1,3 +1,6 @@
+import { adminCard } from "@/components/admin/ui/admin-styles";
+import { cn } from "@/lib/utils";
+
 type Props = {
   label: string;
   value: string;
@@ -10,17 +13,17 @@ export function AdminStatCard({
   label,
   value,
   subtext,
-  valueClassName = "text-white",
-  subtextClassName = "text-zinc-500",
+  valueClassName = "text-foreground",
+  subtextClassName = "text-muted-foreground",
 }: Props) {
   return (
-    <div className="border border-zinc-800 bg-zinc-900 p-4">
-      <p className="mb-1 text-[10px] uppercase tracking-widest text-zinc-500">
-        {label}
+    <div className={cn(adminCard, "p-4")}>
+      <p className="mb-1 text-label text-muted-foreground">{label}</p>
+      <p className={cn("text-2xl font-semibold tabular-nums", valueClassName)}>
+        {value}
       </p>
-      <p className={`text-2xl font-mono font-semibold ${valueClassName}`}>{value}</p>
       {subtext ? (
-        <p className={`mt-1 text-xs ${subtextClassName}`}>{subtext}</p>
+        <p className={cn("mt-1 text-xs", subtextClassName)}>{subtext}</p>
       ) : null}
     </div>
   );

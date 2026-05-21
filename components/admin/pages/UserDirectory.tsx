@@ -107,8 +107,8 @@ export function UserDirectory() {
     <div className={adminPage}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <h1 className="text-lg font-medium text-white">User Directory</h1>
-          <span className="rounded-sm bg-zinc-800 px-2 py-0.5 font-mono text-xs text-zinc-400">
+          <h1 className="text-lg font-medium text-foreground">User Directory</h1>
+          <span className="rounded-sm bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
             {loading ? "…" : `${total.toLocaleString()} users`}
           </span>
         </div>
@@ -121,7 +121,7 @@ export function UserDirectory() {
         />
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-1 border-b border-zinc-800">
+      <div className="mb-4 flex flex-wrap gap-1 border-b border-border">
         {DIRECTORY_TABS.map((t) => (
           <button
             key={t.id}
@@ -129,8 +129,8 @@ export function UserDirectory() {
             onClick={() => setTab(t.id)}
             className={`border-b-2 px-3 py-2 text-xs transition-colors ${
               tab === t.id
-                ? "border-emerald-400 text-white"
-                : "border-transparent text-zinc-500 hover:text-zinc-300"
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             {t.label}
@@ -139,7 +139,7 @@ export function UserDirectory() {
       </div>
 
       {error ? (
-        <div className="mb-4 rounded-md border border-red-800 bg-red-950/50 px-4 py-3 text-sm text-red-400">
+        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
           <button
             type="button"
@@ -151,22 +151,22 @@ export function UserDirectory() {
         </div>
       ) : null}
 
-      <div className="relative overflow-x-auto border border-zinc-800">
+      <div className="relative overflow-x-auto border border-border">
         {loading ? (
-          <div className="flex items-center justify-center gap-2 py-16 text-sm text-zinc-500">
+          <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
             <Loader2 className="h-5 w-5 animate-spin" />
             Loading users…
           </div>
         ) : users.length === 0 ? (
-          <p className="py-16 text-center text-sm text-zinc-500">No users match this view.</p>
+          <p className="py-16 text-center text-sm text-muted-foreground">No users match this view.</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-800 bg-zinc-950">
+              <tr className="border-b border-border bg-muted/30">
                 {["User", "Role", "Status", "MFA", "OAuth", ""].map((col) => (
                   <th
                     key={col || "actions"}
-                    className="px-3 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-zinc-500"
+                    className="px-3 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-muted-foreground"
                   >
                     {col}
                   </th>
@@ -178,36 +178,36 @@ export function UserDirectory() {
                 <tr
                   key={user.id}
                   onClick={() => setSelected(user)}
-                  className="cursor-pointer border-b border-zinc-800/50 odd:bg-zinc-900 transition-colors hover:bg-zinc-800/40"
+                  className="cursor-pointer border-b border-border/60 odd:bg-card transition-colors hover:bg-muted/40"
                 >
                   <td className="px-3 py-3">
-                    <p className="text-sm text-white">{displayUserName(user)}</p>
-                    <p className="font-mono text-xs text-zinc-500">{user.email}</p>
+                    <p className="text-sm text-foreground">{displayUserName(user)}</p>
+                    <p className="font-mono text-xs text-muted-foreground">{user.email}</p>
                   </td>
                   <td className="px-3 py-2">
                     <AdminRoleBadge>{roleBadgeValue(user)}</AdminRoleBadge>
                   </td>
                   <td className="px-3 py-2">
-                    <span className="flex items-center gap-1.5 text-xs text-zinc-400">
+                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <StatusDot tone={user.is_active ? "emerald" : "amber"} />
                       {user.is_active ? "active" : "inactive"}
                     </span>
                   </td>
-                  <td className="px-3 py-2 font-mono text-xs text-zinc-400">
+                  <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                     {user.mfa_enabled ? (
-                      <span className="text-emerald-400">on</span>
+                      <span className="text-primary">on</span>
                     ) : (
                       "off"
                     )}
                   </td>
-                  <td className="px-3 py-2 font-mono text-xs text-zinc-500">
+                  <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                     {user.oauth_provider ?? "email"}
                   </td>
                   <td className="px-3 py-2">
                     <button
                       type="button"
                       onClick={(e) => e.stopPropagation()}
-                      className="text-zinc-500 hover:text-white"
+                      className="text-muted-foreground hover:text-foreground"
                       aria-label="Actions"
                     >
                       <MoreHorizontal size={16} />
@@ -221,7 +221,7 @@ export function UserDirectory() {
       </div>
 
       {pages > 1 && !search.trim() ? (
-        <div className="mt-4 flex items-center justify-between text-xs text-zinc-500">
+        <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
           <span>
             Page {page} of {pages}
           </span>
@@ -249,7 +249,7 @@ export function UserDirectory() {
       ) : null}
 
       {search.trim() ? (
-        <p className="mt-2 text-xs text-zinc-600">
+        <p className="mt-2 text-xs text-muted-foreground">
           Search filters users loaded from the current API page (up to 100).
         </p>
       ) : null}
@@ -261,30 +261,30 @@ export function UserDirectory() {
       >
         {selected ? (
           <div className="space-y-4 text-sm">
-            <section className="border-b border-zinc-800 pb-4">
-              <p className="mb-2 text-[10px] uppercase tracking-widest text-zinc-600">
+            <section className="border-b border-border pb-4">
+              <p className="mb-2 text-label text-muted-foreground">
                 Identity
               </p>
-              <p className="font-mono text-xs text-zinc-400">ID: {selected.id}</p>
-              <p className="mt-1 text-zinc-300">{selected.email}</p>
+              <p className="font-mono text-xs text-muted-foreground">ID: {selected.id}</p>
+              <p className="mt-1 text-foreground">{selected.email}</p>
               {selected.github_username ? (
-                <p className="mt-1 font-mono text-xs text-zinc-500">
+                <p className="mt-1 font-mono text-xs text-muted-foreground">
                   GitHub @{selected.github_username}
                 </p>
               ) : null}
             </section>
 
-            <section className="border-b border-zinc-800 pb-4">
-              <p className="mb-2 text-[10px] uppercase tracking-widest text-zinc-600">
+            <section className="border-b border-border pb-4">
+              <p className="mb-2 text-label text-muted-foreground">
                 Role & access
               </p>
-              <label className="mb-3 flex items-center gap-2 text-xs text-zinc-300">
+              <label className="mb-3 flex items-center gap-2 text-xs text-foreground">
                 <input
                   type="checkbox"
                   checked={drawerIsAdmin}
                   disabled={actionLoading}
                   onChange={(e) => setDrawerIsAdmin(e.target.checked)}
-                  className="rounded border-zinc-700"
+                  className="rounded border-border"
                 />
                 Platform administrator
               </label>
@@ -314,11 +314,11 @@ export function UserDirectory() {
               </button>
             </section>
 
-            <section className="border-b border-zinc-800 pb-4">
-              <p className="mb-2 text-[10px] uppercase tracking-widest text-zinc-600">
+            <section className="border-b border-border pb-4">
+              <p className="mb-2 text-label text-muted-foreground">
                 Account status
               </p>
-              <p className="text-zinc-300">
+              <p className="text-foreground">
                 {selected.is_active ? "Active" : "Deactivated"} ·{" "}
                 {formatAdminRoleLabel(selected.role, selected.is_admin)}
               </p>
@@ -333,11 +333,11 @@ export function UserDirectory() {
             </section>
 
             <section>
-              <p className="mb-2 text-[10px] uppercase tracking-widest text-zinc-600">
+              <p className="mb-2 text-label text-muted-foreground">
                 Danger zone
               </p>
               {confirmDeactivate ? (
-                <div className="space-y-2 text-xs text-zinc-400">
+                <div className="space-y-2 text-xs text-muted-foreground">
                   <p>Permanently delete this user? This cannot be undone.</p>
                   <div className="flex gap-2">
                     <button
