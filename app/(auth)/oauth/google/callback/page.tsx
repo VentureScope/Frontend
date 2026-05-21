@@ -118,6 +118,11 @@ function GoogleOAuthCallbackContent() {
 
     sessionStorage.removeItem(GOOGLE_OAUTH_SESSION_KEY);
 
+    const returnPath =
+      storedState.returnPath && isSafeReturnPath(storedState.returnPath)
+        ? storedState.returnPath
+        : DEFAULT_MEMBER_PATH;
+
     async function exchangeCode() {
       try {
         console.log("[oauth] Requesting token exchange", {
@@ -133,10 +138,6 @@ function GoogleOAuthCallbackContent() {
 
         // Critical: check AAL before redirecting — OAuth users with MFA
         // enrolled must complete the challenge here, not just on the login page.
-        const returnPath =
-          storedState.returnPath && isSafeReturnPath(storedState.returnPath)
-            ? storedState.returnPath
-            : DEFAULT_MEMBER_PATH;
 
         try {
           const aal = await mfaGetAAL();

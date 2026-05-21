@@ -139,7 +139,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
-  createSession: async (title?: string) => {
+  createSession: async (title?: string | null) => {
     const sessionTitle = normalizeChatTitle(title ?? "");
     set({ isSessionBusy: true, error: null });
     try {
