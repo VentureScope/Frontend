@@ -1,36 +1,52 @@
 "use client";
 
-import { DM_Sans, IBM_Plex_Mono } from "next/font/google";
-import { AdminSidebar } from "@/components/admin/shell/AdminSidebar";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import {
+  AdminSidebar,
+  ADMIN_SIDEBAR_COLLAPSED,
+  ADMIN_SIDEBAR_EXPANDED,
+} from "@/components/admin/shell/AdminSidebar";
 import { AdminTopbar } from "@/components/admin/shell/AdminTopbar";
+import { getAdminBreadcrumb } from "@/lib/admin-breadcrumb";
 import { useAdminStore } from "@/store/useAdminStore";
 
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-admin-sans",
-});
-
-const ibmMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "600"],
-  variable: "--font-admin-mono",
-});
-
 export function AdminShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const collapsed = useAdminStore((s) => s.sidebarCollapsed);
   const toggleCollapsed = useAdminStore((s) => s.toggleSidebarCollapsed);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [hash, setHash] = useState("");
+
+  useEffect(() => {
+    const readHash = () => setHash(window.location.hash);
+    readHash();
+    window.addEventListener("hashchange", readHash);
+    return () => window.removeEventListener("hashchange", readHash);
+  }, [pathname]);
 
   return (
-    <div
-      className={`${dmSans.variable} ${ibmMono.variable} flex min-h-screen min-w-[1280px] flex-col bg-zinc-950 font-sans text-zinc-300`}
-      style={{ fontFamily: "var(--font-admin-sans), sans-serif" }}
-    >
-      <AdminTopbar />
-      <div className="flex min-h-0 flex-1">
-        <AdminSidebar collapsed={collapsed} onToggleCollapsed={toggleCollapsed} />
-        <main className="min-w-0 flex-1 overflow-auto p-4 [&_.font-mono]:font-[family-name:var(--font-admin-mono)]">
-          {children}
+    <div className="relative min-h-screen bg-background">
+      <AdminSidebar
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        collapsed={collapsed}
+        onToggleCollapsed={toggleCollapsed}
+      />
+      <div
+        className="flex min-h-screen flex-col transition-[padding-left] duration-300 ease-in-out max-lg:!pl-0"
+        style={{
+          paddingLeft: collapsed
+            ? ADMIN_SIDEBAR_COLLAPSED
+            : ADMIN_SIDEBAR_EXPANDED,
+        }}
+      >
+        <AdminTopbar
+          breadcrumb={getAdminBreadcrumb(pathname, hash)}
+          onMenuClick={() => setIsMobileMenuOpen(true)}
+        />
+        <main className="flex-1 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+          <div className="mx-auto w-full max-w-7xl">{children}</div>
         </main>
       </div>
     </div>

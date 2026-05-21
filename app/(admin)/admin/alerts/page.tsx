@@ -1,5 +1,5 @@
-import { AdminPlaceholder } from "@/components/admin/pages/AdminPlaceholder";
+import { AdminAlerts } from "@/components/admin/pages/AdminAlerts";
 
-export default function Page() {
-  return <AdminPlaceholder title="System Alerts" />;
+export default function AdminAlertsPage() {
+  return <AdminAlerts />;
 }

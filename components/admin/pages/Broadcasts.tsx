@@ -22,14 +22,19 @@ export function Broadcasts() {
 
   return (
     <div className={`${adminPage} grid grid-cols-5 gap-4`}>
-      <div className="col-span-3 border border-zinc-800 bg-zinc-900 p-4">
-        <h2 className="mb-4 text-sm font-medium text-white">Send Platform Broadcast</h2>
+      <div className="col-span-5 rounded-md border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-foreground">
+        <span className="font-medium text-warning">Preview only.</span> Platform
+        broadcasts are not backed by an admin API in OpenAPI yet. Recipient counts and
+        history below are illustrative mock data.
+      </div>
+      <div className="col-span-3 border border-border bg-card p-4">
+        <h2 className="mb-4 text-sm font-medium text-foreground">Send Platform Broadcast</h2>
 
         <div className="mb-4 space-y-2">
-          <p className="text-[10px] uppercase tracking-widest text-zinc-600">To</p>
+          <p className="text-label text-muted-foreground">To</p>
           <div className="flex flex-wrap gap-2 text-xs">
             {["All Users", "Students", "Professionals", "B2B Clients"].map((r) => (
-              <label key={r} className="flex items-center gap-1.5 text-zinc-400">
+              <label key={r} className="flex items-center gap-1.5 text-muted-foreground">
                 <input
                   type="checkbox"
                   checked={roles.includes(r)}
@@ -38,7 +43,7 @@ export function Broadcasts() {
                       prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r],
                     )
                   }
-                  className="rounded border-zinc-700"
+                  className="rounded border-border"
                 />
                 {r}
               </label>
@@ -47,8 +52,8 @@ export function Broadcasts() {
         </div>
 
         <div className="mb-4 space-y-2">
-          <p className="text-[10px] uppercase tracking-widest text-zinc-600">Channel</p>
-          <div className="flex gap-4 text-xs text-zinc-400">
+          <p className="text-label text-muted-foreground">Channel</p>
+          <div className="flex gap-4 text-xs text-muted-foreground">
             {["In-App", "Email", "Push"].map((ch) => (
               <label key={ch} className="flex items-center gap-1.5">
                 <input type="checkbox" defaultChecked={ch === "In-App"} />
@@ -59,7 +64,7 @@ export function Broadcasts() {
         </div>
 
         <div className="mb-3 space-y-1">
-          <label className="text-[10px] uppercase tracking-widest text-zinc-600">
+          <label className="text-label text-muted-foreground">
             Subject
           </label>
           <input
@@ -70,7 +75,7 @@ export function Broadcasts() {
         </div>
 
         <div className="mb-3 space-y-1">
-          <label className="text-[10px] uppercase tracking-widest text-zinc-600">Body</label>
+          <label className="text-label text-muted-foreground">Body</label>
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
@@ -78,7 +83,7 @@ export function Broadcasts() {
           />
         </div>
 
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-muted-foreground">
           {recipientCount.toLocaleString()} recipients
         </p>
 
@@ -100,15 +105,15 @@ export function Broadcasts() {
         </div>
       </div>
 
-      <div className="col-span-2 border border-zinc-800 bg-zinc-900 p-4">
-        <h2 className="mb-3 text-sm font-medium text-white">Broadcast History</h2>
+      <div className="col-span-2 border border-border bg-card p-4">
+        <h2 className="mb-3 text-sm font-medium text-foreground">Broadcast History</h2>
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-zinc-800">
+            <tr className="border-b border-border">
               {["Subject", "Sent To", "Sent At", "Status"].map((col) => (
                 <th
                   key={col}
-                  className="px-2 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-zinc-500"
+                  className="px-2 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-muted-foreground"
                 >
                   {col}
                 </th>
@@ -117,16 +122,16 @@ export function Broadcasts() {
           </thead>
           <tbody>
             {BROADCAST_HISTORY.map((row) => (
-              <tr key={row.id} className="border-b border-zinc-800/50">
+              <tr key={row.id} className="border-b border-border/60">
                 <td
-                  className="max-w-[120px] truncate px-2 py-2 text-xs text-zinc-300"
+                  className="max-w-[120px] truncate px-2 py-2 text-xs text-foreground"
                   title={row.subject}
                 >
                   {row.subject}
                 </td>
-                <td className="px-2 py-2 text-xs text-zinc-400">{row.sentTo}</td>
-                <td className="px-2 py-2 font-mono text-xs text-zinc-400">{row.sentAt}</td>
-                <td className="px-2 py-2 font-mono text-xs text-emerald-400">{row.status}</td>
+                <td className="px-2 py-2 text-xs text-muted-foreground">{row.sentTo}</td>
+                <td className="px-2 py-2 font-mono text-xs text-muted-foreground">{row.sentAt}</td>
+                <td className="px-2 py-2 font-mono text-xs text-primary">{row.status}</td>
               </tr>
             ))}
           </tbody>

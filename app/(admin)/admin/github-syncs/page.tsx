@@ -1,5 +1,5 @@
-import { AdminPlaceholder } from "@/components/admin/pages/AdminPlaceholder";
+import { AdminGitHubSyncs } from "@/components/admin/pages/AdminGitHubSyncs";
 
 export default function Page() {
-  return <AdminPlaceholder title="GitHub Syncs" />;
+  return <AdminGitHubSyncs />;
 }
