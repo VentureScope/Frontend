@@ -18,9 +18,13 @@ export interface OrgRoadmapForkSource {
 /** Roadmap shared within an organization workspace */
 export interface OrganizationRoadmap extends LearningPath {
   orgId: string;
+  /** Underlying learning roadmap id (`GET /api/roadmaps/{id}`). */
+  contentRoadmapId?: string;
   createdByUserId: string;
   createdByName: string;
   participants: RoadmapParticipant[];
+  /** Members assigned to this org roadmap (from API `total_members`). */
+  totalMembers?: number;
   /** Company practice area id (e.g. frontend, backend) */
   focusAreaId?: string;
   focusAreaTitle?: string;

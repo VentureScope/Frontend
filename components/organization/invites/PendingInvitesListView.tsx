@@ -3,12 +3,8 @@
 import Link from "next/link";
 import { ArrowLeft, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PendingInviteCard } from "@/components/organization/invites/PendingInviteCard";
-import { usePendingInvites } from "@/hooks/usePendingInvites";
 
 export function PendingInvitesListView() {
-  const { invites, ready } = usePendingInvites();
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       <Link
@@ -25,33 +21,32 @@ export function PendingInvitesListView() {
             <Mail className="h-5 w-5" />
             <span className="text-label">Invitations</span>
           </div>
-          <h1 className="text-h1 text-foreground">Pending invites</h1>
+          <h1 className="text-h1 text-foreground">Organization invites</h1>
           <p className="text-body text-muted-foreground">
-            Organizations that invited you to join their team. Open an
-            invitation to review details, then accept or decline.
+            Invitations arrive by email. Use the link in your message to review and
+            join an organization — there is no separate inbox API yet.
           </p>
         </div>
       </header>
 
-      {!ready ? (
-        <p className="text-sm text-muted-foreground">Loading invitations…</p>
-      ) : invites.length === 0 ? (
-        <div className="vs-surface rounded-md border border-dashed border-border px-6 py-16 text-center">
-          <p className="text-sm font-medium text-foreground">No pending invites</p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            When someone invites you to their organization, it will show up here.
-          </p>
-          <Button type="button" variant="outline" className="mt-6" asChild>
+      <div className="vs-surface rounded-md border border-dashed border-border px-6 py-16 text-center">
+        <p className="text-sm font-medium text-foreground">Check your email</p>
+        <p className="mt-2 max-w-md mx-auto text-sm text-muted-foreground">
+          When you receive an invite, open the link in the email. It will bring you
+          here to accept with your account. You can also paste the token from the
+          link manually.
+        </p>
+        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Button type="button" asChild>
+            <Link href="/dashboard/organization/invites/accept">
+              Accept with token
+            </Link>
+          </Button>
+          <Button type="button" variant="outline" asChild>
             <Link href="/dashboard/organization">Back to organizations</Link>
           </Button>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {invites.map((invite) => (
-            <PendingInviteCard key={invite.id} invite={invite} />
-          ))}
-        </div>
-      )}
+      </div>
     </div>
   );
 }

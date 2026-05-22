@@ -1,6 +1,5 @@
 import { CORE_SERVICE_OPTIONS } from "@/lib/organization-create-constants";
-import { getOrganizationProfile } from "@/lib/organization-profiles-storage";
-import { loadOrganizationMembers } from "@/lib/organization-members-storage";
+import type { OrganizationProfile } from "@/types/organization-profile";
 import type { OrganizationMember } from "@/types/organization-profile";
 import { formatTrendingMarketContext } from "@/lib/organization-roadmap-trends";
 import type { OrgRoadmapFocusArea } from "@/types/organization-roadmap";
@@ -143,9 +142,15 @@ function areaFromServiceId(
  * Focus areas for org roadmap creation.
  * Primary: company profile core services. Enriched with team counts & skills per area.
  */
-export function getOrgRoadmapFocusAreas(orgId: string): OrgRoadmapFocusArea[] {
-  const profile = getOrganizationProfile(orgId);
-  const members = loadOrganizationMembers(orgId);
+export function getOrgRoadmapFocusAreas(
+  _orgId: string,
+  options: {
+    profile?: OrganizationProfile | null;
+    members?: OrganizationMember[];
+  } = {},
+): OrgRoadmapFocusArea[] {
+  const profile = options.profile ?? null;
+  const members = options.members ?? [];
   const profileTech = profile?.techStacks ?? [];
 
   const serviceIds = new Set<string>();
@@ -193,11 +198,14 @@ export function getOrgRoadmapFocusAreas(orgId: string): OrgRoadmapFocusArea[] {
 }
 
 export function buildOrgRoadmapGenerationGoal(
-  orgId: string,
+  _orgId: string,
   area: OrgRoadmapFocusArea,
-  options?: { trendingCareers?: TrendingCareer[] },
+  options?: {
+    trendingCareers?: TrendingCareer[];
+    profile?: OrganizationProfile | null;
+  },
 ): string {
-  const profile = getOrganizationProfile(orgId);
+  const profile = options?.profile ?? null;
   const orgName = profile?.displayName ?? "Organization";
   const industry = profile?.industryVertical ?? "";
   const mission = profile?.missionStatement?.trim() ?? "";

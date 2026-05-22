@@ -16,18 +16,18 @@ import { OrgRoadmapPathCard } from "@/components/organization/roadmaps/OrgRoadma
 import { RoadmapInfoCallout } from "@/components/organization/roadmaps/RoadmapInfoCallout";
 import { useOrgRoadmapListState } from "@/components/organization/roadmaps/useOrgRoadmapListState";
 import { OrganizationPageHeader } from "@/components/organization/OrganizationPageHeader";
+import { OrganizationRoadmapsGridSkeleton } from "@/components/organization/OrganizationSkeletons";
 import { Button } from "@/components/ui/button";
+import { useOrganization } from "@/hooks/useOrganization";
+import { useOrganizationRoadmaps } from "@/hooks/useOrganizationRoadmaps";
 import { forkOrganizationRoadmap } from "@/lib/organization-roadmap-fork";
-import {
-  getOrganizationRoadmapById,
-  loadOrganizationRoadmapsForOrg,
-} from "@/lib/organization-roadmaps-storage";
+import { isPersonalFork } from "@/lib/organization-roadmap-fork";
+import { loadOrganizationRoadmapsForOrg } from "@/lib/organization-roadmaps-storage";
 import {
   filterOrgTeamRoadmaps,
   getMyProgress,
   isCreatedByUser,
   isEnrolledInRoadmap,
-  isPersonalFork,
   resolveCurrentUserId,
 } from "@/lib/organization-roadmap-utils";
 import { toast } from "sonner";
@@ -37,6 +37,7 @@ import type {
 } from "@/types/organization-roadmap";
 import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
+import { getApiErrorMessage } from "@/lib/auth-api";
 
 const FILTER_OPTIONS: { id: OrgTeamRoadmapsFilter; label: string }[] = [
   { id: "all", label: "All team roadmaps" },
@@ -52,26 +53,38 @@ function getIcon(iconName: string) {
   }
 }
 
-export function OrgTeamRoadmapsView({
-  orgId,
-  orgName,
-}: {
-  orgId: string;
-  orgName: string;
-}) {
+export function OrgTeamRoadmapsView({ orgId }: { orgId: string }) {
   const router = useRouter();
+  const { organization, loading: orgLoading } = useOrganization(orgId);
+  const {
+    roadmaps,
+    loading,
+    error,
+    canCreate,
+    reload,
+    loadRoadmapDetail,
+    loadingDetailId,
+  } = useOrganizationRoadmaps(orgId);
+
   const authUser = useAppStore((s) => s.authData.user);
   const userId = resolveCurrentUserId(authUser?.id as string | undefined);
   const userName = authUser?.full_name?.trim() || "You";
 
+  const orgName = organization?.displayName ?? "Organization";
   const [filter, setFilter] = useState<OrgTeamRoadmapsFilter>("all");
   const [forkIndexVersion, setForkIndexVersion] = useState(0);
+
   const { paths, setPaths, expandedPathIds, handleToggleExpand, handleToggleResource } =
     useOrgRoadmapListState<OrganizationRoadmap>([]);
 
+  const apiRoadmaps = useMemo(
+    () => roadmaps.filter((r) => !isPersonalFork(r)),
+    [roadmaps],
+  );
+
   useEffect(() => {
-    setPaths(loadOrganizationRoadmapsForOrg(orgId));
-  }, [orgId, setPaths]);
+    setPaths(apiRoadmaps);
+  }, [apiRoadmaps, setPaths]);
 
   const createHref = `/dashboard/organization/${orgId}/roadmaps/new`;
 
@@ -86,29 +99,53 @@ export function OrgTeamRoadmapsView({
     return map;
   }, [orgId, userId, forkIndexVersion]);
 
+  const handleExpand = useCallback(
+    async (roadmapId: string) => {
+      const isExpanded = expandedPathIds.includes(roadmapId);
+      handleToggleExpand(roadmapId);
+
+      if (isExpanded) return;
+
+      const target = paths.find((r) => r.id === roadmapId);
+      if (target && target.modules.length > 0) return;
+
+      try {
+        const detail = await loadRoadmapDetail(roadmapId);
+        setPaths((prev) =>
+          prev.map((r) => (r.id === roadmapId ? detail : r)),
+        );
+      } catch (err) {
+        toast.error(getApiErrorMessage(err));
+      }
+    },
+    [
+      expandedPathIds,
+      handleToggleExpand,
+      paths,
+      loadRoadmapDetail,
+      setPaths,
+    ],
+  );
+
   const handleFork = useCallback(
     (sourceId: string) => {
       const existingId = userForkBySource.get(sourceId);
       if (existingId) {
-        router.push(
-          `/dashboard/organization/${orgId}/roadmaps/${existingId}`,
-        );
+        router.push(`/dashboard/organization/${orgId}/roadmaps/${existingId}`);
         return;
       }
 
-      const source = getOrganizationRoadmapById(orgId, sourceId);
+      const source = paths.find((r) => r.id === sourceId);
       if (!source || isPersonalFork(source)) {
         return;
       }
 
       const forked = forkOrganizationRoadmap(source, userId, userName);
       setForkIndexVersion((v) => v + 1);
-      toast.success("Fork created — it’s in My roadmaps under Created by me.");
-      router.push(
-        `/dashboard/organization/${orgId}/roadmaps/${forked.id}`,
-      );
+      toast.success("Fork created — it's in My roadmaps under Created by me.");
+      router.push(`/dashboard/organization/${orgId}/roadmaps/${forked.id}`);
     },
-    [orgId, router, userForkBySource, userId, userName],
+    [orgId, router, userForkBySource, userId, userName, paths],
   );
 
   const filtered = useMemo(
@@ -127,21 +164,29 @@ export function OrgTeamRoadmapsView({
         className="mb-6 inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        Back to {orgName}
+        Back to {orgLoading ? "…" : orgName}
       </Link>
 
       <OrganizationPageHeader
         label={orgName}
         title="Team roadmaps"
-        description={`Every learning roadmap published inside ${orgName} lives here. See who is actively taking each path, track your own progress, and filter to roadmaps you created for the team.`}
+        description={`Learning roadmaps assigned to ${orgName}. Expand a card to load steps, track team completion, or open the full detail view.`}
         icon={MapPinned}
       />
 
+      {error ? (
+        <div className="mb-6 flex gap-3 rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3">
+          <p className="flex-1 text-sm text-destructive">{error}</p>
+          <Button type="button" variant="outline" size="sm" onClick={() => void reload()}>
+            Retry
+          </Button>
+        </div>
+      ) : null}
+
       <RoadmapInfoCallout icon={Users} title="Shared by your organization">
-        Members can create roadmaps for roles, skills, or initiatives. Each card
-        shows colleagues currently enrolled and your personal completion
-        percentage. Progress you mark complete is saved to your profile only—other
-        members keep their own percentages.
+        Roadmaps are generated for the whole team. Your personal progress is tracked
+        per member when you open a roadmap. Fork a path to keep a private copy in My
+        roadmaps.
       </RoadmapInfoCallout>
 
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -163,44 +208,57 @@ export function OrgTeamRoadmapsView({
             </button>
           ))}
         </div>
-        <Button asChild size="sm" className="gap-1.5 shrink-0">
-          <Link href={createHref}>
-            <Plus className="h-4 w-4" />
-            Create roadmap
-          </Link>
-        </Button>
-      </div>
-
-      <p className="text-label mb-6 text-muted-foreground">
-        {filtered.length} roadmap{filtered.length === 1 ? "" : "s"}
-        {filter === "all" && enrolledCount > 0
-          ? ` · You are taking ${enrolledCount}`
-          : ""}
-      </p>
-
-      {filtered.length === 0 ? (
-        <div className="vs-surface rounded-md border border-dashed border-border px-6 py-14 text-center">
-          <p className="text-sm font-medium text-foreground">
-            {filter === "created-by-me"
-              ? "You have not created any roadmaps for this organization yet"
-              : "No team roadmaps yet"}
-          </p>
-          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            {filter === "created-by-me"
-              ? "Switch to “All team roadmaps” to browse paths started by colleagues, or create one to share with the org."
-              : "Be the first to publish a structured learning path for your colleagues."}
-          </p>
-          <Button asChild className="mt-6 gap-2" size="sm">
+        {canCreate ? (
+          <Button asChild size="sm" className="gap-1.5 shrink-0">
             <Link href={createHref}>
               <Plus className="h-4 w-4" />
               Create roadmap
             </Link>
           </Button>
+        ) : (
+          <p className="text-xs text-muted-foreground sm:ml-auto">
+            Only the organization owner can assign new roadmaps.
+          </p>
+        )}
+      </div>
+
+      <p className="text-label mb-6 text-muted-foreground">
+        {loading
+          ? "Loading roadmaps…"
+          : `${filtered.length} roadmap${filtered.length === 1 ? "" : "s"}`}
+        {!loading && filter === "all" && enrolledCount > 0
+          ? ` · You are on ${enrolledCount}`
+          : ""}
+      </p>
+
+      {loading ? (
+        <OrganizationRoadmapsGridSkeleton count={3} />
+      ) : filtered.length === 0 ? (
+        <div className="vs-surface rounded-md border border-dashed border-border px-6 py-14 text-center">
+          <p className="text-sm font-medium text-foreground">
+            {filter === "created-by-me"
+              ? "No roadmaps match this filter"
+              : "No team roadmaps yet"}
+          </p>
+          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+            {filter === "created-by-me"
+              ? "The API does not expose roadmap creators yet. Switch to All team roadmaps."
+              : "Assign the first learning path for your organization."}
+          </p>
+          {canCreate && filter !== "created-by-me" ? (
+            <Button asChild className="mt-6 gap-2" size="sm">
+              <Link href={createHref}>
+                <Plus className="h-4 w-4" />
+                Create roadmap
+              </Link>
+            </Button>
+          ) : null}
         </div>
       ) : (
         <div className="space-y-6">
           {filtered.map((roadmap) => {
             const createdByMe = isCreatedByUser(roadmap, userId);
+            const detailLoading = loadingDetailId === roadmap.id;
             return (
               <OrgRoadmapPathCard
                 key={roadmap.id}
@@ -214,12 +272,11 @@ export function OrgTeamRoadmapsView({
                     handleToggleResource(roadmap.id, mId, rId),
                 }}
                 isExpanded={expandedPathIds.includes(roadmap.id)}
-                onToggleExpand={handleToggleExpand}
+                onToggleExpand={handleExpand}
                 onViewDetails={(id) =>
-                  router.push(
-                    `/dashboard/organization/${orgId}/roadmaps/${id}`,
-                  )
+                  router.push(`/dashboard/organization/${orgId}/roadmaps/${id}`)
                 }
+                isDetailLoading={detailLoading}
                 showTeamEnrollment
                 canFork={!createdByMe}
                 onFork={handleFork}

@@ -1,8 +1,12 @@
 "use client";
 
-import { Briefcase, Clock, Mail, Send } from "lucide-react";
+import { Briefcase, Clock, Mail, Send, X } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { OrganizationInvitesListSkeleton } from "@/components/organization/OrganizationSkeletons";
 import type { SentOrganizationInvite } from "@/types/organization-sent-invite";
 import { cn } from "@/lib/utils";
+import { getApiErrorMessage } from "@/lib/auth-api";
 
 function emailInitial(email: string): string {
   const local = email.split("@")[0] ?? "?";
@@ -19,15 +23,47 @@ function formatSentDate(iso: string) {
 
 type PendingInvitationsSectionProps = {
   invites: SentOrganizationInvite[];
+  loading?: boolean;
+  error?: string | null;
+  cancellingId?: string | null;
+  onCancel?: (inviteId: string) => Promise<void>;
   className?: string;
 };
 
 export function PendingInvitationsSection({
   invites,
+  loading = false,
+  error = null,
+  cancellingId = null,
+  onCancel,
   className,
 }: PendingInvitationsSectionProps) {
+  if (loading) {
+    return (
+      <div className={cn("mb-10", className)}>
+        <OrganizationInvitesListSkeleton count={2} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <p className={cn("mb-6 text-sm text-destructive", className)}>{error}</p>
+    );
+  }
+
   if (invites.length === 0) {
     return null;
+  }
+
+  async function handleCancel(inviteId: string) {
+    if (!onCancel || cancellingId) return;
+    try {
+      await onCancel(inviteId);
+      toast.success("Invitation cancelled.");
+    } catch (err) {
+      toast.error(getApiErrorMessage(err));
+    }
   }
 
   return (
@@ -79,24 +115,34 @@ export function PendingInvitationsSection({
                       {invite.inviteeEmail}
                     </p>
                     <span className="vs-badge-warning text-[10px] font-semibold uppercase tracking-wide">
-                      Invited
+                      {invite.status}
                     </span>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-md bg-card px-2 py-1 text-xs font-medium text-foreground ring-1 ring-border">
-                      <Briefcase className="h-3 w-3 text-primary" aria-hidden />
-                      {invite.teamRole}
-                    </span>
-                    <span className="text-xs capitalize text-muted-foreground">
-                      {invite.accessRole} access
-                    </span>
-                  </div>
+                  <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Briefcase className="h-3 w-3" aria-hidden />
+                    Expires {formatSentDate(invite.expiresAt)}
+                  </p>
                 </div>
               </div>
-              <p className="flex shrink-0 items-center gap-1.5 pl-14 text-xs text-muted-foreground sm:pl-0">
-                <Clock className="h-3.5 w-3.5" aria-hidden />
-                Sent {formatSentDate(invite.sentAt)}
-              </p>
+              <div className="flex items-center gap-2 pl-14 sm:pl-0">
+                <p className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+                  <Clock className="h-3.5 w-3.5" aria-hidden />
+                  Sent {formatSentDate(invite.sentAt)}
+                </p>
+                {onCancel ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 gap-1 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    disabled={cancellingId === invite.id}
+                    onClick={() => void handleCancel(invite.id)}
+                  >
+                    <X className="h-3.5 w-3.5" />
+                    {cancellingId === invite.id ? "…" : "Cancel"}
+                  </Button>
+                ) : null}
+              </div>
             </div>
           </li>
         ))}

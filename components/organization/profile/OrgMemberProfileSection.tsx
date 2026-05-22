@@ -12,17 +12,25 @@ import {
 } from "@/lib/skill-tech-stack-utils";
 import type { OrganizationListItem } from "@/types/organization";
 import type { UserOrganizationContext } from "@/types/organization-profile";
-import { formatMemberRole } from "@/lib/organization-members-data";
+import { formatMemberRole } from "@/lib/organization-member-format";
 import { cn } from "@/lib/utils";
 
 type Props = {
   ctx: UserOrganizationContext;
   org: OrganizationListItem;
+  techStacks?: string[];
 };
 
-export function OrgMemberProfileSection({ ctx, org }: Props) {
+export function OrgMemberProfileSection({
+  ctx,
+  org,
+  techStacks: techStacksProp,
+}: Props) {
   const [techFilter, setTechFilter] = useState(ALL_TECH_FILTER);
-  const techStacks = useMemo(() => getOrgTechStacks(ctx.orgId), [ctx.orgId]);
+  const techStacks = useMemo(
+    () => getOrgTechStacks(techStacksProp),
+    [techStacksProp],
+  );
 
   const filteredBenchmarks = useMemo(
     () => filterBenchmarksByTechStack(ctx.skillBenchmarks, techFilter),

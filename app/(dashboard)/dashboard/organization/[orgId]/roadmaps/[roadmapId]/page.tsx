@@ -4,6 +4,7 @@ import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, GitFork, Users } from "lucide-react";
+import { toast } from "sonner";
 import { RoadmapDetailView } from "@/components/roadmap-view/RoadmapDetailView";
 import { RoadmapDetailPageSkeleton } from "@/components/learning-path/LearningPathSkeletons";
 import { ParticipantAvatars } from "@/components/organization/roadmaps/ParticipantAvatars";
@@ -16,23 +17,17 @@ import {
   forkOrganizationRoadmap,
   isPersonalFork,
 } from "@/lib/organization-roadmap-fork";
-import { MOCK_ORGANIZATIONS } from "@/lib/organizations-data";
-import { getOrganizationRoadmapById } from "@/lib/organization-roadmaps-storage";
+import { fetchOrganizationRoadmapDetail } from "@/lib/organization-roadmap-service";
+import { loadOrganizationRoadmapsForOrg } from "@/lib/organization-roadmaps-storage";
 import {
   getMyProgress,
   isCreatedByUser,
   resolveCurrentUserId,
 } from "@/lib/organization-roadmap-utils";
+import { useOrganization } from "@/hooks/useOrganization";
+import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
+import { getApiErrorMessage } from "@/lib/auth-api";
 import { useAppStore } from "@/store/useAppStore";
-import { toast } from "sonner";
-
-function nameFromSlug(slug: string): string {
-  return slug
-    .split("-")
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
 
 function toggleResourceInPath(
   path: LearningPath,
@@ -67,34 +62,71 @@ export default function OrganizationRoadmapDetailPage({
 }) {
   const { orgId, roadmapId } = use(params);
   const router = useRouter();
+  const { organization } = useOrganization(orgId);
+  const { members } = useOrganizationMembers(orgId);
   const authUser = useAppStore((s) => s.authData.user);
   const userId = resolveCurrentUserId(authUser?.id as string | undefined);
   const userName = authUser?.full_name?.trim() || "You";
 
-  const org = MOCK_ORGANIZATIONS.find((o) => o.id === orgId);
-  const orgName = org?.name ?? nameFromSlug(orgId);
+  const orgName = organization?.displayName ?? "Organization";
 
   const [source, setSource] = useState<OrganizationRoadmap | undefined>(
     undefined,
   );
   const [path, setPath] = useState<LearningPath | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const roadmap = getOrganizationRoadmapById(orgId, roadmapId);
-    setSource(roadmap);
-    if (!roadmap) {
-      setPath(null);
-      setLoading(false);
-      return;
-    }
-    const myProgress = getMyProgress(roadmap, userId);
-    setPath({
-      ...roadmap,
-      progress: myProgress,
-    });
-    setLoading(false);
-  }, [orgId, roadmapId, userId]);
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setError(null);
+
+      const localFork = loadOrganizationRoadmapsForOrg(orgId).find(
+        (r) => r.id === roadmapId && isPersonalFork(r),
+      );
+      if (localFork) {
+        if (!cancelled) {
+          setSource(localFork);
+          setPath({
+            ...localFork,
+            progress: getMyProgress(localFork, userId),
+          });
+          setLoading(false);
+        }
+        return;
+      }
+
+      try {
+        const roadmap = await fetchOrganizationRoadmapDetail(
+          orgId,
+          roadmapId,
+          members,
+        );
+        if (!cancelled) {
+          setSource(roadmap);
+          setPath({
+            ...roadmap,
+            progress: getMyProgress(roadmap, userId),
+          });
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(getApiErrorMessage(err));
+          setSource(undefined);
+          setPath(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [orgId, roadmapId, members, userId]);
 
   const handleToggleResource = useCallback(
     (moduleId: string, resourceId: string) => {
@@ -116,12 +148,12 @@ export default function OrganizationRoadmapDetailPage({
     );
   }
 
-  if (!path || !source) {
+  if (error || !path || !source) {
     return (
       <div className="mx-auto max-w-5xl px-4 py-16 text-center">
         <h1 className="text-h1 text-foreground">Roadmap not found</h1>
         <p className="mt-2 text-body text-muted-foreground">
-          This roadmap may have been removed or you may not have access.
+          {error ?? "This roadmap may have been removed or you may not have access."}
         </p>
         <Link
           href={`/dashboard/organization/${orgId}/roadmaps`}
@@ -135,7 +167,7 @@ export default function OrganizationRoadmapDetailPage({
 
   const createdByMe = isCreatedByUser(source, userId);
   const isFork = isPersonalFork(source);
-  const existingFork = !createdByMe
+  const existingFork = !createdByMe && !isFork
     ? findUserForkOfRoadmap(orgId, roadmapId, userId)
     : undefined;
 
@@ -147,7 +179,7 @@ export default function OrganizationRoadmapDetailPage({
       return;
     }
     const forked = forkOrganizationRoadmap(source, userId, userName);
-    toast.success("Fork created — it’s in My roadmaps under Created by me.");
+    toast.success("Fork created — it's in My roadmaps under Created by me.");
     router.push(`/dashboard/organization/${orgId}/roadmaps/${forked.id}`);
   };
 
@@ -180,11 +212,6 @@ export default function OrganizationRoadmapDetailPage({
                 {existingFork ? "View your fork" : "Fork for myself"}
               </Button>
             ) : null}
-            {createdByMe ? (
-              <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-                Created by you
-              </span>
-            ) : null}
           </div>
         </div>
       </div>
@@ -206,18 +233,17 @@ export default function OrganizationRoadmapDetailPage({
           </RoadmapInfoCallout>
         ) : (
           <RoadmapInfoCallout icon={Users} title="Organization roadmap">
-            You are viewing a shared roadmap inside <strong>{orgName}</strong>.
-            Progress below reflects your enrollment only.{" "}
-            {source.participants.length} member
-            {source.participants.length === 1 ? "" : "s"} are on this path.
+            Shared roadmap inside <strong>{orgName}</strong>. Progress reflects
+            your enrollment. {source.participants.length} member
+            {source.participants.length === 1 ? "" : "s"} on this path.
           </RoadmapInfoCallout>
         )}
 
-        {!isFork ? (
+        {!isFork && source.participants.length > 0 ? (
           <div className="flex flex-wrap items-center gap-4 px-1">
             <ParticipantAvatars participants={source.participants} max={6} />
             <p className="text-xs text-muted-foreground">
-              Teammates taking this roadmap
+              Teammates on this roadmap
             </p>
           </div>
         ) : null}

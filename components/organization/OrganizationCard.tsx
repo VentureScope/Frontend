@@ -33,16 +33,27 @@ function RoleBadge({ role }: { role: OrganizationListItem["role"] }) {
 }
 
 export function OrganizationCard({ org }: { org: OrganizationListItem }) {
+  const initials = org.name.slice(0, 2).toUpperCase();
+
   return (
     <article className="vs-surface flex flex-col rounded-md p-5 sm:p-6">
       <div className="mb-5 flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-3">
-          <div
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-border bg-muted text-xs font-bold text-muted-foreground"
-            aria-hidden
-          >
-            {org.name.slice(0, 2).toUpperCase()}
-          </div>
+          {org.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={org.logoUrl}
+              alt=""
+              className="h-12 w-12 shrink-0 rounded-md border border-border object-cover"
+            />
+          ) : (
+            <div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-border bg-muted text-xs font-bold text-muted-foreground"
+              aria-hidden
+            >
+              {initials}
+            </div>
+          )}
           <div className="min-w-0 space-y-2">
             <h2 className="truncate text-base font-semibold text-foreground">
               {org.name}
@@ -70,7 +81,7 @@ export function OrganizationCard({ org }: { org: OrganizationListItem }) {
         </div>
         <div className="rounded-md border border-border bg-muted/40 px-4 py-3">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-            Active Projects
+            Roadmaps
           </p>
           <p className="mt-1 text-2xl font-bold tabular-nums text-foreground">
             {formatCount(org.activeProjects)}

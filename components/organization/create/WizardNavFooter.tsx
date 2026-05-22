@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type WizardNavFooterProps = {
@@ -7,6 +7,7 @@ type WizardNavFooterProps = {
   showBack?: boolean;
   isLastStep?: boolean;
   nextDisabled?: boolean;
+  nextLoading?: boolean;
 };
 
 export function WizardNavFooter({
@@ -15,8 +16,13 @@ export function WizardNavFooter({
   showBack = true,
   isLastStep = false,
   nextDisabled = false,
+  nextLoading = false,
 }: WizardNavFooterProps) {
-  const label = isLastStep ? "Complete setup" : "Next";
+  const label = nextLoading
+    ? "Creating…"
+    : isLastStep
+      ? "Complete setup"
+      : "Next";
 
   return (
     <footer className="flex items-center justify-between gap-4 border-t border-border pt-6">
@@ -25,6 +31,7 @@ export function WizardNavFooter({
           type="button"
           variant="outline"
           onClick={onBack}
+          disabled={nextLoading}
           className="gap-2 font-semibold uppercase tracking-wide"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -40,7 +47,9 @@ export function WizardNavFooter({
         className="gap-2 px-6 font-semibold uppercase tracking-wide"
       >
         {label}
-        {isLastStep ? (
+        {nextLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : isLastStep ? (
           <Check className="h-4 w-4" />
         ) : (
           <ArrowRight className="h-4 w-4" />

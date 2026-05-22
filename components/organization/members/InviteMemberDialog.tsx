@@ -7,22 +7,10 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SelectField } from "@/components/ui/select-field";
 import {
-  sendOrganizationInvite,
+  sendOrganizationInviteApi,
   validateInviteEmail,
 } from "@/lib/organization-invite-service";
-import {
-  getTeamRoleSelectOptions,
-  TEAM_ROLE_OPTIONS,
-} from "@/lib/organization-team-roles";
-import type { OrganizationAccessRole } from "@/types/organization-invite";
-import { useAppStore } from "@/store/useAppStore";
-
-const ACCESS_ROLE_OPTIONS = [
-  { value: "member", label: "Member — participate in roadmaps" },
-  { value: "admin", label: "Admin — manage members & profile" },
-] as const;
 
 type InviteMemberDialogProps = {
   orgId: string;
@@ -39,18 +27,12 @@ export function InviteMemberDialog({
   onOpenChange,
   onSent,
 }: InviteMemberDialogProps) {
-  const authUser = useAppStore((s) => s.authData.user);
   const [email, setEmail] = useState("");
-  const [teamRole, setTeamRole] = useState<string>(TEAM_ROLE_OPTIONS[0]);
-  const [accessRole, setAccessRole] =
-    useState<OrganizationAccessRole>("member");
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
     if (!open) {
       setEmail("");
-      setTeamRole(TEAM_ROLE_OPTIONS[0]);
-      setAccessRole("member");
       setSending(false);
     }
   }, [open]);
@@ -60,7 +42,7 @@ export function InviteMemberDialog({
     onOpenChange(false);
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (sending) return;
 
@@ -70,14 +52,7 @@ export function InviteMemberDialog({
     }
 
     setSending(true);
-    const result = sendOrganizationInvite({
-      orgId,
-      inviteeEmail: email,
-      teamRole,
-      accessRole,
-      invitedBy: authUser?.full_name ?? "Organization admin",
-      invitedByEmail: authUser?.email ?? "admin@venturescope.dev",
-    });
+    const result = await sendOrganizationInviteApi(orgId, email);
     setSending(false);
 
     if (!result.ok) {
@@ -86,7 +61,7 @@ export function InviteMemberDialog({
     }
 
     toast.success("Invitation sent", {
-      description: `${email.trim()} was invited as ${teamRole}.`,
+      description: `${email.trim()} will receive an email to join ${orgName}.`,
     });
     onOpenChange(false);
     onSent?.();
@@ -120,7 +95,7 @@ export function InviteMemberDialog({
             <p className="mt-1 text-sm text-muted-foreground">
               Send an invitation to join{" "}
               <strong className="text-foreground">{orgName}</strong>. They&apos;ll
-              receive it at the email you enter.
+              receive an email with a link to accept.
             </p>
           </div>
           <button
@@ -134,7 +109,7 @@ export function InviteMemberDialog({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="invite-email">Email address</Label>
             <Input
@@ -147,27 +122,11 @@ export function InviteMemberDialog({
               disabled={sending}
               className="h-10 bg-card"
             />
+            <p className="text-xs text-muted-foreground">
+              Invitations are sent by email only. Role assignment happens when they
+              join.
+            </p>
           </div>
-
-          <SelectField
-            id="invite-team-role"
-            label="Team role"
-            value={teamRole}
-            onChange={setTeamRole}
-            options={getTeamRoleSelectOptions()}
-            disabled={sending}
-            hint="The role they'll have on the team (e.g. Frontend Engineer)."
-            listClassName="max-h-52"
-          />
-
-          <SelectField
-            id="invite-access"
-            label="Organization access"
-            value={accessRole}
-            onChange={(v) => setAccessRole(v as OrganizationAccessRole)}
-            options={[...ACCESS_ROLE_OPTIONS]}
-            disabled={sending}
-          />
 
           <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
             <Button
