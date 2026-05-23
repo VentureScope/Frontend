@@ -3,10 +3,12 @@ import { roadmapOutToLearningPath } from "@/lib/map-roadmap-to-learning-path";
 import { iconNameForTrend } from "@/lib/roadmap-utils";
 import type {
   MemberRoadmapProgressApi,
+  MyEnrollmentApi,
   OrgRoadmapListItemApi,
   OrgRoadmapOutApi,
 } from "@/types/organization-api";
 import type {
+  MyRoadmapEnrollment,
   OrganizationRoadmap,
   RoadmapParticipant,
 } from "@/types/organization-roadmap";
@@ -92,6 +94,39 @@ function focusLabel(trendName: string | null | undefined, title: string): string
   return title;
 }
 
+function parseMyEnrollmentApi(raw: unknown): MyEnrollmentApi | null {
+  const row = asRecord(raw);
+  if (!row || typeof row.enrolled !== "boolean") return null;
+  return {
+    enrolled: row.enrolled,
+    steps_completed: asNumber(row.steps_completed, 0),
+    total_steps: asNumber(row.total_steps, 0),
+    completion_percentage: asNumber(row.completion_percentage, 0),
+  };
+}
+
+function toMyRoadmapEnrollment(
+  api: MyEnrollmentApi | null | undefined,
+): MyRoadmapEnrollment | undefined {
+  if (!api) return undefined;
+  return {
+    enrolled: api.enrolled,
+    stepsCompleted: api.steps_completed ?? 0,
+    totalSteps: api.total_steps ?? 0,
+    completionPercentage: api.completion_percentage ?? 0,
+  };
+}
+
+function createdByFields(
+  createdByUserId: string | null | undefined,
+  createdByName: string | null | undefined,
+) {
+  return {
+    createdByUserId: createdByUserId?.trim() ?? "",
+    createdByName: createdByName?.trim() || "Organization",
+  };
+}
+
 export function parseOrgRoadmapListItemApi(
   raw: unknown,
 ): OrgRoadmapListItemApi | null {
@@ -120,6 +155,16 @@ export function parseOrgRoadmapListItemApi(
       row.aggregate_completion_percentage,
       0,
     ),
+    created_by_user_id:
+      row.created_by_user_id === null ||
+      typeof row.created_by_user_id === "string"
+        ? (row.created_by_user_id as string | null)
+        : undefined,
+    created_by_name:
+      row.created_by_name === null || typeof row.created_by_name === "string"
+        ? (row.created_by_name as string | null)
+        : undefined,
+    my_enrollment: parseMyEnrollmentApi(row.my_enrollment),
   };
 }
 
@@ -180,6 +225,16 @@ export function parseOrgRoadmapOutApi(raw: unknown): OrgRoadmapOutApi | null {
       0,
     ),
     per_member_progress,
+    created_by_user_id:
+      row.created_by_user_id === null ||
+      typeof row.created_by_user_id === "string"
+        ? (row.created_by_user_id as string | null)
+        : undefined,
+    created_by_name:
+      row.created_by_name === null || typeof row.created_by_name === "string"
+        ? (row.created_by_name as string | null)
+        : undefined,
+    my_enrollment: parseMyEnrollmentApi(row.my_enrollment),
   };
 }
 
@@ -193,6 +248,12 @@ export function orgRoadmapListItemToOrganizationRoadmap(
     members.length > 0
       ? participantsFromMembers(members)
       : [];
+
+  const createdBy = createdByFields(
+    item.created_by_user_id,
+    item.created_by_name,
+  );
+  const myEnrollment = toMyRoadmapEnrollment(item.my_enrollment);
 
   return {
     id: item.id,
@@ -210,8 +271,8 @@ export function orgRoadmapListItemToOrganizationRoadmap(
     trendName: item.trend_name ?? null,
     totalWeeks: item.total_weeks,
     totalMembers: item.total_members,
-    createdByUserId: "",
-    createdByName: "Organization",
+    ...createdBy,
+    myEnrollment,
     participants,
   };
 }
@@ -247,6 +308,12 @@ export function mergeOrgRoadmapWithContent(
       ? participantsFromProgress(progressRows, lookup)
       : participantsFromMembers(members);
 
+  const createdBy = createdByFields(
+    orgRoadmap.created_by_user_id,
+    orgRoadmap.created_by_name,
+  );
+  const myEnrollment = toMyRoadmapEnrollment(orgRoadmap.my_enrollment);
+
   const merged: OrganizationRoadmap = {
     ...base,
     id: orgRoadmap.id,
@@ -266,8 +333,8 @@ export function mergeOrgRoadmapWithContent(
     summary: orgRoadmap.summary ?? content.summary ?? null,
     totalWeeks: orgRoadmap.total_weeks ?? content.total_weeks,
     totalMembers: orgRoadmap.total_members,
-    createdByUserId: "",
-    createdByName: "Organization",
+    ...createdBy,
+    myEnrollment,
     participants,
   };
 

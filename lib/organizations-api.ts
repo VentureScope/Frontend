@@ -1,6 +1,10 @@
 import api from "@/lib/api";
 import type {
   AcceptInviteRequestApi,
+  DeclineInviteRequestApi,
+  InvitePreviewOutApi,
+  MemberRoleUpdateApi,
+  MyInviteOutApi,
   OrgChatSessionCreateApi,
   OrgChatSessionOutApi,
   OrgChatSessionUpdateApi,
@@ -52,6 +56,10 @@ export async function updateOrganization(
   return res.data;
 }
 
+export async function deleteOrganization(orgId: string): Promise<void> {
+  await api.delete(`/api/organizations/${orgId}`);
+}
+
 export async function deleteOrganizationLogo(orgId: string): Promise<void> {
   await api.delete(`/api/organizations/${orgId}/logo`);
 }
@@ -70,6 +78,18 @@ export async function removeOrganizationMember(
   userId: string,
 ): Promise<void> {
   await api.delete(`/api/organizations/${orgId}/members/${userId}`);
+}
+
+export async function updateOrganizationMemberRole(
+  orgId: string,
+  userId: string,
+  payload: MemberRoleUpdateApi,
+): Promise<OrgMemberOutApi> {
+  const res = await api.patch<OrgMemberOutApi>(
+    `/api/organizations/${orgId}/members/${userId}`,
+    payload,
+  );
+  return res.data;
 }
 
 export async function leaveOrganization(orgId: string): Promise<void> {
@@ -103,6 +123,33 @@ export async function cancelOrganizationInvite(
   await api.delete(`/api/organizations/${orgId}/invites/${inviteId}`);
 }
 
+export async function resendOrganizationInvite(
+  orgId: string,
+  inviteId: string,
+): Promise<OrgInviteOutApi> {
+  const res = await api.post<OrgInviteOutApi>(
+    `/api/organizations/${orgId}/invites/${inviteId}/resend`,
+  );
+  return res.data;
+}
+
+export async function listMyOrganizationInvites(): Promise<MyInviteOutApi[]> {
+  const res = await api.get<MyInviteOutApi[]>(
+    "/api/organizations/invites/my-invites",
+  );
+  return res.data;
+}
+
+export async function previewOrganizationInvite(
+  token: string,
+): Promise<InvitePreviewOutApi> {
+  const res = await api.get<InvitePreviewOutApi>(
+    "/api/organizations/invites/preview",
+    { params: { token } },
+  );
+  return res.data;
+}
+
 export async function acceptOrganizationInvite(
   payload: AcceptInviteRequestApi,
 ): Promise<OrganizationOutApi> {
@@ -111,6 +158,12 @@ export async function acceptOrganizationInvite(
     payload,
   );
   return res.data;
+}
+
+export async function declineOrganizationInvite(
+  payload: DeclineInviteRequestApi,
+): Promise<void> {
+  await api.post("/api/organizations/invites/decline", payload);
 }
 
 export async function listOrganizationRoadmaps(
@@ -150,6 +203,26 @@ export async function removeOrganizationRoadmap(
   await api.delete(
     `/api/organizations/${orgId}/roadmaps/${orgRoadmapId}`,
   );
+}
+
+export async function enrollOrganizationRoadmap(
+  orgId: string,
+  orgRoadmapId: string,
+): Promise<void> {
+  await api.post(
+    `/api/organizations/${orgId}/roadmaps/${orgRoadmapId}/enroll`,
+  );
+}
+
+/** Fork a team roadmap into a personal copy (API response schema is open). */
+export async function forkOrganizationRoadmapApi(
+  orgId: string,
+  orgRoadmapId: string,
+): Promise<OrgRoadmapOutApi> {
+  const res = await api.post<OrgRoadmapOutApi>(
+    `/api/organizations/${orgId}/roadmaps/${orgRoadmapId}/fork`,
+  );
+  return res.data;
 }
 
 export async function listOrganizationChatSessions(

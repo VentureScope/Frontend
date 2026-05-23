@@ -130,6 +130,7 @@ export function parseOrganizationListItemApi(
         ? (row.industry as string | null)
         : undefined,
     member_count: asNumber(row.member_count, 0),
+    pending_invites_count: asNumber(row.pending_invites_count, 0),
   };
 }
 
@@ -227,6 +228,42 @@ export function parseOrganizationOutApi(
         : undefined,
     github_orgs: asGithubOrgs(row.github_orgs),
     github_repos: asGithubRepos(row.github_repos),
+    tech_stacks: asStringArray(row.tech_stacks),
+    twitter_url:
+      row.twitter_url === null || typeof row.twitter_url === "string"
+        ? (row.twitter_url as string | null)
+        : undefined,
+    headquarters:
+      row.headquarters === null || typeof row.headquarters === "string"
+        ? (row.headquarters as string | null)
+        : undefined,
+    founded_year:
+      row.founded_year === null || typeof row.founded_year === "number"
+        ? (row.founded_year as number | null)
+        : undefined,
+    company_size:
+      row.company_size === null || typeof row.company_size === "string"
+        ? (row.company_size as string | null)
+        : undefined,
+    contact_email:
+      row.contact_email === null || typeof row.contact_email === "string"
+        ? (row.contact_email as string | null)
+        : undefined,
+    contact_phone:
+      row.contact_phone === null || typeof row.contact_phone === "string"
+        ? (row.contact_phone as string | null)
+        : undefined,
+    mission_statement:
+      row.mission_statement === null ||
+      typeof row.mission_statement === "string"
+        ? (row.mission_statement as string | null)
+        : undefined,
+    products: Array.isArray(row.products)
+      ? (row.products as OrganizationOutApi["products"])
+      : null,
+    custom_fields: Array.isArray(row.custom_fields)
+      ? (row.custom_fields as OrganizationOutApi["custom_fields"])
+      : null,
     member_count: asNumber(row.member_count, 0),
     members: Array.isArray(row.members)
       ? (row.members as OrganizationOutApi["members"])

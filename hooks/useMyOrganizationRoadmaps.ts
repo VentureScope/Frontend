@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getApiErrorMessage } from "@/lib/auth-api";
-import { isPersonalFork } from "@/lib/organization-roadmap-fork";
+import { attachForkMetadata } from "@/lib/organization-roadmap-fork";
 import { parseOrganizationRoadmapList } from "@/lib/organization-roadmap-parsers";
-import { loadOrganizationRoadmaps } from "@/lib/organization-roadmaps-storage";
 import {
   listMyOrganizations,
   listOrganizationRoadmaps,
@@ -16,7 +15,6 @@ import type { OrganizationRoadmap } from "@/types/organization-roadmap";
 export function useMyOrganizationRoadmaps() {
   const { organizations, loading: orgsLoading } = useOrganizationsList();
   const [apiRoadmaps, setApiRoadmaps] = useState<OrganizationRoadmap[]>([]);
-  const [forkVersion, setForkVersion] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,7 +39,6 @@ export function useMyOrganizationRoadmaps() {
       );
 
       setApiRoadmaps(lists.flat());
-      setForkVersion((v) => v + 1);
     } catch (err) {
       setError(getApiErrorMessage(err));
       setApiRoadmaps([]);
@@ -56,18 +53,10 @@ export function useMyOrganizationRoadmaps() {
     }
   }, [reload, orgsLoading]);
 
-  const roadmaps = useMemo(() => {
-    void forkVersion;
-    const forks = loadOrganizationRoadmaps().filter(isPersonalFork);
-    const byId = new Map<string, OrganizationRoadmap>();
-    for (const r of apiRoadmaps) {
-      byId.set(`${r.orgId}:${r.id}`, r);
-    }
-    for (const r of forks) {
-      byId.set(`${r.orgId}:${r.id}`, r);
-    }
-    return Array.from(byId.values());
-  }, [apiRoadmaps, forkVersion]);
+  const roadmaps = useMemo(
+    () => apiRoadmaps.map(attachForkMetadata),
+    [apiRoadmaps],
+  );
 
   return {
     roadmaps,
@@ -75,6 +64,5 @@ export function useMyOrganizationRoadmaps() {
     loading: loading || orgsLoading,
     error,
     reload,
-    refreshForks: () => setForkVersion((v) => v + 1),
   };
 }

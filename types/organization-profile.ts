@@ -68,6 +68,8 @@ export interface OrganizationMember {
   skills: string[];
   profilePictureUrl?: string | null;
   githubUsername?: string;
+  roadmapsEnrolled?: number;
+  roadmapsCreated?: number;
   isCurrentUser?: boolean;
 }
 

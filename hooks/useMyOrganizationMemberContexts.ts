@@ -41,8 +41,8 @@ function memberToContext(
     role: member.role,
     jobTitle: member.jobTitle || "Team member",
     memberSince: member.joinedAt,
-    roadmapsEnrolled: 0,
-    roadmapsCreated: 0,
+    roadmapsEnrolled: member.roadmapsEnrolled ?? 0,
+    roadmapsCreated: member.roadmapsCreated ?? 0,
     peerGroupLabel: member.jobTitle || "Team member",
     strengthSummary: skills.length
       ? `Your declared skills in this org: ${skills.join(", ")}.`

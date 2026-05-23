@@ -19,10 +19,13 @@ import { OrganizationPageHeader } from "@/components/organization/OrganizationPa
 import { OrganizationRoadmapsGridSkeleton } from "@/components/organization/OrganizationSkeletons";
 import { Button } from "@/components/ui/button";
 import { useOrganization } from "@/hooks/useOrganization";
+import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
 import { useOrganizationRoadmaps } from "@/hooks/useOrganizationRoadmaps";
-import { forkOrganizationRoadmap } from "@/lib/organization-roadmap-fork";
-import { isPersonalFork } from "@/lib/organization-roadmap-fork";
-import { loadOrganizationRoadmapsForOrg } from "@/lib/organization-roadmaps-storage";
+import {
+  buildUserForkMapFromRoadmaps,
+  forkOrganizationRoadmap,
+  isPersonalFork,
+} from "@/lib/organization-roadmap-fork";
 import {
   filterOrgTeamRoadmaps,
   getMyProgress,
@@ -56,6 +59,7 @@ function getIcon(iconName: string) {
 export function OrgTeamRoadmapsView({ orgId }: { orgId: string }) {
   const router = useRouter();
   const { organization, loading: orgLoading } = useOrganization(orgId);
+  const { members } = useOrganizationMembers(orgId);
   const {
     roadmaps,
     loading,
@@ -72,7 +76,7 @@ export function OrgTeamRoadmapsView({ orgId }: { orgId: string }) {
 
   const orgName = organization?.displayName ?? "Organization";
   const [filter, setFilter] = useState<OrgTeamRoadmapsFilter>("all");
-  const [forkIndexVersion, setForkIndexVersion] = useState(0);
+  const [forkingId, setForkingId] = useState<string | null>(null);
 
   const { paths, setPaths, expandedPathIds, handleToggleExpand, handleToggleResource } =
     useOrgRoadmapListState<OrganizationRoadmap>([]);
@@ -88,16 +92,10 @@ export function OrgTeamRoadmapsView({ orgId }: { orgId: string }) {
 
   const createHref = `/dashboard/organization/${orgId}/roadmaps/new`;
 
-  const userForkBySource = useMemo(() => {
-    void forkIndexVersion;
-    const map = new Map<string, string>();
-    for (const r of loadOrganizationRoadmapsForOrg(orgId)) {
-      if (r.createdByUserId === userId && r.forkedFrom) {
-        map.set(r.forkedFrom.roadmapId, r.id);
-      }
-    }
-    return map;
-  }, [orgId, userId, forkIndexVersion]);
+  const userForkBySource = useMemo(
+    () => buildUserForkMapFromRoadmaps(orgId, paths, userId),
+    [orgId, paths, userId],
+  );
 
   const handleExpand = useCallback(
     async (roadmapId: string) => {
@@ -129,23 +127,37 @@ export function OrgTeamRoadmapsView({ orgId }: { orgId: string }) {
 
   const handleFork = useCallback(
     (sourceId: string) => {
-      const existingId = userForkBySource.get(sourceId);
-      if (existingId) {
-        router.push(`/dashboard/organization/${orgId}/roadmaps/${existingId}`);
-        return;
-      }
+      void (async () => {
+        const existingId = userForkBySource.get(sourceId);
+        if (existingId) {
+          router.push(`/dashboard/organization/${orgId}/roadmaps/${existingId}`);
+          return;
+        }
 
-      const source = paths.find((r) => r.id === sourceId);
-      if (!source || isPersonalFork(source)) {
-        return;
-      }
+        const source = paths.find((r) => r.id === sourceId);
+        if (!source || isPersonalFork(source)) {
+          return;
+        }
 
-      const forked = forkOrganizationRoadmap(source, userId, userName);
-      setForkIndexVersion((v) => v + 1);
-      toast.success("Fork created — it's in My roadmaps under Created by me.");
-      router.push(`/dashboard/organization/${orgId}/roadmaps/${forked.id}`);
+        setForkingId(sourceId);
+        try {
+          const forked = await forkOrganizationRoadmap(
+            orgId,
+            source,
+            userId,
+            userName,
+            members,
+          );
+          toast.success("Fork created — it's in My roadmaps under Created by me.");
+          router.push(`/dashboard/organization/${orgId}/roadmaps/${forked.id}`);
+        } catch (err) {
+          toast.error(getApiErrorMessage(err));
+        } finally {
+          setForkingId(null);
+        }
+      })();
     },
-    [orgId, router, userForkBySource, userId, userName, paths],
+    [orgId, router, userForkBySource, userId, userName, paths, members],
   );
 
   const filtered = useMemo(

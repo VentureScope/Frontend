@@ -2,38 +2,7 @@
 
 import { useCallback, useState } from "react";
 import type { LearningPath } from "@/app/(dashboard)/dashboard/learning-path/mockData";
-
-function toggleResourceInPaths(
-  paths: LearningPath[],
-  pathId: string,
-  moduleId: string,
-  resourceId: string,
-): LearningPath[] {
-  return paths.map((path) => {
-    if (path.id !== pathId) {
-      return path;
-    }
-    return {
-      ...path,
-      modules: path.modules.map((module) => {
-        if (module.id !== moduleId) {
-          return module;
-        }
-        return {
-          ...module,
-          resources: module.resources.map((resource) => {
-            if (resource.id !== resourceId) {
-              return resource;
-            }
-            const newStatus =
-              resource.status === "completed" ? "in-progress" : "completed";
-            return { ...resource, status: newStatus };
-          }),
-        };
-      }),
-    };
-  });
-}
+import { toggleResourceWithSyncOnPaths } from "@/lib/roadmap-progress-sync";
 
 export function useOrgRoadmapListState<T extends LearningPath>(
   initial: T[],
@@ -50,9 +19,7 @@ export function useOrgRoadmapListState<T extends LearningPath>(
 
   const handleToggleResource = useCallback(
     (pathId: string, moduleId: string, resourceId: string) => {
-      setPaths((prev) =>
-        toggleResourceInPaths(prev, pathId, moduleId, resourceId) as T[],
-      );
+      toggleResourceWithSyncOnPaths(setPaths, pathId, moduleId, resourceId);
     },
     [],
   );

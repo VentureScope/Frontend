@@ -52,7 +52,8 @@ export function MyOrganizationMemberProfileView() {
         Skill distribution is shown as a pie chart—each slice is your relative
         strength in a skill for the selected tech stack. Use organization and
         tech stack filters to focus on one company&apos;s context at a time.
-        Roadmap counts will appear when enrollment data is available from the API.
+        Roadmap enrollment and creation counts come from your member profile in
+        each organization.
       </RoadmapInfoCallout>
 
       <OrganizationOrgFilter

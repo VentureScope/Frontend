@@ -1,5 +1,7 @@
 import api from "@/lib/api";
 import type {
+  ResourceToggleRequest,
+  ResourceToggleOut,
   RoadmapGenerateRequest,
   RoadmapListItem,
   RoadmapOut,
@@ -24,12 +26,24 @@ export async function generateRoadmap(
   return res.data;
 }
 
+/** @deprecated Use `toggleRoadmapResource` */
 export async function updateStepProgress(
   stepId: string,
   body: StepProgressUpdate,
 ): Promise<StepProgressUpdateOut> {
   const res = await api.patch<StepProgressUpdateOut>(
     `/api/roadmaps/steps/${stepId}/progress`,
+    body,
+  );
+  return res.data;
+}
+
+export async function toggleRoadmapResource(
+  resourceId: string,
+  body: ResourceToggleRequest,
+): Promise<ResourceToggleOut> {
+  const res = await api.post<ResourceToggleOut>(
+    `/api/roadmaps/resources/${resourceId}/toggle`,
     body,
   );
   return res.data;

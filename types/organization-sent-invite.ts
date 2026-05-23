@@ -3,6 +3,7 @@ export type SentOrganizationInvite = {
   id: string;
   orgId: string;
   inviteeEmail: string;
+  teamRole: string | null;
   sentAt: string;
   status: string;
   expiresAt: string;

@@ -24,6 +24,7 @@ export function canEditOrganizationProfile(role: OrganizationRole): boolean {
   return role === "owner";
 }
 
-export function canAssignRoadmaps(role: OrganizationRole): boolean {
-  return role === "owner";
+/** Any org member may create team roadmaps (`POST …/roadmaps`). */
+export function canAssignRoadmaps(_role: OrganizationRole): boolean {
+  return true;
 }

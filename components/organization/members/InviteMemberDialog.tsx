@@ -28,11 +28,13 @@ export function InviteMemberDialog({
   onSent,
 }: InviteMemberDialogProps) {
   const [email, setEmail] = useState("");
+  const [teamRole, setTeamRole] = useState("");
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
     if (!open) {
       setEmail("");
+      setTeamRole("");
       setSending(false);
     }
   }, [open]);
@@ -52,7 +54,7 @@ export function InviteMemberDialog({
     }
 
     setSending(true);
-    const result = await sendOrganizationInviteApi(orgId, email);
+    const result = await sendOrganizationInviteApi(orgId, email, teamRole);
     setSending(false);
 
     if (!result.ok) {
@@ -122,9 +124,21 @@ export function InviteMemberDialog({
               disabled={sending}
               className="h-10 bg-card"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="invite-team-role">Team role (optional)</Label>
+            <Input
+              id="invite-team-role"
+              placeholder="e.g. Frontend Engineer"
+              value={teamRole}
+              onChange={(e) => setTeamRole(e.target.value)}
+              disabled={sending}
+              className="h-10 bg-card"
+            />
             <p className="text-xs text-muted-foreground">
-              Invitations are sent by email only. Role assignment happens when they
-              join.
+              Job title shown to the invitee — separate from admin/member access
+              after they join.
             </p>
           </div>
 

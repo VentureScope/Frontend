@@ -16,6 +16,15 @@ function asString(value: unknown, fallback = ""): string {
   return fallback;
 }
 
+function asNumber(value: unknown, fallback = 0): number {
+  if (typeof value === "number" && !Number.isNaN(value)) return value;
+  if (typeof value === "string") {
+    const n = Number(value);
+    return Number.isNaN(n) ? fallback : n;
+  }
+  return fallback;
+}
+
 function initialsFromName(name: string): string {
   const trimmed = name.trim();
   if (!trimmed) return "??";
@@ -51,6 +60,10 @@ export function parseOrgMemberOutApi(raw: unknown): OrgMemberOutApi | null {
       typeof row.profile_picture_url === "string"
         ? (row.profile_picture_url as string | null)
         : undefined,
+    job_title:
+      row.job_title === null || typeof row.job_title === "string"
+        ? (row.job_title as string | null)
+        : undefined,
     skills: Array.isArray(row.skills)
       ? row.skills.map((s) => asString(s)).filter(Boolean)
       : null,
@@ -58,6 +71,12 @@ export function parseOrgMemberOutApi(raw: unknown): OrgMemberOutApi | null {
       row.career_interest === null || typeof row.career_interest === "string"
         ? (row.career_interest as string | null)
         : undefined,
+    github_username:
+      row.github_username === null || typeof row.github_username === "string"
+        ? (row.github_username as string | null)
+        : undefined,
+    roadmaps_enrolled: asNumber(row.roadmaps_enrolled, 0),
+    roadmaps_created: asNumber(row.roadmaps_created, 0),
   };
 }
 
@@ -78,6 +97,7 @@ export function toOrganizationMember(
     email: api.email,
     role: parsedRole,
     jobTitle:
+      api.job_title?.trim() ||
       api.career_interest?.trim() ||
       (parsedRole === "owner"
         ? "Organization owner"
@@ -88,6 +108,9 @@ export function toOrganizationMember(
     joinedAt: api.joined_at,
     skills: api.skills ?? [],
     profilePictureUrl: api.profile_picture_url ?? null,
+    githubUsername: api.github_username ?? undefined,
+    roadmapsEnrolled: api.roadmaps_enrolled ?? 0,
+    roadmapsCreated: api.roadmaps_created ?? 0,
     isCurrentUser: Boolean(
       (currentUserId && api.user_id === currentUserId) ||
         (currentUserEmail &&
@@ -141,6 +164,10 @@ export function parseOrgInviteOutApi(raw: unknown): OrgInviteOutApi | null {
     status,
     expires_at,
     created_at,
+    team_role:
+      row.team_role === null || typeof row.team_role === "string"
+        ? (row.team_role as string | null)
+        : undefined,
   };
 }
 
@@ -152,6 +179,7 @@ export function toSentOrganizationInvite(
     id: api.id,
     orgId,
     inviteeEmail: api.email,
+    teamRole: api.team_role ?? null,
     sentAt: api.created_at,
     status: api.status,
     expiresAt: api.expires_at,

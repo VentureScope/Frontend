@@ -54,7 +54,7 @@ export function useOrganizationRoadmaps(orgId: string) {
     async (orgRoadmapId: string) => {
       setLoadingDetailId(orgRoadmapId);
       try {
-        const detail = await fetchOrganizationRoadmapDetail(
+        const { roadmap: detail } = await fetchOrganizationRoadmapDetail(
           orgId,
           orgRoadmapId,
           members,

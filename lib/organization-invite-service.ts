@@ -18,8 +18,10 @@ export type SendInviteResult =
 export async function sendOrganizationInviteApi(
   orgId: string,
   email: string,
+  teamRole?: string | null,
 ): Promise<SendInviteResult> {
   const normalized = email.trim().toLowerCase();
+  const role = teamRole?.trim() || null;
 
   if (!normalized) {
     return { ok: false, error: "Email is required." };
@@ -38,7 +40,10 @@ export async function sendOrganizationInviteApi(
       };
     }
 
-    const invite = await sendInviteApi(orgId, { email: normalized });
+    const invite = await sendInviteApi(orgId, {
+      email: normalized,
+      team_role: role,
+    });
     return { ok: true, inviteId: invite.id };
   } catch (err) {
     return { ok: false, error: getApiErrorMessage(err) };

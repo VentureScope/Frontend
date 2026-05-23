@@ -6,6 +6,7 @@ import { parseOrganizationInvites } from "@/lib/organization-member-parsers";
 import {
   cancelOrganizationInvite,
   listOrganizationInvites,
+  resendOrganizationInvite,
 } from "@/lib/organizations-api";
 import type { SentOrganizationInvite } from "@/types/organization-sent-invite";
 
@@ -14,6 +15,7 @@ export function useOrganizationInvites(orgId: string, enabled = true) {
   const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [resendingId, setResendingId] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
     if (!orgId || !enabled) {
@@ -55,12 +57,26 @@ export function useOrganizationInvites(orgId: string, enabled = true) {
     [orgId],
   );
 
+  const resendInvite = useCallback(
+    async (inviteId: string) => {
+      setResendingId(inviteId);
+      try {
+        await resendOrganizationInvite(orgId, inviteId);
+      } finally {
+        setResendingId(null);
+      }
+    },
+    [orgId],
+  );
+
   return {
     invites,
     loading,
     error,
     cancellingId,
+    resendingId,
     reload,
     cancelInvite,
+    resendInvite,
   };
 }

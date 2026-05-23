@@ -32,7 +32,9 @@ export function OrgMembersView({ orgId }: Props) {
     loading: invitesLoading,
     error: invitesError,
     cancellingId,
+    resendingId,
     cancelInvite,
+    resendInvite,
     reload: reloadInvites,
   } = useOrganizationInvites(orgId, canInvite);
 
@@ -86,8 +88,12 @@ export function OrgMembersView({ orgId }: Props) {
           loading={invitesLoading}
           error={invitesError}
           cancellingId={cancellingId}
+          resendingId={resendingId}
           onCancel={async (inviteId) => {
             await cancelInvite(inviteId);
+          }}
+          onResend={async (inviteId) => {
+            await resendInvite(inviteId);
           }}
         />
       ) : null}

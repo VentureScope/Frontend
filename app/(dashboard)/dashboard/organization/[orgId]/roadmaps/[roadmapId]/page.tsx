@@ -13,12 +13,17 @@ import { Button } from "@/components/ui/button";
 import type { LearningPath } from "@/app/(dashboard)/dashboard/learning-path/mockData";
 import type { OrganizationRoadmap } from "@/types/organization-roadmap";
 import {
+  attachForkMetadata,
+  buildUserForkMapFromRoadmaps,
+  clearForkReferences,
   findUserForkOfRoadmap,
   forkOrganizationRoadmap,
   isPersonalFork,
 } from "@/lib/organization-roadmap-fork";
-import { fetchOrganizationRoadmapDetail } from "@/lib/organization-roadmap-service";
-import { loadOrganizationRoadmapsForOrg } from "@/lib/organization-roadmaps-storage";
+import {
+  fetchOrganizationRoadmapDetail,
+  isOrgRoadmapNotFoundError,
+} from "@/lib/organization-roadmap-service";
 import {
   getMyProgress,
   isCreatedByUser,
@@ -27,33 +32,8 @@ import {
 import { useOrganization } from "@/hooks/useOrganization";
 import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
 import { getApiErrorMessage } from "@/lib/auth-api";
+import { toggleResourceWithSync } from "@/lib/roadmap-progress-sync";
 import { useAppStore } from "@/store/useAppStore";
-
-function toggleResourceInPath(
-  path: LearningPath,
-  moduleId: string,
-  resourceId: string,
-): LearningPath {
-  return {
-    ...path,
-    modules: path.modules.map((module) => {
-      if (module.id !== moduleId) {
-        return module;
-      }
-      return {
-        ...module,
-        resources: module.resources.map((resource) => {
-          if (resource.id !== resourceId) {
-            return resource;
-          }
-          const newStatus =
-            resource.status === "completed" ? "in-progress" : "completed";
-          return { ...resource, status: newStatus };
-        }),
-      };
-    }),
-  };
-}
 
 export default function OrganizationRoadmapDetailPage({
   params,
@@ -76,6 +56,7 @@ export default function OrganizationRoadmapDetailPage({
   const [path, setPath] = useState<LearningPath | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [forking, setForking] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -83,40 +64,33 @@ export default function OrganizationRoadmapDetailPage({
       setLoading(true);
       setError(null);
 
-      const localFork = loadOrganizationRoadmapsForOrg(orgId).find(
-        (r) => r.id === roadmapId && isPersonalFork(r),
-      );
-      if (localFork) {
-        if (!cancelled) {
-          setSource(localFork);
-          setPath({
-            ...localFork,
-            progress: getMyProgress(localFork, userId),
-          });
-          setLoading(false);
-        }
-        return;
-      }
-
       try {
-        const roadmap = await fetchOrganizationRoadmapDetail(
-          orgId,
-          roadmapId,
-          members,
-        );
-        if (!cancelled) {
-          setSource(roadmap);
-          setPath({
-            ...roadmap,
-            progress: getMyProgress(roadmap, userId),
-          });
+        const { roadmap, resolvedOrgRoadmapId } =
+          await fetchOrganizationRoadmapDetail(orgId, roadmapId, members);
+
+        if (cancelled) return;
+
+        if (resolvedOrgRoadmapId !== roadmapId) {
+          router.replace(
+            `/dashboard/organization/${orgId}/roadmaps/${resolvedOrgRoadmapId}`,
+          );
+          return;
         }
+
+        const withMeta = attachForkMetadata(roadmap);
+        setSource(withMeta);
+        setPath({
+          ...withMeta,
+          progress: getMyProgress(withMeta, userId),
+        });
       } catch (err) {
-        if (!cancelled) {
-          setError(getApiErrorMessage(err));
-          setSource(undefined);
-          setPath(null);
+        if (cancelled) return;
+        if (isOrgRoadmapNotFoundError(err)) {
+          clearForkReferences(orgId, roadmapId);
         }
+        setError(getApiErrorMessage(err));
+        setSource(undefined);
+        setPath(null);
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -126,16 +100,11 @@ export default function OrganizationRoadmapDetailPage({
     return () => {
       cancelled = true;
     };
-  }, [orgId, roadmapId, members, userId]);
+  }, [orgId, roadmapId, members, userId, router]);
 
   const handleToggleResource = useCallback(
     (moduleId: string, resourceId: string) => {
-      setPath((prev) => {
-        if (!prev) {
-          return prev;
-        }
-        return toggleResourceInPath(prev, moduleId, resourceId);
-      });
+      toggleResourceWithSync(setPath, moduleId, resourceId);
     },
     [],
   );
@@ -153,7 +122,12 @@ export default function OrganizationRoadmapDetailPage({
       <div className="mx-auto max-w-5xl px-4 py-16 text-center">
         <h1 className="text-h1 text-foreground">Roadmap not found</h1>
         <p className="mt-2 text-body text-muted-foreground">
-          {error ?? "This roadmap may have been removed or you may not have access."}
+          {error ??
+            "This roadmap may have been removed, or the link uses an outdated id."}
+        </p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Open the roadmap from the team list if you forked it earlier — stale
+          browser links are cleared automatically.
         </p>
         <Link
           href={`/dashboard/organization/${orgId}/roadmaps`}
@@ -167,20 +141,35 @@ export default function OrganizationRoadmapDetailPage({
 
   const createdByMe = isCreatedByUser(source, userId);
   const isFork = isPersonalFork(source);
-  const existingFork = !createdByMe && !isFork
-    ? findUserForkOfRoadmap(orgId, roadmapId, userId)
+  const existingForkId = !createdByMe && !isFork
+    ? findUserForkOfRoadmap(orgId, roadmapId, userId, [])
     : undefined;
 
   const handleFork = () => {
-    if (existingFork) {
-      router.push(
-        `/dashboard/organization/${orgId}/roadmaps/${existingFork.id}`,
-      );
-      return;
-    }
-    const forked = forkOrganizationRoadmap(source, userId, userName);
-    toast.success("Fork created — it's in My roadmaps under Created by me.");
-    router.push(`/dashboard/organization/${orgId}/roadmaps/${forked.id}`);
+    void (async () => {
+      if (existingForkId) {
+        router.push(
+          `/dashboard/organization/${orgId}/roadmaps/${existingForkId}`,
+        );
+        return;
+      }
+      setForking(true);
+      try {
+        const forked = await forkOrganizationRoadmap(
+          orgId,
+          source,
+          userId,
+          userName,
+          members,
+        );
+        toast.success("Fork created — it's in My roadmaps under Created by me.");
+        router.push(`/dashboard/organization/${orgId}/roadmaps/${forked.id}`);
+      } catch (err) {
+        toast.error(getApiErrorMessage(err));
+      } finally {
+        setForking(false);
+      }
+    })();
   };
 
   const backHref = isFork
@@ -206,10 +195,15 @@ export default function OrganizationRoadmapDetailPage({
                 size="sm"
                 variant="outline"
                 className="gap-1.5"
+                disabled={forking}
                 onClick={handleFork}
               >
                 <GitFork className="h-3.5 w-3.5" />
-                {existingFork ? "View your fork" : "Fork for myself"}
+                {existingForkId
+                  ? "View your fork"
+                  : forking
+                    ? "Forking…"
+                    : "Fork for myself"}
               </Button>
             ) : null}
           </div>

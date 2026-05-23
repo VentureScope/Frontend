@@ -15,6 +15,14 @@ export interface OrgRoadmapForkSource {
   createdByName: string;
 }
 
+/** Current user's enrollment on a team roadmap (from API `my_enrollment`). */
+export interface MyRoadmapEnrollment {
+  enrolled: boolean;
+  stepsCompleted: number;
+  totalSteps: number;
+  completionPercentage: number;
+}
+
 /** Roadmap shared within an organization workspace */
 export interface OrganizationRoadmap extends LearningPath {
   orgId: string;
@@ -23,6 +31,8 @@ export interface OrganizationRoadmap extends LearningPath {
   createdByUserId: string;
   createdByName: string;
   participants: RoadmapParticipant[];
+  /** Current user's enrollment/progress when returned by the API. */
+  myEnrollment?: MyRoadmapEnrollment;
   /** Members assigned to this org roadmap (from API `total_members`). */
   totalMembers?: number;
   /** Company practice area id (e.g. frontend, backend) */

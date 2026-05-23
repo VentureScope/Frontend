@@ -482,37 +482,6 @@ export function OrgCompanyProfileView({ orgId }: Props) {
         </section>
 
         <section className="vs-surface space-y-4 rounded-md p-6 opacity-80">
-          <h2 className="text-sm font-semibold text-foreground">
-            Additional company information
-          </h2>
-          <FieldDescription>
-            These fields are not stored on the server yet.
-          </FieldDescription>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {(
-              [
-                { key: "headquarters" as const, label: "Headquarters" },
-                { key: "foundedYear" as const, label: "Founded" },
-                { key: "companySize" as const, label: "Company size" },
-                { key: "contactEmail" as const, label: "Contact email" },
-                { key: "contactPhone" as const, label: "Contact phone" },
-              ] as const
-            ).map(({ key, label }) => (
-              <Field key={key}>
-                <FieldLabel>{label}</FieldLabel>
-                <p className="text-sm text-foreground">{data[key] || "—"}</p>
-              </Field>
-            ))}
-          </div>
-          <Field>
-            <FieldLabel>Mission statement</FieldLabel>
-            <p className="text-sm text-muted-foreground">
-              {data.missionStatement || "—"}
-            </p>
-          </Field>
-        </section>
-
-        <section className="vs-surface space-y-4 rounded-md p-6 opacity-80">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-sm font-semibold text-foreground">
               Custom fields

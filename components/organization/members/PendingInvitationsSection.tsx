@@ -26,7 +26,9 @@ type PendingInvitationsSectionProps = {
   loading?: boolean;
   error?: string | null;
   cancellingId?: string | null;
+  resendingId?: string | null;
   onCancel?: (inviteId: string) => Promise<void>;
+  onResend?: (inviteId: string) => Promise<void>;
   className?: string;
 };
 
@@ -35,7 +37,9 @@ export function PendingInvitationsSection({
   loading = false,
   error = null,
   cancellingId = null,
+  resendingId = null,
   onCancel,
+  onResend,
   className,
 }: PendingInvitationsSectionProps) {
   if (loading) {
@@ -61,6 +65,16 @@ export function PendingInvitationsSection({
     try {
       await onCancel(inviteId);
       toast.success("Invitation cancelled.");
+    } catch (err) {
+      toast.error(getApiErrorMessage(err));
+    }
+  }
+
+  async function handleResend(inviteId: string) {
+    if (!onResend || resendingId) return;
+    try {
+      await onResend(inviteId);
+      toast.success("Invitation resent.");
     } catch (err) {
       toast.error(getApiErrorMessage(err));
     }
@@ -120,8 +134,15 @@ export function PendingInvitationsSection({
                   </div>
                   <p className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Briefcase className="h-3 w-3" aria-hidden />
-                    Expires {formatSentDate(invite.expiresAt)}
+                    {invite.teamRole
+                      ? invite.teamRole
+                      : `Expires ${formatSentDate(invite.expiresAt)}`}
                   </p>
+                  {invite.teamRole ? (
+                    <p className="text-xs text-muted-foreground">
+                      Expires {formatSentDate(invite.expiresAt)}
+                    </p>
+                  ) : null}
                 </div>
               </div>
               <div className="flex items-center gap-2 pl-14 sm:pl-0">
@@ -129,6 +150,19 @@ export function PendingInvitationsSection({
                   <Clock className="h-3.5 w-3.5" aria-hidden />
                   Sent {formatSentDate(invite.sentAt)}
                 </p>
+                {onResend ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-8 gap-1"
+                    disabled={resendingId === invite.id || cancellingId === invite.id}
+                    onClick={() => void handleResend(invite.id)}
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                    {resendingId === invite.id ? "…" : "Resend"}
+                  </Button>
+                ) : null}
                 {onCancel ? (
                   <Button
                     type="button"

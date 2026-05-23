@@ -1,25 +1,42 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { getApiErrorMessage } from "@/lib/auth-api";
+import { parseMyOrganizationInvites } from "@/lib/organization-invite-parsers";
+import { listMyOrganizationInvites } from "@/lib/organizations-api";
+import type { PendingOrganizationInvite } from "@/types/organization-pending-invite";
 
-/** Invitee pending list is not available in the API; count stays 0 until backend adds it. */
 export function usePendingInvites() {
+  const [invites, setInvites] = useState<PendingOrganizationInvite[]>([]);
   const [ready, setReady] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const refresh = useCallback(() => {
-    setReady(true);
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await listMyOrganizationInvites();
+      setInvites(parseMyOrganizationInvites(data));
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+      setInvites([]);
+    } finally {
+      setLoading(false);
+      setReady(true);
+    }
   }, []);
 
   useEffect(() => {
-    refresh();
+    void refresh();
   }, [refresh]);
 
   return {
-    invites: [] as never[],
-    count: 0,
+    invites,
+    count: invites.length,
     ready,
+    loading,
+    error,
     refresh,
-    removeInvite: () => [],
-    resetInvites: () => {},
   };
 }
