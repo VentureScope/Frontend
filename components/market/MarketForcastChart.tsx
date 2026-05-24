@@ -32,7 +32,13 @@ const MarketForecastChartView = dynamic(
   },
 );
 
-export default function MarketForecastChart() {
+type MarketForecastChartProps = {
+  periodDays?: number;
+};
+
+export default function MarketForecastChart({
+  periodDays = 90,
+}: MarketForecastChartProps) {
   const careerInterest = useAppStore(
     (s) => s.authData.user?.career_interest ?? null,
   );
@@ -49,7 +55,7 @@ export default function MarketForecastChart() {
     setError(null);
     try {
       const [trending, matches] = await Promise.all([
-        getTrendingCareers({ limit: 12, period: 30 }),
+        getTrendingCareers({ limit: 12, period: periodDays }),
         getJobProfileMatches({ limit: 1 }).catch(() => []),
       ]);
       const names = trending.map((t) => t.name).filter(Boolean);
@@ -73,7 +79,7 @@ export default function MarketForecastChart() {
     } finally {
       setLoadingRoles(false);
     }
-  }, [careerInterest]);
+  }, [careerInterest, periodDays]);
 
   const loadForecasts = useCallback(async (role: string) => {
     if (!role) {

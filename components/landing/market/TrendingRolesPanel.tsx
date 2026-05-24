@@ -18,6 +18,7 @@ export function TrendingRolesPanel({
   showInsight = true,
   title = "Trending careers",
   embedded = false,
+  lookbackPhrase = "the last 3 months",
 }: {
   careers: TrendingCareer[];
   loading: boolean;
@@ -28,6 +29,8 @@ export function TrendingRolesPanel({
   title?: string;
   /** When true, omit outer card chrome (parent provides surface). */
   embedded?: boolean;
+  /** e.g. "the last 6 months" — matches analytics period selector */
+  lookbackPhrase?: string;
 }) {
   const topCareers = careers.slice(0, limit);
   const insight = showInsight ? trendingInsight(topCareers) : null;
@@ -55,7 +58,7 @@ export function TrendingRolesPanel({
         </h2>
         {!compact && (
           <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
-            Top {limit} roles by hiring volume in the last 30 days.
+            Top {limit} roles by hiring volume in {lookbackPhrase}.
           </p>
         )}
         {insight && !loading && (

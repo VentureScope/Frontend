@@ -14,8 +14,11 @@ import { MarketStatsPanel } from "@/components/landing/market/MarketStatsPanel";
 import { SkillDemandPanel } from "@/components/landing/market/SkillDemandPanel";
 import { TrendingRolesPanel } from "@/components/landing/market/TrendingRolesPanel";
 import { MARKET_TOP_K, trendingInsight } from "@/lib/job-market-insights";
+import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
+import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
 
 export function AboutMarketInsights() {
+  const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
   const [skills, setSkills] = useState<InDemandSkill[]>([]);
   const [stats, setStats] = useState<JobStats | null>(null);
   const [trending, setTrending] = useState<TrendingCareer[]>([]);
@@ -26,9 +29,9 @@ export function AboutMarketInsights() {
     (async () => {
       try {
         const [sk, st, tr] = await Promise.all([
-          getInDemandSkills({ limit: 5 }),
-          getJobStats(),
-          getTrendingCareers({ limit: 4, period: 30 }),
+          getInDemandSkills({ limit: 5, period: days }),
+          getJobStats({ period: days }),
+          getTrendingCareers({ limit: 4, period: days }),
         ]);
         if (!cancelled) {
           setSkills(sk);
@@ -46,7 +49,7 @@ export function AboutMarketInsights() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [days]);
 
   const trendNote = trendingInsight(trending);
 
@@ -70,15 +73,18 @@ export function AboutMarketInsights() {
             </p>
           )}
         </div>
-        <Button
-          asChild
-          variant="outline"
-          className="rounded-full border-border text-primary font-bold shrink-0"
-        >
-          <Link href="/market-insight">
-            Full market report <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-        </Button>
+        <div className="flex flex-col gap-3 sm:items-end">
+          <MarketAnalyticsPeriodSelect disabled={loading} compact />
+          <Button
+            asChild
+            variant="outline"
+            className="rounded-full border-border text-primary font-bold shrink-0"
+          >
+            <Link href="/market-insight">
+              Full market report <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <div className="mb-8">
@@ -94,7 +100,11 @@ export function AboutMarketInsights() {
             title="Top skills in demand"
           />
         </div>
-        <TrendingRolesPanel careers={trending} loading={loading} />
+        <TrendingRolesPanel
+          careers={trending}
+          loading={loading}
+          lookbackPhrase={lookbackPhrase}
+        />
       </div>
     </section>
   );

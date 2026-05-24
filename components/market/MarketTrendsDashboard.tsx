@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import MarketForecastChart from "@/components/market/MarketForcastChart";
+import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
 import InDemandSkills from "@/components/market/InDemandSkills";
 import JobListingsStat from "@/components/market/JobListingsStat";
 import TopHiringCompanies from "@/components/market/TopHiringCompanies";
 import EmergingTrends from "@/components/market/EmergingTrends";
 import IntelligenceLayerSummary from "@/components/market/IntelligenceLayerSummary";
 import { TrendingRolesPanel } from "@/components/landing/market/TrendingRolesPanel";
+import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
 import {
   getInDemandSkills,
   getJobStats,
@@ -31,6 +33,7 @@ import type {
 } from "@/types/jobs";
 
 export default function MarketTrendsDashboard() {
+  const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
   const [stats, setStats] = useState<JobStats | null>(null);
   const [skills, setSkills] = useState<InDemandSkill[]>([]);
   const [trending, setTrending] = useState<TrendingCareer[]>([]);
@@ -46,9 +49,9 @@ export default function MarketTrendsDashboard() {
       setError(null);
       try {
         const [st, sk, tr] = await Promise.all([
-          getJobStats(),
-          getInDemandSkills({ limit: MARKET_TOP_K.skills }),
-          getTrendingCareers({ limit: 8, period: 30 }),
+          getJobStats({ period: days }),
+          getInDemandSkills({ limit: MARKET_TOP_K.skills, period: days }),
+          getTrendingCareers({ limit: 8, period: days }),
         ]);
         if (!cancelled) {
           setStats(st);
@@ -108,11 +111,11 @@ export default function MarketTrendsDashboard() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [days]);
 
   const emergingTrends = useMemo(
-    () => buildEmergingTrendItems(trending, skills, 2),
-    [trending, skills],
+    () => buildEmergingTrendItems(trending, skills, 2, lookbackPhrase),
+    [trending, skills, lookbackPhrase],
   );
 
   const intelligenceInsight = useMemo(() => {
@@ -127,19 +130,22 @@ export default function MarketTrendsDashboard() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
-      <header className="space-y-2">
-        <p className="text-label text-primary">Career intelligence</p>
-        <h1 className="text-h1 text-foreground">Market Trends & Forecasting</h1>
-        <p className="max-w-2xl text-body text-muted-foreground">
-          Real-time career intelligence and AI-driven posting forecasts for
-          Ethiopia&apos;s tech ecosystem.
-        </p>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-2">
+          <p className="text-label text-primary">Career intelligence</p>
+          <h1 className="text-h1 text-foreground">Market Trends & Forecasting</h1>
+          <p className="max-w-2xl text-body text-muted-foreground">
+            Real-time career intelligence and AI-driven posting forecasts for
+            Ethiopia&apos;s tech ecosystem.
+          </p>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+        </div>
+        <MarketAnalyticsPeriodSelect disabled={loading} compact />
       </header>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
         <div className="space-y-6 lg:col-span-8">
-          <MarketForecastChart />
+          <MarketForecastChart periodDays={days} />
 
           <div className="vs-surface overflow-hidden p-6 sm:p-8">
             <TrendingRolesPanel
@@ -149,6 +155,7 @@ export default function MarketTrendsDashboard() {
               title="Trending roles"
               embedded
               showInsight
+              lookbackPhrase={lookbackPhrase}
             />
           </div>
 

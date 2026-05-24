@@ -17,6 +17,7 @@ import {
 } from "@/lib/job-market-insights";
 import type { TrendingCareer } from "@/types/jobs";
 import { NewRoadmapRolesSkeleton } from "@/components/learning-path/LearningPathSkeletons";
+import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
 import { toast } from "sonner";
 
 const ICONS = ["Cpu", "Share2", "Shield", "BarChart2"] as const;
@@ -36,6 +37,7 @@ type RoadmapRoleRow = {
 function mapTrendingToRoles(
   careers: TrendingCareer[],
   variant: "current" | "future" = "current",
+  lookbackPhrase = "the last 3 months",
 ): RoadmapRoleRow[] {
   return careers.map((c, i) => {
     const growth = c.growth_pct ?? 0;
@@ -44,7 +46,7 @@ function mapTrendingToRoles(
     const trendDetail =
       variant === "future"
         ? `${growthText.label} in forecast window`
-        : `${growthText.label} vs prior 30 days`;
+        : `${growthText.label} vs ${lookbackPhrase}`;
     const context =
       c.company_count > 0
         ? `${formatCompactNumber(c.company_count)} employers in market data`
@@ -69,6 +71,7 @@ function mapTrendingToRoles(
 
 export default function NewRoadmapPage() {
   const router = useRouter();
+  const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
   const [currentRoles, setCurrentRoles] = useState<RoadmapRoleRow[]>([]);
   const [futureRoles, setFutureRoles] = useState<RoadmapRoleRow[]>([]);
   const [selectedRoleId, setSelectedRoleId] = useState<string>("");
@@ -81,8 +84,8 @@ export default function NewRoadmapPage() {
     (async () => {
       setLoadingTrends(true);
       const [currentResult, futureResult] = await Promise.allSettled([
-        getCurrentTrendingRoles({ limit: 12, period: 30 }),
-        getFutureTrendingRolesForRoadmap({ limit: 12 }),
+        getCurrentTrendingRoles({ limit: 12, period: days }),
+        getFutureTrendingRolesForRoadmap({ limit: 12, period: days }),
       ]);
 
       if (cancelled) {
@@ -94,7 +97,11 @@ export default function NewRoadmapPage() {
       const futureCareers =
         futureResult.status === "fulfilled" ? futureResult.value : [];
 
-      const mappedCurrent = mapTrendingToRoles(currentCareers, "current");
+      const mappedCurrent = mapTrendingToRoles(
+        currentCareers,
+        "current",
+        lookbackPhrase,
+      );
       const mappedFuture = mapTrendingToRoles(futureCareers, "future");
       setCurrentRoles(mappedCurrent);
       setFutureRoles(mappedFuture);
@@ -119,7 +126,7 @@ export default function NewRoadmapPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [days, lookbackPhrase]);
 
   const displayedRoles =
     activeTab === "current" ? currentRoles : futureRoles;

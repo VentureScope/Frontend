@@ -23,12 +23,14 @@ export function SkillDemandPanel({
   title = "Top skills in demand",
   compact = false,
   limit = MARKET_TOP_K.skills,
+  showInsight = true,
 }: {
   skills: InDemandSkill[];
   loading: boolean;
   title?: string;
   compact?: boolean;
   limit?: number;
+  showInsight?: boolean;
 }) {
   const topSkills = skills.slice(0, limit);
   const bars = normalizeSkillDemand(topSkills);
@@ -57,7 +59,7 @@ export function SkillDemandPanel({
             Top {limit} skills by relative demand in indexed postings.
           </p>
         )}
-        {insight && !loading && (
+        {showInsight && insight && !loading && (
           <p className="mt-3 border-l border-border pl-3 text-sm leading-relaxed text-muted-foreground">
             {insight}
           </p>

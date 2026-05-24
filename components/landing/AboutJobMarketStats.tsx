@@ -5,8 +5,10 @@ import { Building2, Briefcase } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getJobStats } from "@/lib/jobs-api";
 import { formatCompactNumber } from "@/lib/job-market-insights";
+import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
 
 export function AboutJobMarketStats() {
+  const { days } = useMarketAnalyticsPeriod();
   const [stats, setStats] = useState<{
     total_jobs: number;
     unique_companies: number;
@@ -18,7 +20,7 @@ export function AboutJobMarketStats() {
     let cancelled = false;
     (async () => {
       try {
-        const s = await getJobStats();
+        const s = await getJobStats({ period: days });
         if (!cancelled) {
           setStats(s);
         }
@@ -35,7 +37,7 @@ export function AboutJobMarketStats() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [days]);
 
   return (
     <div className="absolute -bottom-4 -left-2 sm:-bottom-5 sm:-left-5 rounded-xl sm:rounded-lg bg-card p-4 sm:p-6 shadow-xl border border-border max-w-[11rem] sm:max-w-xs">

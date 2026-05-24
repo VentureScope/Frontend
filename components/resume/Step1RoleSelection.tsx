@@ -5,6 +5,7 @@ import { Search, TrendingUp, X, Loader2 } from "lucide-react";
 import { useResumeBuilderStore } from "@/store/useResumeBuilderStore";
 import type { Role } from "@/app/(dashboard)/dashboard/resume-builder/mockData";
 import { getTrendingCareers } from "@/lib/jobs-api";
+import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
 import type { TrendingCareer } from "@/types/jobs";
 import { toast } from "sonner";
 
@@ -36,6 +37,7 @@ function careerToRole(c: TrendingCareer, i: number): Role {
 }
 
 export default function Step1RoleSelection() {
+  const { days } = useMarketAnalyticsPeriod();
   const [searchQuery, setSearchQuery] = useState("");
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +48,7 @@ export default function Step1RoleSelection() {
     (async () => {
       setLoading(true);
       try {
-        const careers = await getTrendingCareers({ limit: 24, period: 30 });
+        const careers = await getTrendingCareers({ limit: 24, period: days });
         if (!cancelled) {
           setRoles(careers.map(careerToRole));
         }
@@ -63,7 +65,7 @@ export default function Step1RoleSelection() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [days]);
 
   const filteredRoles = roles.filter(
     (role) =>

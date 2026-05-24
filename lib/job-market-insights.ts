@@ -133,6 +133,7 @@ export function buildEmergingTrendItems(
   careers: TrendingCareer[],
   skills: InDemandSkill[],
   limit = 2,
+  lookbackPhrase = "the last 3 months",
 ): EmergingTrendItem[] {
   const items: EmergingTrendItem[] = [];
   const usedTitles = new Set<string>();
@@ -147,7 +148,7 @@ export function buildEmergingTrendItems(
     items.push({
       id: `role-${role.name}`,
       title: role.name,
-      description: `${growth.label} in the last 30 days · ${formatCompactNumber(role.job_count)} openings across ${formatCompactNumber(role.company_count)} employers.`,
+      description: `${growth.label} in ${lookbackPhrase} · ${formatCompactNumber(role.job_count)} openings across ${formatCompactNumber(role.company_count)} employers.`,
       kind: "role",
     });
     usedTitles.add(role.name.toLowerCase());
