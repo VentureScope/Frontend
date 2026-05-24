@@ -6,6 +6,11 @@ import { NewResumeHeader } from "@/components/resume/NewResumeHeader";
 import { RoleSelectionList } from "@/components/new-roadmap/RoleSelectionList";
 import { getCurrentTrendingRoles } from "@/lib/jobs-api";
 import { generateResume } from "@/lib/resume-api";
+import {
+  formatCompactNumber,
+  formatGrowthLabel,
+  formatRoadmapRoleMetric,
+} from "@/lib/job-market-insights";
 import type { TrendingCareer } from "@/types/jobs";
 import { NewRoadmapRolesSkeleton } from "@/components/learning-path/LearningPathSkeletons";
 import { toast } from "sonner";
@@ -18,7 +23,8 @@ type ResumeRoleRow = {
   title: string;
   badge: string;
   badgeType: "high-demand" | "steady-growth";
-  count: string;
+  metricValue: string;
+  metricLabel: string;
   iconName: string;
   description: string;
   targetRole: string;
@@ -28,14 +34,22 @@ function mapTrendingToRoles(careers: TrendingCareer[]): ResumeRoleRow[] {
   return careers.map((c, i) => {
     const growth = c.growth_pct ?? 0;
     const high = growth >= 8 || c.job_count > 5000;
+    const growthText = formatGrowthLabel(c.growth_pct);
+    const metric = formatRoadmapRoleMetric(c, "current");
+    const context =
+      c.company_count > 0
+        ? `${formatCompactNumber(c.company_count)} employers in market data`
+        : "Indexed market listings";
+
     return {
       id: `trend-${i}-${encodeURIComponent(c.name)}`,
       title: c.name,
-      badge: high ? "HIGH DEMAND" : "STEADY GROWTH",
+      badge: high ? "STRONG SIGNAL" : "EMERGING",
       badgeType: high ? "high-demand" : "steady-growth",
-      count: `${c.job_count.toLocaleString()}+`,
+      metricValue: metric.value,
+      metricLabel: metric.label,
       iconName: ICONS[i % ICONS.length],
-      description: `${c.company_count.toLocaleString()} companies tracked · ${growth > 0 ? `+${growth.toFixed(0)}%` : "stable"} vs baseline`,
+      description: `${context} · ${growthText.label} vs prior 30 days`,
       targetRole: c.name,
     };
   });

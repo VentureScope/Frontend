@@ -447,29 +447,25 @@ export default function SettingsPage() {
                     onSubmit={form.handleSubmit(onProfileSubmit)}
                   >
                     <Field>
-                      <FieldLabel className="w-full">
-                        <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-                          Full Name
-                        </FieldTitle>
-                        <Input
-                          {...form.register("fullName")}
-                          className="h-14 rounded-lg bg-muted border-none font-bold px-6 text-foreground"
-                        />
-                      </FieldLabel>
+                      <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                        Full Name
+                      </FieldTitle>
+                      <Input
+                        {...form.register("fullName")}
+                        className="h-14 rounded-lg bg-muted border-none font-bold px-6 text-foreground"
+                      />
                       <FieldError errors={[form.formState.errors.fullName]} />
                     </Field>
 
                     <Field>
-                      <FieldLabel className="w-full">
-                        <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-                          Email
-                        </FieldTitle>
-                        <Input
-                          value={displayUser?.email ?? ""}
-                          readOnly
-                          className="h-14 cursor-not-allowed rounded-lg border-none bg-muted/80 font-bold px-6 text-muted-foreground"
-                        />
-                      </FieldLabel>
+                      <FieldTitle className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                        Email
+                      </FieldTitle>
+                      <Input
+                        value={displayUser?.email ?? ""}
+                        readOnly
+                        className="h-14 cursor-not-allowed rounded-lg border-none bg-muted/80 font-bold px-6 text-muted-foreground"
+                      />
                       <p className="mt-1 text-xs text-muted-foreground">
                         Email is managed by your sign-in provider and cannot be changed here.
                       </p>

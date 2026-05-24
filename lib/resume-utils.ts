@@ -85,23 +85,64 @@ export function formatResumeSubtitle(api: GeneratedResumeOut): string {
   return parts.join(" · ");
 }
 
-export function aggregateResumeAnalytics(resumes: GeneratedResumeOut[]) {
+/** Client-side completeness score — not a job-application match from the API. */
+export const RESUME_COMPLETENESS_LABEL = "Completeness";
+
+/**
+ * Summary stats for the resume list sidebar (derived from saved `GET /api/resume` data).
+ */
+export function buildResumePortfolioSummary(resumes: GeneratedResumeOut[]) {
   if (resumes.length === 0) {
     return null;
   }
 
   const scores = resumes.map(computeResumeMatchScore);
-  const avgMatch = Math.round(
+  const avgCompleteness = Math.round(
     scores.reduce((a, b) => a + b, 0) / scores.length,
   );
   const withWarnings = resumes.filter((r) => (r.warnings?.length ?? 0) > 0)
     .length;
+  const roles = [
+    ...new Set(resumes.map((r) => r.target_role.trim()).filter(Boolean)),
+  ];
   const totalSkills = resumes.reduce((n, r) => n + countResumeSkills(r), 0);
+  const totalExperience = resumes.reduce(
+    (n, r) => n + (r.experience?.length ?? 0),
+    0,
+  );
+
+  let strongestTitle = resumes[0].target_role;
+  let strongestScore = scores[0] ?? 0;
+  for (let i = 1; i < resumes.length; i++) {
+    if ((scores[i] ?? 0) > strongestScore) {
+      strongestScore = scores[i] ?? 0;
+      strongestTitle = resumes[i].target_role;
+    }
+  }
 
   return {
     count: resumes.length,
-    avgMatch,
+    avgCompleteness,
     withWarnings,
+    uniqueRoles: roles.length,
+    roleExamples: roles.slice(0, 3),
     avgSkillsPerResume: Math.round(totalSkills / resumes.length),
+    totalExperienceEntries: totalExperience,
+    strongestTitle,
+    strongestScore,
+  };
+}
+
+/** @deprecated Use {@link buildResumePortfolioSummary} */
+export function aggregateResumeAnalytics(resumes: GeneratedResumeOut[]) {
+  const summary = buildResumePortfolioSummary(resumes);
+  if (!summary) {
+    return null;
+  }
+  return {
+    count: summary.count,
+    avgMatch: summary.avgCompleteness,
+    withWarnings: summary.withWarnings,
+    avgSkillsPerResume: summary.avgSkillsPerResume,
   };
 }

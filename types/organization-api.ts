@@ -199,7 +199,9 @@ export interface MyEnrollmentApi {
 
 export interface OrgRoadmapAssignApi {
   trend_name: string;
-  goal?: string | null;
+  goal: string;
+  /** When true, generation includes current market trending roles in context. */
+  use_market_trends: boolean;
 }
 
 export interface OrgRoadmapListItemApi {

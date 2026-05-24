@@ -7,9 +7,11 @@ import { useAppStore } from "@/store/useAppStore";
 
 export default function WelcomeHeader({
   readinessScore,
+  readinessLevel,
   loading,
 }: {
   readinessScore: number;
+  readinessLevel?: string | null;
   loading?: boolean;
 }) {
   const user = useAppStore((state) => state.authData.user);
@@ -39,14 +41,16 @@ export default function WelcomeHeader({
       </div>
 
       <Link
-        href="/dashboard/market-trends"
+        href="/dashboard/profile"
         className="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-md border border-primary/25 bg-primary/8 text-center transition-colors hover:border-primary/40 sm:h-28 sm:w-28"
-        title="View market trends and profile matches"
+        title="View career readiness breakdown"
       >
         <span className="text-4xl font-semibold text-primary sm:text-5xl">
           {readinessScore > 0 ? readinessScore : "—"}
         </span>
-        <span className="text-label mt-1 text-muted-foreground">Readiness</span>
+        <span className="text-label mt-1 text-muted-foreground">
+          {readinessLevel ?? "Readiness"}
+        </span>
       </Link>
     </div>
   );

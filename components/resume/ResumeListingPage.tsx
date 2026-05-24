@@ -1,61 +1,66 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Search, MoreVertical } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Search, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ResumeListSkeleton } from "@/components/resume/ResumeSkeletons";
-import { listResumes } from "@/lib/resume-api";
+import { ResumePortfolioSummary } from "@/components/resume/ResumePortfolioSummary";
+import { deleteResume, listResumes } from "@/lib/resume-api";
+import { getApiErrorMessage } from "@/lib/auth-api";
 import { generatedResumeToListingResume } from "@/lib/map-generated-resume-to-ui";
-import { aggregateResumeAnalytics } from "@/lib/resume-utils";
+import { RESUME_COMPLETENESS_LABEL } from "@/lib/resume-utils";
 import type { Resume } from "@/app/(dashboard)/dashboard/resume-builder/mockData";
 import type { GeneratedResumeOut } from "@/types/generated-resume";
 import { toast } from "sonner";
 
 export default function ResumeListingPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<"my-resumes" | "analytics">(
-    "my-resumes",
-  );
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [rawResumes, setRawResumes] = useState<GeneratedResumeOut[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      try {
-        const list = await listResumes();
-        if (!cancelled) {
-          setRawResumes(list);
-          setResumes(list.map(generatedResumeToListingResume));
-        }
-      } catch {
-        if (!cancelled) {
-          toast.error("Could not load resumes.");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+  const loadResumes = useCallback(async () => {
+    setLoading(true);
+    try {
+      const list = await listResumes();
+      setRawResumes(list);
+      setResumes(list.map(generatedResumeToListingResume));
+    } catch {
+      toast.error("Could not load resumes.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void loadResumes();
+  }, [loadResumes]);
+
+  const handleDelete = async (id: string, title: string) => {
+    if (
+      !window.confirm(`Delete “${title}” permanently? This cannot be undone.`)
+    ) {
+      return;
+    }
+    setDeletingId(id);
+    try {
+      await deleteResume(id);
+      toast.success("Resume deleted.");
+      await loadResumes();
+    } catch (err) {
+      toast.error(getApiErrorMessage(err));
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const filteredResumes = resumes.filter(
     (resume) =>
       resume.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       resume.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
       resume.content.summary.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-
-  const analytics = useMemo(
-    () => aggregateResumeAnalytics(rawResumes),
-    [rawResumes],
   );
 
   return (
@@ -103,72 +108,15 @@ export default function ResumeListingPage() {
             </div>
           </div>
 
-          <div className="mt-6 flex gap-6 border-b border-border">
-            <button
-              type="button"
-              onClick={() => setActiveTab("my-resumes")}
-              className={`pb-3 text-sm font-semibold transition-colors ${
-                activeTab === "my-resumes"
-                  ? "border-b-2 border-primary text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              My Resumes ({resumes.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("analytics")}
-              className={`pb-3 text-sm font-semibold transition-colors ${
-                activeTab === "analytics"
-                  ? "border-b-2 border-primary text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Analytics
-            </button>
-          </div>
+          {resumes.length > 0 ? (
+            <p className="mt-4 text-sm text-muted-foreground">
+              {resumes.length} saved resume{resumes.length === 1 ? "" : "s"}
+            </p>
+          ) : null}
 
-          <div className="mt-8 space-y-6">
+          <div className="mt-6 space-y-6">
             {loading ? (
               <ResumeListSkeleton />
-            ) : activeTab === "analytics" ? (
-              <div className="vs-band max-w-lg rounded-lg p-6">
-                <h3 className="font-semibold">Portfolio analytics</h3>
-                {analytics ? (
-                  <dl className="mt-4 space-y-3 text-sm">
-                    <div className="flex justify-between gap-4">
-                      <dt className="text-muted-foreground">Resumes</dt>
-                      <dd className="font-semibold">{analytics.count}</dd>
-                    </div>
-                    <div className="flex justify-between gap-4">
-                      <dt className="text-muted-foreground">Avg match score</dt>
-                      <dd className="font-semibold text-primary">
-                        {analytics.avgMatch}%
-                      </dd>
-                    </div>
-                    <div className="flex justify-between gap-4">
-                      <dt className="text-muted-foreground">
-                        Avg skills per resume
-                      </dt>
-                      <dd className="font-semibold">
-                        {analytics.avgSkillsPerResume}
-                      </dd>
-                    </div>
-                    <div className="flex justify-between gap-4">
-                      <dt className="text-muted-foreground">
-                        With profile gaps
-                      </dt>
-                      <dd className="font-semibold">
-                        {analytics.withWarnings}
-                      </dd>
-                    </div>
-                  </dl>
-                ) : (
-                  <p className="vs-band-muted mt-2 text-sm">
-                    Generate a resume to see analytics.
-                  </p>
-                )}
-              </div>
             ) : (
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <div className="space-y-6 lg:col-span-2">
@@ -184,7 +132,7 @@ export default function ResumeListingPage() {
                               {resume.matchScore}%
                             </p>
                             <p className="text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                              Match
+                              {RESUME_COMPLETENESS_LABEL}
                             </p>
                             <p className="text-center text-[10px] text-muted-foreground">
                               ATS {resume.atsStatus}
@@ -230,10 +178,14 @@ export default function ResumeListingPage() {
                             </div>
                             <button
                               type="button"
-                              className="rounded p-1.5 transition-colors hover:bg-muted"
-                              aria-label="More options"
+                              className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                              aria-label={`Delete ${resume.title}`}
+                              disabled={deletingId === resume.id}
+                              onClick={() =>
+                                void handleDelete(resume.id, resume.title)
+                              }
                             >
-                              <MoreVertical className="h-5 w-5 text-muted-foreground" />
+                              <Trash2 className="h-5 w-5" />
                             </button>
                           </div>
 
@@ -245,20 +197,9 @@ export default function ResumeListingPage() {
                                   `/dashboard/resume-builder/${resume.id}`,
                                 )
                               }
-                              className="flex-1 rounded-md border border-primary/25 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/5"
-                            >
-                              View
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                router.push(
-                                  `/dashboard/resume-builder/${resume.id}`,
-                                )
-                              }
                               className="flex-1 rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                             >
-                              Edit
+                              Edit resume
                             </button>
                           </div>
                         </div>
@@ -290,43 +231,7 @@ export default function ResumeListingPage() {
                   )}
                 </div>
 
-                <div className="vs-band h-fit rounded-lg p-6">
-                  <h3 className="font-semibold">Impact Analysis</h3>
-                  <p className="vs-band-muted mt-2 text-xs">
-                    Scores are computed from your resume sections: summary,
-                    experience, education, projects, skills, and profile
-                    warnings.
-                  </p>
-                  {analytics ? (
-                    <div className="mt-4 space-y-3">
-                      <div>
-                        <p className="text-xs font-semibold vs-band-muted">
-                          Average match
-                        </p>
-                        <div className="mt-1 flex items-center justify-between">
-                          <div className="mr-2 h-2 w-full rounded-full bg-inverse-foreground/20">
-                            <div
-                              className="h-full rounded-lg bg-primary transition-all"
-                              style={{ width: `${analytics.avgMatch}%` }}
-                            />
-                          </div>
-                          <span className="text-xs font-semibold text-success">
-                            {analytics.avgMatch}%
-                          </span>
-                        </div>
-                      </div>
-                      <p className="text-xs vs-band-muted">
-                        {analytics.count} resume
-                        {analytics.count === 1 ? "" : "s"} · ~
-                        {analytics.avgSkillsPerResume} skills each
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="mt-4 text-xs vs-band-muted">
-                      Create a resume to see impact metrics.
-                    </p>
-                  )}
-                </div>
+                <ResumePortfolioSummary resumes={rawResumes} />
               </div>
             )}
           </div>

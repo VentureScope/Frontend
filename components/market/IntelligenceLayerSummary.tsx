@@ -1,4 +1,8 @@
-export default function IntelligenceLayerSummary() {
+export default function IntelligenceLayerSummary({
+  insight,
+}: {
+  insight?: string | null;
+}) {
   return (
     <div className="vs-band group relative overflow-hidden rounded-lg p-6 sm:rounded-xl sm:p-10">
       <div className="absolute inset-0 opacity-30 mix-blend-overlay">
@@ -18,11 +22,8 @@ export default function IntelligenceLayerSummary() {
         </div>
 
         <p className="text-lg font-bold leading-relaxed tracking-tight sm:text-xl">
-          Forecasting model <span className="text-primary">FR5.5</span> estimates a{" "}
-          <span className="underline decoration-primary/40 underline-offset-4">
-            22% increase
-          </span>{" "}
-          in remote-friendly roles by Q4.
+          {insight ??
+            "Ensemble forecasts blend Prophet and LSTM signals to project role-level hiring demand."}
         </p>
 
         <div className="pt-2 sm:pt-4">
@@ -32,4 +33,3 @@ export default function IntelligenceLayerSummary() {
     </div>
   );
 }
-

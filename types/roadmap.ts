@@ -24,6 +24,8 @@ export interface StepOut {
   progress?: StepProgressOut | null;
 }
 
+export type RoadmapTrendMode = "current" | "future";
+
 export interface RoadmapListItem {
   id: string;
   title: string;
@@ -31,6 +33,7 @@ export interface RoadmapListItem {
   total_weeks: number;
   status: string;
   created_at: string;
+  trend_mode?: RoadmapTrendMode | string;
   steps_completed?: number;
   total_steps?: number;
   completion_percentage?: number;
@@ -41,6 +44,7 @@ export interface RoadmapOut {
   title: string;
   trend_name?: string | null;
   goal?: string | null;
+  trend_mode?: RoadmapTrendMode | string;
   total_weeks: number;
   status: string;
   created_at: string;
@@ -85,7 +89,9 @@ export interface ResourceToggleOut {
 
 export interface RoadmapGenerateRequest {
   trend_name: string;
-  goal?: string | null;
+  goal: string;
+  /** `true` = current trending role; `false` = future predicted role */
+  use_market_trends: boolean;
 }
 
 export interface StepProgressUpdate {

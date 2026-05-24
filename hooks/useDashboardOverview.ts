@@ -4,6 +4,12 @@ import { useCallback, useEffect, useState } from "react";
 import { getGithubSyncedData, getLatestTranscript } from "@/lib/auth-api";
 import { getUserReadiness } from "@/lib/readiness-api";
 import {
+  mergeSuggestedActions,
+  readinessInsightHeadline,
+  suggestedActionsFromReadiness,
+} from "@/lib/readiness-insights";
+import type { UserReadiness } from "@/types/readiness";
+import {
   jobMatchToPercent,
   mapNotificationToActivity,
   pickActiveRoadmap,
@@ -37,6 +43,7 @@ export type DashboardSyncItem = {
 };
 
 export type DashboardOverviewData = {
+  readiness: UserReadiness | null;
   readinessScore: number;
   insightHeadline: string;
   activeRoadmap: RoadmapListItem | null;
@@ -52,6 +59,7 @@ export type DashboardOverviewData = {
 };
 
 const EMPTY: DashboardOverviewData = {
+  readiness: null,
   readinessScore: 0,
   insightHeadline:
     "Complete your profile and sync data sources to unlock personalized insights.",
@@ -213,10 +221,9 @@ export function useDashboardOverview(careerInterest: string) {
           : fallback.skills;
 
       const topJobMatch = jobMatches[0] ?? null;
-      const readinessScore =
-        readinessResult.status === "fulfilled"
-          ? readinessResult.value.readiness_score
-          : 0;
+      const readiness =
+        readinessResult.status === "fulfilled" ? readinessResult.value : null;
+      const readinessScore = readiness?.overall_score ?? 0;
       const activeRoadmap = pickActiveRoadmap(roadmaps);
       const latestResume =
         resumes.length > 0
@@ -252,12 +259,18 @@ export function useDashboardOverview(careerInterest: string) {
           ? notifications.notifications.map(mapNotificationToActivity)
           : [];
 
-      setData({
+      const fallbackHeadline = buildInsightHeadline(
+        careerInterest,
+        topJobMatch,
         readinessScore,
-        insightHeadline: buildInsightHeadline(
-          careerInterest,
-          topJobMatch,
-          readinessScore,
+      );
+
+      setData({
+        readiness,
+        readinessScore,
+        insightHeadline: readinessInsightHeadline(
+          readiness,
+          fallbackHeadline,
         ),
         activeRoadmap,
         latestResume,
@@ -266,11 +279,14 @@ export function useDashboardOverview(careerInterest: string) {
         trendingCareers,
         inDemandSkills,
         activities,
-        suggestedActions: buildSuggestedActions(
-          roadmaps,
-          hasGithub,
-          hasTranscript,
-          topJobMatch,
+        suggestedActions: mergeSuggestedActions(
+          suggestedActionsFromReadiness(readiness),
+          buildSuggestedActions(
+            roadmaps,
+            hasGithub,
+            hasTranscript,
+            topJobMatch,
+          ),
         ),
         syncItems,
         unreadNotifications: notifications.unread_count,
@@ -292,5 +308,26 @@ export function useDashboardOverview(careerInterest: string) {
     void load();
   }, [load]);
 
-  return { data, loading, error, reload: load };
+  const refreshReadiness = useCallback(async () => {
+    try {
+      const readiness = await getUserReadiness({ refresh: true });
+      setData((prev) => ({
+        ...prev,
+        readiness,
+        readinessScore: readiness.overall_score,
+        insightHeadline: readinessInsightHeadline(
+          readiness,
+          prev.insightHeadline,
+        ),
+        suggestedActions: mergeSuggestedActions(
+          suggestedActionsFromReadiness(readiness),
+          prev.suggestedActions.filter((a) => !a.id.startsWith("readiness-")),
+        ),
+      }));
+    } catch {
+      // Keep existing readiness on refresh failure
+    }
+  }, []);
+
+  return { data, loading, error, reload: load, refreshReadiness };
 }

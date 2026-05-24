@@ -1,174 +1,224 @@
-import React from "react";
+"use client";
 
-const FORECAST_COLOR = "var(--secondary)";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Loader2, RefreshCw } from "lucide-react";
+import { SelectField } from "@/components/ui/select-field";
+import { Button } from "@/components/ui/button";
+import {
+  getJobForecasts,
+  getJobProfileMatches,
+  getTrendingCareers,
+} from "@/lib/jobs-api";
+import {
+  buildForecastChartPoints,
+  FORECAST_CHART_SUBTITLE,
+  FORECAST_POSTING_COUNT_LABEL,
+  forecastTrendInsight,
+  pickDefaultForecastRole,
+} from "@/lib/job-market-insights";
+import { useAppStore } from "@/store/useAppStore";
+import type { JobForecast } from "@/types/jobs";
 
-const MarketForecastChart = () => {
-  const data = [
-    { month: "JAN", percent: 42, color: "#E5EEFF", type: "past" },
-    { month: "FEB", percent: 55, color: "#D1E2FB", type: "past" },
-    { month: "MAR", percent: 48, color: "#B8D0F7", type: "past" },
-    { month: "APR", percent: 65, color: "#A1BFF3", type: "past" },
-    { month: "MAY", percent: 75, color: "#8BAEF0", type: "past" },
-    { month: "JUN", percent: 80, color: "#D994A4", type: "forecast" },
-    { month: "JUL", percent: 86, color: "#F2D8DD", type: "forecast" },
-    { month: "AUG", percent: 92, color: "#F6E4E8", type: "forecast" },
-  ];
+const MarketForecastChartView = dynamic(
+  () => import("@/components/market/MarketForecastChartView"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-80 items-center justify-center text-muted-foreground">
+        <Loader2 className="mr-2 h-6 w-6 animate-spin text-primary" />
+      </div>
+    ),
+  },
+);
 
-  const maxPercent = 100;
+export default function MarketForecastChart() {
+  const careerInterest = useAppStore(
+    (s) => s.authData.user?.career_interest ?? null,
+  );
+
+  const [roleOptions, setRoleOptions] = useState<string[]>([]);
+  const [selectedRole, setSelectedRole] = useState("");
+  const [forecasts, setForecasts] = useState<JobForecast[]>([]);
+  const [loadingRoles, setLoadingRoles] = useState(true);
+  const [loadingForecasts, setLoadingForecasts] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadRoleOptions = useCallback(async () => {
+    setLoadingRoles(true);
+    setError(null);
+    try {
+      const [trending, matches] = await Promise.all([
+        getTrendingCareers({ limit: 12, period: 30 }),
+        getJobProfileMatches({ limit: 1 }).catch(() => []),
+      ]);
+      const names = trending.map((t) => t.name).filter(Boolean);
+      const unique = [...new Set(names)];
+      const defaultRole = pickDefaultForecastRole(
+        trending,
+        matches,
+        careerInterest,
+      );
+      setRoleOptions(unique.length > 0 ? unique : [defaultRole]);
+      setSelectedRole((prev) => {
+        if (prev && (unique.includes(prev) || prev === defaultRole)) {
+          return prev;
+        }
+        return defaultRole;
+      });
+    } catch {
+      setRoleOptions(["Software Engineer"]);
+      setSelectedRole("Software Engineer");
+      setError("Could not load role list. Showing default forecast role.");
+    } finally {
+      setLoadingRoles(false);
+    }
+  }, [careerInterest]);
+
+  const loadForecasts = useCallback(async (role: string) => {
+    if (!role) {
+      return;
+    }
+    setLoadingForecasts(true);
+    setError(null);
+    try {
+      const data = await getJobForecasts({ role });
+      setForecasts(data);
+      if (data.length === 0) {
+        setError(`No forecast data returned for “${role}”. Try another role.`);
+      }
+    } catch {
+      setForecasts([]);
+      setError(`Could not load forecasts for “${role}”.`);
+    } finally {
+      setLoadingForecasts(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadRoleOptions();
+  }, [loadRoleOptions]);
+
+  useEffect(() => {
+    if (!selectedRole) {
+      return;
+    }
+    void loadForecasts(selectedRole);
+  }, [selectedRole, loadForecasts]);
+
+  const chartData = useMemo(
+    () => buildForecastChartPoints(forecasts),
+    [forecasts],
+  );
+
+  const insight = useMemo(
+    () => forecastTrendInsight(forecasts, selectedRole),
+    [forecasts, selectedRole],
+  );
+
+  const yDomain = useMemo(() => {
+    if (!chartData.length) {
+      return [0, 2] as [number, number];
+    }
+    const min = Math.min(...chartData.map((d) => d.lower));
+    const max = Math.max(...chartData.map((d) => d.upper));
+    const pad = Math.max(0.1, (max - min) * 0.15);
+    return [Math.max(0, min - pad), max + pad] as [number, number];
+  }, [chartData]);
+
+  const selectOptions = roleOptions.map((name) => ({
+    value: name,
+    label: name,
+  }));
+
+  const isLoading = loadingRoles || loadingForecasts;
 
   return (
     <div className="vs-surface w-full overflow-hidden p-4 sm:p-6 md:p-10">
-      {/* Header Section */}
-      <div className="mb-6 sm:mb-8 md:mb-12 flex flex-col md:flex-row md:items-start justify-between gap-4">
+      <div className="mb-6 flex flex-col gap-4 md:mb-8 md:flex-row md:items-start md:justify-between">
         <div className="space-y-1">
-          <h2 className="text-2xl sm:text-[28px] md:text-[30px] font-extrabold tracking-tight text-foreground">
-            Market Forecast FR5.5
+          <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-[28px] md:text-[30px]">
+            Demand forecast
           </h2>
-          <p className="text-sm sm:text-[15px] font-medium text-muted-foreground">
-            AI-predicted talent demand trendline for Q3/Q4 2024
+          <p className="text-sm font-medium text-muted-foreground sm:text-[15px]">
+            {FORECAST_CHART_SUBTITLE}
           </p>
+          {insight && !isLoading && (
+            <p className="max-w-xl pt-2 text-sm leading-relaxed text-muted-foreground line-clamp-2">
+              {insight}
+            </p>
+          )}
         </div>
 
-        <div className="flex items-center gap-1 rounded-full bg-muted p-1 sm:p-1.5 self-start md:self-auto shrink-0 w-fit">
-          <button className="rounded-lg bg-muted px-4 sm:px-5 py-1 sm:py-1.5 text-xs sm:text-[13px] font-bold text-primary shadow-sm transition-all whitespace-nowrap">
-            Quarterly
-          </button>
-          <button className="px-4 sm:px-5 py-1 sm:py-1.5 text-xs sm:text-[13px] font-bold text-muted-foreground hover:text-muted-foreground transition-colors whitespace-nowrap">
-            Yearly
-          </button>
-        </div>
-      </div>
-
-      {/* Histogram Chart Section - No gaps between bars */}
-      <div className="relative w-full overflow-x-auto pb-4 hide-scrollbar">
-        <div className="min-w-125 md:min-w-full pl-6 pr-2">
-          <div className="relative w-full" style={{ minHeight: "360px" }}>
-            {/* Background Y-axis grid lines */}
-            <div className="absolute inset-0 pointer-events-none z-0">
-              {[0, 25, 50, 75, 100].map((tick) => (
-                <div
-                  key={tick}
-                  className="absolute w-full border-t border-border"
-                  style={{ top: `${100 - tick}%` }}
-                >
-                  <span className="absolute -left-6 -translate-y-1/2 text-[10px] font-mono text-muted-foreground/50 bg-card/70 px-1 rounded">
-                    {tick}%
-                  </span>
-                </div>
-              ))}
-              <div
-                className="absolute w-full border-t border-border"
-                style={{ top: "100%" }}
-              />
-            </div>
-
-            {/* Histogram bars container - flex with no gaps */}
-            <div className="relative z-10 flex items-end h-full pt-8 pb-2">
-              {data.map((item, idx) => {
-                const barHeight = (item.percent / maxPercent) * 100;
-                return (
-                  <div
-                    key={idx}
-                    className="flex-1 flex flex-col items-center justify-end relative group"
-                    style={{ minWidth: "0" }}
-                  >
-                    {/* Percentage value on top of bar */}
-                    <div
-                      className={`text-[11px] font-bold mb-2 transition-opacity opacity-0 group-hover:opacity-100 ${
-                        item.type === "forecast"
-                          ? "text-secondary"
-                          : "text-muted-foreground"
-                      }`}
-                      style={{ opacity: 1 }}
-                    >
-                      {item.percent}%
-                    </div>
-
-                    {/* Bar container */}
-                    <div
-                      className="relative w-full flex justify-center"
-                      style={{ height: "220px" }}
-                    >
-                      {/* The vertical bar - full width with no gaps */}
-                      <div
-                        className="w-full transition-all duration-700 ease-out relative"
-                        style={{
-                          height: `${barHeight}%`,
-                          backgroundColor: item.color,
-                          alignSelf: "flex-end",
-                          borderTopLeftRadius: idx === 0 ? "8px" : "0",
-                          borderTopRightRadius:
-                            idx === data.length - 1 ? "8px" : "0",
-                        }}
-                      >
-                        {/* Dashed top edge for forecast bars */}
-                        {item.type === "forecast" && (
-                          <div
-                            className="absolute top-0 left-0 w-full h-0.75 pointer-events-none"
-                            style={{
-                              background:
-                                `repeating-linear-gradient(90deg, ${FORECAST_COLOR}, ${FORECAST_COLOR} 6px, transparent 6px, transparent 12px)`,
-                              borderTopLeftRadius: idx === 0 ? "8px" : "0",
-                              borderTopRightRadius:
-                                idx === data.length - 1 ? "8px" : "0",
-                            }}
-                          />
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Month label */}
-                    <div
-                      className={`mt-3 text-[11px] font-bold tracking-wide uppercase ${
-                        item.type === "forecast"
-                          ? "text-secondary"
-                          : "text-muted-foreground"
-                      }`}
-                    >
-                      {item.month}
-                    </div>
-
-                    {/* AI Forecast label above JUN bar */}
-                    {item.month === "JUN" && (
-                      <div className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
-                        <span className="rounded-full bg-card/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-secondary shadow-sm">
-                          AI Forecast
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:min-w-[220px]">
+          <SelectField
+            label="Role"
+            value={selectedRole}
+            onChange={setSelectedRole}
+            options={selectOptions}
+            disabled={loadingRoles || selectOptions.length === 0}
+            placeholder="Select role…"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-9 gap-2"
+            disabled={isLoading}
+            onClick={() => {
+              void loadForecasts(selectedRole);
+            }}
+          >
+            <RefreshCw
+              className={`h-3.5 w-3.5 ${loadingForecasts ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
         </div>
       </div>
 
-      {/* X-axis baseline */}
-      <div className="mt-1 h-px w-full bg-border" />
+      {error && (
+        <div className="mb-4 rounded-lg border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
 
-      {/* Legend / Footer */}
-      <div className="flex flex-wrap justify-between items-center mt-6 pt-4 border-t border-border text-xs text-muted-foreground">
-        <div className="flex items-center gap-4">
+      <div className="relative w-full" style={{ minHeight: 320 }}>
+        {isLoading && chartData.length === 0 ? (
+          <div className="flex h-80 items-center justify-center text-muted-foreground">
+            <Loader2 className="mr-2 h-6 w-6 animate-spin text-primary" />
+            Loading forecast…
+          </div>
+        ) : chartData.length === 0 ? (
+          <div className="flex h-80 items-center justify-center text-sm text-muted-foreground">
+            Select a role to view its demand forecast.
+          </div>
+        ) : (
+          <MarketForecastChartView
+            chartData={chartData}
+            yDomain={yDomain}
+            loadingForecasts={loadingForecasts}
+          />
+        )}
+      </div>
+
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-sm bg-[#E5EEFF]"></div>
-            <span>Past actual</span>
+            <div className="h-0.5 w-5 rounded-full bg-primary" />
+            <span>{FORECAST_POSTING_COUNT_LABEL}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-sm bg-[#F2D8DD]"></div>
-            <span>AI Forecast</span>
-            <div className="ml-1 h-px w-4 border-t border-dashed border-secondary" />
-            <span className="ml-0.5 text-[10px] text-secondary">
-              dashed edge
-            </span>
+            <div className="h-0 w-5 border-t border-dashed border-primary/40" />
+            <span>Confidence range (lower–upper bound)</span>
           </div>
         </div>
-        <div className="text-[11px] font-mono text-muted-foreground/50 mt-2 sm:mt-0">
-          * AI confidence interval: Q3/Q4 upward trend
-        </div>
+        {selectedRole && (
+          <span className="font-mono text-[11px] text-muted-foreground/70">
+            {selectedRole}
+          </span>
+        )}
       </div>
     </div>
   );
-};
-
-export default MarketForecastChart;
+}

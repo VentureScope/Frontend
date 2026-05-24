@@ -11,6 +11,7 @@ import type {
   RoadmapOut,
   StepOut,
 } from "@/types/roadmap";
+import { normalizeRoadmapTrendMode } from "@/lib/trending-career-segments";
 import {
   normalizeProgressStatus,
   resourceUiStatusFromApi,
@@ -162,6 +163,7 @@ export function roadmapOutToLearningPath(
     roadmapStatus: displayStatus,
     createdAt: roadmap.created_at,
     trendName: roadmap.trend_name ?? null,
+    trendMode: normalizeRoadmapTrendMode(roadmap.trend_mode),
     goal: roadmap.goal ?? null,
     summary: roadmap.summary ?? null,
     totalWeeks: roadmap.total_weeks,
@@ -189,6 +191,7 @@ export function roadmapListItemToStubPath(item: RoadmapListItem): LearningPath {
     roadmapStatus: displayStatus,
     createdAt: item.created_at,
     trendName: item.trend_name ?? null,
+    trendMode: normalizeRoadmapTrendMode(item.trend_mode),
     totalWeeks: item.total_weeks,
     stepsCompleted: item.steps_completed,
     totalSteps: item.total_steps,

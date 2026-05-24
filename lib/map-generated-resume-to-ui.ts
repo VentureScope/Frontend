@@ -90,12 +90,15 @@ export function generatedResumeToListingResume(
     id: api.id,
     title: api.target_role,
     company: formatResumeSubtitle(api),
-    lastUpdated: formatRelativeTime(api.created_at),
+    lastUpdated: formatRelativeTime(api.updated_at ?? api.created_at),
     createdAt: api.created_at,
+    updatedAt: api.updated_at ?? api.created_at,
     matchScore,
     atsStatus: computeAtsLabel(api, matchScore),
     tags: trendingSkills.slice(0, 4),
-    isRecent: Date.now() - new Date(api.created_at).getTime() < 86400000,
+    isRecent:
+      Date.now() - new Date(api.updated_at ?? api.created_at).getTime() <
+      86400000,
     warnings,
     technicalSkills,
     softSkills,

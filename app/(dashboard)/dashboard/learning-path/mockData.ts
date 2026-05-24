@@ -40,6 +40,8 @@ export interface LearningPath {
   createdAt?: string;
   /** From API `RoadmapListItem.trend_name` / `RoadmapOut.trend_name` */
   trendName?: string | null;
+  /** From API `trend_mode`: current vs future prediction roadmaps */
+  trendMode?: "current" | "future";
   goal?: string | null;
   summary?: string | null;
   totalWeeks?: number;
