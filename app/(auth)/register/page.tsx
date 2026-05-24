@@ -17,8 +17,8 @@ import {
   getGoogleOAuthLoginUrl,
   getGithubOAuthLoginUrl,
 } from "@/lib/auth-api";
+import { buildVerifyEmailUrl } from "@/lib/auth-query-params";
 import {
-  RETURN_PATH_PARAM,
   buildSignInUrl,
   getReturnPathFromSearchParams,
   resolveReturnPath,
@@ -203,15 +203,13 @@ function RegisterPageContent() {
         role: values.role,
       };
       await registerUser(payload);
-      // Registration triggers an OTP email — redirect to verification page.
-      const params = new URLSearchParams({
-        email: values.email,
-        p: btoa(values.password),
-      });
-      if (returnPathFromQuery) {
-        params.set(RETURN_PATH_PARAM, returnPathFromQuery);
-      }
-      router.push(`/verify-email?${params.toString()}`);
+      router.replace(
+        buildVerifyEmailUrl(
+          values.email,
+          values.password,
+          returnPathFromQuery,
+        ),
+      );
     } catch (error) {
       setApiError(getApiErrorMessage(error));
     } finally {
