@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { OrganizationPageHeader } from "@/components/organization/OrganizationPageHeader";
+import { OrganizationInviteAcceptDetailsSkeleton } from "@/components/organization/OrganizationSkeletons";
 import { Button } from "@/components/ui/button";
 import { useAcceptOrganizationInvite } from "@/hooks/useAcceptOrganizationInvite";
 import { getApiErrorMessage } from "@/lib/auth-api";
@@ -60,14 +61,7 @@ function InviteDetailsPanel({
   }
 
   if (loading && !invite?.organizationName) {
-    return (
-      <div className="flex min-h-[320px] flex-col items-center justify-center rounded-xl border border-border bg-muted/30 p-8 text-center">
-        <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
-        <p className="mt-4 text-sm text-muted-foreground">
-          Loading invitation…
-        </p>
-      </div>
-    );
+    return <OrganizationInviteAcceptDetailsSkeleton />;
   }
 
   if (!invite?.organizationName) {
