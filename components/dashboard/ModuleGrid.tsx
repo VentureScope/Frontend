@@ -6,17 +6,20 @@ import { useRouter } from "next/navigation";
 import { ModuleGridSkeleton } from "@/components/dashboard/DashboardSkeletons";
 import { setAdvisorPendingMessage } from "@/lib/advisor-launch";
 import type { GeneratedResumeOut } from "@/types/generated-resume";
+import type { JobMatch } from "@/types/jobs";
 import type { RoadmapListItem } from "@/types/roadmap";
 
 export default function ModuleGrid({
   activeRoadmap,
   latestResume,
   profileMatchPercent,
+  topJobMatch,
   loading,
 }: {
   activeRoadmap: RoadmapListItem | null;
   latestResume: GeneratedResumeOut | null;
   profileMatchPercent: number | null;
+  topJobMatch?: JobMatch | null;
   loading?: boolean;
 }) {
   const router = useRouter();
@@ -34,10 +37,10 @@ export default function ModuleGrid({
     : "/dashboard/resume-builder/new-resume";
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:items-stretch">
       <Link
         href={roadmapHref}
-        className="vs-surface block p-6 transition-colors hover:border-primary/25 sm:p-8"
+        className="vs-surface flex h-full flex-col p-6 transition-colors hover:border-primary/25 sm:p-8"
       >
         <div className="mb-6 flex items-center justify-between sm:mb-8">
           <div className="vs-icon-tile vs-icon-tile-primary p-2.5 sm:p-3">
@@ -55,25 +58,27 @@ export default function ModuleGrid({
             {activeRoadmap?.trend_name ?? "Generate a personalized path"}
           </p>
         </div>
-        {activeRoadmap ? (
-          <div className="space-y-2">
-            <div className="flex justify-between text-label text-muted-foreground">
-              <span>Progress</span>
-              <span>{progress}%</span>
+        <div className="mt-auto">
+          {activeRoadmap ? (
+            <div className="space-y-2">
+              <div className="flex justify-between text-label text-muted-foreground">
+                <span>Progress</span>
+                <span>{progress}%</span>
+              </div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-primary/80 transition-all"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
             </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-primary/80 transition-all"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </div>
-        ) : (
-          <p className="text-sm font-medium text-primary">Create roadmap →</p>
-        )}
+          ) : (
+            <p className="text-sm font-medium text-primary">Create roadmap →</p>
+          )}
+        </div>
       </Link>
 
-      <div className="vs-surface p-6 sm:p-8">
+      <div className="vs-surface flex h-full flex-col p-6 sm:p-8">
         <div className="mb-6 flex items-center justify-between sm:mb-8">
           <div className="vs-icon-tile vs-icon-tile-accent p-2.5 sm:p-3">
             <HelpCircle className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -116,7 +121,7 @@ export default function ModuleGrid({
         </Link>
       </div>
 
-      <div className="vs-surface flex flex-col p-6 sm:p-8">
+      <div className="vs-surface flex h-full min-h-0 flex-col p-6 sm:p-8">
         <div className="mb-6 flex items-center justify-between sm:mb-8">
           <div className="vs-icon-tile vs-icon-tile-secondary p-2.5 sm:p-3">
             <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -128,9 +133,20 @@ export default function ModuleGrid({
             </p>
           </div>
         </div>
-        <h3 className="mb-6 text-lg font-semibold text-foreground sm:mb-8 sm:text-xl">
-          {latestResume ? latestResume.target_role : "No resume yet"}
+        <h3 className="mb-2 text-lg font-semibold text-foreground sm:text-xl">
+          {latestResume
+            ? latestResume.target_role
+            : topJobMatch?.normalized_title || topJobMatch?.job_title || "No resume yet"}
         </h3>
+        {topJobMatch ? (
+          <p className="mb-4 line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:mb-6">
+            Top match: {topJobMatch.job_title} at {topJobMatch.company_name}
+          </p>
+        ) : (
+          <p className="mb-4 text-xs text-muted-foreground sm:mb-6">
+            Sync your profile to see job matches.
+          </p>
+        )}
         <div className="mt-auto flex flex-col gap-2">
           {latestResume ? (
             <Link

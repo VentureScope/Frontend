@@ -18,6 +18,7 @@ export interface Resume {
   company: string;
   lastUpdated: string;
   createdAt?: string;
+  updatedAt?: string;
   matchScore: number;
   atsStatus: string;
   tags: string[];

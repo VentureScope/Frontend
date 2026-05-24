@@ -7,7 +7,8 @@ export type RoadmapRoleItem = {
   description: string;
   badge: string;
   badgeType: "high-demand" | "steady-growth";
-  count: string;
+  metricValue: string;
+  metricLabel: string;
   iconName: string;
 };
 
@@ -37,7 +38,8 @@ const RoleItem = ({
   description,
   badge,
   badgeType,
-  count,
+  metricValue,
+  metricLabel,
   iconName,
   isSelected,
   onSelect,
@@ -107,9 +109,9 @@ const RoleItem = ({
       </div>
 
       <div className="shrink-0 border-t border-border pt-3 text-left sm:border-t-0 sm:pt-0 sm:text-right sm:pl-4">
-        <div className="text-2xl font-semibold text-foreground">{count}</div>
-        <div className="text-[12px] font-medium text-muted-foreground">
-          Active Openings
+        <div className="text-2xl font-semibold text-foreground">{metricValue}</div>
+        <div className="max-w-[9rem] text-[12px] font-medium leading-snug text-muted-foreground">
+          {metricLabel}
         </div>
       </div>
     </button>

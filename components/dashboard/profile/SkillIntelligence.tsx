@@ -17,44 +17,15 @@ import { useAppStore } from "@/store/useAppStore";
 import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
 
-type SkillColor = "blue" | "rose" | "indigo" | "emerald";
-
-interface UISkill {
-  label: string;
-  status: string;
-  level: string;
-  pct: number;
-  color: SkillColor;
-}
-
-const SKILL_COLORS: SkillColor[] = ["blue", "rose", "indigo", "emerald"];
-
-function levelFromPct(pct: number): string {
-  if (pct >= 80) return "Expert";
-  if (pct >= 60) return "Advanced";
-  if (pct >= 40) return "Intermediate";
-  return "Developing";
-}
-
-function statusFromPct(pct: number): string {
-  if (pct >= 75) return "High Signal";
-  if (pct >= 50) return "Growing";
-  if (pct >= 30) return "Steady";
-  return "Needs Depth";
-}
-
-function deriveGithubSkills(
+function deriveGithubLanguages(
   repositories: GitHubRepositorySummary[] | null | undefined,
-): UISkill[] {
+): string[] {
   if (!repositories || repositories.length === 0) {
     return [];
   }
 
   const languageBytes = new Map<string, number>();
   const languageRepos = new Map<string, number>();
-
-  let maxBytes = 1;
-  let maxRepos = 1;
 
   for (const repo of repositories) {
     const repoLanguages = new Set<string>();
@@ -67,21 +38,15 @@ function deriveGithubSkills(
         const currentBytes = languageBytes.get(language.name) ?? 0;
         const newBytes = currentBytes + (language.size || 1);
         languageBytes.set(language.name, newBytes);
-        if (newBytes > maxBytes) maxBytes = newBytes;
       }
     } else if (repo.primary_language) {
       repoLanguages.add(repo.primary_language);
       const currentBytes = languageBytes.get(repo.primary_language) ?? 0;
-      const newBytes = currentBytes + 1000; // Fallback size if no languages array
-      languageBytes.set(repo.primary_language, newBytes);
-      if (newBytes > maxBytes) maxBytes = newBytes;
+      languageBytes.set(repo.primary_language, currentBytes + 1000);
     }
 
     for (const lang of repoLanguages) {
-      const currentRepos = languageRepos.get(lang) ?? 0;
-      const newRepos = currentRepos + 1;
-      languageRepos.set(lang, newRepos);
-      if (newRepos > maxRepos) maxRepos = newRepos;
+      languageRepos.set(lang, (languageRepos.get(lang) ?? 0) + 1);
     }
   }
 
@@ -96,31 +61,7 @@ function deriveGithubSkills(
     return (languageRepos.get(b) ?? 0) - (languageRepos.get(a) ?? 0);
   });
 
-  return sortedLangs.map((name, index) => {
-    const bytes = languageBytes.get(name) ?? 0;
-    const repos = languageRepos.get(name) ?? 0;
-
-    // 1. Volume Score (Depth): How much code compared to top language
-    const volumeScore = (bytes / maxBytes) * 100;
-    // 2. Frequency Score (Breadth): How many repos it's in compared to top language
-    const frequencyScore = (repos / maxRepos) * 100;
-
-    // Weigh depth heavily (70%) but reward breadth (30%)
-    const rawPct = volumeScore * 0.7 + frequencyScore * 0.3;
-
-    // Use a square root curve so secondary skills don't flatline at 1% if there's one massive codebase
-    // e.g. A raw score of 25% curves to 50%. A raw score of 1% curves to 10%.
-    const curvedPct = Math.round(Math.pow(rawPct / 100, 0.5) * 100);
-    const finalPct = Math.min(100, Math.max(5, curvedPct));
-
-    return {
-      label: name.toUpperCase(),
-      pct: finalPct,
-      level: levelFromPct(finalPct),
-      status: statusFromPct(finalPct),
-      color: SKILL_COLORS[index % SKILL_COLORS.length],
-    };
-  });
+  return sortedLangs;
 }
 
 function normalizeUserSkills(value: unknown): string[] {
@@ -161,7 +102,6 @@ export default function SkillIntelligence() {
   const [newSkill, setNewSkill] = useState("");
   const [isSavingSkills, setIsSavingSkills] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [displayCount, setDisplayCount] = useState(4);
 
   useEffect(() => {
     const loadSignals = async () => {
@@ -196,8 +136,8 @@ export default function SkillIntelligence() {
     void loadSignals();
   }, []);
 
-  const githubSkills = useMemo(
-    () => deriveGithubSkills(githubData?.repositories),
+  const githubLanguages = useMemo(
+    () => deriveGithubLanguages(githubData?.repositories),
     [githubData?.repositories],
   );
 
@@ -274,9 +214,9 @@ export default function SkillIntelligence() {
     await saveSkills(normalized);
   };
 
-  const signalSource = githubSkills.length
-    ? "Source: GitHub synced repositories"
-    : "Connect GitHub in Data Hub to generate synced skill intelligence.";
+  const githubSourceHint = githubLanguages.length
+    ? "Languages detected from your synced GitHub repositories."
+    : "Connect GitHub in Data Hub to list languages from your repositories.";
 
   if (loading) {
     return (
@@ -286,18 +226,7 @@ export default function SkillIntelligence() {
           <Skeleton className="h-4 w-56 sm:w-72" />
         </div>
         <Skeleton className="h-28 w-full rounded-lg" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div
-              key={index}
-              className="vs-surface p-6 space-y-4"
-            >
-              <Skeleton className="h-3 w-16" />
-              <Skeleton className="h-8 w-24" />
-              <Skeleton className="h-2 w-full" />
-            </div>
-          ))}
-        </div>
+        <Skeleton className="h-24 w-full rounded-lg" />
       </div>
     );
   }
@@ -310,7 +239,7 @@ export default function SkillIntelligence() {
             Skill Intelligence
           </h2>
           <p className="text-sm text-muted-foreground">
-            Current proficiency vs. Industry benchmarks
+            Skills you add manually and languages from your GitHub repos
           </p>
         </div>
         <Link
@@ -422,98 +351,25 @@ export default function SkillIntelligence() {
         <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
           GitHub Synced Skills
         </h3>
-        <p className="text-xs font-semibold text-muted-foreground">{signalSource}</p>
+        <p className="text-xs text-muted-foreground">{githubSourceHint}</p>
       </div>
 
-      {githubSkills.length === 0 && (
+      {githubLanguages.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border bg-muted/60 p-6 text-sm text-muted-foreground">
-          No GitHub skill data available yet. Sync your GitHub account from the
-          Data Hub.
+          No GitHub languages yet. Sync your GitHub account from the Data Hub.
         </div>
-      )}
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {githubSkills.slice(0, displayCount).map((s, idx) => (
-          <div
-            key={`github-${s.label}-${idx}`}
-            className={`flex h-full flex-col rounded-lg border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md sm:p-6 border-l-4 ${
-              s.color === "blue"
-                ? "border-l-primary"
-                : s.color === "rose"
-                    ? "border-l-secondary"
-                  : s.color === "indigo"
-                    ? "border-l-accent"
-                    : "border-l-success"
-            }`}
-          >
-            <div className="mb-4 flex flex-col items-start gap-1.5">
-              <h4 className="w-full truncate text-base font-semibold leading-snug text-foreground">
-                {s.label}
-              </h4>
+      ) : (
+        <div className="rounded-lg border border-border bg-card p-5 sm:p-6">
+          <div className="flex flex-wrap gap-2">
+            {githubLanguages.map((language) => (
               <span
-                className={`rounded-md px-2 py-1 text-[10px] font-bold inline-flex ${
-                  s.status === "Needs Depth"
-                    ? "bg-destructive/10 text-destructive"
-                    : s.status === "Steady" || s.status === "Growing"
-                      ? "bg-muted text-muted-foreground"
-                      : "bg-success/15 text-success"
-                }`}
+                key={language}
+                className="inline-flex items-center rounded-full border border-border bg-muted/60 px-3 py-1.5 text-sm font-medium text-foreground"
               >
-                {s.status}
+                {language}
               </span>
-            </div>
-            <div className="mt-auto space-y-3 pt-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Level
-                </span>
-                <span className="text-sm font-bold text-muted-foreground">
-                  {s.level}
-                </span>
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  <span>Proficiency</span>
-                  <span>{s.pct}%</span>
-                </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-                  <div
-                    className={`h-full transition-all duration-500 ${
-                      s.color === "blue"
-                        ? "bg-primary"
-                        : s.color === "rose"
-                          ? "bg-secondary"
-                          : s.color === "indigo"
-                            ? "bg-accent"
-                            : "bg-success"
-                    }`}
-                    style={{ width: `${s.pct}%` }}
-                  />
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
-
-      {githubSkills.length > 4 && (
-        <div className="flex items-center justify-center gap-3 pt-2">
-          {displayCount < githubSkills.length && (
-            <button
-              onClick={() => setDisplayCount((prev) => prev + 4)}
-              className="rounded-xl border border-border bg-card px-4 py-2 text-xs font-bold text-muted-foreground transition-colors hover:bg-muted"
-            >
-              View More
-            </button>
-          )}
-          {displayCount > 4 && (
-            <button
-              onClick={() => setDisplayCount(4)}
-              className="rounded-xl border border-border bg-card px-4 py-2 text-xs font-bold text-muted-foreground transition-colors hover:bg-muted"
-            >
-              Compress
-            </button>
-          )}
         </div>
       )}
     </div>

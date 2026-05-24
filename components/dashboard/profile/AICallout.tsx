@@ -1,53 +1,56 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
+import type { UserReadiness } from "@/types/readiness";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function AICallout() {
+export default function AICallout({
+  readiness,
+  loading,
+}: {
+  readiness?: UserReadiness | null;
+  loading?: boolean;
+}) {
+  const hasAssessment = Boolean(readiness && readiness.overall_score > 0);
+
   return (
-    <div className="vs-band relative overflow-hidden rounded-lg px-4 py-7 sm:rounded-xl sm:px-8 sm:py-10 lg:px-12 lg:py-12">
-      <div className="pointer-events-none absolute top-1/2 right-6 hidden -translate-y-1/2 opacity-20 lg:right-12 lg:block">
-        <div className="relative h-48 w-48">
-          <Sparkles
-            className="absolute top-0 right-0 h-32 w-32"
-            strokeWidth={1}
-          />
-          <Sparkles
-            className="absolute bottom-4 left-0 h-16 w-16"
-            strokeWidth={1}
-          />
-          <Sparkles
-            className="absolute right-10 bottom-0 h-10 w-10"
-            strokeWidth={1}
-          />
+    <div className="vs-band relative overflow-hidden rounded-lg px-5 py-6 sm:rounded-xl sm:px-8 sm:py-8">
+      <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 space-y-2">
+          <div className="flex items-center gap-2 text-label text-primary">
+            <Sparkles className="h-4 w-4 shrink-0" />
+            Next steps
+          </div>
+          {loading ? (
+            <Skeleton className="h-5 w-64 max-w-full bg-inverse-foreground/10" />
+          ) : hasAssessment ? (
+            <p className="text-sm leading-relaxed vs-band-muted sm:text-base">
+              Use your readiness breakdown above, then build a learning path
+              or explore roles that match your profile.
+            </p>
+          ) : (
+            <p className="text-sm leading-relaxed vs-band-muted sm:text-base">
+              Set career interests and skills, then refresh your readiness
+              score to unlock personalized recommendations.
+            </p>
+          )}
         </div>
-      </div>
 
-      <div className="relative z-10 max-w-2xl space-y-5 sm:space-y-6 lg:space-y-8">
-        <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl">
-          Bridge the AI Literacy Gap
-        </h2>
-        <p className="text-body vs-band-muted leading-relaxed sm:text-base lg:text-lg">
-          Our intelligence layer has identified that your current profile is a
-          85% match for &apos;Head of Strategy&apos; roles. Adding{" "}
-          <span className="font-semibold text-primary underline decoration-primary/40 underline-offset-4">
-            LLM Orchestration
-          </span>{" "}
-          knowledge could elevate you to the top 5% of candidates.
-        </p>
-
-        <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap sm:gap-4">
+        <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
           <Button
             asChild
-            className="h-12 w-full rounded-xl bg-primary px-6 text-primary-foreground  hover:bg-primary/90 sm:h-14 sm:w-auto sm:px-10"
+            className="h-11 w-full rounded-xl bg-primary px-5 text-primary-foreground hover:bg-primary/90 sm:w-auto"
           >
-            <Link href="/dashboard/ai-advisor">Start Assessment</Link>
+            <Link href="/dashboard/learning-path/new-roadmap">
+              Build learning path
+            </Link>
           </Button>
           <Button
             asChild
             variant="outline"
-            className="h-12 w-full rounded-md border-inverse-foreground/25 bg-inverse-foreground/10 px-6 text-inverse-foreground hover:bg-inverse-foreground/15 sm:h-14 sm:w-auto sm:px-10"
+            className="h-11 w-full rounded-md border-inverse-foreground/25 bg-inverse-foreground/10 px-5 text-inverse-foreground hover:bg-inverse-foreground/15 sm:w-auto"
           >
-            <Link href="/dashboard/learning-path">View Learning Path</Link>
+            <Link href="/dashboard/market-trends">Market trends</Link>
           </Button>
         </div>
       </div>

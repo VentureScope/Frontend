@@ -1,9 +1,7 @@
 import { CORE_SERVICE_OPTIONS } from "@/lib/organization-create-constants";
 import type { OrganizationProfile } from "@/types/organization-profile";
 import type { OrganizationMember } from "@/types/organization-profile";
-import { formatTrendingMarketContext } from "@/lib/organization-roadmap-trends";
 import type { OrgRoadmapFocusArea } from "@/types/organization-roadmap";
-import type { TrendingCareer } from "@/types/jobs";
 
 const AREA_ICON: Record<string, string> = {
   frontend: "Share2",
@@ -197,36 +195,11 @@ export function getOrgRoadmapFocusAreas(
   return areas.sort((a, b) => b.memberCount - a.memberCount);
 }
 
-export function buildOrgRoadmapGenerationGoal(
-  _orgId: string,
+/** Suggested professional end goal for org roadmap generation (user-editable in UI). */
+export function defaultOrgRoadmapProfessionalGoal(
   area: OrgRoadmapFocusArea,
-  options?: {
-    trendingCareers?: TrendingCareer[];
-    profile?: OrganizationProfile | null;
-  },
+  orgName?: string | null,
 ): string {
-  const profile = options?.profile ?? null;
-  const orgName = profile?.displayName ?? "Organization";
-  const industry = profile?.industryVertical ?? "";
-  const mission = profile?.missionStatement?.trim() ?? "";
-  const teamLine =
-    area.memberCount > 0
-      ? `Team in this area (${area.memberCount}): ${area.memberPreview.join(", ")}. Top skills: ${area.topSkills.join(", ")}.`
-      : `No members currently mapped to this area; align with company stack: ${area.techStacks.join(", ") || "general engineering"}.`;
-
-  return [
-    `Organization: ${orgName}.`,
-    industry ? `Industry: ${industry}.` : "",
-    `Focus practice area: ${area.title}.`,
-    teamLine,
-    profile?.techStacks?.length
-      ? `Company-wide technologies: ${profile.techStacks.join(", ")}.`
-      : "",
-    mission ? `Mission: ${mission}` : "",
-    options?.trendingCareers?.length
-      ? formatTrendingMarketContext(options.trendingCareers, area.title)
-      : "Generate a team learning roadmap for this company area. Prioritize organization and team context over generic market trends.",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const org = orgName?.trim() || "our team";
+  return `Help ${org} build professional mastery as ${area.generationTrendName} and strengthen delivery in ${area.title}.`;
 }

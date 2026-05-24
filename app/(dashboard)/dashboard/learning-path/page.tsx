@@ -8,10 +8,8 @@ import { BarChart3, Cloud } from "lucide-react";
 import { tabsData } from "./mockData";
 import type { LearningPath } from "./mockData";
 import { useRouter } from "next/navigation";
-import { getFutureTrendingRoles } from "@/lib/jobs-api";
 import { listRoadmaps, getRoadmap } from "@/lib/roadmaps-api";
 import {
-  buildTrendNameSet,
   CURRENT_TRENDS_TAB,
   FUTURE_PREDICTIONS_TAB,
   roadmapBelongsToTab,
@@ -34,25 +32,15 @@ export default function LearningPathPage() {
   const [detailLoadingId, setDetailLoadingId] = useState<string | null>(null);
   const { syncingResourceId, handleToggleResource } =
     useRoadmapResourceToggleOnPaths(setPaths);
-  const [futureTrendNames, setFutureTrendNames] = useState<Set<string>>(
-    () => new Set(),
-  );
-
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
       try {
-        const [list, futureCareers] = await Promise.all([
-          listRoadmaps(),
-          getFutureTrendingRoles({ limit: 24 }).catch(() => []),
-        ]);
+        const list = await listRoadmaps();
         if (cancelled) {
           return;
         }
-        setFutureTrendNames(
-          buildTrendNameSet(futureCareers.map((c) => c.name)),
-        );
         setPaths(list.map((item) => roadmapListItemToStubPath(item)));
       } catch {
         if (!cancelled) {
@@ -76,15 +64,13 @@ export default function LearningPathPage() {
         : CURRENT_TRENDS_TAB;
 
     return [...paths]
-      .filter((path) =>
-        roadmapBelongsToTab(path.trendName, tabId, futureTrendNames),
-      )
+      .filter((path) => roadmapBelongsToTab(path.trendMode, tabId))
       .sort((a, b) => {
         const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
         return tb - ta;
       });
-  }, [paths, activeTabId, futureTrendNames]);
+  }, [paths, activeTabId]);
 
   const tabsWithCounts = useMemo(() => {
     return tabsData.map((tab) => {
@@ -93,11 +79,11 @@ export default function LearningPathPage() {
           ? FUTURE_PREDICTIONS_TAB
           : CURRENT_TRENDS_TAB;
       const count = paths.filter((path) =>
-        roadmapBelongsToTab(path.trendName, tabId, futureTrendNames),
+        roadmapBelongsToTab(path.trendMode, tabId),
       ).length;
       return { ...tab, name: `${tab.name} (${count})` };
     });
-  }, [paths, futureTrendNames]);
+  }, [paths]);
 
   const handleToggleExpand = useCallback((id: string) => {
     setExpandedPathIds((prev) => {

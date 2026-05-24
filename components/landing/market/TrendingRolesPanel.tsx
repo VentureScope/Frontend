@@ -17,6 +17,7 @@ export function TrendingRolesPanel({
   showGrowth = true,
   showInsight = true,
   title = "Trending careers",
+  embedded = false,
 }: {
   careers: TrendingCareer[];
   loading: boolean;
@@ -25,6 +26,8 @@ export function TrendingRolesPanel({
   showGrowth?: boolean;
   showInsight?: boolean;
   title?: string;
+  /** When true, omit outer card chrome (parent provides surface). */
+  embedded?: boolean;
 }) {
   const topCareers = careers.slice(0, limit);
   const insight = showInsight ? trendingInsight(topCareers) : null;
@@ -33,9 +36,11 @@ export function TrendingRolesPanel({
   return (
     <div
       className={
-        compact
-          ? "space-y-4 h-full flex flex-col"
-          : "rounded-lg sm:rounded-xl bg-muted p-6 sm:p-8 lg:p-10 border border-border"
+        embedded
+          ? "space-y-4"
+          : compact
+            ? "flex h-full flex-col space-y-4"
+            : "rounded-lg border border-border bg-muted p-6 sm:rounded-xl sm:p-8 lg:p-10"
       }
     >
       <div>

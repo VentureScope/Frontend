@@ -6,10 +6,11 @@ import { Building2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { CreateOrgRoadmapHeader } from "@/components/organization/roadmaps/create/CreateOrgRoadmapHeader";
 import { OrgAreaSelectionList } from "@/components/organization/roadmaps/create/OrgAreaSelectionList";
+import { OrgRoadmapGoalField } from "@/components/organization/roadmaps/create/OrgRoadmapGoalField";
 import { OrgRoadmapTrendingToggle } from "@/components/organization/roadmaps/create/OrgRoadmapTrendingToggle";
 import { RoadmapInfoCallout } from "@/components/organization/roadmaps/RoadmapInfoCallout";
 import {
-  buildOrgRoadmapGenerationGoal,
+  defaultOrgRoadmapProfessionalGoal,
   getOrgRoadmapFocusAreas,
 } from "@/lib/organization-roadmap-areas";
 import {
@@ -35,6 +36,8 @@ export function CreateOrgRoadmapWizard({ orgId }: { orgId: string }) {
   );
 
   const [selectedAreaId, setSelectedAreaId] = useState("");
+  const [professionalGoal, setProfessionalGoal] = useState("");
+  const [goalTouched, setGoalTouched] = useState(false);
   const [includeTrending, setIncludeTrending] = useState(false);
   const [trendingCareers, setTrendingCareers] = useState<TrendingCareer[]>([]);
   const [trendingLoading, setTrendingLoading] = useState(false);
@@ -47,6 +50,15 @@ export function CreateOrgRoadmapWizard({ orgId }: { orgId: string }) {
   }, [areas, selectedAreaId]);
 
   const selected = areas.find((a) => a.id === selectedAreaId);
+
+  const goalReady = professionalGoal.trim().length >= 12;
+
+  useEffect(() => {
+    if (!selected || goalTouched) {
+      return;
+    }
+    setProfessionalGoal(defaultOrgRoadmapProfessionalGoal(selected, orgName));
+  }, [selected, goalTouched, orgName]);
 
   const matchedTrends = useMemo(() => {
     if (!selected || trendingCareers.length === 0) {
@@ -87,22 +99,17 @@ export function CreateOrgRoadmapWizard({ orgId }: { orgId: string }) {
       toast.error("Select a practice area first.");
       return;
     }
+    const goal = professionalGoal.trim();
+    if (goal.length < 12) {
+      toast.error("Describe the professional end goal for this roadmap (at least 12 characters).");
+      return;
+    }
     setIsGenerating(true);
     try {
-      let trendsForGoal = includeTrending ? matchedTrends : [];
-      if (includeTrending && trendsForGoal.length === 0) {
-        const careers = await fetchTrendingCareersForOrgRoadmap();
-        trendsForGoal = filterTrendingForArea(selected, careers);
-      }
-      const goal = buildOrgRoadmapGenerationGoal(orgId, selected, {
-        profile,
-        trendingCareers:
-          includeTrending && trendsForGoal.length > 0 ? trendsForGoal : undefined,
-      });
-
       const raw = await assignOrganizationRoadmap(orgId, {
         trend_name: selected.generationTrendName,
         goal,
+        use_market_trends: includeTrending,
       });
       const parsed = parseOrgRoadmapOutApi(raw);
       if (!parsed) {
@@ -116,7 +123,7 @@ export function CreateOrgRoadmapWizard({ orgId }: { orgId: string }) {
     } finally {
       setIsGenerating(false);
     }
-  }, [orgId, router, selected, includeTrending, matchedTrends]);
+  }, [orgId, router, selected, professionalGoal, includeTrending]);
 
   return (
     <div className="relative min-h-screen bg-background">
@@ -149,15 +156,17 @@ export function CreateOrgRoadmapWizard({ orgId }: { orgId: string }) {
           onGenerate={() => void handleGenerate()}
           isGenerating={isGenerating}
           canGenerate={
-            Boolean(selected) && !(includeTrending && trendingLoading)
+            Boolean(selected) &&
+            goalReady &&
+            !(includeTrending && trendingLoading)
           }
         />
 
         <div className="mt-10 space-y-8">
-          <RoadmapInfoCallout icon={Building2} title="Company-first, trends optional">
-            By default we use your organization profile and teammates in each
-            area. Turn on market trends below to blend in live hiring demand for
-            related roles—without replacing your team context.
+          <RoadmapInfoCallout icon={Building2} title="How generation works">
+            Your organization profile, practice area, and team roster are loaded
+            automatically. You define the professional end goal; optionally add
+            current market trends in step 3.
           </RoadmapInfoCallout>
 
           {areas.length === 0 ? (
@@ -191,6 +200,16 @@ export function CreateOrgRoadmapWizard({ orgId }: { orgId: string }) {
                 onSelect={setSelectedAreaId}
               />
 
+              <OrgRoadmapGoalField
+                value={professionalGoal}
+                onChange={(value) => {
+                  setGoalTouched(true);
+                  setProfessionalGoal(value);
+                }}
+                disabled={isGenerating || !selected}
+                areaTitle={selected?.title}
+              />
+
               <OrgRoadmapTrendingToggle
                 enabled={includeTrending}
                 onEnabledChange={setIncludeTrending}
@@ -200,12 +219,12 @@ export function CreateOrgRoadmapWizard({ orgId }: { orgId: string }) {
               />
 
               {selected && selected.memberPreview.length > 0 ? (
-                <RoadmapInfoCallout icon={Users} title="Team context for generation">
+                <RoadmapInfoCallout icon={Users} title="Team context (automatic)">
                   {selected.memberPreview.join(", ")}
                   {selected.memberCount > selected.memberPreview.length
                     ? ` and ${selected.memberCount - selected.memberPreview.length} more`
                     : ""}{" "}
-                  will inform skills in this roadmap. Top skills:{" "}
+                  in this area inform skills on the server. Top skills:{" "}
                   {selected.topSkills.slice(0, 5).join(", ") || "—"}.
                 </RoadmapInfoCallout>
               ) : null}

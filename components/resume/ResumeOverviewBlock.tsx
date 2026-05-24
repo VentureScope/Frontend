@@ -1,4 +1,5 @@
 import type { Resume } from "@/app/(dashboard)/dashboard/resume-builder/mockData";
+import { RESUME_COMPLETENESS_LABEL } from "@/lib/resume-utils";
 
 type ResumeOverviewBlockProps = {
   resume: Pick<
@@ -20,8 +21,6 @@ export function ResumeOverviewBlock({
   resume,
   compact = false,
 }: ResumeOverviewBlockProps) {
-  const summaryPreview = resume.content.summary.trim();
-
   return (
     <div
       className={
@@ -32,7 +31,7 @@ export function ResumeOverviewBlock({
     >
       <div className="flex flex-wrap items-center gap-2">
         <span className="vs-badge vs-badge-accent">
-          {resume.matchScore}% match
+          {resume.matchScore}% {RESUME_COMPLETENESS_LABEL.toLowerCase()}
         </span>
         <span className="vs-badge bg-muted text-muted-foreground">
           ATS: {resume.atsStatus}
@@ -46,18 +45,6 @@ export function ResumeOverviewBlock({
       </div>
 
       <p className="text-sm text-muted-foreground">{resume.company}</p>
-
-      {summaryPreview ? (
-        <p
-          className={
-            compact
-              ? "line-clamp-3 text-sm leading-relaxed text-muted-foreground"
-              : "text-body leading-relaxed text-muted-foreground"
-          }
-        >
-          {summaryPreview}
-        </p>
-      ) : null}
 
       {resume.tags.length > 0 ? (
         <p className="text-xs text-muted-foreground">

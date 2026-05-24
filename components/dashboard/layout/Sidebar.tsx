@@ -41,7 +41,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
       { name: "Learning Path", icon: Map, href: "/dashboard/learning-path" },
-      { name: "AI Advisor", icon: MessageSquare, href: "/dashboard/ai-advisor" },
+      { name: "My Advisor", icon: MessageSquare, href: "/dashboard/ai-advisor" },
       {
         name: "Resume Builder",
         icon: FileText,

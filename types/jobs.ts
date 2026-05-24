@@ -28,3 +28,11 @@ export interface JobMatch {
 }
 
 export type JobByCategoryRow = Record<string, unknown>;
+
+export interface JobForecast {
+  normalized_title: string;
+  forecast_date: string;
+  predicted_count: number;
+  lower_bound?: number | null;
+  upper_bound?: number | null;
+}

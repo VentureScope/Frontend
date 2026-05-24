@@ -3,6 +3,7 @@
 import { TrendingUp } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { formatGrowthLabel } from "@/lib/job-market-insights";
 import type { TrendingCareer } from "@/types/jobs";
 
 export function OrgRoadmapTrendingToggle({
@@ -36,13 +37,13 @@ export function OrgRoadmapTrendingToggle({
             <TrendingUp className="h-5 w-5" />
           </div>
           <div className="space-y-1">
-            <p className="text-label text-muted-foreground">Step 2 · Optional</p>
+            <p className="text-label text-muted-foreground">Step 3 · Optional</p>
             <h3 className="text-base font-semibold text-foreground">
               Include market trends
             </h3>
             <p className="max-w-xl text-sm text-muted-foreground">
-              Adds live hiring demand for roles related to your selected area.
-              Your company profile and team skills stay the main signal.
+              Includes current trending roles in the server generation context for
+              this area. Your company profile and team skills stay the main signal.
             </p>
           </div>
         </div>
@@ -65,25 +66,29 @@ export function OrgRoadmapTrendingToggle({
             <p className="text-sm text-muted-foreground">Loading market data…</p>
           ) : matchedTrends.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No matching trends found; generation will use company context only.
+              No matching trends in preview; the server will still use market data
+              when available for this area.
             </p>
           ) : (
             <>
               <p className="mb-2 text-xs font-medium text-muted-foreground">
-                Roles we will reference in generation
+                Related current trending roles (preview)
               </p>
               <ul className="flex flex-wrap gap-2">
-                {matchedTrends.map((t) => (
+                {matchedTrends.map((t) => {
+                  const growth = formatGrowthLabel(t.growth_pct);
+                  return (
                   <li
                     key={t.name}
                     className="rounded-full border border-primary/20 bg-background px-3 py-1 text-xs text-foreground"
                   >
                     {t.name}
                     <span className="ml-1.5 text-muted-foreground">
-                      · {t.job_count.toLocaleString()} openings
+                      · {growth.label}
                     </span>
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             </>
           )}

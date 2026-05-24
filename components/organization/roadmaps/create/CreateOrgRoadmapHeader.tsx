@@ -46,9 +46,9 @@ export function CreateOrgRoadmapHeader({
         <p className="text-label text-primary">Organization learning</p>
         <h1 className="text-h1 text-foreground">Create a team roadmap</h1>
         <p className="text-body text-muted-foreground">
-          Choose a company practice area—Frontend, Backend, and others from your
-          profile. We combine your declared stack with skills from teammates in
-          that area to generate a path for {orgName}, not generic market trends.
+          Choose a practice area, set the professional outcome you want the team
+          to reach, and generate a shared path for {orgName}. Company and team
+          context are applied automatically; market trends are optional.
         </p>
       </div>
     </div>

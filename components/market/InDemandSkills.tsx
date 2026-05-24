@@ -1,33 +1,51 @@
-import { Progress } from "@/components/ui/progress";
+import {
+  MARKET_TOP_K,
+  normalizeSkillDemand,
+} from "@/lib/job-market-insights";
+import type { InDemandSkill } from "@/types/jobs";
 
-const skills = [
-  { name: "Go (Golang)", match: "89%", val: 89 },
-  { name: "React / Next.js", match: "76%", val: 76 },
-  { name: "System Design", match: "64%", val: 64 },
-  { name: "Data Engineering", match: "52%", val: 52 },
-];
+export default function InDemandSkills({
+  skills,
+  loading,
+}: {
+  skills: InDemandSkill[];
+  loading?: boolean;
+}) {
+  const rows = normalizeSkillDemand(skills.slice(0, MARKET_TOP_K.skills));
 
-export default function InDemandSkills() {
   return (
     <div className="vs-surface p-6 sm:p-8">
-      <h3 className="mb-6 sm:mb-8 text-lg sm:text-xl font-bold text-foreground">
+      <h3 className="mb-6 text-lg font-bold text-foreground sm:mb-8 sm:text-xl">
         In-Demand Skills
       </h3>
       <div className="space-y-6 sm:space-y-8">
-        {skills.map((s) => (
-          <div key={s.name} className="space-y-2 sm:space-y-3">
-            <div className="flex justify-between text-xs sm:text-sm font-bold">
-              <span className="text-foreground">{s.name}</span>
-              <span className="text-primary">{s.match} Match</span>
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="animate-pulse space-y-2">
+              <div className="h-3 w-full rounded bg-muted" />
+              <div className="h-2 w-full rounded bg-muted" />
             </div>
-            <div className="h-1.5 sm:h-2 w-full overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full bg-primary transition-all"
-                style={{ width: `${s.val}%` }}
-              />
+          ))
+        ) : rows.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No skill demand data available yet.
+          </p>
+        ) : (
+          rows.map((s) => (
+            <div key={s.name} className="space-y-2 sm:space-y-3">
+              <div className="flex justify-between text-xs font-bold sm:text-sm">
+                <span className="text-foreground">{s.name}</span>
+                <span className="text-primary">#{s.rank}</span>
+              </div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted sm:h-2">
+                <div
+                  className="h-full bg-primary transition-all"
+                  style={{ width: `${s.width}%` }}
+                />
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

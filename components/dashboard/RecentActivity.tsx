@@ -17,7 +17,7 @@ export default function RecentActivity({
   }
 
   return (
-    <div className="vs-surface p-6 sm:p-8 lg:p-10">
+    <div className="vs-surface h-full min-h-0 p-6 sm:p-8 lg:p-10">
       <div className="mb-6 flex items-center justify-between sm:mb-8">
         <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
           Recent activity

@@ -43,5 +43,25 @@ export interface GeneratedResumeOut {
   certifications?: CertificationSection[];
   trending_skills_highlighted?: string[];
   created_at: string;
+  updated_at?: string | null;
   warnings?: string[];
 }
+
+export interface ResumeUpdateRequest {
+  target_role?: string | null;
+  professional_summary?: string | null;
+  skills?: SkillSection | null;
+  experience?: ExperienceSection[] | null;
+  education?: EducationSection[] | null;
+  projects?: ProjectSection[] | null;
+  certifications?: CertificationSection[] | null;
+  trending_skills_highlighted?: string[] | null;
+}
+
+export type ResumeEditorSection =
+  | "target"
+  | "skills"
+  | "experience"
+  | "education"
+  | "projects"
+  | "certifications";

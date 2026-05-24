@@ -17,16 +17,18 @@ export function WelcomeHeaderSkeleton() {
   );
 }
 
-export function InsightCardSkeleton() {
+export function InsightCardSkeleton({ className }: { className?: string }) {
   return (
-    <div className="vs-surface-accent flex min-h-75 flex-col justify-between p-6 sm:p-8 lg:min-h-0 lg:p-10">
-      <div className="space-y-4 sm:space-y-5">
-        {sk("h-6 w-28 rounded-md")}
-        {sk("h-7 w-full")}
-        {sk("h-7 w-11/12")}
-        {sk("h-7 w-4/5")}
+    <div
+      className={`vs-surface-accent flex h-full min-h-[220px] flex-col p-6 sm:p-8 lg:min-h-0 ${className ?? ""}`}
+    >
+      {sk("h-6 w-28 rounded-md")}
+      <div className="flex flex-1 flex-col justify-center space-y-3 py-4">
+        {sk("h-5 w-full")}
+        {sk("h-5 w-11/12")}
+        {sk("h-4 w-2/3")}
       </div>
-      {sk("mt-8 h-5 w-36 lg:mt-0")}
+      {sk("h-5 w-36")}
     </div>
   );
 }

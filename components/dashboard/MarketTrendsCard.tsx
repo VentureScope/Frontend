@@ -45,7 +45,7 @@ export default function MarketTrendsCard({
   return (
     <Link
       href="/dashboard/market-trends"
-      className="vs-surface block p-6 transition-colors hover:border-primary/25 sm:p-8 lg:p-10"
+      className="vs-surface block h-full p-6 transition-colors hover:border-primary/25 sm:p-8 lg:p-10"
     >
       <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:mb-10 sm:flex-row sm:items-end">
         <div>

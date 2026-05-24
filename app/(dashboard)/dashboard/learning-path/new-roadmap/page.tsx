@@ -7,9 +7,14 @@ import { EvolutionTabs } from "@/components/new-roadmap/NewRoadmapTabs";
 import { RoleSelectionList } from "@/components/new-roadmap/RoleSelectionList";
 import {
   getCurrentTrendingRoles,
-  getFutureTrendingRoles,
+  getFutureTrendingRolesForRoadmap,
 } from "@/lib/jobs-api";
 import { generateRoadmap } from "@/lib/roadmaps-api";
+import {
+  formatCompactNumber,
+  formatGrowthLabel,
+  formatRoadmapRoleMetric,
+} from "@/lib/job-market-insights";
 import type { TrendingCareer } from "@/types/jobs";
 import { NewRoadmapRolesSkeleton } from "@/components/learning-path/LearningPathSkeletons";
 import { toast } from "sonner";
@@ -21,24 +26,42 @@ type RoadmapRoleRow = {
   title: string;
   badge: string;
   badgeType: "high-demand" | "steady-growth";
-  count: string;
+  metricValue: string;
+  metricLabel: string;
   iconName: string;
   description: string;
   trendName: string;
 };
 
-function mapTrendingToRoles(careers: TrendingCareer[]): RoadmapRoleRow[] {
+function mapTrendingToRoles(
+  careers: TrendingCareer[],
+  variant: "current" | "future" = "current",
+): RoadmapRoleRow[] {
   return careers.map((c, i) => {
     const growth = c.growth_pct ?? 0;
     const high = growth >= 8 || c.job_count > 5000;
+    const growthText = formatGrowthLabel(c.growth_pct);
+    const trendDetail =
+      variant === "future"
+        ? `${growthText.label} in forecast window`
+        : `${growthText.label} vs prior 30 days`;
+    const context =
+      c.company_count > 0
+        ? `${formatCompactNumber(c.company_count)} employers in market data`
+        : variant === "future"
+          ? "Demand forecast model"
+          : "Indexed market listings";
+    const metric = formatRoadmapRoleMetric(c, variant);
+
     return {
       id: `trend-${i}-${encodeURIComponent(c.name)}`,
       title: c.name,
-      badge: high ? "HIGH DEMAND" : "STEADY GROWTH",
+      badge: high ? "STRONG SIGNAL" : "EMERGING",
       badgeType: high ? "high-demand" : "steady-growth",
-      count: `${c.job_count.toLocaleString()}+`,
+      metricValue: metric.value,
+      metricLabel: metric.label,
       iconName: ICONS[i % ICONS.length],
-      description: `${c.company_count.toLocaleString()} companies tracked · ${growth > 0 ? `+${growth.toFixed(0)}%` : "stable"} vs baseline`,
+      description: `${context} · ${trendDetail}`,
       trendName: c.name,
     };
   });
@@ -57,29 +80,40 @@ export default function NewRoadmapPage() {
     let cancelled = false;
     (async () => {
       setLoadingTrends(true);
-      try {
-        const [currentCareers, futureCareers] = await Promise.all([
-          getCurrentTrendingRoles({ limit: 12, period: 30 }),
-          getFutureTrendingRoles({ limit: 12 }).catch(() => []),
-        ]);
-        if (cancelled) {
-          return;
-        }
-        const mappedCurrent = mapTrendingToRoles(currentCareers);
-        const mappedFuture = mapTrendingToRoles(futureCareers);
-        setCurrentRoles(mappedCurrent);
-        setFutureRoles(mappedFuture);
-        if (mappedCurrent[0]) {
-          setSelectedRoleId(mappedCurrent[0].id);
-        }
-      } catch {
-        if (!cancelled) {
-          toast.error("Could not load current trending roles.");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoadingTrends(false);
-        }
+      const [currentResult, futureResult] = await Promise.allSettled([
+        getCurrentTrendingRoles({ limit: 12, period: 30 }),
+        getFutureTrendingRolesForRoadmap({ limit: 12 }),
+      ]);
+
+      if (cancelled) {
+        return;
+      }
+
+      const currentCareers =
+        currentResult.status === "fulfilled" ? currentResult.value : [];
+      const futureCareers =
+        futureResult.status === "fulfilled" ? futureResult.value : [];
+
+      const mappedCurrent = mapTrendingToRoles(currentCareers, "current");
+      const mappedFuture = mapTrendingToRoles(futureCareers, "future");
+      setCurrentRoles(mappedCurrent);
+      setFutureRoles(mappedFuture);
+
+      if (mappedCurrent[0]) {
+        setSelectedRoleId(mappedCurrent[0].id);
+      } else if (mappedFuture[0]) {
+        setSelectedRoleId(mappedFuture[0].id);
+      }
+
+      if (currentResult.status === "rejected") {
+        toast.error("Could not load current trending roles.");
+      }
+      if (futureResult.status === "rejected") {
+        toast.error("Could not load future predicted roles from market trends.");
+      }
+
+      if (!cancelled) {
+        setLoadingTrends(false);
       }
     })();
     return () => {
@@ -110,9 +144,14 @@ export default function NewRoadmapPage() {
       toast.error("Select a role first.");
       return;
     }
+    const useMarketTrends = activeTab === "current";
     setIsGenerating(true);
     try {
-      const roadmap = await generateRoadmap({ trend_name: trendName });
+      const roadmap = await generateRoadmap({
+        trend_name: trendName,
+        goal: `Build skills to grow as a ${trendName}`,
+        use_market_trends: useMarketTrends,
+      });
       toast.success("Roadmap created.");
       router.push(`/dashboard/learning-path/${roadmap.id}`);
     } catch {
@@ -120,7 +159,7 @@ export default function NewRoadmapPage() {
     } finally {
       setIsGenerating(false);
     }
-  }, [router, selected?.trendName]);
+  }, [activeTab, router, selected?.trendName]);
 
   return (
     <div className="relative min-h-screen bg-background">
