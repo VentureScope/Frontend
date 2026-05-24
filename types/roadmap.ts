@@ -4,6 +4,8 @@ export interface ResourceOut {
   url?: string | null;
   resource_type?: string | null;
   source?: string | null;
+  completed?: boolean;
+  completed_at?: string | null;
 }
 
 export interface StepProgressOut {
@@ -94,7 +96,7 @@ export interface StepProgressUpdate {
 export type StepResourceUiStatus = "completed" | "in-progress" | "locked";
 
 /** Normalize API progress strings (e.g. `not_started`, `in_progress`, `completed`). */
-function normalizeProgressStatus(
+export function normalizeProgressStatus(
   status: string | null | undefined,
 ): "completed" | "in_progress" | "not_started" | "other" {
   if (!status) {
@@ -126,6 +128,23 @@ export function stepUiStatus(step: StepOut): StepResourceUiStatus {
     return "in-progress";
   }
   return "locked";
+}
+
+/**
+ * Per-resource checkbox state from GET roadmap payload.
+ * Resources stay toggleable on `not_started` steps (first toggle starts progress).
+ */
+export function resourceUiStatusFromApi(
+  resource: ResourceOut,
+  step: StepOut,
+): StepResourceUiStatus {
+  if (normalizeProgressStatus(step.progress?.status) === "completed") {
+    return "completed";
+  }
+  if (resource.completed) {
+    return "completed";
+  }
+  return "in-progress";
 }
 
 export function stepProgressDone(step: StepOut): boolean {

@@ -77,17 +77,6 @@ function participantsFromProgress(
   });
 }
 
-function participantsFromMembers(
-  members: OrganizationMember[],
-): RoadmapParticipant[] {
-  return members.map((m) => ({
-    id: m.id,
-    name: m.name,
-    initials: m.initials,
-    progress: 0,
-  }));
-}
-
 function focusLabel(trendName: string | null | undefined, title: string): string {
   const trend = trendName?.trim();
   if (trend) return trend;
@@ -244,10 +233,7 @@ export function orgRoadmapListItemToOrganizationRoadmap(
   members: OrganizationMember[],
 ): OrganizationRoadmap {
   const icon = iconNameForTrend(item.trend_name);
-  const participants =
-    members.length > 0
-      ? participantsFromMembers(members)
-      : [];
+  const participants: RoadmapParticipant[] = [];
 
   const createdBy = createdByFields(
     item.created_by_user_id,
@@ -256,8 +242,9 @@ export function orgRoadmapListItemToOrganizationRoadmap(
   const myEnrollment = toMyRoadmapEnrollment(item.my_enrollment);
 
   return {
-    id: item.id,
+    id: item.roadmap_id,
     contentRoadmapId: item.roadmap_id,
+    assignmentId: item.id,
     orgId,
     title: item.title,
     focus: focusLabel(item.trend_name, item.title),
@@ -293,6 +280,53 @@ export function parseOrganizationRoadmapList(
   return items;
 }
 
+export function orgRoadmapOutToOrganizationRoadmap(
+  orgRoadmap: OrgRoadmapOutApi,
+  orgId: string,
+  members: OrganizationMember[],
+): OrganizationRoadmap {
+  const lookup = memberLookup(members);
+  const icon = iconNameForTrend(orgRoadmap.trend_name);
+  const progressRows = orgRoadmap.per_member_progress ?? [];
+  const participants =
+    progressRows.length > 0
+      ? participantsFromProgress(progressRows, lookup)
+      : [];
+
+  const createdBy = createdByFields(
+    orgRoadmap.created_by_user_id,
+    orgRoadmap.created_by_name,
+  );
+  const myEnrollment = toMyRoadmapEnrollment(orgRoadmap.my_enrollment);
+
+  return {
+    id: orgRoadmap.roadmap_id,
+    contentRoadmapId: orgRoadmap.roadmap_id,
+    assignmentId: orgRoadmap.id,
+    orgId,
+    title: orgRoadmap.title,
+    focus: focusLabel(orgRoadmap.trend_name, orgRoadmap.title),
+    progress: Math.round(
+      Math.min(
+        100,
+        Math.max(0, orgRoadmap.aggregate_completion_percentage),
+      ),
+    ),
+    iconName: icon,
+    isExpanded: false,
+    modules: [],
+    createdAt: orgRoadmap.created_at,
+    trendName: orgRoadmap.trend_name ?? null,
+    goal: orgRoadmap.goal ?? null,
+    summary: orgRoadmap.summary ?? null,
+    totalWeeks: orgRoadmap.total_weeks,
+    totalMembers: orgRoadmap.total_members,
+    ...createdBy,
+    myEnrollment,
+    participants,
+  };
+}
+
 export function mergeOrgRoadmapWithContent(
   orgRoadmap: OrgRoadmapOutApi,
   content: RoadmapOut,
@@ -306,7 +340,7 @@ export function mergeOrgRoadmapWithContent(
   const participants =
     progressRows.length > 0
       ? participantsFromProgress(progressRows, lookup)
-      : participantsFromMembers(members);
+      : [];
 
   const createdBy = createdByFields(
     orgRoadmap.created_by_user_id,
@@ -316,8 +350,9 @@ export function mergeOrgRoadmapWithContent(
 
   const merged: OrganizationRoadmap = {
     ...base,
-    id: orgRoadmap.id,
+    id: orgRoadmap.roadmap_id,
     contentRoadmapId: orgRoadmap.roadmap_id,
+    assignmentId: orgRoadmap.id,
     orgId,
     title: orgRoadmap.title || base.title,
     focus: focusLabel(orgRoadmap.trend_name, orgRoadmap.title || base.title),
@@ -341,12 +376,38 @@ export function mergeOrgRoadmapWithContent(
   return merged;
 }
 
+/** Attach full step/resource content from GET /api/roadmaps/{roadmap_id}. */
+export function mergeRoadmapContentIntoOrgRoadmap(
+  orgRoadmap: OrganizationRoadmap,
+  content: RoadmapOut,
+): OrganizationRoadmap {
+  const icon = iconNameForTrend(orgRoadmap.trendName ?? content.trend_name);
+  const learningPath = roadmapOutToLearningPath(content, icon);
+
+  return {
+    ...orgRoadmap,
+    modules: learningPath.modules,
+    isExpanded: learningPath.modules.length > 0,
+    stepsCompleted: learningPath.stepsCompleted,
+    totalSteps: learningPath.totalSteps,
+    roadmapStatus: learningPath.roadmapStatus,
+    goal: orgRoadmap.goal ?? content.goal ?? null,
+    summary: orgRoadmap.summary ?? content.summary ?? null,
+    totalWeeks: orgRoadmap.totalWeeks ?? content.total_weeks,
+    trendName: orgRoadmap.trendName ?? content.trend_name ?? null,
+  };
+}
+
 export function patchRoadmapModules(
   roadmaps: OrganizationRoadmap[],
   orgRoadmapId: string,
   modules: LearningPath["modules"],
 ): OrganizationRoadmap[] {
   return roadmaps.map((r) =>
-    r.id === orgRoadmapId ? { ...r, modules, isExpanded: modules.length > 0 } : r,
+    r.id === orgRoadmapId ||
+    r.contentRoadmapId === orgRoadmapId ||
+    r.assignmentId === orgRoadmapId
+      ? { ...r, modules, isExpanded: modules.length > 0 }
+      : r,
   );
 }

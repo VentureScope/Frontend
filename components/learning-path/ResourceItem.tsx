@@ -1,5 +1,6 @@
-import { Play, BookOpen, Check, Circle, ExternalLink } from "lucide-react";
+import { Play, BookOpen, Check, Circle, ExternalLink, Loader2 } from "lucide-react";
 import type { ResourceType } from "@/app/(dashboard)/dashboard/learning-path/mockData";
+import { cn } from "@/lib/utils";
 
 interface ResourceItemProps {
   id?: string;
@@ -9,6 +10,7 @@ interface ResourceItemProps {
   status: "completed" | "in-progress" | "locked";
   thumbnail?: string;
   url?: string | null;
+  isSaving?: boolean;
   onToggle?: (id: string) => void;
 }
 
@@ -29,18 +31,26 @@ export default function ResourceItem({
   status,
   thumbnail,
   url,
+  isSaving = false,
   onToggle,
 }: ResourceItemProps) {
   const href = url && /^https?:\/\//i.test(url.trim()) ? url.trim() : null;
+  const isLocked = status === "locked";
+  const canToggle = Boolean(onToggle && id && !isLocked && !isSaving);
 
   return (
     <div
-      onClick={() => onToggle && id && onToggle(id)}
-      className={`group flex cursor-pointer items-center justify-between rounded-lg border bg-card p-4 transition-all hover:border-border hover:shadow-md ${
+      onClick={() => canToggle && onToggle!(id!)}
+      aria-busy={isSaving}
+      className={cn(
+        "group flex items-center justify-between rounded-lg border bg-card p-4 transition-all",
+        isSaving && "pointer-events-none opacity-70",
+        canToggle && "cursor-pointer hover:border-border hover:shadow-md",
+        !canToggle && !isSaving && "cursor-default",
         status === "in-progress"
           ? "border-l-4 border-l-primary border-border"
-          : "border-border"
-      }`}
+          : "border-border",
+      )}
     >
       <div className="flex min-w-0 flex-1 items-center gap-4">
         {thumbnail ? (
@@ -87,7 +97,13 @@ export default function ResourceItem({
       </div>
 
       <div className="shrink-0 pr-2">
-        {status === "completed" ? (
+        {isSaving ? (
+          <Loader2
+            size={20}
+            className="animate-spin text-primary"
+            aria-label="Saving progress"
+          />
+        ) : status === "completed" ? (
           <div className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-muted">
             <Check size={14} className="text-primary" strokeWidth={3} />
           </div>

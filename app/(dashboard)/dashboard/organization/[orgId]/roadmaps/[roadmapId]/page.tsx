@@ -1,38 +1,43 @@
 "use client";
 
-import { use, useCallback, useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, GitFork, Users } from "lucide-react";
+import { ArrowLeft, GitFork, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { RoadmapDetailView } from "@/components/roadmap-view/RoadmapDetailView";
 import { RoadmapDetailPageSkeleton } from "@/components/learning-path/LearningPathSkeletons";
-import { ParticipantAvatars } from "@/components/organization/roadmaps/ParticipantAvatars";
-import { RoadmapInfoCallout } from "@/components/organization/roadmaps/RoadmapInfoCallout";
+import { RoadmapUxTips } from "@/components/roadmap-view/RoadmapUxTips";
 import { Button } from "@/components/ui/button";
 import type { LearningPath } from "@/app/(dashboard)/dashboard/learning-path/mockData";
 import type { OrganizationRoadmap } from "@/types/organization-roadmap";
 import {
   attachForkMetadata,
-  buildUserForkMapFromRoadmaps,
   clearForkReferences,
   findUserForkOfRoadmap,
   forkOrganizationRoadmap,
   isPersonalFork,
 } from "@/lib/organization-roadmap-fork";
 import {
-  fetchOrganizationRoadmapDetail,
+  fetchOrgRoadmapLessonPage,
+  fetchOrgRoadmapSummary,
   isOrgRoadmapNotFoundError,
 } from "@/lib/organization-roadmap-service";
 import {
-  getMyProgress,
   isCreatedByUser,
+  isEnrolledInRoadmap,
+  orgRoadmapDetailId,
   resolveCurrentUserId,
 } from "@/lib/organization-roadmap-utils";
 import { useOrganization } from "@/hooks/useOrganization";
 import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
 import { getApiErrorMessage } from "@/lib/auth-api";
-import { toggleResourceWithSync } from "@/lib/roadmap-progress-sync";
+import { useRoadmapResourceToggle } from "@/hooks/useRoadmapResourceToggle";
+import { enrollOrganizationRoadmap } from "@/lib/organizations-api";
+import {
+  formatRoadmapStatus,
+  roadmapStatusBadgeClass,
+} from "@/lib/roadmap-utils";
 import { useAppStore } from "@/store/useAppStore";
 
 export default function OrganizationRoadmapDetailPage({
@@ -50,13 +55,12 @@ export default function OrganizationRoadmapDetailPage({
 
   const orgName = organization?.displayName ?? "Organization";
 
-  const [source, setSource] = useState<OrganizationRoadmap | undefined>(
-    undefined,
-  );
+  const [meta, setMeta] = useState<OrganizationRoadmap | undefined>(undefined);
   const [path, setPath] = useState<LearningPath | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [forking, setForking] = useState(false);
+  const [enrolling, setEnrolling] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -65,31 +69,31 @@ export default function OrganizationRoadmapDetailPage({
       setError(null);
 
       try {
-        const { roadmap, resolvedOrgRoadmapId } =
-          await fetchOrganizationRoadmapDetail(orgId, roadmapId, members);
+        const { roadmap, resolvedRoadmapId } = await fetchOrgRoadmapLessonPage(
+          orgId,
+          roadmapId,
+          members,
+        );
 
         if (cancelled) return;
 
-        if (resolvedOrgRoadmapId !== roadmapId) {
+        if (resolvedRoadmapId !== roadmapId) {
           router.replace(
-            `/dashboard/organization/${orgId}/roadmaps/${resolvedOrgRoadmapId}`,
+            `/dashboard/organization/${orgId}/roadmaps/${resolvedRoadmapId}`,
           );
           return;
         }
 
         const withMeta = attachForkMetadata(roadmap);
-        setSource(withMeta);
-        setPath({
-          ...withMeta,
-          progress: getMyProgress(withMeta, userId),
-        });
+        setMeta(withMeta);
+        setPath(withMeta);
       } catch (err) {
         if (cancelled) return;
         if (isOrgRoadmapNotFoundError(err)) {
           clearForkReferences(orgId, roadmapId);
         }
         setError(getApiErrorMessage(err));
-        setSource(undefined);
+        setMeta(undefined);
         setPath(null);
       } finally {
         if (!cancelled) {
@@ -100,14 +104,10 @@ export default function OrganizationRoadmapDetailPage({
     return () => {
       cancelled = true;
     };
-  }, [orgId, roadmapId, members, userId, router]);
+  }, [orgId, roadmapId, members, router]);
 
-  const handleToggleResource = useCallback(
-    (moduleId: string, resourceId: string) => {
-      toggleResourceWithSync(setPath, moduleId, resourceId);
-    },
-    [],
-  );
+  const { syncingResourceId, handleToggleResource } =
+    useRoadmapResourceToggle(setPath);
 
   if (loading) {
     return (
@@ -117,17 +117,13 @@ export default function OrganizationRoadmapDetailPage({
     );
   }
 
-  if (error || !path || !source) {
+  if (error || !path || !meta) {
     return (
       <div className="mx-auto max-w-5xl px-4 py-16 text-center">
         <h1 className="text-h1 text-foreground">Roadmap not found</h1>
         <p className="mt-2 text-body text-muted-foreground">
           {error ??
             "This roadmap may have been removed, or the link uses an outdated id."}
-        </p>
-        <p className="mt-2 text-xs text-muted-foreground">
-          Open the roadmap from the team list if you forked it earlier — stale
-          browser links are cleared automatically.
         </p>
         <Link
           href={`/dashboard/organization/${orgId}/roadmaps`}
@@ -139,11 +135,34 @@ export default function OrganizationRoadmapDetailPage({
     );
   }
 
-  const createdByMe = isCreatedByUser(source, userId);
-  const isFork = isPersonalFork(source);
-  const existingForkId = !createdByMe && !isFork
-    ? findUserForkOfRoadmap(orgId, roadmapId, userId, [])
-    : undefined;
+  const createdByMe = isCreatedByUser(meta, userId);
+  const isFork = isPersonalFork(meta);
+  const isEnrolled = isEnrolledInRoadmap(meta, userId);
+  const existingForkId =
+    !createdByMe && !isFork
+      ? findUserForkOfRoadmap(orgId, roadmapId, userId, [])
+      : undefined;
+
+  const handleEnroll = () => {
+    void (async () => {
+      setEnrolling(true);
+      try {
+        await enrollOrganizationRoadmap(orgId, orgRoadmapDetailId(meta));
+        const summary = await fetchOrgRoadmapSummary(
+          orgId,
+          orgRoadmapDetailId(meta),
+          members,
+        );
+        const refreshed = attachForkMetadata({ ...summary, modules: path.modules });
+        setMeta(refreshed);
+        toast.success("You're enrolled — your progress will be tracked.");
+      } catch (err) {
+        toast.error(getApiErrorMessage(err));
+      } finally {
+        setEnrolling(false);
+      }
+    })();
+  };
 
   const handleFork = () => {
     void (async () => {
@@ -157,13 +176,15 @@ export default function OrganizationRoadmapDetailPage({
       try {
         const forked = await forkOrganizationRoadmap(
           orgId,
-          source,
+          meta,
           userId,
           userName,
           members,
         );
         toast.success("Fork created — it's in My roadmaps under Created by me.");
-        router.push(`/dashboard/organization/${orgId}/roadmaps/${forked.id}`);
+        router.push(
+          `/dashboard/organization/${orgId}/roadmaps/${orgRoadmapDetailId(forked)}`,
+        );
       } catch (err) {
         toast.error(getApiErrorMessage(err));
       } finally {
@@ -175,21 +196,61 @@ export default function OrganizationRoadmapDetailPage({
   const backHref = isFork
     ? "/dashboard/organization/roadmaps"
     : `/dashboard/organization/${orgId}/roadmaps`;
-  const backLabel = isFork ? "My roadmaps" : `${orgName} roadmaps`;
+
+  const showEnroll = !isFork && !isEnrolled;
+  const showFork = !createdByMe && !isFork;
 
   return (
-    <div className="min-h-screen">
-      <div className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Link
-            href={backHref}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            {backLabel}
-          </Link>
-          <div className="flex items-center gap-2">
-            {!createdByMe && !isFork ? (
+    <div className="min-h-screen bg-background">
+      <div className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+          <div className="flex min-w-0 items-center gap-4">
+            <Link
+              href={backHref}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+            >
+              <ArrowLeft size={20} />
+            </Link>
+            <div className="min-w-0">
+              <h1 className="truncate text-sm font-bold text-foreground">
+                {path.title}
+              </h1>
+              <p className="text-[11px] font-medium text-muted-foreground">
+                {path.totalWeeks != null
+                  ? `${path.totalWeeks} week${path.totalWeeks === 1 ? "" : "s"}`
+                  : "Learning roadmap"}
+                {path.trendName ? ` · ${path.trendName}` : ""}
+                {meta.forkedFrom ? (
+                  <>
+                    {" · "}
+                    <span className="text-foreground/80">
+                      Personal copy
+                    </span>
+                  </>
+                ) : null}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {path.roadmapStatus ? (
+              <span className={roadmapStatusBadgeClass(path.roadmapStatus)}>
+                {formatRoadmapStatus(path.roadmapStatus)}
+              </span>
+            ) : null}
+            {showEnroll ? (
+              <Button
+                type="button"
+                size="sm"
+                className="gap-1.5"
+                disabled={enrolling}
+                onClick={handleEnroll}
+              >
+                <UserPlus className="h-3.5 w-3.5" />
+                {enrolling ? "Enrolling…" : "Enroll"}
+              </Button>
+            ) : null}
+            {showFork ? (
               <Button
                 type="button"
                 size="sm"
@@ -210,45 +271,16 @@ export default function OrganizationRoadmapDetailPage({
         </div>
       </div>
 
-      <div className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6">
-        {source.forkedFrom ? (
-          <RoadmapInfoCallout icon={GitFork} title="Your personal copy">
-            Forked from{" "}
-            <strong className="font-medium text-foreground">
-              {source.forkedFrom.title}
-            </strong>{" "}
-            by {source.forkedFrom.createdByName}. Progress is yours alone.{" "}
-            <Link
-              href={`/dashboard/organization/${orgId}/roadmaps/${source.forkedFrom.roadmapId}`}
-              className="font-semibold text-primary hover:underline"
-            >
-              View original
-            </Link>
-          </RoadmapInfoCallout>
-        ) : (
-          <RoadmapInfoCallout icon={Users} title="Organization roadmap">
-            Shared roadmap inside <strong>{orgName}</strong>. Progress reflects
-            your enrollment. {source.participants.length} member
-            {source.participants.length === 1 ? "" : "s"} on this path.
-          </RoadmapInfoCallout>
-        )}
-
-        {!isFork && source.participants.length > 0 ? (
-          <div className="flex flex-wrap items-center gap-4 px-1">
-            <ParticipantAvatars participants={source.participants} max={6} />
-            <p className="text-xs text-muted-foreground">
-              Teammates on this roadmap
-            </p>
-          </div>
-        ) : null}
-
+      <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+        <RoadmapUxTips variant="personal-detail" className="mb-8" compact />
         <RoadmapDetailView
           path={{
             ...path,
             onToggleResource: handleToggleResource,
           }}
+          syncingResourceId={syncingResourceId}
         />
-      </div>
+      </main>
     </div>
   );
 }

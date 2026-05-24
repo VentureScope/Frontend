@@ -8,11 +8,15 @@ import {
   parseOrganizationRoadmapList,
 } from "@/lib/organization-roadmap-parsers";
 import { forkOrganizationRoadmapApi } from "@/lib/organizations-api";
+import {
+  orgRoadmapDetailId,
+  matchesOrgRoadmapId,
+} from "@/lib/organization-roadmap-utils";
+import type { OrganizationMember } from "@/types/organization-profile";
 import type {
   OrganizationRoadmap,
   OrgRoadmapForkSource,
 } from "@/types/organization-roadmap";
-import type { OrganizationMember } from "@/types/organization-profile";
 
 const FORK_META_KEY = "venturescope-org-fork-meta-v2";
 const FORK_INDEX_KEY = "venturescope-org-fork-index-v2";
@@ -155,7 +159,8 @@ export async function forkOrganizationRoadmap(
   userName: string,
   members: OrganizationMember[] = [],
 ): Promise<OrganizationRoadmap> {
-  const existingId = findUserForkOfRoadmap(orgId, source.id, userId, [source]);
+  const sourceRoadmapId = orgRoadmapDetailId(source);
+  const existingId = findUserForkOfRoadmap(orgId, sourceRoadmapId, userId, [source]);
   if (existingId) {
     try {
       const { roadmap } = await fetchOrganizationRoadmapDetail(
@@ -174,30 +179,35 @@ export async function forkOrganizationRoadmap(
   }
 
   const forkedFrom: OrgRoadmapForkSource = {
-    roadmapId: source.id,
+    roadmapId: sourceRoadmapId,
     title: source.title,
     createdByName: source.createdByName,
   };
 
-  let forkAssignmentId: string | null = null;
+  let forkRoadmapId: string | null = null;
 
   try {
-    const forkResponse = await forkOrganizationRoadmapApi(orgId, source.id);
+    const forkResponse = await forkOrganizationRoadmapApi(orgId, sourceRoadmapId);
     const parsedFork = parseOrgRoadmapOutApi(forkResponse);
-    if (parsedFork?.id) {
-      forkAssignmentId = parsedFork.id;
+    if (parsedFork?.roadmap_id) {
+      forkRoadmapId = parsedFork.roadmap_id;
     }
   } catch (err) {
     throw new Error(getApiErrorMessage(err));
   }
 
-  if (!forkAssignmentId) {
+  if (!forkRoadmapId) {
     const { listOrganizationRoadmaps } = await import("@/lib/organizations-api");
     const listRaw = await listOrganizationRoadmaps(orgId);
     const parsed = parseOrganizationRoadmapList(listRaw, orgId, members);
 
     const forkCandidate = parsed
-      .filter((r) => r.id !== source.id && r.createdByUserId === userId)
+      .filter(
+        (r) =>
+          r.id !== sourceRoadmapId &&
+          !matchesOrgRoadmapId(source, r.id) &&
+          r.createdByUserId === userId,
+      )
       .sort(
         (a, b) =>
           new Date(b.createdAt ?? 0).getTime() -
@@ -207,15 +217,15 @@ export async function forkOrganizationRoadmap(
     if (!forkCandidate) {
       throw new Error("Fork created but the new roadmap could not be loaded.");
     }
-    forkAssignmentId = forkCandidate.id;
+    forkRoadmapId = orgRoadmapDetailId(forkCandidate);
   }
 
-  saveForkMetadata(forkAssignmentId, forkedFrom);
-  saveForkIndex(orgId, source.id, userId, forkAssignmentId);
+  saveForkMetadata(forkRoadmapId, forkedFrom);
+  saveForkIndex(orgId, sourceRoadmapId, userId, forkRoadmapId);
 
   const { roadmap } = await fetchOrganizationRoadmapDetail(
     orgId,
-    forkAssignmentId,
+    forkRoadmapId,
     members,
   );
 

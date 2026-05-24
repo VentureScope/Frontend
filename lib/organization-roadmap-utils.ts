@@ -114,5 +114,23 @@ export function getRoadmapById(
   roadmaps: OrganizationRoadmap[],
   id: string,
 ): OrganizationRoadmap | undefined {
-  return roadmaps.find((r) => r.id === id);
+  return roadmaps.find(
+    (r) => r.id === id || r.contentRoadmapId === id || r.assignmentId === id,
+  );
+}
+
+/** Content `roadmap_id` for org detail URLs and API paths. */
+export function orgRoadmapDetailId(roadmap: OrganizationRoadmap): string {
+  return roadmap.contentRoadmapId ?? roadmap.id;
+}
+
+export function matchesOrgRoadmapId(
+  roadmap: OrganizationRoadmap,
+  id: string,
+): boolean {
+  return (
+    roadmap.id === id ||
+    roadmap.contentRoadmapId === id ||
+    roadmap.assignmentId === id
+  );
 }

@@ -10,10 +10,9 @@ import {
   Filter,
   MapPinned,
   Plus,
-  Users,
 } from "lucide-react";
 import { OrgRoadmapPathCard } from "@/components/organization/roadmaps/OrgRoadmapPathCard";
-import { RoadmapInfoCallout } from "@/components/organization/roadmaps/RoadmapInfoCallout";
+import { RoadmapUxTips } from "@/components/roadmap-view/RoadmapUxTips";
 import { useOrgRoadmapListState } from "@/components/organization/roadmaps/useOrgRoadmapListState";
 import { OrganizationPageHeader } from "@/components/organization/OrganizationPageHeader";
 import { OrganizationRoadmapsGridSkeleton } from "@/components/organization/OrganizationSkeletons";
@@ -78,7 +77,7 @@ export function OrgTeamRoadmapsView({ orgId }: { orgId: string }) {
   const [filter, setFilter] = useState<OrgTeamRoadmapsFilter>("all");
   const [forkingId, setForkingId] = useState<string | null>(null);
 
-  const { paths, setPaths, expandedPathIds, handleToggleExpand, handleToggleResource } =
+  const { paths, setPaths, expandedPathIds, handleToggleExpand, handleToggleResource, syncingResourceId } =
     useOrgRoadmapListState<OrganizationRoadmap>([]);
 
   const apiRoadmaps = useMemo(
@@ -170,7 +169,7 @@ export function OrgTeamRoadmapsView({ orgId }: { orgId: string }) {
   ).length;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <div className="mx-auto max-w-6xl">
       <Link
         href={`/dashboard/organization/${orgId}`}
         className="mb-6 inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
@@ -182,8 +181,19 @@ export function OrgTeamRoadmapsView({ orgId }: { orgId: string }) {
       <OrganizationPageHeader
         label={orgName}
         title="Team roadmaps"
-        description={`Learning roadmaps assigned to ${orgName}. Expand a card to load steps, track team completion, or open the full detail view.`}
+        description={`Shared learning paths for ${orgName}. Expand a card to preview weeks, or open the full roadmap to track your progress.`}
         icon={MapPinned}
+        className="mb-6 sm:mb-8"
+        actions={
+          canCreate ? (
+            <Button asChild size="sm" className="gap-1.5">
+              <Link href={createHref}>
+                <Plus className="h-4 w-4" />
+                Create roadmap
+              </Link>
+            </Button>
+          ) : undefined
+        }
       />
 
       {error ? (
@@ -195,15 +205,11 @@ export function OrgTeamRoadmapsView({ orgId }: { orgId: string }) {
         </div>
       ) : null}
 
-      <RoadmapInfoCallout icon={Users} title="Shared by your organization">
-        Roadmaps are generated for the whole team. Your personal progress is tracked
-        per member when you open a roadmap. Fork a path to keep a private copy in My
-        roadmaps.
-      </RoadmapInfoCallout>
+      <RoadmapUxTips variant="org-team-list" compact className="mb-6" />
 
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
-          <Filter className="h-4 w-4 text-muted-foreground" />
+          <Filter className="h-4 w-4 shrink-0 text-muted-foreground" />
           {FILTER_OPTIONS.map((opt) => (
             <button
               key={opt.id}
@@ -220,28 +226,21 @@ export function OrgTeamRoadmapsView({ orgId }: { orgId: string }) {
             </button>
           ))}
         </div>
-        {canCreate ? (
-          <Button asChild size="sm" className="gap-1.5 shrink-0">
-            <Link href={createHref}>
-              <Plus className="h-4 w-4" />
-              Create roadmap
-            </Link>
-          </Button>
-        ) : (
-          <p className="text-xs text-muted-foreground sm:ml-auto">
-            Only the organization owner can assign new roadmaps.
-          </p>
-        )}
+        <p className="text-label shrink-0 text-muted-foreground">
+          {loading
+            ? "Loading roadmaps…"
+            : `${filtered.length} roadmap${filtered.length === 1 ? "" : "s"}`}
+          {!loading && filter === "all" && enrolledCount > 0
+            ? ` · You are on ${enrolledCount}`
+            : ""}
+        </p>
       </div>
 
-      <p className="text-label mb-6 text-muted-foreground">
-        {loading
-          ? "Loading roadmaps…"
-          : `${filtered.length} roadmap${filtered.length === 1 ? "" : "s"}`}
-        {!loading && filter === "all" && enrolledCount > 0
-          ? ` · You are on ${enrolledCount}`
-          : ""}
-      </p>
+      {!canCreate ? (
+        <p className="mb-6 text-xs text-muted-foreground">
+          Only the organization owner can assign new roadmaps.
+        </p>
+      ) : null}
 
       {loading ? (
         <OrganizationRoadmapsGridSkeleton count={3} />
@@ -289,6 +288,7 @@ export function OrgTeamRoadmapsView({ orgId }: { orgId: string }) {
                   router.push(`/dashboard/organization/${orgId}/roadmaps/${id}`)
                 }
                 isDetailLoading={detailLoading}
+                syncingResourceId={syncingResourceId}
                 showTeamEnrollment
                 canFork={!createdByMe}
                 onFork={handleFork}

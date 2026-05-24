@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState, useCallback } from "react";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { RoadmapDetailView } from "@/components/roadmap-view/RoadmapDetailView";
@@ -11,8 +11,9 @@ import {
   formatRoadmapStatus,
   roadmapStatusBadgeClass,
 } from "@/lib/roadmap-utils";
-import { toggleResourceWithSync } from "@/lib/roadmap-progress-sync";
+import { useRoadmapResourceToggle } from "@/hooks/useRoadmapResourceToggle";
 import { RoadmapDetailPageSkeleton } from "@/components/learning-path/LearningPathSkeletons";
+import { RoadmapUxTips } from "@/components/roadmap-view/RoadmapUxTips";
 
 export default function StandaloneRoadmapPage({
   params,
@@ -42,12 +43,8 @@ export default function StandaloneRoadmapPage({
     };
   }, [id]);
 
-  const handleToggleResource = useCallback(
-    (moduleId: string, resourceId: string) => {
-      toggleResourceWithSync(setPath, moduleId, resourceId);
-    },
-    [],
-  );
+  const { syncingResourceId, handleToggleResource } =
+    useRoadmapResourceToggle(setPath);
 
   if (loadError || (!path && !loadError)) {
     if (!path && !loadError) {
@@ -101,11 +98,13 @@ export default function StandaloneRoadmapPage({
       </div>
 
       <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+        <RoadmapUxTips variant="personal-detail" className="mb-8" compact />
         <RoadmapDetailView
           path={{
             ...path,
             onToggleResource: handleToggleResource,
           }}
+          syncingResourceId={syncingResourceId}
         />
       </main>
     </div>

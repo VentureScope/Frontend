@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "check:theme": "node scripts/check-theme-tokens.mjs"
+    "check:theme": "node scripts/check-theme-tokens.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "compilerOptions": {
     "baseUrl": ".",
@@ -51,6 +53,7 @@
     "eslint": "^10.1.0",
     "eslint-config-next": "^0.2.4",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.4"
   }
 }

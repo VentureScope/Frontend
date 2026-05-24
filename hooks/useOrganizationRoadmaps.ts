@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { getApiErrorMessage } from "@/lib/auth-api";
 import { parseOrganizationRoadmapList } from "@/lib/organization-roadmap-parsers";
-import { fetchOrganizationRoadmapDetail } from "@/lib/organization-roadmap-service";
+import { loadOrgRoadmapExpandedContent } from "@/lib/organization-roadmap-service";
 import { listOrganizationRoadmaps } from "@/lib/organizations-api";
 import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
+import { matchesOrgRoadmapId } from "@/lib/organization-roadmap-utils";
 import { canAssignRoadmaps } from "@/lib/organization-permissions";
 import type { OrganizationRoadmap } from "@/types/organization-roadmap";
 
@@ -51,16 +52,16 @@ export function useOrganizationRoadmaps(orgId: string) {
   }, [reload, membersLoading]);
 
   const loadRoadmapDetail = useCallback(
-    async (orgRoadmapId: string) => {
-      setLoadingDetailId(orgRoadmapId);
+    async (roadmapId: string) => {
+      setLoadingDetailId(roadmapId);
       try {
-        const { roadmap: detail } = await fetchOrganizationRoadmapDetail(
-          orgId,
-          orgRoadmapId,
-          members,
-        );
+        const existing = roadmaps.find((r) => matchesOrgRoadmapId(r, roadmapId));
+        if (!existing) {
+          throw new Error("Roadmap not found in list.");
+        }
+        const detail = await loadOrgRoadmapExpandedContent(existing);
         setRoadmaps((prev) =>
-          prev.map((r) => (r.id === orgRoadmapId ? detail : r)),
+          prev.map((r) => (matchesOrgRoadmapId(r, roadmapId) ? detail : r)),
         );
         return detail;
       } catch (err) {
@@ -69,7 +70,7 @@ export function useOrganizationRoadmaps(orgId: string) {
         setLoadingDetailId(null);
       }
     },
-    [orgId, members],
+    [roadmaps],
   );
 
   return {

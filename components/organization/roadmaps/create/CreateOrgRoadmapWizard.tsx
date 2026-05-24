@@ -110,7 +110,7 @@ export function CreateOrgRoadmapWizard({ orgId }: { orgId: string }) {
       }
 
       toast.success(`Roadmap created for ${selected.title}.`);
-      router.push(`/dashboard/organization/${orgId}/roadmaps/${parsed.id}`);
+      router.push(`/dashboard/organization/${orgId}/roadmaps/${parsed.roadmap_id}`);
     } catch (err) {
       toast.error(getApiErrorMessage(err));
     } finally {

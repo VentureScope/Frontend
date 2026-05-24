@@ -1,25 +1,29 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BarChart3, Building2, Cloud, MapPinned, Plus } from "lucide-react";
 import { TabNavigation } from "@/components/learning-path/TabNavigation";
 import { OrgRoadmapPathCard } from "@/components/organization/roadmaps/OrgRoadmapPathCard";
-import { RoadmapInfoCallout } from "@/components/organization/roadmaps/RoadmapInfoCallout";
+import { RoadmapUxTips } from "@/components/roadmap-view/RoadmapUxTips";
 import { useOrgRoadmapListState } from "@/components/organization/roadmaps/useOrgRoadmapListState";
 import { OrganizationPageHeader } from "@/components/organization/OrganizationPageHeader";
 import { OrganizationRoadmapsGridSkeleton } from "@/components/organization/OrganizationSkeletons";
 import { Button } from "@/components/ui/button";
 import { useMyOrganizationRoadmaps } from "@/hooks/useMyOrganizationRoadmaps";
+import { loadOrgRoadmapExpandedContent } from "@/lib/organization-roadmap-service";
 import {
   filterMyRoadmaps,
   getMyProgress,
   groupRoadmapsByOrg,
   isCreatedByUser,
   isEnrolledInRoadmap,
+  matchesOrgRoadmapId,
   resolveCurrentUserId,
 } from "@/lib/organization-roadmap-utils";
+import { getApiErrorMessage } from "@/lib/auth-api";
+import { toast } from "sonner";
 import type {
   MyRoadmapsTab,
   OrganizationRoadmap,
@@ -52,15 +56,45 @@ export function MyOrganizationRoadmapsView() {
 
   const [activeTab, setActiveTab] = useState<MyRoadmapsTab>("all");
   const [orgFilter, setOrgFilter] = useState<string>(ALL_ORGS_FILTER);
+  const [detailLoadingId, setDetailLoadingId] = useState<string | null>(null);
   const { roadmaps, organizations, loading, error, reload } =
     useMyOrganizationRoadmaps();
 
-  const { paths, setPaths, expandedPathIds, handleToggleExpand, handleToggleResource } =
+  const { paths, setPaths, expandedPathIds, handleToggleExpand, handleToggleResource, syncingResourceId } =
     useOrgRoadmapListState<OrganizationRoadmap>([]);
 
   useEffect(() => {
     setPaths(roadmaps);
   }, [roadmaps, setPaths]);
+
+  const handleExpand = useCallback(
+    async (roadmapId: string) => {
+      const isExpanded = expandedPathIds.includes(roadmapId);
+      handleToggleExpand(roadmapId);
+
+      if (isExpanded) return;
+
+      const target = paths.find((r) => r.id === roadmapId);
+      if (target && target.modules.length > 0) return;
+
+      setDetailLoadingId(roadmapId);
+      try {
+        const existing = paths.find((r) => matchesOrgRoadmapId(r, roadmapId));
+        if (!existing) {
+          throw new Error("Roadmap not found.");
+        }
+        const detail = await loadOrgRoadmapExpandedContent(existing);
+        setPaths((prev) =>
+          prev.map((r) => (matchesOrgRoadmapId(r, roadmapId) ? detail : r)),
+        );
+      } catch (err) {
+        toast.error(getApiErrorMessage(err));
+      } finally {
+        setDetailLoadingId((cur) => (cur === roadmapId ? null : cur));
+      }
+    },
+    [expandedPathIds, handleToggleExpand, paths, setPaths],
+  );
 
   const createHref =
     orgFilter !== ALL_ORGS_FILTER
@@ -107,12 +141,7 @@ export function MyOrganizationRoadmapsView() {
         icon={MapPinned}
       />
 
-      <RoadmapInfoCallout icon={MapPinned} title="How this page differs from team roadmaps">
-        Use this page when you want your own progress in one place. To browse
-        everything shared by colleagues in a single organization—including
-        roadmaps you have not joined yet—open that organization and go to{" "}
-        <strong className="font-medium text-foreground">Team roadmaps</strong>.
-      </RoadmapInfoCallout>
+      <RoadmapUxTips variant="org-my-list" />
 
       {error ? (
         <div className="mb-6 flex gap-3 rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3">
@@ -267,8 +296,10 @@ export function MyOrganizationRoadmapsView() {
                         handleToggleResource(roadmap.id, mId, rId),
                     }}
                     isExpanded={expandedPathIds.includes(roadmap.id)}
-                    onToggleExpand={handleToggleExpand}
+                    onToggleExpand={handleExpand}
                     onViewDetails={(id) => handleViewDetails(org.id, id)}
+                    isDetailLoading={detailLoadingId === roadmap.id}
+                    syncingResourceId={syncingResourceId}
                     showTeamEnrollment
                   />
                 ))}
