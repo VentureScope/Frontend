@@ -24,7 +24,8 @@ import {
   resolveReturnPath,
 } from "@/lib/auth-redirect";
 import { useAppStore } from "@/store/useAppStore";
-import { RegisterPayload } from "@/types/auth";
+import { ACCOUNT_ROLE_OPTIONS, RegisterPayload } from "@/types/auth";
+import { cn } from "@/lib/utils";
 
 // ─── Password Strength ────────────────────────────────────────────────────────
 
@@ -75,8 +76,8 @@ function getStrength(password: string): StrengthInfo {
 
 const formSchema = z
   .object({
-    role: z.literal("professional"),
-    email: z.string().email("Please enter a valid work email"),
+    role: z.enum(["student", "professional"]),
+    email: z.string().email("Please enter a valid email address"),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
@@ -132,6 +133,7 @@ function RegisterPageContent() {
   });
 
   const passwordValue = form.watch("password");
+  const selectedRole = form.watch("role");
   const strength = useMemo(() => getStrength(passwordValue ?? ""), [passwordValue]);
 
   useEffect(() => {
@@ -304,11 +306,52 @@ function RegisterPageContent() {
             </div>
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-              <input
-                type="hidden"
-                {...form.register("role")}
-                value="professional"
-              />
+              <Field>
+                <FieldLabel className="text-xs font-bold text-foreground">
+                  I am a
+                </FieldLabel>
+                <div className="grid grid-cols-2 gap-2">
+                  {ACCOUNT_ROLE_OPTIONS.map((option) => {
+                    const active = selectedRole === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() =>
+                          form.setValue("role", option.value, {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          })
+                        }
+                        className={cn(
+                          "rounded-md border px-3 py-3 text-left transition-colors",
+                          active
+                            ? "border-primary/40 bg-primary/10"
+                            : "border-border bg-muted/40 hover:border-primary/25 hover:bg-muted",
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "block text-sm font-semibold",
+                            active ? "text-primary" : "text-foreground",
+                          )}
+                        >
+                          {option.label}
+                        </span>
+                        <span className="mt-1 block text-[10px] leading-snug text-muted-foreground">
+                          {option.description}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <input type="hidden" {...form.register("role")} />
+                {form.formState.errors.role && (
+                  <FieldError className="text-[10px]">
+                    {form.formState.errors.role.message}
+                  </FieldError>
+                )}
+              </Field>
 
               {/* Full Name */}
               <Field>
@@ -344,13 +387,17 @@ function RegisterPageContent() {
                 )}
               </Field>
 
-              {/* Work Email */}
+              {/* Email */}
               <Field>
                 <FieldLabel className="text-xs font-bold text-foreground">
-                  Work Email
+                  {selectedRole === "student" ? "Email" : "Work Email"}
                 </FieldLabel>
                 <Input
-                  placeholder="name@company.com"
+                  placeholder={
+                    selectedRole === "student"
+                      ? "name@university.edu"
+                      : "name@company.com"
+                  }
                   {...form.register("email")}
                   className="h-10 text-sm border-none bg-muted px-3 focus-visible:ring-2 focus-visible:ring-primary"
                 />

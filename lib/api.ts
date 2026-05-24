@@ -42,8 +42,12 @@ api.interceptors.response.use(
       // Handle known HTTP errors globally (e.g., redirect on 401)
       if (error.response.status === 401 && typeof window !== "undefined") {
         const pathname = window.location.pathname;
-        const hadSession = Boolean(useAppStore.getState().authData.token);
-        useAppStore.getState().clearAuth();
+        const store = useAppStore.getState();
+        const hadSession = Boolean(store.authData.token);
+        if (store.isLoggingOut) {
+          return Promise.reject(error);
+        }
+        store.clearAuth();
         if (
           hadSession &&
           isProtectedMemberPath(pathname) &&

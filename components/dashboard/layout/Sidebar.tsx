@@ -22,7 +22,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { logoutUser } from "@/lib/auth-api";
+import { performClientLogout } from "@/lib/client-logout";
 import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 
@@ -111,11 +111,10 @@ export default function Sidebar({
   collapsed?: boolean;
   onToggleCollapsed?: () => void;
 }) {
-  const clearAuth = useAppStore((state) => state.clearAuth);
+  const isLoggingOut = useAppStore((state) => state.isLoggingOut);
   const isAdmin = useAppStore((state) => Boolean(state.authData.user?.is_admin));
   const router = useRouter();
   const pathname = usePathname();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
@@ -129,20 +128,7 @@ export default function Sidebar({
   const isCollapsed = collapsed && isDesktop;
 
   async function handleLogout() {
-    if (isLoggingOut) {
-      return;
-    }
-
-    setIsLoggingOut(true);
-    try {
-      await logoutUser();
-    } catch {
-      // Always clear local auth so users can exit even if backend logout fails.
-    } finally {
-      clearAuth();
-      router.push("/");
-      setIsLoggingOut(false);
-    }
+    await performClientLogout({ router, redirectTo: "/" });
   }
 
   return (

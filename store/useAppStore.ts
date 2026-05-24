@@ -45,6 +45,9 @@ interface AppState {
   authData: AuthSessionData;
   setAuthData: (data: AuthSessionData) => void;
   clearAuth: () => void;
+  /** True while an explicit sign-out is in progress (not persisted). */
+  isLoggingOut: boolean;
+  setLoggingOut: (value: boolean) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -65,6 +68,8 @@ export const useAppStore = create<AppState>()(
         clearBrowserAuthStorage();
         set({ authData: EMPTY_AUTH_DATA });
       },
+      isLoggingOut: false,
+      setLoggingOut: (isLoggingOut) => set({ isLoggingOut }),
     }),
     {
       name: APP_STORAGE_KEY,

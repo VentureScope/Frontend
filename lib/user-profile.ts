@@ -62,6 +62,13 @@ function fallbackNameFromEmail(email: string): string {
   return toTitleCase(local.replace(/[._-]+/g, " "));
 }
 
+function formatAccountRole(value: string): string {
+  if (value === "student") return "Student";
+  if (value === "professional") return "Professional";
+  if (value === "b2b_client") return "B2B Client";
+  return toTitleCase(value.replace(/_/g, " "));
+}
+
 export function getUserProfileView(
   user: AuthUser | null | undefined,
 ): UserProfileView {
@@ -77,9 +84,11 @@ export function getUserProfileView(
 
   const firstName = fullName.split(/\s+/)[0] || DEFAULT_PROFILE.firstName;
 
-  const role =
+  const roleRaw =
     getFirstNonEmptyString(user, ["role", "job_title", "title"]) ||
-    DEFAULT_PROFILE.role;
+    DEFAULT_PROFILE.role.toLowerCase();
+
+  const role = formatAccountRole(roleRaw);
 
   const careerInterest =
     getFirstNonEmptyString(user, ["career_interest", "careerInterest"]) ||

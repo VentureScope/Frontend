@@ -5,8 +5,8 @@ export default function AcceptOrganizationInvitePage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto max-w-lg px-4 py-16 text-center text-sm text-muted-foreground">
-          Loading…
+        <div className="mx-auto max-w-5xl py-16 text-center text-sm text-muted-foreground">
+          Loading invitation…
         </div>
       }
     >

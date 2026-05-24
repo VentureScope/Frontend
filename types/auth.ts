@@ -1,11 +1,33 @@
-export type UserRole = "professional";
+export type AccountRole = "student" | "professional";
+
+export const ACCOUNT_ROLE_OPTIONS: {
+  value: AccountRole;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: "professional",
+    label: "Professional",
+    description: "Working or job-seeking in tech",
+  },
+  {
+    value: "student",
+    label: "Student",
+    description: "Studying or early in your career",
+  },
+];
+
+/** @deprecated Use {@link AccountRole} */
+export type UserRole = AccountRole;
 
 export interface RegisterPayload {
   email: string;
   password: string;
+  role: AccountRole;
   full_name: string;
+  github_username?: string | null;
   career_interest: string;
-  role: UserRole;
+  skills?: string[] | null;
 }
 
 export interface SignInPayload {
@@ -17,10 +39,22 @@ export interface SignInPayload {
 export interface RegisterSuccessResponse {
   id: string;
   email: string;
-  full_name: string;
-  github_username: string;
-  career_interest: string;
-  role: string;
+  full_name: string | null;
+  github_username: string | null;
+  career_interest: string | null;
+  skills: string[] | null;
+  cv_url: string | null;
+  profile_picture_url: string | null;
+  estudent_profile: string | null;
+  social_links: unknown | null;
+  role: AccountRole | string;
+  is_active: boolean;
+  is_admin: boolean;
+  oauth_provider: string | null;
+  mfa_enabled: boolean;
+  mfa_enrolled_at: string | null;
+  deactivated_at: string | null;
+  has_password: boolean;
 }
 
 export interface UserUpdatePayload {

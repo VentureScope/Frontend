@@ -28,6 +28,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   // TODO: Re-enable real auth checks once backend integration is complete.
   const token = useAppStore((state) => state.authData.token);
+  const isLoggingOut = useAppStore((state) => state.isLoggingOut);
   const isAuthenticated = Boolean(token);
   const [isHydrated, setIsHydrated] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -41,7 +42,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }, []);
 
   useEffect(() => {
-    if (!isHydrated) {
+    if (!isHydrated || isLoggingOut) {
       return;
     }
 
@@ -65,7 +66,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
     
     checkMFA();
-  }, [isHydrated, isAuthenticated, router]);
+  }, [isHydrated, isAuthenticated, isLoggingOut, router]);
+
+  if (isLoggingOut) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-body text-muted-foreground">
+        Signing out…
+      </div>
+    );
+  }
 
   if (!isHydrated || !isAuthenticated) {
     return (
