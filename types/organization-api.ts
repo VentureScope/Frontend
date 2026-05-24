@@ -179,6 +179,13 @@ export interface DeclineInviteRequestApi {
   token: string;
 }
 
+/** Accept may return full org, `{ organization_id }`, or empty body on 200. */
+export interface AcceptInviteOutApi {
+  organization_id?: string;
+  id?: string;
+  org_id?: string;
+}
+
 export interface MemberRoleUpdateApi {
   role: "admin" | "member";
 }

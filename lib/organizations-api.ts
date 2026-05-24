@@ -152,8 +152,8 @@ export async function previewOrganizationInvite(
 
 export async function acceptOrganizationInvite(
   payload: AcceptInviteRequestApi,
-): Promise<OrganizationOutApi> {
-  const res = await api.post<OrganizationOutApi>(
+): Promise<unknown> {
+  const res = await api.post(
     "/api/organizations/invites/accept",
     payload,
   );

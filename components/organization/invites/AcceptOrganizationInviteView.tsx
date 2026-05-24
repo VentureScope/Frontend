@@ -81,7 +81,9 @@ export function AcceptOrganizationInviteView() {
     }
 
     try {
-      const orgId = await accept(trimmed);
+      const orgId = await accept(trimmed, {
+        fallbackOrganizationId: preview?.organization_id,
+      });
       toast.success("You joined the organization.");
       router.push(`/dashboard/organization/${orgId}`);
     } catch (err) {

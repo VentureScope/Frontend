@@ -24,9 +24,11 @@ export function PendingInvitesListView() {
   const { invites, loading, error, refresh } = usePendingInvites();
   const { accept, accepting } = useAcceptOrganizationInvite();
 
-  async function handleAccept(token: string) {
+  async function handleAccept(token: string, organizationId: string) {
     try {
-      const orgId = await accept(token);
+      const orgId = await accept(token, {
+        fallbackOrganizationId: organizationId,
+      });
       toast.success("You joined the organization.");
       await refresh();
       router.push(`/dashboard/organization/${orgId}`);
@@ -132,7 +134,7 @@ export function PendingInvitesListView() {
                   <Button
                     type="button"
                     disabled={accepting}
-                    onClick={() => void handleAccept(invite.token)}
+                    onClick={() => void handleAccept(invite.token, invite.organizationId)}
                   >
                     Accept
                   </Button>
