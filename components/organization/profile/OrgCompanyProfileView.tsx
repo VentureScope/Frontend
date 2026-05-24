@@ -1,19 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   ArrowLeft,
   Building2,
   Globe,
+  ImageIcon,
   Linkedin,
-  Plus,
   Save,
-  Trash2,
   Twitter,
 } from "lucide-react";
 import { OrganizationPageHeader } from "@/components/organization/OrganizationPageHeader";
+import {
+  OrganizationProfilePageSkeleton,
+} from "@/components/organization/OrganizationSkeletons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
@@ -21,176 +22,291 @@ import { DeveloperSourcesEditor } from "@/components/organization/profile/Develo
 import { OrganizationProductsEditor } from "@/components/organization/profile/OrganizationProductsEditor";
 import { ServicesTechStackEditor } from "@/components/organization/profile/ServicesTechStackEditor";
 import { INDUSTRY_VERTICALS } from "@/lib/organization-create-constants";
-import { normalizeOrganizationProfile } from "@/lib/organization-profile-normalize";
 import {
-  getOrganizationProfile,
-  saveOrganizationProfile,
-} from "@/lib/organization-profiles-storage";
-import type {
-  OrganizationCustomField,
-  OrganizationProfile,
-} from "@/types/organization-profile";
-import { cn } from "@/lib/utils";
+  dataUrlToLogoFile,
+  isSupportedOrganizationLogoMime,
+} from "@/lib/organization-logo-utils";
+import { useOrganizationProfile } from "@/hooks/useOrganizationProfile";
+import type { OrganizationProfile } from "@/types/organization-profile";
 import { toast } from "sonner";
 
-function newCustomFieldId() {
-  return `cf-${Date.now()}`;
+function resolveLogoSrc(
+  profile: OrganizationProfile,
+  preview: string | null,
+): string | null {
+  if (preview) return preview;
+  return profile.logoDataUrl ?? profile.logoUrl ?? null;
 }
 
 type Props = {
   orgId: string;
-  orgName: string;
 };
 
-export function OrgCompanyProfileView({ orgId, orgName }: Props) {
-  const [profile, setProfile] = useState<OrganizationProfile | null>(null);
+export function OrgCompanyProfileView({ orgId }: Props) {
+  const {
+    profile,
+    displayName,
+    loading,
+    saving,
+    error,
+    notFound,
+    canEdit,
+    reload,
+    saveProfile,
+  } = useOrganizationProfile(orgId);
+
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState<OrganizationProfile | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [removeLogo, setRemoveLogo] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const loaded = getOrganizationProfile(orgId);
-    if (loaded) {
-      const normalized = normalizeOrganizationProfile(loaded);
-      setProfile(normalized);
-      setDraft(normalized);
+    if (profile && !isEditing) {
+      setDraft(profile);
     }
-  }, [orgId]);
+  }, [profile, isEditing]);
+
+  function startEditing() {
+    if (!profile) return;
+    setDraft({ ...profile, logoDataUrl: null });
+    setLogoPreview(null);
+    setLogoFile(null);
+    setRemoveLogo(false);
+    setIsEditing(true);
+  }
 
   function patchDraft(updates: Partial<OrganizationProfile>) {
     setDraft((prev) => (prev ? { ...prev, ...updates } : prev));
   }
 
-  function handleSave() {
-    if (!draft) return;
-    if (!draft.displayName.trim() && !draft.legalName.trim()) {
-      toast.error("Add a legal or display name.");
+  function handleLogoPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!isSupportedOrganizationLogoMime(file.type)) {
+      toast.error("Logo must be JPG, PNG, or WEBP.");
       return;
     }
-    saveOrganizationProfile(draft);
-    setProfile(draft);
-    setIsEditing(false);
-    toast.success("Company profile saved.");
+    setLogoFile(file);
+    setRemoveLogo(false);
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setLogoPreview(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }
+
+  function handleRemoveLogo() {
+    setLogoPreview(null);
+    setLogoFile(null);
+    setRemoveLogo(true);
+  }
+
+  async function handleSave() {
+    if (!draft) return;
+    if (!draft.displayName.trim() && !draft.legalName.trim()) {
+      toast.error("Add a display name.");
+      return;
+    }
+
+    let fileToUpload = logoFile;
+    if (!fileToUpload && logoPreview && !removeLogo) {
+      fileToUpload = dataUrlToLogoFile(logoPreview);
+    }
+
+    try {
+      await saveProfile(draft, {
+        logoFile: fileToUpload,
+        removeLogo,
+      });
+      setIsEditing(false);
+      setLogoPreview(null);
+      setLogoFile(null);
+      setRemoveLogo(false);
+      toast.success("Company profile saved.");
+    } catch {
+      toast.error("Could not save company profile.");
+    }
   }
 
   function handleCancel() {
     setDraft(profile);
+    setLogoPreview(null);
+    setLogoFile(null);
+    setRemoveLogo(false);
     setIsEditing(false);
   }
 
-  function addCustomField() {
-    if (!draft) return;
-    patchDraft({
-      customFields: [
-        ...draft.customFields,
-        { id: newCustomFieldId(), label: "", value: "" },
-      ],
-    });
-  }
-
-  function updateCustomField(
-    id: string,
-    patch: Partial<OrganizationCustomField>,
-  ) {
-    if (!draft) return;
-    patchDraft({
-      customFields: draft.customFields.map((f) =>
-        f.id === id ? { ...f, ...patch } : f,
-      ),
-    });
-  }
-
-  function removeCustomField(id: string) {
-    if (!draft) return;
-    patchDraft({
-      customFields: draft.customFields.filter((f) => f.id !== id),
-    });
-  }
-
-  if (!profile || !draft) {
+  if (notFound) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-16 text-center">
-        <p className="text-sm text-muted-foreground">Loading company profile…</p>
+        <p className="text-sm text-muted-foreground">Organization not found.</p>
+        <Button type="button" variant="outline" className="mt-4" asChild>
+          <Link href="/dashboard/organization">Back to organizations</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  if (loading || !profile || !draft) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+        <OrgSkBackLink orgName="Organization" orgId={orgId} />
+        <OrganizationPageHeader
+          label="Organization"
+          title="Company profile"
+          description="Loading company profile…"
+          icon={Building2}
+        />
+        <OrganizationProfilePageSkeleton />
       </div>
     );
   }
 
   const data = isEditing ? draft : profile;
+  const logoSrc = isEditing
+    ? removeLogo
+      ? null
+      : resolveLogoSrc(draft, logoPreview)
+    : resolveLogoSrc(profile, null);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-      <Link
-        href={`/dashboard/organization/${orgId}`}
-        className="mb-6 inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" />
-        Back to {orgName}
-      </Link>
+      <OrgSkBackLink orgName={displayName} orgId={orgId} />
 
       <OrganizationPageHeader
-        label={orgName}
+        label={displayName}
         title="Company profile"
-        description="Company information from setup—identity, services, tech stack, products, developer integrations, and links. Owners and admins can edit and extend this profile."
+        description={
+          canEdit
+            ? "Company information from setup—identity, services, developer integrations, and links. Owners can edit fields synced with the server."
+            : "View your organization's profile. Contact the owner to request changes."
+        }
         icon={Building2}
       />
 
+      {error ? (
+        <div className="mb-6 flex flex-col gap-3 rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-destructive">{error}</p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => void reload()}
+          >
+            Retry
+          </Button>
+        </div>
+      ) : null}
+
       <div className="mb-8 flex flex-wrap items-center justify-end gap-3">
-        {!isEditing ? (
-          <Button size="sm" onClick={() => setIsEditing(true)}>
+        {canEdit && !isEditing ? (
+          <Button size="sm" onClick={startEditing} disabled={saving}>
             Edit profile
           </Button>
-        ) : (
+        ) : canEdit && isEditing ? (
           <>
-            <Button variant="outline" size="sm" onClick={handleCancel}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCancel}
+              disabled={saving}
+            >
               Cancel
             </Button>
-            <Button size="sm" className="gap-1.5" onClick={handleSave}>
+            <Button
+              size="sm"
+              className="gap-1.5"
+              onClick={() => void handleSave()}
+              disabled={saving}
+            >
               <Save className="h-4 w-4" />
-              Save changes
+              {saving ? "Saving…" : "Save changes"}
             </Button>
           </>
-        )}
+        ) : null}
       </div>
 
       <div className="space-y-8">
         <section className="vs-surface space-y-5 rounded-md p-6">
-          <h2 className="text-sm font-semibold text-foreground">Identity & branding</h2>
+          <h2 className="text-sm font-semibold text-foreground">
+            Identity & branding
+          </h2>
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-            {data.logoDataUrl ? (
-              <Image
-                src={data.logoDataUrl}
-                alt=""
-                width={80}
-                height={80}
-                className="h-20 w-20 rounded-md border border-border object-cover"
-                unoptimized
-              />
-            ) : (
-              <div className="flex h-20 w-20 items-center justify-center rounded-md bg-muted text-2xl font-bold text-muted-foreground">
-                {(data.displayName || data.legalName).charAt(0)}
+            <div className="flex flex-col items-start gap-2">
+              <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
+                {logoSrc ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={logoSrc}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                )}
               </div>
-            )}
+              {isEditing && canEdit ? (
+                <>
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={handleLogoPick}
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => logoInputRef.current?.click()}
+                      disabled={saving}
+                    >
+                      {logoSrc ? "Change logo" : "Upload logo"}
+                    </Button>
+                    {(logoSrc || profile.logoUrl) && !removeLogo ? (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive"
+                        onClick={handleRemoveLogo}
+                        disabled={saving}
+                      >
+                        Remove
+                      </Button>
+                    ) : null}
+                  </div>
+                </>
+              ) : null}
+            </div>
             <div className="grid flex-1 gap-4 sm:grid-cols-2">
               <Field>
                 <FieldLabel>Legal name</FieldLabel>
+                <p className="text-sm text-foreground">
+                  {data.legalName || "—"}
+                </p>
                 {isEditing ? (
-                  <Input
-                    value={draft.legalName}
-                    onChange={(e) => patchDraft({ legalName: e.target.value })}
-                    className="h-9"
-                  />
-                ) : (
-                  <p className="text-sm text-foreground">
-                    {data.legalName || "—"}
-                  </p>
-                )}
+                  <FieldDescription>
+                    Legal name is set at creation and cannot be changed here.
+                  </FieldDescription>
+                ) : null}
               </Field>
               <Field>
                 <FieldLabel>Display name</FieldLabel>
                 {isEditing ? (
                   <Input
                     value={draft.displayName}
-                    onChange={(e) => patchDraft({ displayName: e.target.value })}
+                    onChange={(e) =>
+                      patchDraft({ displayName: e.target.value })
+                    }
                     className="h-9"
+                    disabled={saving}
                   />
                 ) : (
                   <p className="text-sm text-foreground">
@@ -205,6 +321,7 @@ export function OrgCompanyProfileView({ orgId, orgName }: Props) {
                     value={draft.tagline}
                     onChange={(e) => patchDraft({ tagline: e.target.value })}
                     className="h-9"
+                    disabled={saving}
                   />
                 ) : (
                   <p className="text-sm text-muted-foreground">
@@ -225,6 +342,7 @@ export function OrgCompanyProfileView({ orgId, orgName }: Props) {
                 value={draft.description}
                 onChange={(e) => patchDraft({ description: e.target.value })}
                 rows={5}
+                disabled={saving}
                 className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground"
               />
             ) : (
@@ -241,6 +359,7 @@ export function OrgCompanyProfileView({ orgId, orgName }: Props) {
                 onChange={(e) =>
                   patchDraft({ industryVertical: e.target.value })
                 }
+                disabled={saving}
                 className="h-9 w-full rounded-md border border-border bg-card px-3 text-sm"
               >
                 <option value="">Select industry</option>
@@ -269,14 +388,22 @@ export function OrgCompanyProfileView({ orgId, orgName }: Props) {
             onChange={(patch) => patchDraft(patch)}
             readOnly={!isEditing}
           />
+          {isEditing ? null : (
+            <FieldDescription>
+              Additional tech stack labels are not stored on the server yet.
+            </FieldDescription>
+          )}
         </section>
 
         <section className="vs-surface space-y-4 rounded-md p-6">
           <h2 className="text-sm font-semibold text-foreground">Products</h2>
+          <FieldDescription className="mb-2">
+            Product catalog is not synced with the API yet.
+          </FieldDescription>
           <OrganizationProductsEditor
             products={data.products}
             onChange={(products) => patchDraft({ products })}
-            readOnly={!isEditing}
+            readOnly
           />
         </section>
 
@@ -301,32 +428,41 @@ export function OrgCompanyProfileView({ orgId, orgName }: Props) {
                   label: "Website",
                   icon: Globe,
                   placeholder: "https://",
+                  apiSynced: true,
                 },
                 {
                   key: "linkedIn" as const,
                   label: "LinkedIn",
                   icon: Linkedin,
                   placeholder: "https://linkedin.com/company/…",
+                  apiSynced: true,
                 },
                 {
                   key: "twitter" as const,
                   label: "X (Twitter)",
                   icon: Twitter,
                   placeholder: "https://x.com/…",
+                  apiSynced: false,
                 },
               ] as const
-            ).map(({ key, label, icon: Icon, placeholder }) => (
+            ).map(({ key, label, icon: Icon, placeholder, apiSynced }) => (
               <Field key={key}>
                 <FieldLabel className="flex items-center gap-1.5">
                   <Icon className="h-3.5 w-3.5" />
                   {label}
+                  {!apiSynced ? (
+                    <span className="text-[10px] font-normal text-muted-foreground">
+                      (not synced)
+                    </span>
+                  ) : null}
                 </FieldLabel>
-                {isEditing ? (
+                {isEditing && apiSynced ? (
                   <Input
                     value={draft[key]}
                     onChange={(e) => patchDraft({ [key]: e.target.value })}
                     placeholder={placeholder}
                     className="h-9"
+                    disabled={saving}
                   />
                 ) : data[key] ? (
                   <a
@@ -345,136 +481,56 @@ export function OrgCompanyProfileView({ orgId, orgName }: Props) {
           </div>
         </section>
 
-        <section className="vs-surface space-y-4 rounded-md p-6">
-          <h2 className="text-sm font-semibold text-foreground">
-            Additional company information
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Extend your public company profile beyond the setup wizard.
-          </p>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {(
-              [
-                { key: "headquarters" as const, label: "Headquarters" },
-                { key: "foundedYear" as const, label: "Founded" },
-                { key: "companySize" as const, label: "Company size" },
-                { key: "contactEmail" as const, label: "Contact email" },
-                { key: "contactPhone" as const, label: "Contact phone" },
-              ] as const
-            ).map(({ key, label }) => (
-              <Field key={key}>
-                <FieldLabel>{label}</FieldLabel>
-                {isEditing ? (
-                  <Input
-                    value={draft[key]}
-                    onChange={(e) => patchDraft({ [key]: e.target.value })}
-                    className="h-9"
-                  />
-                ) : (
-                  <p className="text-sm text-foreground">{data[key] || "—"}</p>
-                )}
-              </Field>
-            ))}
-          </div>
-          <Field>
-            <FieldLabel>Mission statement</FieldLabel>
-            {isEditing ? (
-              <textarea
-                value={draft.missionStatement}
-                onChange={(e) =>
-                  patchDraft({ missionStatement: e.target.value })
-                }
-                rows={3}
-                className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
-                placeholder="What drives your organization?"
-              />
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                {data.missionStatement || "—"}
-              </p>
-            )}
-          </Field>
-        </section>
-
-        <section className="vs-surface space-y-4 rounded-md p-6">
+        <section className="vs-surface space-y-4 rounded-md p-6 opacity-80">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-sm font-semibold text-foreground">Custom fields</h2>
-            {isEditing && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="gap-1"
-                onClick={addCustomField}
-              >
-                <Plus className="h-3.5 w-3.5" />
-                Add field
-              </Button>
-            )}
+            <h2 className="text-sm font-semibold text-foreground">
+              Custom fields
+            </h2>
           </div>
+          <FieldDescription>Not stored on the server yet.</FieldDescription>
           {data.customFields.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {isEditing
-                ? "Add certifications, regions, partner programs, or any detail your team should see."
-                : "No custom fields yet."}
-            </p>
+            <p className="text-sm text-muted-foreground">No custom fields yet.</p>
           ) : (
             <ul className="space-y-3">
               {data.customFields.map((field) => (
                 <li
                   key={field.id}
-                  className={cn(
-                    "grid gap-3 rounded-md border border-border p-3",
-                    isEditing ? "sm:grid-cols-[1fr_1fr_auto]" : "sm:grid-cols-2",
-                  )}
+                  className="grid gap-3 rounded-md border border-border p-3 sm:grid-cols-2"
                 >
-                  {isEditing ? (
-                    <>
-                      <Input
-                        value={field.label}
-                        onChange={(e) =>
-                          updateCustomField(field.id, { label: e.target.value })
-                        }
-                        placeholder="Label"
-                        className="h-9"
-                      />
-                      <Input
-                        value={field.value}
-                        onChange={(e) =>
-                          updateCustomField(field.id, { value: e.target.value })
-                        }
-                        placeholder="Value"
-                        className="h-9"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeCustomField(field.id)}
-                        className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                        aria-label="Remove field"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-xs font-semibold text-muted-foreground">
-                        {field.label}
-                      </p>
-                      <p className="text-sm text-foreground">{field.value}</p>
-                    </>
-                  )}
+                  <p className="text-xs font-semibold text-muted-foreground">
+                    {field.label}
+                  </p>
+                  <p className="text-sm text-foreground">{field.value}</p>
                 </li>
               ))}
             </ul>
           )}
         </section>
 
-        {profile.updatedAt && (
+        {profile.updatedAt ? (
           <p className="text-center text-[10px] text-muted-foreground">
             Last updated {new Date(profile.updatedAt).toLocaleString()}
           </p>
-        )}
+        ) : null}
       </div>
     </div>
+  );
+}
+
+function OrgSkBackLink({
+  orgName,
+  orgId,
+}: {
+  orgName: string;
+  orgId: string;
+}) {
+  return (
+    <Link
+      href={`/dashboard/organization/${orgId}`}
+      className="mb-6 inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
+    >
+      <ArrowLeft className="h-3.5 w-3.5" />
+      Back to {orgName}
+    </Link>
   );
 }

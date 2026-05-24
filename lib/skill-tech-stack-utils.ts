@@ -1,11 +1,9 @@
-import { getOrganizationProfile } from "@/lib/organization-profiles-storage";
 import type { UserOrgSkillBenchmark } from "@/types/organization-profile";
 
 export const ALL_TECH_FILTER = "all";
 
-export function getOrgTechStacks(orgId: string): string[] {
-  const profile = getOrganizationProfile(orgId);
-  return profile?.techStacks ?? [];
+export function getOrgTechStacks(techStacks: string[] | undefined | null): string[] {
+  return techStacks?.filter(Boolean) ?? [];
 }
 
 export function filterBenchmarksByTechStack(

@@ -1,46 +1,42 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { OrganizationInvite } from "@/types/organization-invite";
-import {
-  loadPendingInvites,
-  removePendingInvite as removeFromStorage,
-  savePendingInvites,
-} from "@/lib/organization-invites-storage";
+import { getApiErrorMessage } from "@/lib/auth-api";
+import { parseMyOrganizationInvites } from "@/lib/organization-invite-parsers";
+import { listMyOrganizationInvites } from "@/lib/organizations-api";
+import type { PendingOrganizationInvite } from "@/types/organization-pending-invite";
 
 export function usePendingInvites() {
-  const [invites, setInvites] = useState<OrganizationInvite[]>([]);
+  const [invites, setInvites] = useState<PendingOrganizationInvite[]>([]);
   const [ready, setReady] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const refresh = useCallback(() => {
-    setInvites(loadPendingInvites());
-    setReady(true);
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await listMyOrganizationInvites();
+      setInvites(parseMyOrganizationInvites(data));
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+      setInvites([]);
+    } finally {
+      setLoading(false);
+      setReady(true);
+    }
   }, []);
 
   useEffect(() => {
-    refresh();
+    void refresh();
   }, [refresh]);
-
-  const removeInvite = useCallback(
-    (id: string) => {
-      const next = removeFromStorage(id);
-      setInvites(next);
-      return next;
-    },
-    [],
-  );
-
-  const resetInvites = useCallback((list: OrganizationInvite[]) => {
-    savePendingInvites(list);
-    setInvites(list);
-  }, []);
 
   return {
     invites,
     count: invites.length,
     ready,
+    loading,
+    error,
     refresh,
-    removeInvite,
-    resetInvites,
   };
 }

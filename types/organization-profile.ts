@@ -30,7 +30,12 @@ export interface OrganizationProfile {
   legalName: string;
   displayName: string;
   tagline: string;
+  /** Remote logo URL from API (`logo_url`). */
+  logoUrl?: string | null;
+  /** Local preview while editing (before upload). */
   logoDataUrl: string | null;
+  /** Current user's role in this org (from API `my_role`). */
+  myRole?: OrganizationRole;
   description: string;
   industryVertical: string;
   coreServices: string[];
@@ -61,7 +66,10 @@ export interface OrganizationMember {
   initials: string;
   joinedAt: string;
   skills: string[];
+  profilePictureUrl?: string | null;
   githubUsername?: string;
+  roadmapsEnrolled?: number;
+  roadmapsCreated?: number;
   isCurrentUser?: boolean;
 }
 

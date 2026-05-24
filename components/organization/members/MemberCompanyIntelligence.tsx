@@ -16,16 +16,18 @@ import { cn } from "@/lib/utils";
 type MemberCompanyIntelligenceProps = {
   profile: OrganizationMemberProfile;
   orgName: string;
+  techStacks?: string[];
 };
 
 export function MemberCompanyIntelligence({
   profile,
   orgName,
+  techStacks: techStacksProp,
 }: MemberCompanyIntelligenceProps) {
   const [techFilter, setTechFilter] = useState(ALL_TECH_FILTER);
   const techStacks = useMemo(
-    () => getOrgTechStacks(profile.orgId),
-    [profile.orgId],
+    () => getOrgTechStacks(techStacksProp),
+    [techStacksProp],
   );
 
   const filteredBenchmarks = useMemo(

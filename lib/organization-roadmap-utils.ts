@@ -16,6 +16,11 @@ export function getMyProgress(
   roadmap: OrganizationRoadmap,
   userId: string,
 ): number {
+  if (roadmap.myEnrollment?.enrolled) {
+    return Math.round(
+      Math.min(100, Math.max(0, roadmap.myEnrollment.completionPercentage)),
+    );
+  }
   const me = roadmap.participants.find((p) => p.id === userId);
   return me?.progress ?? 0;
 }
@@ -24,6 +29,12 @@ export function isEnrolledInRoadmap(
   roadmap: OrganizationRoadmap,
   userId: string,
 ): boolean {
+  if (roadmap.myEnrollment?.enrolled) {
+    return true;
+  }
+  if (isPersonalFork(roadmap)) {
+    return roadmap.createdByUserId === userId;
+  }
   return roadmap.participants.some((p) => p.id === userId);
 }
 

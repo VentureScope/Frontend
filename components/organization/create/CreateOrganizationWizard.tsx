@@ -21,23 +21,14 @@ import {
   getWizardStepMeta,
   ORG_CREATE_DRAFT_KEY,
 } from "@/lib/organization-create-constants";
-import {
-  createProfileFromWizard,
-  saveOrganizationProfile,
-} from "@/lib/organization-profiles-storage";
+import { createOrganizationFromWizard } from "@/lib/organization-create-service";
+import { getApiErrorMessage } from "@/lib/auth-api";
 import {
   EMPTY_ORGANIZATION_CREATE_FORM,
   WIZARD_STEP_COUNT,
   type CreateOrganizationStep,
   type OrganizationCreateForm,
 } from "@/types/organization-create";
-
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-}
 
 function countWords(text: string): number {
   return text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -63,6 +54,7 @@ export function CreateOrganizationWizard() {
   const [form, setForm] = useState<OrganizationCreateForm>(
     EMPTY_ORGANIZATION_CREATE_FORM,
   );
+  const [submitting, setSubmitting] = useState(false);
 
   const patch = useCallback((updates: Partial<OrganizationCreateForm>) => {
     setForm((prev) => ({ ...prev, ...updates }));
@@ -129,25 +121,44 @@ export function CreateOrganizationWizard() {
   }
 
   function goNext() {
+    if (submitting) return;
     if (!validateStep(step)) return;
     if (step < WIZARD_STEP_COUNT) {
       setStep((s) => (s + 1) as CreateOrganizationStep);
       return;
     }
-    completeSetup();
+    void completeSetup();
   }
 
   function goBack() {
     if (step > 1) setStep((s) => (s - 1) as CreateOrganizationStep);
   }
 
-  function completeSetup() {
-    const name = form.displayName.trim() || form.legalName.trim();
-    const id = slugify(name) || `org-${Date.now()}`;
-    saveOrganizationProfile(createProfileFromWizard(id, form));
-    sessionStorage.removeItem(ORG_CREATE_DRAFT_KEY);
-    toast.success(`"${name}" has been created.`);
-    router.push(`/dashboard/organization/${id}`);
+  async function completeSetup() {
+    const legal = form.legalName.trim();
+    const display = form.displayName.trim();
+    if (!legal && !display) {
+      toast.error("Enter a legal or display name before completing setup.");
+      setStep(1);
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const result = await createOrganizationFromWizard(form);
+      sessionStorage.removeItem(ORG_CREATE_DRAFT_KEY);
+      toast.success(`"${result.displayName}" has been created.`);
+      if (result.logoUploadFailed) {
+        toast.warning(
+          "Organization was created, but the logo could not be uploaded. You can add it from the company profile.",
+        );
+      }
+      router.push(`/dashboard/organization/${result.orgId}`);
+    } catch (err) {
+      toast.error(getApiErrorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const stepMeta = getWizardStepMeta(step);
@@ -241,7 +252,11 @@ export function CreateOrganizationWizard() {
             onBack={goBack}
             onNext={goNext}
             isLastStep={step === WIZARD_STEP_COUNT}
-            nextDisabled={step === 3 && wordCount > DESCRIPTION_WORD_LIMIT}
+            nextDisabled={
+              submitting ||
+              (step === 3 && wordCount > DESCRIPTION_WORD_LIMIT)
+            }
+            nextLoading={submitting}
           />
         </div>
       </div>

@@ -1,36 +1,46 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, UserPlus, Users } from "lucide-react";
 import { OrganizationPageHeader } from "@/components/organization/OrganizationPageHeader";
+import { OrganizationMembersListSkeleton } from "@/components/organization/OrganizationSkeletons";
 import { InviteMemberDialog } from "@/components/organization/members/InviteMemberDialog";
 import { OrgMemberCard } from "@/components/organization/members/OrgMemberCard";
 import { PendingInvitationsSection } from "@/components/organization/members/PendingInvitationsSection";
 import { Button } from "@/components/ui/button";
+import { useOrganization } from "@/hooks/useOrganization";
+import { useOrganizationInvites } from "@/hooks/useOrganizationInvites";
 import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
-import { canInviteMembers } from "@/lib/organization-invite-service";
-import { getSentInvitesForOrg } from "@/lib/organization-sent-invites-storage";
-import type { SentOrganizationInvite } from "@/types/organization-sent-invite";
 
 type Props = {
   orgId: string;
-  orgName: string;
 };
 
-export function OrgMembersView({ orgId, orgName }: Props) {
-  const { members, refresh } = useOrganizationMembers(orgId);
-  const canInvite = canInviteMembers(orgId);
+export function OrgMembersView({ orgId }: Props) {
+  const { organization, loading: orgLoading } = useOrganization(orgId);
+  const {
+    members,
+    canInvite,
+    myRole,
+    loading,
+    error,
+    reload,
+  } = useOrganizationMembers(orgId);
+  const {
+    invites,
+    loading: invitesLoading,
+    error: invitesError,
+    cancellingId,
+    resendingId,
+    cancelInvite,
+    resendInvite,
+    reload: reloadInvites,
+  } = useOrganizationInvites(orgId, canInvite);
+
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [sentInvites, setSentInvites] = useState<SentOrganizationInvite[]>([]);
 
-  const refreshSentInvites = useCallback(() => {
-    setSentInvites(getSentInvitesForOrg(orgId));
-  }, [orgId]);
-
-  useEffect(() => {
-    refreshSentInvites();
-  }, [refreshSentInvites]);
+  const orgName = organization?.displayName ?? "Organization";
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
@@ -39,15 +49,21 @@ export function OrgMembersView({ orgId, orgName }: Props) {
         className="mb-6 inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        Back to {orgName}
+        Back to {orgLoading ? "…" : orgName}
       </Link>
 
       <OrganizationPageHeader
         label={orgName}
         title="Members"
-        description="Everyone with access to this organization workspace. Open a member to view company intelligence, change roles, or remove them from the team."
+        description="Everyone with access to this organization workspace. Open a member to view their profile or remove them from the team."
         icon={Users}
       />
+
+      {error ? (
+        <div className="mb-6 rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          {error}
+        </div>
+      ) : null}
 
       <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
         {canInvite ? (
@@ -61,24 +77,42 @@ export function OrgMembersView({ orgId, orgName }: Props) {
           </Button>
         ) : (
           <p className="text-xs text-muted-foreground sm:ml-auto">
-            Only owners and admins can invite members.
+            Only the organization owner can send invitations.
           </p>
         )}
       </div>
 
-      <PendingInvitationsSection invites={sentInvites} />
+      {canInvite ? (
+        <PendingInvitationsSection
+          invites={invites}
+          loading={invitesLoading}
+          error={invitesError}
+          cancellingId={cancellingId}
+          resendingId={resendingId}
+          onCancel={async (inviteId) => {
+            await cancelInvite(inviteId);
+          }}
+          onResend={async (inviteId) => {
+            await resendInvite(inviteId);
+          }}
+        />
+      ) : null}
 
       <section className="space-y-4">
         <div className="flex flex-wrap items-end justify-between gap-2 border-b border-border pb-3">
           <div>
             <h2 className="text-sm font-semibold text-foreground">Active members</h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              {members.length} person{members.length === 1 ? "" : "s"} on this team
+              {loading
+                ? "Loading…"
+                : `${members.length} person${members.length === 1 ? "" : "s"} on this team`}
             </p>
           </div>
         </div>
 
-        {members.length === 0 ? (
+        {loading ? (
+          <OrganizationMembersListSkeleton count={4} />
+        ) : members.length === 0 ? (
           <div className="vs-surface rounded-md border border-dashed border-border px-6 py-14 text-center">
             <p className="text-sm font-medium text-foreground">No members yet</p>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -112,8 +146,8 @@ export function OrgMembersView({ orgId, orgName }: Props) {
         open={inviteOpen}
         onOpenChange={setInviteOpen}
         onSent={() => {
-          refreshSentInvites();
-          refresh();
+          void reloadInvites();
+          void reload();
         }}
       />
     </div>

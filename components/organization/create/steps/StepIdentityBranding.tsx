@@ -73,7 +73,7 @@ export function StepIdentityBranding({ form, onChange }: Props) {
             <input
               ref={fileRef}
               type="file"
-              accept="image/jpeg,image/png,image/svg+xml"
+              accept="image/jpeg,image/png,image/webp"
               className="hidden"
               onChange={handleLogoUpload}
             />
@@ -98,7 +98,7 @@ export function StepIdentityBranding({ form, onChange }: Props) {
               )}
             </div>
             <FieldDescription>
-              Recommended size: 512×512px. Formats: JPG, PNG, SVG.
+              Recommended size: 512×512px. Formats: JPG, PNG, or WEBP (max 5MB).
             </FieldDescription>
           </div>
         </div>

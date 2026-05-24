@@ -11,19 +11,23 @@ import { ChatMessageList } from "@/components/chat/ChatMessageList";
 import { ChatPromptChips } from "@/components/chat/ChatPromptChips";
 import { ORG_ADVISOR_QUICK_PROMPTS } from "@/lib/org-advisor-mock";
 import { deriveChatTitle } from "@/lib/chat-utils";
-import { MOCK_ORGANIZATIONS } from "@/lib/organizations-data";
+import { useOrganizationsList } from "@/hooks/useOrganizationsList";
 import { useOrgAdvisorStore } from "@/store/useOrgAdvisorStore";
 import { useAppStore } from "@/store/useAppStore";
 
 export function OrgAdvisorChat() {
   const authUser = useAppStore((s) => s.authData.user);
+  const { organizations } = useOrganizationsList();
   const {
     selectedOrgId,
     isTyping,
     isSessionBusy,
+    isConnecting,
     createSession,
+    startNewChatWithMessage,
     sendMessage,
     getActiveSession,
+    error,
   } = useOrgAdvisorStore();
 
   const activeSession = getActiveSession();
@@ -31,15 +35,15 @@ export function OrgAdvisorChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const org =
-    MOCK_ORGANIZATIONS.find(
-      (o) => o.id === (activeSession?.orgId ?? selectedOrgId),
+    organizations.find(
+      (o) => o.id === (activeSession?.org_id ?? selectedOrgId),
     ) ?? null;
 
   const displayName = authUser?.full_name?.split(" ")[0] ?? "there";
   const messages = activeSession?.messages ?? [];
   const showWelcome =
-    !isSessionBusy && (!activeSession || messages.length === 0);
-  const showLoading = isSessionBusy && !isTyping;
+    !isSessionBusy && !isConnecting && (!activeSession || messages.length === 0);
+  const showLoading = (isSessionBusy || isConnecting) && !isTyping;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -47,12 +51,12 @@ export function OrgAdvisorChat() {
 
   async function handleSend() {
     const text = input.trim();
-    if (!text || isTyping || isSessionBusy) return;
+    if (!text || isTyping || isSessionBusy || !selectedOrgId) return;
 
     if (!activeSession) {
       await createSession(deriveChatTitle(text), selectedOrgId);
     }
-    await sendMessage(text);
+    sendMessage(text);
     setInput("");
   }
 
@@ -64,9 +68,8 @@ export function OrgAdvisorChat() {
   }
 
   async function runPrompt(prompt: string, label: string) {
-    if (isTyping || isSessionBusy) return;
-    await createSession(label, selectedOrgId);
-    await sendMessage(prompt);
+    if (isTyping || isSessionBusy || !selectedOrgId) return;
+    await startNewChatWithMessage(prompt, label);
   }
 
   return (
@@ -98,6 +101,11 @@ export function OrgAdvisorChat() {
 
       <div className="flex-1 overflow-y-auto scrollbar-none">
         <div className={cn(CHAT_CONTENT_WIDTH, CHAT_MAIN_PADDING)}>
+          {error && !showLoading ? (
+            <p className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </p>
+          ) : null}
           {showLoading ? (
             <ChatConversationSkeleton />
           ) : showWelcome ? (
@@ -116,7 +124,7 @@ export function OrgAdvisorChat() {
                 </p>
               </div>
               <ChatPromptChips
-                disabled={isTyping || isSessionBusy}
+                disabled={isTyping || isSessionBusy || !selectedOrgId}
                 prompts={ORG_ADVISOR_QUICK_PROMPTS.map((item) => ({
                   label: item.label,
                   onClick: () => void runPrompt(item.prompt, item.label),
@@ -125,7 +133,11 @@ export function OrgAdvisorChat() {
             </div>
           ) : (
             <ChatMessageList
-              messages={messages}
+              messages={messages.map((m) => ({
+                id: m.id || undefined,
+                role: m.role as "user" | "assistant" | "system",
+                content: m.content,
+              }))}
               isTyping={isTyping}
               userInitial={displayName}
               formatAssistant
@@ -140,7 +152,7 @@ export function OrgAdvisorChat() {
         onChange={setInput}
         onSend={() => void handleSend()}
         onKeyDown={handleKeyDown}
-        disabled={isTyping || isSessionBusy}
+        disabled={isTyping || isSessionBusy || !selectedOrgId}
         placeholder={
           isSessionBusy
             ? "Please wait…"

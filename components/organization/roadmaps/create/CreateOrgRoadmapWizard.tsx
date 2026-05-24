@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Building2, Users } from "lucide-react";
+import { toast } from "sonner";
 import { CreateOrgRoadmapHeader } from "@/components/organization/roadmaps/create/CreateOrgRoadmapHeader";
 import { OrgAreaSelectionList } from "@/components/organization/roadmaps/create/OrgAreaSelectionList";
 import { OrgRoadmapTrendingToggle } from "@/components/organization/roadmaps/create/OrgRoadmapTrendingToggle";
@@ -15,26 +16,24 @@ import {
   fetchTrendingCareersForOrgRoadmap,
   filterTrendingForArea,
 } from "@/lib/organization-roadmap-trends";
+import { parseOrgRoadmapOutApi } from "@/lib/organization-roadmap-parsers";
+import { assignOrganizationRoadmap } from "@/lib/organizations-api";
+import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
+import { useOrganizationProfile } from "@/hooks/useOrganizationProfile";
+import { getApiErrorMessage } from "@/lib/auth-api";
 import type { TrendingCareer } from "@/types/jobs";
-import { addOrganizationRoadmapFromApi } from "@/lib/organization-roadmaps-storage";
-import { resolveCurrentUserId } from "@/lib/organization-roadmap-utils";
-import { generateRoadmap } from "@/lib/roadmaps-api";
-import { useAppStore } from "@/store/useAppStore";
-import { toast } from "sonner";
 
-export function CreateOrgRoadmapWizard({
-  orgId,
-  orgName,
-}: {
-  orgId: string;
-  orgName: string;
-}) {
+export function CreateOrgRoadmapWizard({ orgId }: { orgId: string }) {
   const router = useRouter();
-  const authUser = useAppStore((s) => s.authData.user);
-  const userId = resolveCurrentUserId(authUser?.id as string | undefined);
-  const createdByName = authUser?.full_name?.trim() || "You";
+  const { displayName: orgName } = useOrganizationProfile(orgId);
+  const { members } = useOrganizationMembers(orgId);
+  const { profile } = useOrganizationProfile(orgId);
 
-  const areas = useMemo(() => getOrgRoadmapFocusAreas(orgId), [orgId]);
+  const areas = useMemo(
+    () => getOrgRoadmapFocusAreas(orgId, { profile, members }),
+    [orgId, profile, members],
+  );
+
   const [selectedAreaId, setSelectedAreaId] = useState("");
   const [includeTrending, setIncludeTrending] = useState(false);
   const [trendingCareers, setTrendingCareers] = useState<TrendingCareer[]>([]);
@@ -96,37 +95,28 @@ export function CreateOrgRoadmapWizard({
         trendsForGoal = filterTrendingForArea(selected, careers);
       }
       const goal = buildOrgRoadmapGenerationGoal(orgId, selected, {
-        trendingCareers: includeTrending && trendsForGoal.length > 0 ? trendsForGoal : undefined,
+        profile,
+        trendingCareers:
+          includeTrending && trendsForGoal.length > 0 ? trendsForGoal : undefined,
       });
-      const apiRoadmap = await generateRoadmap({
+
+      const raw = await assignOrganizationRoadmap(orgId, {
         trend_name: selected.generationTrendName,
         goal,
       });
-      const saved = addOrganizationRoadmapFromApi(orgId, apiRoadmap, {
-        createdByUserId: userId,
-        createdByName,
-        focusAreaId: selected.id,
-        focusAreaTitle: selected.title,
-        iconName: selected.iconName,
-      });
+      const parsed = parseOrgRoadmapOutApi(raw);
+      if (!parsed) {
+        throw new Error("Roadmap was created but the response was invalid.");
+      }
+
       toast.success(`Roadmap created for ${selected.title}.`);
-      router.push(
-        `/dashboard/organization/${orgId}/roadmaps/${saved.id}`,
-      );
-    } catch {
-      toast.error("Could not generate roadmap. Try again.");
+      router.push(`/dashboard/organization/${orgId}/roadmaps/${parsed.id}`);
+    } catch (err) {
+      toast.error(getApiErrorMessage(err));
     } finally {
       setIsGenerating(false);
     }
-  }, [
-    orgId,
-    router,
-    selected,
-    userId,
-    createdByName,
-    includeTrending,
-    matchedTrends,
-  ]);
+  }, [orgId, router, selected, includeTrending, matchedTrends]);
 
   return (
     <div className="relative min-h-screen bg-background">
@@ -156,7 +146,7 @@ export function CreateOrgRoadmapWizard({
         <CreateOrgRoadmapHeader
           orgId={orgId}
           orgName={orgName}
-          onGenerate={handleGenerate}
+          onGenerate={() => void handleGenerate()}
           isGenerating={isGenerating}
           canGenerate={
             Boolean(selected) && !(includeTrending && trendingLoading)

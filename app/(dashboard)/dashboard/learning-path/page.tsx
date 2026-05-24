@@ -17,45 +17,12 @@ import {
   roadmapBelongsToTab,
 } from "@/lib/trending-career-segments";
 import {
-  applyRoadmapProgressStats,
   roadmapListItemToStubPath,
   roadmapOutToLearningPath,
 } from "@/lib/map-roadmap-to-learning-path";
-import { syncRoadmapStepProgress } from "@/lib/roadmap-progress-sync";
+import { toggleResourceWithSyncOnPaths } from "@/lib/roadmap-progress-sync";
 import { LearningPathListSkeleton } from "@/components/learning-path/LearningPathSkeletons";
 import { toast } from "sonner";
-
-function toggleResourceInPaths(
-  paths: LearningPath[],
-  pathId: string,
-  moduleId: string,
-  resourceId: string,
-): LearningPath[] {
-  return paths.map((path) => {
-    if (path.id !== pathId) {
-      return path;
-    }
-    return {
-      ...path,
-      modules: path.modules.map((module) => {
-        if (module.id !== moduleId) {
-          return module;
-        }
-        return {
-          ...module,
-          resources: module.resources.map((resource) => {
-            if (resource.id !== resourceId) {
-              return resource;
-            }
-            const newStatus =
-              resource.status === "completed" ? "in-progress" : "completed";
-            return { ...resource, status: newStatus };
-          }),
-        };
-      }),
-    };
-  });
-}
 
 export default function LearningPathPage() {
   const router = useRouter();
@@ -181,33 +148,7 @@ export default function LearningPathPage() {
     moduleId: string,
     resourceId: string,
   ) => {
-    setPaths((prev) => {
-      const next = toggleResourceInPaths(
-        prev,
-        pathId,
-        moduleId,
-        resourceId,
-      );
-      const mod = next
-        .find((p) => p.id === pathId)
-        ?.modules.find((m) => m.id === moduleId);
-      if (mod) {
-        void syncRoadmapStepProgress(moduleId, mod.resources)
-          .then((stats) => {
-            setPaths((p) =>
-              p.map((path) =>
-                path.id === pathId
-                  ? applyRoadmapProgressStats(path, stats)
-                  : path,
-              ),
-            );
-          })
-          .catch(() => {
-            toast.error("Could not sync step progress.");
-          });
-      }
-      return next;
-    });
+    toggleResourceWithSyncOnPaths(setPaths, pathId, moduleId, resourceId);
   };
 
   return (

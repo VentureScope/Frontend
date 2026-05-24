@@ -1,12 +1,10 @@
-import type { OrganizationAccessRole } from "@/types/organization-invite";
-
-/** Outgoing invite recorded by the organization (admin view). */
+/** Outgoing invite from `GET /api/organizations/{org_id}/invites`. */
 export type SentOrganizationInvite = {
   id: string;
   orgId: string;
   inviteeEmail: string;
-  teamRole: string;
-  accessRole: OrganizationAccessRole;
+  teamRole: string | null;
   sentAt: string;
-  status: "pending";
+  status: string;
+  expiresAt: string;
 };

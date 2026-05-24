@@ -5,14 +5,18 @@ import { createPortal } from "react-dom";
 import { AlertTriangle, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { removeOrganizationMember } from "@/lib/organization-members-storage";
+import { getApiErrorMessage } from "@/lib/auth-api";
 import { canRemoveMember } from "@/lib/organization-member-service";
+import { removeOrganizationMember } from "@/lib/organizations-api";
+import type { OrganizationRole } from "@/types/organization";
 import type { OrganizationMember } from "@/types/organization-profile";
 
 type RemoveMemberDialogProps = {
   orgId: string;
   orgName: string;
   member: OrganizationMember;
+  myRole: OrganizationRole;
+  currentUserId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onRemoved: () => void;
@@ -22,30 +26,33 @@ export function RemoveMemberDialog({
   orgId,
   orgName,
   member,
+  myRole,
+  currentUserId,
   open,
   onOpenChange,
   onRemoved,
 }: RemoveMemberDialogProps) {
   const [removing, setRemoving] = useState(false);
-  const check = canRemoveMember(orgId, member.id);
+  const check = canRemoveMember(myRole, member, currentUserId);
 
   function handleClose() {
     if (removing) return;
     onOpenChange(false);
   }
 
-  function handleRemove() {
+  async function handleRemove() {
     if (removing || !check.allowed) return;
     setRemoving(true);
-    const ok = removeOrganizationMember(orgId, member.id);
-    setRemoving(false);
-    if (!ok) {
-      toast.error("Could not remove member.");
-      return;
+    try {
+      await removeOrganizationMember(orgId, member.id);
+      toast.success(`${member.name} removed from ${orgName}`);
+      onOpenChange(false);
+      onRemoved();
+    } catch (err) {
+      toast.error(getApiErrorMessage(err));
+    } finally {
+      setRemoving(false);
     }
-    toast.success(`${member.name} removed from ${orgName}`);
-    onOpenChange(false);
-    onRemoved();
   }
 
   if (!open || typeof window === "undefined") {
@@ -102,7 +109,7 @@ export function RemoveMemberDialog({
             type="button"
             variant="destructive"
             disabled={removing || !check.allowed}
-            onClick={handleRemove}
+            onClick={() => void handleRemove()}
           >
             {removing ? "Removing…" : "Remove from organization"}
           </Button>

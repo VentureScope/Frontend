@@ -4,7 +4,13 @@ import {
   iconNameForTrend,
   resolveRoadmapDisplayStatus,
 } from "@/lib/roadmap-utils";
-import type { ResourceOut, RoadmapListItem, RoadmapOut, StepOut } from "@/types/roadmap";
+import type {
+  ResourceOut,
+  ResourceToggleOut,
+  RoadmapListItem,
+  RoadmapOut,
+  StepOut,
+} from "@/types/roadmap";
 import { stepProgressDone, stepUiStatus } from "@/types/roadmap";
 
 function resourceTypeFromApi(
@@ -177,6 +183,116 @@ export function roadmapListItemToStubPath(item: RoadmapListItem): LearningPath {
     totalWeeks: item.total_weeks,
     stepsCompleted: item.steps_completed,
     totalSteps: item.total_steps,
+  };
+}
+
+function apiStatusToResourceStatus(
+  status: string,
+): Resource["status"] {
+  const normalized = status.toLowerCase().replace(/-/g, "_");
+  if (normalized === "completed") {
+    return "completed";
+  }
+  if (normalized === "in_progress") {
+    return "in-progress";
+  }
+  return "locked";
+}
+
+export function toggleResourceInLearningPath(
+  path: LearningPath,
+  moduleId: string,
+  resourceId: string,
+): LearningPath {
+  return {
+    ...path,
+    modules: path.modules.map((module) => {
+      if (module.id !== moduleId) {
+        return module;
+      }
+      return {
+        ...module,
+        resources: module.resources.map((resource) => {
+          if (resource.id !== resourceId) {
+            return resource;
+          }
+          const newStatus =
+            resource.status === "completed" ? "in-progress" : "completed";
+          return { ...resource, status: newStatus };
+        }),
+      };
+    }),
+  };
+}
+
+/** Apply POST /resources/{id}/toggle response — backend is source of truth for progress. */
+export function applyResourceToggleToLearningPath(
+  path: LearningPath,
+  moduleId: string,
+  resourceId: string,
+  out: ResourceToggleOut,
+): LearningPath {
+  const moduleStatus = apiStatusToResourceStatus(out.step_status);
+  const resourceStatus = out.completed ? "completed" : "in-progress";
+
+  const displayStatus = resolveRoadmapDisplayStatus({
+    status: out.roadmap_status,
+    completion_percentage: out.completion_percentage,
+    steps_completed: out.steps_completed,
+    total_steps: out.total_steps,
+    steps: path.modules.map((m) => ({
+      id: m.id,
+      week_number: 0,
+      topic: m.title,
+      status: m.id === moduleId ? moduleStatus : m.status,
+      progress: {
+        status:
+          m.id === moduleId
+            ? out.step_status
+            : m.status === "completed"
+              ? "completed"
+              : m.status === "in-progress"
+                ? "in_progress"
+                : "not_started",
+      },
+    })),
+  });
+
+  return {
+    ...path,
+    progress: resolveCompletionPercent(
+      out.completion_percentage,
+      path.progress,
+    ),
+    roadmapStatus: displayStatus,
+    stepsCompleted: out.steps_completed,
+    totalSteps: out.total_steps,
+    focus: formatRoadmapListFocus({
+      id: path.id,
+      title: path.title,
+      trend_name: path.trendName,
+      total_weeks: path.totalWeeks ?? 0,
+      status: displayStatus,
+      created_at: path.createdAt ?? new Date().toISOString(),
+      steps_completed: out.steps_completed,
+      total_steps: out.total_steps,
+      completion_percentage: out.completion_percentage,
+    }),
+    modules: path.modules.map((module) => {
+      if (module.id !== moduleId) {
+        return module;
+      }
+      return {
+        ...module,
+        status: moduleStatus,
+        resources: module.resources.map((resource) => {
+          if (resource.id !== resourceId) {
+            return resource;
+          }
+          return { ...resource, status: resourceStatus };
+        }),
+      };
+    }),
   };
 }
 

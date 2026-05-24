@@ -1,29 +1,21 @@
 import type { OrganizationRoadmap } from "@/types/organization-roadmap";
-import { MOCK_ORGANIZATION_ROADMAPS } from "@/lib/organization-roadmaps-data";
 import { roadmapOutToLearningPath } from "@/lib/map-roadmap-to-learning-path";
 import type { RoadmapOut } from "@/types/roadmap";
+
+/** Local sessionStorage for personal roadmap forks (no API yet). */
 export const ORG_ROADMAPS_STORAGE_KEY = "venturescope-org-roadmaps-v1";
 
 function loadAll(): OrganizationRoadmap[] {
   if (typeof window === "undefined") {
-    return [...MOCK_ORGANIZATION_ROADMAPS];
+    return [];
   }
   try {
     const raw = sessionStorage.getItem(ORG_ROADMAPS_STORAGE_KEY);
-    if (!raw) {
-      sessionStorage.setItem(
-        ORG_ROADMAPS_STORAGE_KEY,
-        JSON.stringify(MOCK_ORGANIZATION_ROADMAPS),
-      );
-      return [...MOCK_ORGANIZATION_ROADMAPS];
-    }
+    if (!raw) return [];
     const parsed = JSON.parse(raw) as OrganizationRoadmap[];
-    if (!Array.isArray(parsed)) {
-      return [...MOCK_ORGANIZATION_ROADMAPS];
-    }
-    return parsed;
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return [...MOCK_ORGANIZATION_ROADMAPS];
+    return [];
   }
 }
 
@@ -59,6 +51,7 @@ export function addOrganizationRoadmapFromApi(
   const entry: OrganizationRoadmap = {
     ...base,
     orgId,
+    contentRoadmapId: apiRoadmap.id,
     createdByUserId: meta.createdByUserId,
     createdByName: meta.createdByName,
     focusAreaId: meta.focusAreaId,

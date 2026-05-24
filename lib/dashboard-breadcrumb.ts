@@ -1,3 +1,8 @@
+import {
+  getCachedMemberName,
+  getCachedOrganizationName,
+} from "@/lib/organization-label-cache";
+
 const BREADCRUMB_LABELS: Record<string, string> = {
   dashboard: "Overview",
   "learning-path": "Learning Path",
@@ -13,12 +18,9 @@ const BREADCRUMB_LABELS: Record<string, string> = {
   members: "Members",
 };
 
-import { MOCK_PENDING_INVITES } from "@/lib/organization-invites-storage";
-import { getOrganizationMember } from "@/lib/organization-members-storage";
-
 const ORGANIZATION_SUB_LABELS: Record<string, string> = {
   new: "Create Organization",
-  invites: "Pending Invites",
+  invites: "Invitations",
   roadmaps: "My Roadmaps",
   profile: "My Org Profile",
   advisor: "Org Advisor",
@@ -52,33 +54,31 @@ export function getDashboardBreadcrumb(pathname: string): string {
       if (!inviteId) {
         return ORGANIZATION_SUB_LABELS.invites;
       }
-      const invite = MOCK_PENDING_INVITES.find((i) => i.id === inviteId);
-      return invite
-        ? `${invite.organizationName} · Invitation`
-        : "Invitation";
+      return "Invitation";
     }
     if (ORGANIZATION_SUB_LABELS[sub]) {
       return ORGANIZATION_SUB_LABELS[sub];
     }
-    const orgSlug = sub;
+    const orgId = sub;
     const third = segments[2];
+    const orgLabel = organizationLabel(orgId);
     if (third && ORG_NESTED_LABELS[third]) {
       const fourth = segments[3];
       if (third === "roadmaps" && fourth === "new") {
-        return `${nameFromOrgSlug(orgSlug)} · New roadmap`;
+        return `${orgLabel} · New roadmap`;
       }
       if (third === "roadmaps" && fourth) {
-        return `${nameFromOrgSlug(orgSlug)} · Roadmap`;
+        return `${orgLabel} · Roadmap`;
       }
       if (third === "members" && fourth) {
-        const member = getOrganizationMember(orgSlug, fourth);
-        return member
-          ? `${nameFromOrgSlug(orgSlug)} · ${member.name}`
-          : `${nameFromOrgSlug(orgSlug)} · Member`;
+        const memberName = getCachedMemberName(orgId, fourth);
+        return memberName
+          ? `${orgLabel} · ${memberName}`
+          : `${orgLabel} · Member`;
       }
-      return `${nameFromOrgSlug(orgSlug)} · ${ORG_NESTED_LABELS[third]}`;
+      return `${orgLabel} · ${ORG_NESTED_LABELS[third]}`;
     }
-    return nameFromOrgSlug(orgSlug);
+    return orgLabel;
   }
 
   return BREADCRUMB_LABELS[root] ?? root.split("-").map(capitalize).join(" ");
@@ -88,10 +88,6 @@ function capitalize(segment: string): string {
   return segment.charAt(0).toUpperCase() + segment.slice(1);
 }
 
-function nameFromOrgSlug(slug: string): string {
-  return slug
-    .split("-")
-    .filter(Boolean)
-    .map(capitalize)
-    .join(" ");
+function organizationLabel(orgId: string): string {
+  return getCachedOrganizationName(orgId) ?? "Organization";
 }

@@ -6,43 +6,13 @@ import { ArrowLeft } from "lucide-react";
 import { RoadmapDetailView } from "@/components/roadmap-view/RoadmapDetailView";
 import type { LearningPath } from "../mockData";
 import { getRoadmap } from "@/lib/roadmaps-api";
-import {
-  applyRoadmapProgressStats,
-  roadmapOutToLearningPath,
-} from "@/lib/map-roadmap-to-learning-path";
+import { roadmapOutToLearningPath } from "@/lib/map-roadmap-to-learning-path";
 import {
   formatRoadmapStatus,
   roadmapStatusBadgeClass,
 } from "@/lib/roadmap-utils";
-import { syncRoadmapStepProgress } from "@/lib/roadmap-progress-sync";
+import { toggleResourceWithSync } from "@/lib/roadmap-progress-sync";
 import { RoadmapDetailPageSkeleton } from "@/components/learning-path/LearningPathSkeletons";
-import { toast } from "sonner";
-
-function toggleResourceInPath(
-  path: LearningPath,
-  moduleId: string,
-  resourceId: string,
-): LearningPath {
-  return {
-    ...path,
-    modules: path.modules.map((module) => {
-      if (module.id !== moduleId) {
-        return module;
-      }
-      return {
-        ...module,
-        resources: module.resources.map((resource) => {
-          if (resource.id !== resourceId) {
-            return resource;
-          }
-          const newStatus =
-            resource.status === "completed" ? "in-progress" : "completed";
-          return { ...resource, status: newStatus };
-        }),
-      };
-    }),
-  };
-}
 
 export default function StandaloneRoadmapPage({
   params,
@@ -74,27 +44,7 @@ export default function StandaloneRoadmapPage({
 
   const handleToggleResource = useCallback(
     (moduleId: string, resourceId: string) => {
-      setPath((prevPath) => {
-        if (!prevPath) {
-          return prevPath;
-        }
-        const next = toggleResourceInPath(
-          prevPath,
-          moduleId,
-          resourceId,
-        );
-        const mod = next.modules.find((m) => m.id === moduleId);
-        if (mod) {
-          void syncRoadmapStepProgress(moduleId, mod.resources)
-            .then((stats) => {
-              setPath((p) => (p ? applyRoadmapProgressStats(p, stats) : p));
-            })
-            .catch(() => {
-              toast.error("Could not sync step progress.");
-            });
-        }
-        return next;
-      });
+      toggleResourceWithSync(setPath, moduleId, resourceId);
     },
     [],
   );

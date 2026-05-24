@@ -5,10 +5,12 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OrganizationCard } from "@/components/organization/OrganizationCard";
 import { ExpandNetworkCard } from "@/components/organization/ExpandNetworkCard";
-import { MOCK_ORGANIZATIONS } from "@/lib/organizations-data";
+import { OrganizationCardGridSkeleton } from "@/components/organization/OrganizationSkeletons";
+import { useOrganizationsList } from "@/hooks/useOrganizationsList";
 
 export default function OrganizationsPage() {
   const router = useRouter();
+  const { organizations, loading, error, reload } = useOrganizationsList();
 
   function openCreate() {
     router.push("/dashboard/organization/new");
@@ -35,12 +37,35 @@ export default function OrganizationsPage() {
         </Button>
       </header>
 
+      {error ? (
+        <div className="mb-6 flex flex-col gap-3 rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-destructive">{error}</p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => void reload()}
+          >
+            Retry
+          </Button>
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {MOCK_ORGANIZATIONS.map((org) => (
-          <OrganizationCard key={org.id} org={org} />
-        ))}
+        {loading ? (
+          <OrganizationCardGridSkeleton count={2} />
+        ) : (
+          organizations.map((org) => <OrganizationCard key={org.id} org={org} />)
+        )}
         <ExpandNetworkCard />
       </div>
+
+      {!loading && !error && organizations.length === 0 ? (
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          You are not a member of any organizations yet. Create one or accept an
+          invitation to get started.
+        </p>
+      ) : null}
     </div>
   );
 }

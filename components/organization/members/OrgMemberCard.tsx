@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ChevronRight, Mail } from "lucide-react";
-import { formatMemberRole } from "@/lib/organization-members-data";
+import { formatMemberRole } from "@/lib/organization-member-format";
 import type { OrganizationMember } from "@/types/organization-profile";
 
 type OrgMemberCardProps = {

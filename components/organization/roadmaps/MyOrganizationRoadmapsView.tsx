@@ -9,9 +9,9 @@ import { OrgRoadmapPathCard } from "@/components/organization/roadmaps/OrgRoadma
 import { RoadmapInfoCallout } from "@/components/organization/roadmaps/RoadmapInfoCallout";
 import { useOrgRoadmapListState } from "@/components/organization/roadmaps/useOrgRoadmapListState";
 import { OrganizationPageHeader } from "@/components/organization/OrganizationPageHeader";
+import { OrganizationRoadmapsGridSkeleton } from "@/components/organization/OrganizationSkeletons";
 import { Button } from "@/components/ui/button";
-import { MOCK_ORGANIZATIONS } from "@/lib/organizations-data";
-import { loadOrganizationRoadmaps } from "@/lib/organization-roadmaps-storage";
+import { useMyOrganizationRoadmaps } from "@/hooks/useMyOrganizationRoadmaps";
 import {
   filterMyRoadmaps,
   getMyProgress,
@@ -52,26 +52,29 @@ export function MyOrganizationRoadmapsView() {
 
   const [activeTab, setActiveTab] = useState<MyRoadmapsTab>("all");
   const [orgFilter, setOrgFilter] = useState<string>(ALL_ORGS_FILTER);
+  const { roadmaps, organizations, loading, error, reload } =
+    useMyOrganizationRoadmaps();
+
   const { paths, setPaths, expandedPathIds, handleToggleExpand, handleToggleResource } =
     useOrgRoadmapListState<OrganizationRoadmap>([]);
 
   useEffect(() => {
-    setPaths(loadOrganizationRoadmaps());
-  }, [setPaths]);
+    setPaths(roadmaps);
+  }, [roadmaps, setPaths]);
 
   const createHref =
     orgFilter !== ALL_ORGS_FILTER
       ? `/dashboard/organization/${orgFilter}/roadmaps/new`
-      : MOCK_ORGANIZATIONS[0]
-        ? `/dashboard/organization/${MOCK_ORGANIZATIONS[0].id}/roadmaps/new`
+      : organizations[0]
+        ? `/dashboard/organization/${organizations[0].id}/roadmaps/new`
         : "/dashboard/organization";
 
   const selectedOrgName = useMemo(() => {
     if (orgFilter === ALL_ORGS_FILTER) {
       return null;
     }
-    return MOCK_ORGANIZATIONS.find((o) => o.id === orgFilter)?.name ?? null;
-  }, [orgFilter]);
+    return organizations.find((o) => o.id === orgFilter)?.name ?? null;
+  }, [orgFilter, organizations]);
 
   const filtered = useMemo(() => {
     const byTab = filterMyRoadmaps(paths, userId, activeTab);
@@ -84,10 +87,10 @@ export function MyOrganizationRoadmapsView() {
   const grouped = useMemo(() => {
     const orgs =
       orgFilter === ALL_ORGS_FILTER
-        ? MOCK_ORGANIZATIONS
-        : MOCK_ORGANIZATIONS.filter((o) => o.id === orgFilter);
+        ? organizations
+        : organizations.filter((o) => o.id === orgFilter);
     return groupRoadmapsByOrg(filtered, orgs);
-  }, [filtered, orgFilter]);
+  }, [filtered, orgFilter, organizations]);
 
   const handleViewDetails = (orgId: string, roadmapId: string) => {
     router.push(
@@ -110,6 +113,15 @@ export function MyOrganizationRoadmapsView() {
         roadmaps you have not joined yet—open that organization and go to{" "}
         <strong className="font-medium text-foreground">Team roadmaps</strong>.
       </RoadmapInfoCallout>
+
+      {error ? (
+        <div className="mb-6 flex gap-3 rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3">
+          <p className="flex-1 text-sm text-destructive">{error}</p>
+          <Button type="button" variant="outline" size="sm" onClick={() => void reload()}>
+            Retry
+          </Button>
+        </div>
+      ) : null}
 
       <div className="mb-6 flex flex-wrap items-center justify-end gap-3">
         <Button asChild variant="outline" size="sm" className="gap-1.5">
@@ -141,7 +153,7 @@ export function MyOrganizationRoadmapsView() {
           >
             All organizations
           </button>
-          {MOCK_ORGANIZATIONS.map((org) => (
+          {organizations.map((org) => (
             <button
               key={org.id}
               type="button"
@@ -174,7 +186,9 @@ export function MyOrganizationRoadmapsView() {
         </p>
       )}
 
-      {grouped.length === 0 ? (
+      {loading ? (
+        <OrganizationRoadmapsGridSkeleton count={2} />
+      ) : grouped.length === 0 ? (
         <div className="vs-surface mt-10 rounded-md border border-dashed border-border px-6 py-14 text-center">
           <p className="text-sm font-medium text-foreground">
             {selectedOrgName

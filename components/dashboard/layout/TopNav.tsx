@@ -50,8 +50,13 @@ const DASHBOARD_SEARCH_ITEMS: CommandSearchItem[] = [
   },
   { label: "Org Advisor", path: "/dashboard/organization/advisor", group: "Organization" },
   {
-    label: "Pending Invites",
+    label: "Invitations",
     path: "/dashboard/organization/invites",
+    group: "Organization",
+  },
+  {
+    label: "My Roadmaps",
+    path: "/dashboard/organization/roadmaps",
     group: "Organization",
   },
 ];
