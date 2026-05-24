@@ -1,6 +1,12 @@
 "use client";
 
-import React, { Suspense, useState, useRef, useEffect, useCallback } from "react";
+import React, {
+  Suspense,
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+} from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -13,6 +19,7 @@ import {
   resendOtp,
   verifyEmail,
 } from "@/lib/auth-api";
+import { decodePasswordFromQuery } from "@/lib/auth-query-params";
 import {
   buildRegisterUrl,
   buildSignInUrl,
@@ -47,9 +54,11 @@ function VerifyEmailContent() {
   const signInHref = buildSignInUrl(returnPathFromQuery);
   const email = searchParams.get("email") ?? "";
   const rawPassword = searchParams.get("p") ?? "";
-  const password = rawPassword ? atob(rawPassword) : "";
+  const password = rawPassword ? decodePasswordFromQuery(rawPassword) : "";
 
   const token = useAppStore((state) => state.authData.token);
+  const setAuthData = useAppStore((state) => state.setAuthData);
+
   const [isHydrated, setIsHydrated] = useState(false);
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [apiError, setApiError] = useState<string | null>(null);
@@ -58,8 +67,9 @@ function VerifyEmailContent() {
   const [isResending, setIsResending] = useState(false);
   const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_SECONDS);
 
-  const setAuthData = useAppStore((state) => state.setAuthData);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const canShowForm = isHydrated && !token && Boolean(email);
 
   useEffect(() => {
     setIsHydrated(true);
@@ -70,43 +80,64 @@ function VerifyEmailContent() {
     router.replace(postAuthPath);
   }, [isHydrated, token, postAuthPath, router]);
 
-  // Redirect if no email provided
   useEffect(() => {
-    if (!isHydrated || token) return;
-    if (!email) {
-      router.replace(registerHref);
-    }
+    if (!isHydrated || token || email) return;
+    router.replace(registerHref);
   }, [email, isHydrated, token, registerHref, router]);
 
-  if (!isHydrated || token) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
-        {token ? "Redirecting…" : "Loading…"}
-      </div>
-    );
-  }
-
-  if (!email) {
-    return null;
-  }
-
-  // Resend cooldown timer
   useEffect(() => {
-    if (cooldown <= 0) return;
+    if (!canShowForm || cooldown <= 0) return;
     const timer = setInterval(() => {
       setCooldown((prev) => Math.max(0, prev - 1));
     }, 1000);
     return () => clearInterval(timer);
-  }, [cooldown]);
+  }, [canShowForm, cooldown]);
 
-  // Focus first input on mount
   useEffect(() => {
+    if (!canShowForm) return;
     inputRefs.current[0]?.focus();
-  }, []);
+  }, [canShowForm]);
+
+  const handleVerify = useCallback(
+    async (code?: string) => {
+      const otpCode = code ?? otp.join("");
+      if (otpCode.length !== OTP_LENGTH) {
+        setApiError("Please enter the full 6-digit code.");
+        return;
+      }
+
+      setApiError(null);
+      setIsVerifying(true);
+
+      try {
+        await verifyEmail({ email, otp: otpCode });
+        setSuccessMessage("Email verified successfully! Signing you in...");
+
+        if (password) {
+          try {
+            const loginResult = await loginUser({ email, password });
+            const authSessionData = await buildAuthSessionData(loginResult);
+            setAuthData(authSessionData);
+            setTimeout(() => router.push(postAuthPath), 800);
+          } catch {
+            setTimeout(() => router.push(signInHref), 1500);
+          }
+        } else {
+          setTimeout(() => router.push(signInHref), 1500);
+        }
+      } catch (error) {
+        setOtp(Array(OTP_LENGTH).fill(""));
+        inputRefs.current[0]?.focus();
+        setApiError(getApiErrorMessage(error));
+      } finally {
+        setIsVerifying(false);
+      }
+    },
+    [email, otp, password, postAuthPath, router, setAuthData, signInHref],
+  );
 
   const handleChange = useCallback(
     (index: number, value: string) => {
-      // Only accept digits
       if (value && !/^\d$/.test(value)) return;
 
       const newOtp = [...otp];
@@ -114,18 +145,16 @@ function VerifyEmailContent() {
       setOtp(newOtp);
       setApiError(null);
 
-      // Auto-advance to next field
       if (value && index < OTP_LENGTH - 1) {
         inputRefs.current[index + 1]?.focus();
       }
 
-      // Auto-submit when all digits filled
       const fullCode = newOtp.join("");
       if (fullCode.length === OTP_LENGTH && newOtp.every((d) => d !== "")) {
-        handleVerify(fullCode);
+        void handleVerify(fullCode);
       }
     },
-    [otp],
+    [otp, handleVerify],
   );
 
   const handleKeyDown = useCallback(
@@ -159,55 +188,15 @@ function VerifyEmailContent() {
       setOtp(newOtp);
       setApiError(null);
 
-      // Focus the next empty field or the last field
       const nextEmpty = newOtp.findIndex((d) => d === "");
       inputRefs.current[nextEmpty === -1 ? OTP_LENGTH - 1 : nextEmpty]?.focus();
 
-      // Auto-submit if all filled
       if (pasted.length === OTP_LENGTH) {
-        handleVerify(pasted);
+        void handleVerify(pasted);
       }
     },
-    [otp],
+    [otp, handleVerify],
   );
-
-  async function handleVerify(code?: string) {
-    const otpCode = code ?? otp.join("");
-    if (otpCode.length !== OTP_LENGTH) {
-      setApiError("Please enter the full 6-digit code.");
-      return;
-    }
-
-    setApiError(null);
-    setIsVerifying(true);
-
-    try {
-      await verifyEmail({ email, otp: otpCode });
-      setSuccessMessage("Email verified successfully! Signing you in...");
-
-      // Auto-login after verification
-      if (password) {
-        try {
-          const loginResult = await loginUser({ email, password });
-          const authSessionData = await buildAuthSessionData(loginResult);
-          setAuthData(authSessionData);
-          setTimeout(() => router.push(postAuthPath), 800);
-        } catch {
-          // Login failed — send them to sign-in page
-          setTimeout(() => router.push(signInHref), 1500);
-        }
-      } else {
-        // No password available (came from sign-in flow) — redirect to sign-in
-        setTimeout(() => router.push(signInHref), 1500);
-      }
-    } catch (error) {
-      setOtp(Array(OTP_LENGTH).fill(""));
-      inputRefs.current[0]?.focus();
-      setApiError(getApiErrorMessage(error));
-    } finally {
-      setIsVerifying(false);
-    }
-  }
 
   async function handleResend() {
     if (cooldown > 0 || isResending) return;
@@ -229,9 +218,22 @@ function VerifyEmailContent() {
     }
   }
 
-  const maskedEmail = email
-    ? email.replace(/^(.{2})(.*)(@.*)$/, (_, a, b, c) => a + "•".repeat(b.length) + c)
-    : "";
+  if (!isHydrated || token) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
+        {token ? "Redirecting…" : "Loading…"}
+      </div>
+    );
+  }
+
+  if (!email) {
+    return null;
+  }
+
+  const maskedEmail = email.replace(
+    /^(.{2})(.*)(@.*)$/,
+    (_, a, b, c) => a + "•".repeat(b.length) + c,
+  );
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-linear-to-b from-primary/5 via-background to-background p-4 sm:p-8">
@@ -243,7 +245,6 @@ function VerifyEmailContent() {
             aria-hidden
           />
           <div className="relative z-10 space-y-6">
-            {/* Logo */}
             <div className="flex items-center gap-3 text-inverse-foreground">
               <Image
                 src="/logo.png"
@@ -257,7 +258,6 @@ function VerifyEmailContent() {
               </span>
             </div>
 
-            {/* Headline */}
             <div className="max-w-md space-y-4">
               <p className="vs-accent-chip inline-flex rounded-md px-3 py-1 text-[10px] font-bold uppercase tracking-widest">
                 Account security
@@ -273,7 +273,6 @@ function VerifyEmailContent() {
             </div>
           </div>
 
-          {/* Security Info Card */}
           <div className="relative z-10 rounded-md border border-inverse-foreground/12 bg-inverse-foreground/8 p-6 backdrop-blur-sm">
             <div className="mb-3 flex items-center gap-3">
               <div className="vs-icon-tile-primary flex h-10 w-10 items-center justify-center rounded-md">
@@ -299,7 +298,6 @@ function VerifyEmailContent() {
         {/* RIGHT SIDE - OTP FORM */}
         <section className="flex flex-1 flex-col items-center justify-center bg-card px-6 py-10 sm:px-12 lg:px-16">
           <div className="w-full max-w-sm sm:max-w-md space-y-6">
-            {/* Back link */}
             <Link
               href={registerHref}
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-muted-foreground transition-colors"
@@ -308,7 +306,6 @@ function VerifyEmailContent() {
               Back to registration
             </Link>
 
-            {/* Header */}
             <div className="space-y-2 text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start">
                 <div className="vs-icon-tile-primary mb-2 flex h-12 w-12 items-center justify-center rounded-md">
@@ -326,7 +323,6 @@ function VerifyEmailContent() {
               </p>
             </div>
 
-            {/* OTP Input Grid */}
             <div className="flex justify-center gap-2.5 sm:gap-3">
               {Array.from({ length: OTP_LENGTH }).map((_, index) => (
                 <input
@@ -356,7 +352,6 @@ function VerifyEmailContent() {
               ))}
             </div>
 
-            {/* Error / Success Messages */}
             {apiError && (
               <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-center">
                 <p className="text-xs font-medium text-destructive">{apiError}</p>
@@ -370,9 +365,8 @@ function VerifyEmailContent() {
               </div>
             )}
 
-            {/* Verify Button */}
             <Button
-              onClick={() => handleVerify()}
+              onClick={() => void handleVerify()}
               disabled={isVerifying || otp.join("").length !== OTP_LENGTH}
               className="h-11 w-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
@@ -386,13 +380,13 @@ function VerifyEmailContent() {
               )}
             </Button>
 
-            {/* Resend Section */}
             <div className="text-center space-y-2">
               <p className="text-xs text-muted-foreground">
                 Didn&apos;t receive the code?
               </p>
               <button
-                onClick={handleResend}
+                type="button"
+                onClick={() => void handleResend()}
                 disabled={cooldown > 0 || isResending}
                 className={`
                   inline-flex items-center gap-1.5 text-xs font-bold transition-colors
@@ -415,7 +409,6 @@ function VerifyEmailContent() {
               </button>
             </div>
 
-            {/* Footer */}
             <div className="pt-2 text-center">
               <p className="text-[11px] text-muted-foreground leading-relaxed">
                 Having trouble?{" "}

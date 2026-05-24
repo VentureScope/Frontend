@@ -11,7 +11,12 @@ import type {
   RoadmapOut,
   StepOut,
 } from "@/types/roadmap";
-import { stepProgressDone, stepUiStatus } from "@/types/roadmap";
+import {
+  normalizeProgressStatus,
+  resourceUiStatusFromApi,
+  stepProgressDone,
+  stepUiStatus,
+} from "@/types/roadmap";
 
 function resourceTypeFromApi(
   r: { resource_type?: string | null },
@@ -51,6 +56,10 @@ function resourceMeta(r: ResourceOut): string {
   return bits.join(" · ") || "Resource";
 }
 
+function isSyntheticResourceId(resourceId: string): boolean {
+  return resourceId.endsWith("-overview");
+}
+
 function mapStepToModule(step: StepOut): Module {
   const stepStatus = stepUiStatus(step);
   const resources: Resource[] = (step.resources ?? []).map((r) => ({
@@ -58,7 +67,7 @@ function mapStepToModule(step: StepOut): Module {
     type: resourceTypeFromApi(r),
     title: r.title,
     meta: resourceMeta(r),
-    status: stepStatus,
+    status: resourceUiStatusFromApi(r, step),
     url: r.url || null,
   }));
 
@@ -68,7 +77,7 @@ function mapStepToModule(step: StepOut): Module {
       type: "DOCUMENTATION",
       title: step.topic,
       meta: "Roadmap step",
-      status: stepStatus,
+      status: "locked",
     });
   }
 
@@ -189,7 +198,7 @@ export function roadmapListItemToStubPath(item: RoadmapListItem): LearningPath {
 function apiStatusToResourceStatus(
   status: string,
 ): Resource["status"] {
-  const normalized = status.toLowerCase().replace(/-/g, "_");
+  const normalized = normalizeProgressStatus(status);
   if (normalized === "completed") {
     return "completed";
   }
@@ -197,6 +206,37 @@ function apiStatusToResourceStatus(
     return "in-progress";
   }
   return "locked";
+}
+
+function applyToggleToModuleResources(
+  resources: Resource[],
+  resourceId: string,
+  out: ResourceToggleOut,
+): Resource[] {
+  const stepNorm = normalizeProgressStatus(out.step_status);
+  const toggledStatus: Resource["status"] = out.completed
+    ? "completed"
+    : "in-progress";
+
+  return resources.map((resource) => {
+    if (isSyntheticResourceId(resource.id)) {
+      return resource;
+    }
+
+    if (stepNorm === "completed") {
+      return { ...resource, status: "completed" };
+    }
+
+    if (stepNorm === "not_started") {
+      return { ...resource, status: "in-progress" };
+    }
+
+    if (resource.id === resourceId) {
+      return { ...resource, status: toggledStatus };
+    }
+
+    return resource;
+  });
 }
 
 export function toggleResourceInLearningPath(
@@ -210,15 +250,29 @@ export function toggleResourceInLearningPath(
       if (module.id !== moduleId) {
         return module;
       }
+
+      const resource = module.resources.find((r) => r.id === resourceId);
+      if (!resource || resource.status === "locked") {
+        return module;
+      }
+
+      const completing = resource.status !== "completed";
+      const nextModuleStatus =
+        completing && module.status === "locked"
+          ? "in-progress"
+          : module.status;
+
       return {
         ...module,
-        resources: module.resources.map((resource) => {
-          if (resource.id !== resourceId) {
-            return resource;
+        status: nextModuleStatus,
+        resources: module.resources.map((r) => {
+          if (r.id !== resourceId) {
+            return r;
           }
-          const newStatus =
-            resource.status === "completed" ? "in-progress" : "completed";
-          return { ...resource, status: newStatus };
+          return {
+            ...r,
+            status: completing ? "completed" : "in-progress",
+          };
         }),
       };
     }),
@@ -233,7 +287,6 @@ export function applyResourceToggleToLearningPath(
   out: ResourceToggleOut,
 ): LearningPath {
   const moduleStatus = apiStatusToResourceStatus(out.step_status);
-  const resourceStatus = out.completed ? "completed" : "in-progress";
 
   const displayStatus = resolveRoadmapDisplayStatus({
     status: out.roadmap_status,
@@ -285,12 +338,11 @@ export function applyResourceToggleToLearningPath(
       return {
         ...module,
         status: moduleStatus,
-        resources: module.resources.map((resource) => {
-          if (resource.id !== resourceId) {
-            return resource;
-          }
-          return { ...resource, status: resourceStatus };
-        }),
+        resources: applyToggleToModuleResources(
+          module.resources,
+          resourceId,
+          out,
+        ),
       };
     }),
   };

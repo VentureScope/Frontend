@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getGithubSyncedData, getLatestTranscript } from "@/lib/auth-api";
+import { getUserReadiness } from "@/lib/readiness-api";
 import {
-  computeReadinessScore,
   jobMatchToPercent,
   mapNotificationToActivity,
   pickActiveRoadmap,
@@ -180,6 +180,7 @@ export function useDashboardOverview(careerInterest: string) {
         skillsResult,
         githubResult,
         transcriptResult,
+        readinessResult,
       ] = await Promise.allSettled([
         listRoadmaps(),
         listResumes(),
@@ -189,6 +190,7 @@ export function useDashboardOverview(careerInterest: string) {
         getInDemandSkills({ limit: 6 }),
         getGithubSyncedData(),
         getLatestTranscript(),
+        getUserReadiness(),
       ]);
 
       const roadmaps =
@@ -211,7 +213,10 @@ export function useDashboardOverview(careerInterest: string) {
           : fallback.skills;
 
       const topJobMatch = jobMatches[0] ?? null;
-      const readinessScore = computeReadinessScore(roadmaps, jobMatches);
+      const readinessScore =
+        readinessResult.status === "fulfilled"
+          ? readinessResult.value.readiness_score
+          : 0;
       const activeRoadmap = pickActiveRoadmap(roadmaps);
       const latestResume =
         resumes.length > 0

@@ -1,7 +1,10 @@
 import { AxiosError } from "axios";
 import { getRoadmap } from "@/lib/roadmaps-api";
+import { roadmapOutToLearningPath } from "@/lib/map-roadmap-to-learning-path";
 import {
   mergeOrgRoadmapWithContent,
+  mergeRoadmapContentIntoOrgRoadmap,
+  orgRoadmapOutToOrganizationRoadmap,
   parseOrgRoadmapListItemApi,
   parseOrgRoadmapOutApi,
   parseOrganizationRoadmapList,
@@ -10,6 +13,7 @@ import {
   getOrganizationRoadmap,
   listOrganizationRoadmaps,
 } from "@/lib/organizations-api";
+import { orgRoadmapDetailId } from "@/lib/organization-roadmap-utils";
 import type { OrganizationRoadmap } from "@/types/organization-roadmap";
 import type { OrganizationMember } from "@/types/organization-profile";
 
@@ -19,99 +23,152 @@ export function isOrgRoadmapNotFoundError(error: unknown): boolean {
 
 export type FetchOrganizationRoadmapDetailResult = {
   roadmap: OrganizationRoadmap;
-  /** When the URL id was a content roadmap id, this is the org assignment id used. */
-  resolvedOrgRoadmapId: string;
+  /** Canonical content `roadmap_id` used in URLs and both API paths. */
+  resolvedRoadmapId: string;
 };
 
-async function loadOrganizationRoadmapDetail(
-  orgId: string,
-  orgRoadmapId: string,
-  members: OrganizationMember[],
-): Promise<OrganizationRoadmap> {
-  const orgRaw = await getOrganizationRoadmap(orgId, orgRoadmapId);
-  const parsed = parseOrgRoadmapOutApi(orgRaw);
-  if (!parsed) {
-    throw new Error("Invalid organization roadmap response.");
-  }
-
-  const content = await getRoadmap(parsed.roadmap_id);
-  return mergeOrgRoadmapWithContent(parsed, content, orgId, members);
-}
-
 /**
- * Resolve a URL segment to an org roadmap assignment id.
- * Handles stale ids and mistaken content `roadmap_id` in the URL.
+ * Resolve a URL segment to the content `roadmap_id`.
+ * Accepts legacy assignment ids in bookmarks.
  */
-export async function resolveOrgRoadmapAssignmentId(
+export async function resolveOrgRoadmapContentId(
   orgId: string,
   idFromUrl: string,
   members: OrganizationMember[] = [],
 ): Promise<string | null> {
-  try {
-    await getOrganizationRoadmap(orgId, idFromUrl);
-    return idFromUrl;
-  } catch (error) {
-    if (!isOrgRoadmapNotFoundError(error)) {
-      throw error;
-    }
-  }
-
   const listRaw = await listOrganizationRoadmaps(orgId);
   const items = parseOrganizationRoadmapList(listRaw, orgId, members);
 
-  const byContentId = items.find(
-    (item) => item.contentRoadmapId === idFromUrl,
-  );
-  if (byContentId) {
-    return byContentId.id;
+  const byRoadmapId = items.find((item) => item.id === idFromUrl);
+  if (byRoadmapId) {
+    return byRoadmapId.id;
+  }
+
+  const byAssignmentId = items.find((item) => item.assignmentId === idFromUrl);
+  if (byAssignmentId) {
+    return byAssignmentId.id;
   }
 
   for (const entry of listRaw) {
     const parsed = parseOrgRoadmapListItemApi(entry);
-    if (parsed && parsed.roadmap_id === idFromUrl) {
-      return parsed.id;
+    if (!parsed) continue;
+    if (parsed.id === idFromUrl || parsed.roadmap_id === idFromUrl) {
+      return parsed.roadmap_id;
     }
   }
 
   return null;
 }
 
-/** Load org assignment metadata plus full roadmap steps for detail/expand views. */
-export async function fetchOrganizationRoadmapDetail(
+/** @deprecated Use {@link resolveOrgRoadmapContentId}. */
+export async function resolveOrgRoadmapAssignmentId(
   orgId: string,
-  orgRoadmapId: string,
+  idFromUrl: string,
+  members: OrganizationMember[] = [],
+): Promise<string | null> {
+  return resolveOrgRoadmapContentId(orgId, idFromUrl, members);
+}
+
+/**
+ * Basic org roadmap — GET /api/organizations/{org_id}/roadmaps/{roadmap_id}
+ * Team enrollment, per-member progress, creator. No step/resource tree.
+ */
+export async function fetchOrgRoadmapSummary(
+  orgId: string,
+  roadmapId: string,
+  members: OrganizationMember[] = [],
+): Promise<OrganizationRoadmap> {
+  const orgRaw = await getOrganizationRoadmap(orgId, roadmapId);
+  const parsed = parseOrgRoadmapOutApi(orgRaw);
+  if (!parsed) {
+    throw new Error("Invalid organization roadmap response.");
+  }
+  return orgRoadmapOutToOrganizationRoadmap(parsed, orgId, members);
+}
+
+/**
+ * Detailed roadmap content — GET /api/roadmaps/{roadmap_id}
+ * Steps, resources, and per-resource progress. Shared by personal + org UIs.
+ */
+export async function fetchRoadmapContent(roadmapId: string) {
+  return getRoadmap(roadmapId);
+}
+
+/**
+ * Expand an org list card: keep org list metadata, load step tree from
+ * GET /api/roadmaps/{roadmap_id} only.
+ */
+export async function loadOrgRoadmapExpandedContent(
+  existing: OrganizationRoadmap,
+): Promise<OrganizationRoadmap> {
+  const roadmapId = orgRoadmapDetailId(existing);
+  const content = await fetchRoadmapContent(roadmapId);
+  return mergeRoadmapContentIntoOrgRoadmap(existing, content);
+}
+
+/**
+ * Lesson-focused org detail page: detailed content + org summary for actions only.
+ * - GET /api/roadmaps/{roadmap_id} — steps, resources, your progress
+ * - GET /api/organizations/{org_id}/roadmaps/{roadmap_id} — enroll / creator (not shown as team UI)
+ */
+export async function fetchOrgRoadmapLessonPage(
+  orgId: string,
+  roadmapIdFromUrl: string,
   members: OrganizationMember[],
 ): Promise<FetchOrganizationRoadmapDetailResult> {
-  const resolvedOrgRoadmapId =
-    (await resolveOrgRoadmapAssignmentId(orgId, orgRoadmapId, members)) ??
-    orgRoadmapId;
+  const resolvedRoadmapId =
+    (await resolveOrgRoadmapContentId(orgId, roadmapIdFromUrl, members)) ??
+    roadmapIdFromUrl;
 
-  try {
-    const roadmap = await loadOrganizationRoadmapDetail(
-      orgId,
-      resolvedOrgRoadmapId,
-      members,
-    );
-    return { roadmap, resolvedOrgRoadmapId };
-  } catch (error) {
-    if (!isOrgRoadmapNotFoundError(error)) {
-      throw error;
-    }
+  const [content, orgSummary] = await Promise.all([
+    getRoadmap(resolvedRoadmapId),
+    fetchOrgRoadmapSummary(orgId, resolvedRoadmapId, members).catch(() => null),
+  ]);
 
-    const retryId = await resolveOrgRoadmapAssignmentId(
-      orgId,
-      orgRoadmapId,
-      members,
-    );
-    if (!retryId || retryId === resolvedOrgRoadmapId) {
-      throw error;
-    }
+  const learningPath = roadmapOutToLearningPath(content);
 
-    const roadmap = await loadOrganizationRoadmapDetail(
-      orgId,
-      retryId,
-      members,
-    );
-    return { roadmap, resolvedOrgRoadmapId: retryId };
+  const roadmap: OrganizationRoadmap = orgSummary
+    ? mergeRoadmapContentIntoOrgRoadmap(orgSummary, content)
+    : {
+        ...learningPath,
+        orgId,
+        contentRoadmapId: resolvedRoadmapId,
+        createdByUserId: "",
+        createdByName: "Organization",
+        participants: [],
+      };
+
+  return { roadmap, resolvedRoadmapId };
+}
+
+/**
+ * Full org detail (org metadata + content merged). Prefer {@link fetchOrgRoadmapLessonPage} for UI.
+ */
+export async function fetchOrganizationRoadmapDetail(
+  orgId: string,
+  roadmapIdFromUrl: string,
+  members: OrganizationMember[],
+): Promise<FetchOrganizationRoadmapDetailResult> {
+  const resolvedRoadmapId =
+    (await resolveOrgRoadmapContentId(orgId, roadmapIdFromUrl, members)) ??
+    roadmapIdFromUrl;
+
+  const [orgRaw, content] = await Promise.all([
+    getOrganizationRoadmap(orgId, resolvedRoadmapId),
+    getRoadmap(resolvedRoadmapId),
+  ]);
+
+  const parsed = parseOrgRoadmapOutApi(orgRaw);
+  if (!parsed) {
+    throw new Error("Invalid organization roadmap response.");
   }
+
+  const roadmap = mergeOrgRoadmapWithContent(
+    parsed,
+    content,
+    orgId,
+    members,
+  );
+
+  return { roadmap, resolvedRoadmapId };
 }

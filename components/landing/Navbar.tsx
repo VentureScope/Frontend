@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogOut } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { logoutUser } from "@/lib/auth-api";
+import { performClientLogout } from "@/lib/client-logout";
 import { useLandingAuth } from "@/hooks/useLandingAuth";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -26,10 +26,9 @@ export default function Navbar() {
     signInHref,
     registerHref,
   } = useLandingAuth();
-  const clearAuth = useAppStore((state) => state.clearAuth);
+  const isLoggingOut = useAppStore((state) => state.isLoggingOut);
   const navLinks = NAV_LINKS;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [indicatorStyle, setIndicatorStyle] = useState({
     left: 0,
     width: 0,
@@ -73,20 +72,8 @@ export default function Navbar() {
   }, [isMobileMenuOpen]);
 
   async function handleLogout() {
-    if (isLoggingOut) {
-      return;
-    }
-
-    setIsLoggingOut(true);
-    try {
-      await logoutUser();
-    } catch {
-      // Always clear local auth so users can exit even if backend logout fails.
-    } finally {
-      clearAuth();
-      setIsMobileMenuOpen(false);
-      setIsLoggingOut(false);
-    }
+    setIsMobileMenuOpen(false);
+    await performClientLogout();
   }
 
   return (

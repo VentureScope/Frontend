@@ -21,8 +21,8 @@ import {
   loginUser,
 } from "@/lib/auth-api";
 import { mfaGetAAL } from "@/lib/mfa-api";
+import { buildVerifyEmailUrl } from "@/lib/auth-query-params";
 import {
-  RETURN_PATH_PARAM,
   buildMfaChallengeUrl,
   buildRegisterUrl,
   getReturnPathFromSearchParams,
@@ -148,14 +148,13 @@ function SignInPageContent() {
     } catch (error) {
       // 403 means email not verified — redirect to OTP verification page
       if (error instanceof AxiosError && error.response?.status === 403) {
-        const params = new URLSearchParams({
-          email: values.email,
-          p: btoa(values.password),
-        });
-        if (returnPathFromQuery) {
-          params.set(RETURN_PATH_PARAM, returnPathFromQuery);
-        }
-        router.push(`/verify-email?${params.toString()}`);
+        router.push(
+          buildVerifyEmailUrl(
+            values.email,
+            values.password,
+            returnPathFromQuery,
+          ),
+        );
         return;
       }
       setApiError(getApiErrorMessage(error));

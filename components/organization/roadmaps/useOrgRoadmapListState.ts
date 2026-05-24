@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import type { LearningPath } from "@/app/(dashboard)/dashboard/learning-path/mockData";
-import { toggleResourceWithSyncOnPaths } from "@/lib/roadmap-progress-sync";
+import { useRoadmapResourceToggleOnPaths } from "@/hooks/useRoadmapResourceToggle";
 
 export function useOrgRoadmapListState<T extends LearningPath>(
   initial: T[],
@@ -11,18 +11,14 @@ export function useOrgRoadmapListState<T extends LearningPath>(
   const [expandedPathIds, setExpandedPathIds] = useState<string[]>([]);
   const [detailLoadingId, setDetailLoadingId] = useState<string | null>(null);
 
+  const { syncingResourceId, handleToggleResource } =
+    useRoadmapResourceToggleOnPaths(setPaths);
+
   const handleToggleExpand = useCallback((id: string) => {
     setExpandedPathIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   }, []);
-
-  const handleToggleResource = useCallback(
-    (pathId: string, moduleId: string, resourceId: string) => {
-      toggleResourceWithSyncOnPaths(setPaths, pathId, moduleId, resourceId);
-    },
-    [],
-  );
 
   return {
     paths,
@@ -30,6 +26,7 @@ export function useOrgRoadmapListState<T extends LearningPath>(
     expandedPathIds,
     detailLoadingId,
     setDetailLoadingId,
+    syncingResourceId,
     handleToggleExpand,
     handleToggleResource,
   };

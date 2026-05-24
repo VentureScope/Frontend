@@ -126,3 +126,39 @@ export function OrganizationRoadmapsGridSkeleton({ count = 3 }: { count?: number
     </div>
   );
 }
+
+/** Mirrors the accept-invite details card while JWT / preview loads. */
+export function OrganizationInviteAcceptDetailsSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <div className="border-b border-border bg-muted/30 px-6 py-6 sm:px-8">
+        <OrgSk className="h-3 w-36" />
+        <div className="mt-4 flex items-start gap-4">
+          <OrgSk className="h-16 w-16 shrink-0 rounded-xl" />
+          <div className="min-w-0 flex-1 space-y-2 pt-1">
+            <OrgSk className="h-7 w-48 max-w-full" />
+            <OrgSk className="h-4 w-32 max-w-full" />
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-5 px-6 py-6 sm:px-8">
+        <div className="space-y-2">
+          <OrgSk className="h-3 w-40" />
+          <OrgSk className="h-4 w-full" />
+          <OrgSk className="h-4 w-full max-w-lg" />
+          <OrgSk className="h-4 w-3/4 max-w-md" />
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <OrgSk className="h-[72px] rounded-lg" />
+          <OrgSk className="h-[72px] rounded-lg" />
+          <OrgSk className="h-[72px] rounded-lg sm:col-span-2" />
+          <OrgSk className="h-[72px] rounded-lg sm:col-span-2" />
+        </div>
+
+        <OrgSk className="h-[52px] w-full rounded-lg" />
+      </div>
+    </div>
+  );
+}

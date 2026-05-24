@@ -14,6 +14,7 @@ export async function listRoadmaps(): Promise<RoadmapListItem[]> {
   return res.data;
 }
 
+/** Full roadmap: steps, resources, and per-resource progress. */
 export async function getRoadmap(roadmapId: string): Promise<RoadmapOut> {
   const res = await api.get<RoadmapOut>(`/api/roadmaps/${roadmapId}`);
   return res.data;

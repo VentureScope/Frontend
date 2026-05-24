@@ -20,32 +20,6 @@ export function formatRelativeTime(isoDate: string): string {
   });
 }
 
-/** 0–100 readiness from roadmaps and/or job embedding distance */
-export function computeReadinessScore(
-  roadmaps: RoadmapListItem[],
-  jobMatches: JobMatch[],
-): number {
-  const roadmapScores = roadmaps
-    .map((r) => r.completion_percentage)
-    .filter((n): n is number => typeof n === "number" && !Number.isNaN(n));
-
-  if (roadmapScores.length > 0) {
-    const avg =
-      roadmapScores.reduce((sum, n) => sum + n, 0) / roadmapScores.length;
-    return Math.round(Math.min(100, Math.max(0, avg)));
-  }
-
-  const top = jobMatches[0];
-  if (top?.distance != null && top.distance >= 0) {
-    const matchPct = Math.round(
-      Math.min(100, Math.max(0, 100 - top.distance * 100)),
-    );
-    return matchPct;
-  }
-
-  return 0;
-}
-
 export function jobMatchToPercent(match: JobMatch | undefined): number | null {
   if (!match || match.distance == null) return null;
   return Math.round(Math.min(100, Math.max(0, 100 - match.distance * 100)));

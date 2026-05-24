@@ -1,5 +1,9 @@
 import type { LearningPath } from "@/app/(dashboard)/dashboard/learning-path/mockData";
 import {
+  displayRoadmapGoal,
+  parseRoadmapSummaryBullets,
+} from "@/lib/roadmap-display-utils";
+import {
   formatRoadmapStatus,
   roadmapStatusBadgeClass,
 } from "@/lib/roadmap-utils";
@@ -27,6 +31,8 @@ export function RoadmapOverviewBlock({
 }: RoadmapOverviewBlockProps) {
   const stepsCompleted = path.stepsCompleted ?? 0;
   const totalSteps = path.totalSteps ?? 0;
+  const displayGoal = displayRoadmapGoal(path.goal);
+  const summaryBullets = parseRoadmapSummaryBullets(path.summary);
 
   return (
     <div
@@ -55,23 +61,30 @@ export function RoadmapOverviewBlock({
         ) : null}
       </div>
 
-      {path.goal ? (
+      {displayGoal ? (
         <p className={compact ? "text-sm text-foreground" : "text-body text-foreground"}>
           <span className="font-semibold">Goal: </span>
-          {path.goal}
+          {displayGoal}
         </p>
       ) : null}
 
-      {path.summary ? (
-        <p
-          className={
-            compact
-              ? "line-clamp-3 text-sm leading-relaxed text-muted-foreground"
-              : "text-body leading-relaxed text-muted-foreground"
-          }
-        >
-          {path.summary}
-        </p>
+      {summaryBullets.length > 0 ? (
+        <div className={compact ? "space-y-2" : "space-y-3"}>
+          {!compact ? (
+            <p className="text-sm font-semibold text-foreground">Overview</p>
+          ) : null}
+          <ul
+            className={
+              compact
+                ? "list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted-foreground"
+                : "list-disc space-y-2 pl-5 text-body leading-relaxed text-muted-foreground"
+            }
+          >
+            {summaryBullets.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
       ) : null}
     </div>
   );

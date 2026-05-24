@@ -20,8 +20,9 @@ import {
   roadmapListItemToStubPath,
   roadmapOutToLearningPath,
 } from "@/lib/map-roadmap-to-learning-path";
-import { toggleResourceWithSyncOnPaths } from "@/lib/roadmap-progress-sync";
+import { useRoadmapResourceToggleOnPaths } from "@/hooks/useRoadmapResourceToggle";
 import { LearningPathListSkeleton } from "@/components/learning-path/LearningPathSkeletons";
+import { RoadmapUxTips } from "@/components/roadmap-view/RoadmapUxTips";
 import { toast } from "sonner";
 
 export default function LearningPathPage() {
@@ -31,6 +32,8 @@ export default function LearningPathPage() {
   const [expandedPathIds, setExpandedPathIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [detailLoadingId, setDetailLoadingId] = useState<string | null>(null);
+  const { syncingResourceId, handleToggleResource } =
+    useRoadmapResourceToggleOnPaths(setPaths);
   const [futureTrendNames, setFutureTrendNames] = useState<Set<string>>(
     () => new Set(),
   );
@@ -143,14 +146,6 @@ export default function LearningPathPage() {
     router.push(`/dashboard/learning-path/${id}`);
   };
 
-  const handleToggleResource = (
-    pathId: string,
-    moduleId: string,
-    resourceId: string,
-  ) => {
-    toggleResourceWithSyncOnPaths(setPaths, pathId, moduleId, resourceId);
-  };
-
   return (
     <div className="mx-auto max-w-6xl">
         <HeaderSection />
@@ -159,6 +154,8 @@ export default function LearningPathPage() {
           activeTabId={activeTabId}
           onTabChange={setActiveTabId}
         />
+
+        <RoadmapUxTips variant="personal-list" className="mt-8" compact />
 
         {loading ? (
           <LearningPathListSkeleton />
@@ -193,6 +190,7 @@ export default function LearningPathPage() {
                 onToggleExpand={handleToggleExpand}
                 onViewDetails={handleViewDetails}
                 isDetailLoading={detailLoadingId === path.id}
+                syncingResourceId={syncingResourceId}
               />
             ))}
           </div>

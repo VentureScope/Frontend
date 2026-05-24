@@ -1,5 +1,6 @@
-import { Play, BookOpen, Check, Circle, ExternalLink } from "lucide-react";
+import { Play, BookOpen, Check, Circle, ExternalLink, Loader2 } from "lucide-react";
 import type { ResourceType } from "@/app/(dashboard)/dashboard/learning-path/mockData";
+import { cn } from "@/lib/utils";
 
 interface ResourceItemProps {
   id?: string;
@@ -9,6 +10,7 @@ interface ResourceItemProps {
   status: "completed" | "in-progress" | "locked";
   thumbnail?: string;
   url?: string | null;
+  isSaving?: boolean;
   onToggle?: (id: string) => void;
 }
 
@@ -29,19 +31,27 @@ export const RoadmapResourceItem = ({
   status,
   thumbnail,
   url,
+  isSaving = false,
   onToggle,
 }: ResourceItemProps) => {
   const isInProgress = status === "in-progress";
+  const isLocked = status === "locked";
+  const canToggle = Boolean(onToggle && id && !isLocked && !isSaving);
   const href = url && /^https?:\/\//i.test(url.trim()) ? url.trim() : null;
 
   return (
     <div
-      onClick={() => onToggle && id && onToggle(id)}
-      className={`group flex cursor-pointer items-center justify-between rounded-lg border bg-card p-5 transition-all hover:border-border hover:shadow-lg hover: ${
+      onClick={() => canToggle && onToggle!(id!)}
+      aria-busy={isSaving}
+      className={cn(
+        "group flex items-center justify-between rounded-lg border bg-card p-5 transition-all",
+        isSaving && "pointer-events-none opacity-70",
+        canToggle && "cursor-pointer hover:border-border hover:shadow-lg",
+        !canToggle && !isSaving && "cursor-default",
         isInProgress
           ? "border-l-4 border-l-primary border-border shadow-sm"
-          : "border-border opacity-90 hover:opacity-100"
-      }`}
+          : "border-border opacity-90 hover:opacity-100",
+      )}
     >
       <div className="flex min-w-0 flex-1 items-center gap-5">
         {thumbnail ? (
@@ -88,7 +98,13 @@ export const RoadmapResourceItem = ({
       </div>
 
       <div className="shrink-0 px-4">
-        {status === "completed" ? (
+        {isSaving ? (
+          <Loader2
+            size={24}
+            className="animate-spin text-primary"
+            aria-label="Saving progress"
+          />
+        ) : status === "completed" ? (
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-primary">
             <Check size={16} strokeWidth={3} />
           </div>

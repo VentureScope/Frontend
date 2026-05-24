@@ -1,6 +1,7 @@
 import { ChevronDown, ChevronUp, Check } from "lucide-react";
 import ResourceItem from "./ResourceItem";
 import { PathCardModulesSkeleton } from "./LearningPathSkeletons";
+import { RoadmapModulesLoadingHint } from "@/components/roadmap-view/RoadmapUxTips";
 import {
   formatRoadmapStatus,
   roadmapStatusBadgeClass,
@@ -23,12 +24,14 @@ export const PathCard = ({
   onToggleExpand,
   onViewDetails,
   isDetailLoading,
+  syncingResourceId,
 }: {
   path: any;
   isExpanded: boolean;
   onToggleExpand: (id: string) => void;
   onViewDetails: (id: string) => void;
   isDetailLoading?: boolean;
+  syncingResourceId?: string | null;
 }) => {
   return (
     <div className="overflow-hidden rounded-[24px] border border-border bg-card shadow-sm transition-all">
@@ -71,6 +74,11 @@ export const PathCard = ({
 
         <div className="flex items-center gap-10">
           <div className="hidden w-64 md:block">
+            {!isExpanded && path.modules.length === 0 ? (
+              <p className="text-label mb-2 text-muted-foreground">
+                Expand to load weeks & resources
+              </p>
+            ) : null}
             <div className="text-label mb-2 flex justify-between">
               <span className="text-muted-foreground">Progress</span>
               <span className="text-primary">{path.progress}% Complete</span>
@@ -93,7 +101,10 @@ export const PathCard = ({
       {isExpanded && (
         <div className="border-t border-border bg-muted/40 p-6 sm:p-10">
           {isDetailLoading && path.modules.length === 0 ? (
-            <PathCardModulesSkeleton />
+            <>
+              <RoadmapModulesLoadingHint />
+              <PathCardModulesSkeleton />
+            </>
           ) : (
             <div className="space-y-10">
               {(path.summary || path.goal) && (
@@ -135,6 +146,7 @@ export const PathCard = ({
                           status={resource.status}
                           thumbnail={resource.thumbnail}
                           url={resource.url}
+                          isSaving={syncingResourceId === resource.id}
                           onToggle={() =>
                             path.onToggleResource?.(module.id, resource.id)
                           }

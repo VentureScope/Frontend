@@ -18,9 +18,13 @@ type RoadmapDetailViewProps = {
   path: LearningPath & {
     onToggleResource?: (moduleId: string, resourceId: string) => void;
   };
+  syncingResourceId?: string | null;
 };
 
-export const RoadmapDetailView = ({ path }: RoadmapDetailViewProps) => {
+export const RoadmapDetailView = ({
+  path,
+  syncingResourceId = null,
+}: RoadmapDetailViewProps) => {
   const getIcon = (iconName: string) => {
     switch (iconName) {
       case "BarChart3":
@@ -97,6 +101,7 @@ export const RoadmapDetailView = ({ path }: RoadmapDetailViewProps) => {
                       status={resource.status}
                       thumbnail={resource.thumbnail}
                       url={resource.url}
+                      isSaving={syncingResourceId === resource.id}
                       onToggle={() =>
                         path.onToggleResource?.(module.id, resource.id)
                       }

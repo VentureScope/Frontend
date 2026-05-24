@@ -152,8 +152,8 @@ export async function previewOrganizationInvite(
 
 export async function acceptOrganizationInvite(
   payload: AcceptInviteRequestApi,
-): Promise<OrganizationOutApi> {
-  const res = await api.post<OrganizationOutApi>(
+): Promise<unknown> {
+  const res = await api.post(
     "/api/organizations/invites/accept",
     payload,
   );
@@ -186,41 +186,42 @@ export async function assignOrganizationRoadmap(
   return res.data;
 }
 
+/** Org-scoped summary: enrollment, team progress, creator — not full step content. */
 export async function getOrganizationRoadmap(
   orgId: string,
-  orgRoadmapId: string,
+  roadmapId: string,
 ): Promise<OrgRoadmapOutApi> {
   const res = await api.get<OrgRoadmapOutApi>(
-    `/api/organizations/${orgId}/roadmaps/${orgRoadmapId}`,
+    `/api/organizations/${orgId}/roadmaps/${roadmapId}`,
   );
   return res.data;
 }
 
 export async function removeOrganizationRoadmap(
   orgId: string,
-  orgRoadmapId: string,
+  roadmapId: string,
 ): Promise<void> {
   await api.delete(
-    `/api/organizations/${orgId}/roadmaps/${orgRoadmapId}`,
+    `/api/organizations/${orgId}/roadmaps/${roadmapId}`,
   );
 }
 
 export async function enrollOrganizationRoadmap(
   orgId: string,
-  orgRoadmapId: string,
+  roadmapId: string,
 ): Promise<void> {
   await api.post(
-    `/api/organizations/${orgId}/roadmaps/${orgRoadmapId}/enroll`,
+    `/api/organizations/${orgId}/roadmaps/${roadmapId}/enroll`,
   );
 }
 
 /** Fork a team roadmap into a personal copy (API response schema is open). */
 export async function forkOrganizationRoadmapApi(
   orgId: string,
-  orgRoadmapId: string,
+  roadmapId: string,
 ): Promise<OrgRoadmapOutApi> {
   const res = await api.post<OrgRoadmapOutApi>(
-    `/api/organizations/${orgId}/roadmaps/${orgRoadmapId}/fork`,
+    `/api/organizations/${orgId}/roadmaps/${roadmapId}/fork`,
   );
   return res.data;
 }

@@ -1,3 +1,4 @@
+import { parseOrganizationOutApi } from "@/lib/organization-response-parsers";
 import type {
   InvitePreviewOutApi,
   MyInviteOutApi,
@@ -91,6 +92,43 @@ export function parseMyOrganizationInvites(
     (a, b) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
+}
+
+/** Resolve org id from POST /invites/accept — body may be empty or partial. */
+export function parseAcceptInviteOrganizationId(
+  raw: unknown,
+  fallbackOrganizationId?: string | null,
+): string | null {
+  const full = parseOrganizationOutApi(raw);
+  if (full?.id) {
+    return full.id;
+  }
+
+  const row = asRecord(raw);
+  if (row) {
+    const orgId =
+      asString(row.organization_id) ||
+      asString(row.org_id) ||
+      asString(row.id);
+    if (orgId) {
+      return orgId;
+    }
+  }
+
+  const fallback = fallbackOrganizationId?.trim();
+  if (fallback) {
+    return fallback;
+  }
+
+  if (raw === null || raw === undefined) {
+    return null;
+  }
+
+  if (row && Object.keys(row).length === 0) {
+    return null;
+  }
+
+  return null;
 }
 
 export function parseInvitePreviewOutApi(

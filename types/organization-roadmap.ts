@@ -26,8 +26,14 @@ export interface MyRoadmapEnrollment {
 /** Roadmap shared within an organization workspace */
 export interface OrganizationRoadmap extends LearningPath {
   orgId: string;
-  /** Underlying learning roadmap id (`GET /api/roadmaps/{id}`). */
+  /**
+   * Content roadmap id — used in URLs and org API paths
+   * (`GET /api/organizations/{org_id}/roadmaps/{roadmap_id}`).
+   * Same as {@link OrganizationRoadmap.id} after parsing.
+   */
   contentRoadmapId?: string;
+  /** Org assignment record id from list/detail `id` when distinct from content id. */
+  assignmentId?: string;
   createdByUserId: string;
   createdByName: string;
   participants: RoadmapParticipant[];
