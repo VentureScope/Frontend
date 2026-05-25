@@ -26,9 +26,8 @@ export function AdminTopbar({ breadcrumb, onMenuClick }: AdminTopbarProps) {
   const ADMIN_SEARCH_ITEMS: CommandSearchItem[] = useMemo(
     () => [
       { label: "Admin Overview", path: "/admin", group: "Console" },
-      { label: "Transcripts", path: "/admin/transcripts", group: "Content" },
-      { label: "Knowledge Base", path: "/admin/knowledge", group: "Content" },
-      { label: "Prompt Config", path: "/admin/prompt-config", group: "Content" },
+      { label: "Transcripts", path: "/admin/transcripts", group: "Pipeline" },
+      { label: "ML-Runs", path: "/admin/ml-runs", group: "Pipeline" },
       { label: "System Health", path: "/admin/system", group: "Operations" },
       { label: "GitHub Syncs", path: "/admin/github-syncs", group: "Operations" },
       { label: "User Directory", path: "/admin/directory", group: "Users" },
