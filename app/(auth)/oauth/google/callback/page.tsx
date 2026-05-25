@@ -151,7 +151,7 @@ function GoogleOAuthCallbackContent() {
         }
 
         router.replace(
-          resolveMemberEntryPath(sessionData.user?.id, returnPath),
+          resolveMemberEntryPath(authSessionData.user?.id, returnPath),
         );
       } catch (exchangeError) {
         console.log("[oauth] Token exchange failed", { exchangeError });
