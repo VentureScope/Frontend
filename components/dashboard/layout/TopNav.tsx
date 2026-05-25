@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { HelpCircle, Menu, Shield } from "lucide-react";
+import { Menu, Shield } from "lucide-react";
+import { DashboardHelpPanel } from "@/components/dashboard/layout/DashboardHelpPanel";
 import { NotificationPanel } from "@/components/dashboard/layout/NotificationPanel";
 import Link from "next/link";
 import { getUserProfileView } from "@/lib/user-profile";
@@ -69,6 +70,7 @@ function TopNavActions({
   isAdmin: boolean;
 }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   return (
     <>
@@ -87,15 +89,18 @@ function TopNavActions({
       <ThemeToggle />
       <NotificationPanel
         open={notificationsOpen}
-        onOpenChange={setNotificationsOpen}
+        onOpenChange={(next) => {
+          setNotificationsOpen(next);
+          if (next) setHelpOpen(false);
+        }}
       />
-      <button
-        type="button"
-        className="hidden rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:block"
-        aria-label="Help"
-      >
-        <HelpCircle size={20} />
-      </button>
+      <DashboardHelpPanel
+        open={helpOpen}
+        onOpenChange={(next) => {
+          setHelpOpen(next);
+          if (next) setNotificationsOpen(false);
+        }}
+      />
       <Link
         href="/dashboard/profile"
         className={cn(

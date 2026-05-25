@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Eye, EyeOff, Star, Check, X, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -88,6 +89,9 @@ const formSchema = z
     confirmPassword: z.string().min(1, "Please confirm your password"),
     full_name: z.string().min(2, "Full name is required"),
     career_interest: z.string().min(2, "Career interest is required"),
+    acceptedTerms: z.boolean().refine((val) => val === true, {
+      message: "You must accept the Terms of Service and Privacy Policy",
+    }),
   })
   .refine((d) => d.password === d.confirmPassword, {
     message: "Passwords do not match",
@@ -128,13 +132,16 @@ function RegisterPageContent() {
       full_name: "",
       career_interest: "",
       role: "professional",
+      acceptedTerms: false,
     },
     mode: "onChange",
   });
 
   const passwordValue = form.watch("password");
   const selectedRole = form.watch("role");
+  const acceptedTerms = form.watch("acceptedTerms");
   const strength = useMemo(() => getStrength(passwordValue ?? ""), [passwordValue]);
+  const canProceed = Boolean(acceptedTerms);
 
   useEffect(() => {
     if (!isHydrated || !token) return;
@@ -150,6 +157,10 @@ function RegisterPageContent() {
   }
 
   async function onGoogleSignIn() {
+    if (!canProceed) {
+      void form.trigger("acceptedTerms");
+      return;
+    }
     setApiError(null);
     setIsGoogleSubmitting(true);
     try {
@@ -170,6 +181,10 @@ function RegisterPageContent() {
   }
 
   async function onGithubSignIn() {
+    if (!canProceed) {
+      void form.trigger("acceptedTerms");
+      return;
+    }
     setApiError(null);
     setIsGithubSubmitting(true);
     try {
@@ -509,9 +524,52 @@ function RegisterPageContent() {
                 )}
               </Field>
 
+              <Field>
+                <div className="flex items-start gap-3 rounded-md border border-border bg-muted/30 px-3 py-3">
+                  <Checkbox
+                    id="acceptedTerms"
+                    checked={acceptedTerms}
+                    onCheckedChange={(checked) =>
+                      form.setValue("acceptedTerms", checked === true, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      })
+                    }
+                    className="mt-0.5"
+                  />
+                  <label
+                    htmlFor="acceptedTerms"
+                    className="cursor-pointer text-[11px] leading-relaxed text-muted-foreground"
+                  >
+                    I agree to the{" "}
+                    <Link
+                      href="/terms"
+                      target="_blank"
+                      className="font-semibold text-primary underline decoration-primary/30 hover:decoration-primary"
+                    >
+                      Terms of Service
+                    </Link>{" "}
+                    and{" "}
+                    <Link
+                      href="/privacy"
+                      target="_blank"
+                      className="font-semibold text-primary underline decoration-primary/30 hover:decoration-primary"
+                    >
+                      Privacy Policy
+                    </Link>
+                    .
+                  </label>
+                </div>
+                {form.formState.errors.acceptedTerms && (
+                  <FieldError className="text-[10px]">
+                    {form.formState.errors.acceptedTerms.message}
+                  </FieldError>
+                )}
+              </Field>
+
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !canProceed}
                 className="h-10 w-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90"
               >
                 {isSubmitting ? "Creating Account..." : "Create Account"}
@@ -536,7 +594,12 @@ function RegisterPageContent() {
                   type="button"
                   variant="outline"
                   onClick={onGoogleSignIn}
-                  disabled={isGoogleSubmitting || isGithubSubmitting || isSubmitting}
+                  disabled={
+                    !canProceed ||
+                    isGoogleSubmitting ||
+                    isGithubSubmitting ||
+                    isSubmitting
+                  }
                   className="h-10 flex-1 gap-2 border-primary/20 bg-card text-xs font-bold text-foreground shadow-sm hover:border-primary/35 hover:bg-primary/5"
                 >
                   <svg className="h-3.5 w-3.5" viewBox="0 0 24 24">
@@ -563,7 +626,12 @@ function RegisterPageContent() {
                   type="button"
                   variant="outline"
                   onClick={onGithubSignIn}
-                  disabled={isGoogleSubmitting || isGithubSubmitting || isSubmitting}
+                  disabled={
+                    !canProceed ||
+                    isGoogleSubmitting ||
+                    isGithubSubmitting ||
+                    isSubmitting
+                  }
                   className="h-10 flex-1 gap-2 border-primary/20 bg-card text-xs font-bold text-foreground shadow-sm hover:border-primary/35 hover:bg-primary/5"
                 >
                   <Github className="h-3.5 w-3.5 text-foreground" />
@@ -584,12 +652,12 @@ function RegisterPageContent() {
                 </Link>
               </p>
               <p className="leading-relaxed text-muted-foreground px-6">
-                By signing up, you agree to our{" "}
-                <Link href="#" className="underline decoration-border">
+                Read our{" "}
+                <Link href="/terms" className="font-semibold text-primary hover:underline">
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link href="#" className="underline decoration-border">
+                <Link href="/privacy" className="font-semibold text-primary hover:underline">
                   Privacy Policy
                 </Link>
                 .

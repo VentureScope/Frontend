@@ -38,9 +38,10 @@ describe("buildForecastChartPoints", () => {
 });
 
 describe("pickDefaultForecastRole", () => {
-  it("prefers profile match normalized title", () => {
+  it("prefers profile match when it appears in trending roles", () => {
     const trending: TrendingCareer[] = [
       { name: "Data Scientist", job_count: 10, company_count: 2 },
+      { name: "Software Engineer", job_count: 20, company_count: 5 },
     ];
     const matches: JobMatch[] = [
       {
@@ -52,6 +53,19 @@ describe("pickDefaultForecastRole", () => {
     ];
     expect(pickDefaultForecastRole(trending, matches, "data")).toBe(
       "Software Engineer",
+    );
+  });
+
+  it("returns empty string when trending list is empty", () => {
+    expect(pickDefaultForecastRole([], [], null)).toBe("");
+  });
+
+  it("falls back to first trending role when no preference matches", () => {
+    const trending: TrendingCareer[] = [
+      { name: "Product Manager", job_count: 5, company_count: 1 },
+    ];
+    expect(pickDefaultForecastRole(trending, [], "design")).toBe(
+      "Product Manager",
     );
   });
 });

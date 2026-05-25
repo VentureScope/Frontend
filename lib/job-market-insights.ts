@@ -368,33 +368,41 @@ export function forecastTrendInsight(
   return `Predicted postings for ${role} trend ${direction} (${changePct >= 0 ? "+" : ""}${magnitude}% across the forecast window).`;
 }
 
+function findTrendingRoleName(
+  trending: TrendingCareer[],
+  title: string | undefined | null,
+): string | null {
+  const needle = title?.trim().toLowerCase();
+  if (!needle) {
+    return null;
+  }
+  const hit = trending.find((t) => {
+    const name = t.name.trim().toLowerCase();
+    return name === needle || name.includes(needle) || needle.includes(name);
+  });
+  return hit?.name ?? null;
+}
+
+/** Pick initial forecast role from `/api/jobs/trending` results only. */
 export function pickDefaultForecastRole(
   trending: TrendingCareer[],
   profileMatches: JobMatch[],
   careerInterest?: string | null,
 ): string {
-  const matchTitle = profileMatches[0]?.normalized_title?.trim();
-  if (matchTitle) {
-    return matchTitle;
+  const fromMatch = findTrendingRoleName(
+    trending,
+    profileMatches[0]?.normalized_title,
+  );
+  if (fromMatch) {
+    return fromMatch;
   }
 
-  const interest = careerInterest?.trim().toLowerCase();
-  if (interest) {
-    const fromInterest = trending.find(
-      (t) =>
-        t.name.toLowerCase().includes(interest) ||
-        interest.includes(t.name.toLowerCase()),
-    );
-    if (fromInterest) {
-      return fromInterest.name;
-    }
+  const fromInterest = findTrendingRoleName(trending, careerInterest);
+  if (fromInterest) {
+    return fromInterest;
   }
 
-  if (trending[0]?.name) {
-    return trending[0].name;
-  }
-
-  return "Software Engineer";
+  return trending[0]?.name?.trim() ?? "";
 }
 
 /** Projected posting growth across a single role's forecast window. */

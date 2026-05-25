@@ -57,6 +57,9 @@ export default function MarketTrendsDashboard() {
           setStats(st);
           setSkills(sk);
           setTrending(tr);
+          if (tr.length === 0) {
+            setError("No trending roles returned from the market API.");
+          }
         }
 
         const categories = tr

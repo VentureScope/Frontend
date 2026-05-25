@@ -28,20 +28,24 @@ export default function Footer() {
             className="flex flex-wrap justify-center gap-4 md:justify-end md:gap-8"
             aria-label="Footer"
           >
-            {[
-              "Privacy Policy",
-              "Terms of Service",
-              "Contact Support",
-              "API Documentation",
-            ].map((label) => (
-              <Link
-                key={label}
-                href="#"
-                className="text-label text-muted-foreground transition-colors hover:text-primary"
-              >
-                {label}
-              </Link>
-            ))}
+            <Link
+              href="/privacy"
+              className="text-label text-muted-foreground transition-colors hover:text-primary"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              href="/terms"
+              className="text-label text-muted-foreground transition-colors hover:text-primary"
+            >
+              Terms of Service
+            </Link>
+            <a
+              href="mailto:support@venturescope.com"
+              className="text-label text-muted-foreground transition-colors hover:text-primary"
+            >
+              Contact Support
+            </a>
           </nav>
         </div>
       </div>
