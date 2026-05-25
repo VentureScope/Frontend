@@ -106,7 +106,6 @@ export type OnboardingStepId =
   | "photo"
   | "skills"
   | "experience"
-  | "connections"
   | "cv"
   | "finish";
 
@@ -140,11 +139,6 @@ export const ONBOARDING_STEPS: {
     title: "Experience",
     subtitle:
       "Optional — document roles you've held to strengthen resumes and job matching.",
-  },
-  {
-    id: "connections",
-    title: "Connected accounts",
-    subtitle: "Optional — link GitHub or academic data for richer insights.",
   },
   {
     id: "cv",
