@@ -9,8 +9,6 @@ import {
   Camera,
   Check,
   FileText,
-  Github,
-  GraduationCap,
   Loader2,
   Plus,
   Sparkles,
@@ -24,8 +22,6 @@ import {
   createExperience,
   getApiErrorMessage,
   getCurrentUserProfile,
-  getGithubSyncedData,
-  getLatestTranscript,
   updateCurrentUserProfile,
   updateCurrentUserSkills,
   uploadCurrentUserCv,
@@ -84,8 +80,6 @@ export function OnboardingWizard() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const [hasGithub, setHasGithub] = useState(Boolean(user?.github_username));
-  const [hasAcademic, setHasAcademic] = useState(false);
   const [cvUploaded, setCvUploaded] = useState(Boolean(user?.cv_url));
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(
@@ -107,7 +101,6 @@ export function OnboardingWizard() {
   const refreshUser = useCallback(async () => {
     const refreshed = await getCurrentUserProfile();
     setAuthData({ ...authData, user: refreshed });
-    setHasGithub(Boolean(refreshed.github_username));
     setCvUploaded(Boolean(refreshed.cv_url));
     if (refreshed.profile_picture_url) {
       setAvatarPreview(refreshed.profile_picture_url);
@@ -115,27 +108,9 @@ export function OnboardingWizard() {
     return refreshed;
   }, [authData, setAuthData]);
 
-  const checkConnections = useCallback(async () => {
-    try {
-      const [github, transcript] = await Promise.all([
-        getGithubSyncedData().catch(() => null),
-        getLatestTranscript().catch(() => null),
-      ]);
-      setHasGithub(
-        Boolean(github?.github_username) || Boolean(user?.github_username),
-      );
-      setHasAcademic((transcript?.transcript_data?.semesters?.length ?? 0) > 0);
-    } catch {
-      // non-fatal during onboarding
-    }
-  }, [user?.github_username]);
-
   const goNext = useCallback(() => {
     setStepIndex((i) => Math.min(i + 1, ONBOARDING_STEPS.length - 1));
-    if (ONBOARDING_STEPS[stepIndex + 1]?.id === "connections") {
-      void checkConnections();
-    }
-  }, [checkConnections, stepIndex]);
+  }, []);
 
   const goBack = () => {
     setStepIndex((i) => Math.max(i - 1, 0));
@@ -371,7 +346,6 @@ export function OnboardingWizard() {
                   "About you & interests",
                   "Profile photo",
                   "Skills & experience",
-                  "GitHub & academic links",
                   "CV upload",
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-2">
@@ -596,57 +570,6 @@ export function OnboardingWizard() {
             </div>
           )}
 
-          {stepId === "connections" && (
-            <div className="space-y-3">
-              <div
-                className={cn(
-                  "flex items-center justify-between rounded-xl border p-4",
-                  hasGithub ? "border-primary/30 bg-primary/5" : "border-border",
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <Github className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="text-sm font-semibold">GitHub</p>
-                    <p className="text-xs text-muted-foreground">
-                      Sync repos for skill intelligence
-                    </p>
-                  </div>
-                </div>
-                {hasGithub ? (
-                  <span className="text-xs font-bold text-success">Linked</span>
-                ) : (
-                  <Button type="button" variant="outline" size="sm" asChild>
-                    <Link href="/dashboard/settings">Connect</Link>
-                  </Button>
-                )}
-              </div>
-              <div
-                className={cn(
-                  "flex items-center justify-between rounded-xl border p-4",
-                  hasAcademic ? "border-primary/30 bg-primary/5" : "border-border",
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <GraduationCap className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="text-sm font-semibold">Academic portal</p>
-                    <p className="text-xs text-muted-foreground">
-                      eStudent / transcript via Data Hub
-                    </p>
-                  </div>
-                </div>
-                {hasAcademic ? (
-                  <span className="text-xs font-bold text-success">Synced</span>
-                ) : (
-                  <Button type="button" variant="outline" size="sm" asChild>
-                    <Link href="/dashboard/data-hub">Open Data Hub</Link>
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-
           {stepId === "cv" && (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
@@ -694,8 +617,7 @@ export function OnboardingWizard() {
                 >
                   Profile
                 </Link>{" "}
-                anytime to edit personal details, skills, experience, and
-                connections.
+                anytime to edit personal details, skills, and experience.
               </p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {[
