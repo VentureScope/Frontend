@@ -14,6 +14,7 @@ import {
   DEFAULT_MEMBER_PATH,
   isSafeReturnPath,
 } from "@/lib/auth-redirect";
+import { resolveMemberEntryPath } from "@/lib/onboarding";
 import { mfaGetAAL } from "@/lib/mfa-api";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -104,29 +105,26 @@ function GithubCallbackContent() {
 
           setStatus("success");
 
-          const isFullProfile =
-            sessionData.user?.full_name && sessionData.user?.career_interest !== "undecided";
           const returnUrl =
             tx.returnUrl && isSafeReturnPath(tx.returnUrl)
               ? tx.returnUrl
               : DEFAULT_MEMBER_PATH;
 
           setTimeout(async () => {
-            if (!isFullProfile) {
-              router.replace("/register/complete-profile");
-            } else {
-              // Critical: check AAL before redirecting
-              try {
-                const aal = await mfaGetAAL();
-                if (aal.current_level === "aal1" && aal.next_level === "aal2") {
-                  router.replace(buildMfaChallengeUrl(returnUrl));
-                  return;
-                }
-              } catch (e) {
-                console.error("AAL check failed:", e);
+            const entryPath = resolveMemberEntryPath(
+              sessionData.user?.id,
+              returnUrl,
+            );
+            try {
+              const aal = await mfaGetAAL();
+              if (aal.current_level === "aal1" && aal.next_level === "aal2") {
+                router.replace(buildMfaChallengeUrl(entryPath));
+                return;
               }
-              router.replace(returnUrl);
+            } catch (e) {
+              console.error("AAL check failed:", e);
             }
+            router.replace(entryPath);
           }, 1500);
         }
       } catch (error) {

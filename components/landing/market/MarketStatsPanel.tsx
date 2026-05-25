@@ -63,20 +63,20 @@ export function MarketStatsPanel({
   }
 
   return (
-    <div className="vs-surface relative flex h-full min-h-[280px] flex-col justify-between p-6 sm:p-8 lg:p-10">
-      <div className="space-y-3">
+    <div className="vs-surface relative flex min-h-[240px] flex-col justify-between p-5 sm:p-6 lg:min-h-[280px] lg:p-8">
+      <div className="min-w-0 space-y-2">
         <p className="text-label text-primary">Market overview</p>
         <h3 className="text-lg font-semibold text-foreground sm:text-xl">
           Market at a glance
         </h3>
         {insight && (
-          <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+          <p className="line-clamp-4 text-sm leading-relaxed text-muted-foreground">
             {insight}
           </p>
         )}
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-4">
+      <div className="mt-6 grid grid-cols-1 gap-4 min-[400px]:grid-cols-3">
         <MiniStat label="Roles" value={stats?.total_jobs} />
         <MiniStat label="Employers" value={stats?.unique_companies} />
         <MiniStat label="Categories" value={stats?.unique_categories} />

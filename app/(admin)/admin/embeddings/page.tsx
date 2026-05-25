@@ -1,5 +1,5 @@
-import { EmbeddingsMonitor } from "@/components/admin/pages/EmbeddingsMonitor";
+import { redirect } from "next/navigation";
 
-export default function AdminEmbeddingsPage() {
-  return <EmbeddingsMonitor />;
+export default function AdminEmbeddingsRedirectPage() {
+  redirect("/admin/ml-runs");
 }

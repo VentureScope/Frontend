@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { type AxiosError } from "axios";
 import {
   buildSignInUrl,
   getClientReturnPath,
@@ -6,21 +6,70 @@ import {
 } from "@/lib/auth-redirect";
 import { useAppStore } from "@/store/useAppStore";
 
-// Create a standard base API instance
+/** Server-side and build-time API root. */
+function serverApiBaseUrl(): string {
+  return (
+    process.env.API_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "http://localhost:8000"
+  );
+}
+
+function isLocalApiHost(url: string): boolean {
+  try {
+    const host = new URL(
+      url.startsWith("http") ? url : `http://${url}`,
+    ).hostname;
+    return host === "localhost" || host === "127.0.0.1";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Browser base URL: use same-origin `/api/*` (proxied in next.config) in local
+ * dev so the browser never cross-origin calls localhost:8000 (CORS / Network Error).
+ */
+function clientApiBaseUrl(): string {
+  const configured = process.env.NEXT_PUBLIC_API_URL?.trim();
+
+  if (process.env.NODE_ENV === "development") {
+    if (!configured || isLocalApiHost(configured)) {
+      return "";
+    }
+  }
+
+  if (configured) {
+    return configured.replace(/\/api\/?$/, "").replace(/\/$/, "");
+  }
+  return "";
+}
+
 const api = axios.create({
-  // Reads from env first; falls back to local backend for development.
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
-  // baseURL: "http://localhost:8000",
+  baseURL:
+    typeof window === "undefined" ? serverApiBaseUrl() : clientApiBaseUrl(),
   timeout: 100000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Configure Request Interceptor (e.g., inject auth tokens here)
+export function isApiNetworkError(error: unknown): boolean {
+  if (!axios.isAxiosError(error)) {
+    return false;
+  }
+  const err = error as AxiosError;
+  return !err.response && (err.code === "ERR_NETWORK" || err.message === "Network Error");
+}
+
 api.interceptors.request.use(
   (config) => {
-    // retrieve token from local storage or memory
+    if (typeof window !== "undefined") {
+      const base = clientApiBaseUrl();
+      if (base) {
+        config.baseURL = base;
+      }
+    }
     const token = useAppStore.getState().authData.token;
     if (token && config.headers && !config.headers.Authorization) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -32,14 +81,12 @@ api.interceptors.request.use(
   },
 );
 
-// Configure Response Interceptor (e.g., global error handling)
 api.interceptors.response.use(
   (response) => {
     return response;
   },
   (error) => {
     if (error.response) {
-      // Handle known HTTP errors globally (e.g., redirect on 401)
       if (error.response.status === 401 && typeof window !== "undefined") {
         const pathname = window.location.pathname;
         const store = useAppStore.getState();
@@ -58,8 +105,6 @@ api.interceptors.response.use(
           console.warn("Unauthorized. Please log in again.");
         }
       }
-    } else {
-      console.error("Network Error:", error.message);
     }
     return Promise.reject(error);
   },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { MlRunRow } from "@/types/admin-ml";
 import { EmbeddingsMonitorSkeleton } from "@/components/admin/AdminSkeletons";
 import { AdminStatCard } from "@/components/admin/ui/AdminStatCard";
 import { MlStatusLabel } from "@/components/admin/ui/admin-status";
@@ -11,6 +12,8 @@ import {
   adminPage,
   adminPrimaryBtn,
 } from "@/components/admin/ui/admin-styles";
+import { MlRunSummaryCell } from "@/components/admin/MlRunSummaryCell";
+import { MlRunSummaryModal } from "@/components/admin/MlRunSummaryModal";
 import { useAdminMlRuns } from "@/hooks/useAdminMlRuns";
 import { formatAdminTimestamp } from "@/lib/admin-response-parsers";
 
@@ -46,6 +49,7 @@ export function EmbeddingsMonitor() {
     failed: 0,
     awaiting: 0,
   });
+  const [summaryRun, setSummaryRun] = useState<MlRunRow | null>(null);
 
   useEffect(() => {
     void fetchCounts().then(setCounts);
@@ -61,9 +65,9 @@ export function EmbeddingsMonitor() {
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-medium text-foreground">ML / Embedding Runs</h1>
+          <h1 className="text-lg font-medium text-foreground">ML-Runs</h1>
           <p className="text-sm text-muted-foreground">
-            Monitor training runs and deploy models awaiting review.
+            Monitor ML training runs and deploy models awaiting review.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -172,11 +176,11 @@ export function EmbeddingsMonitor() {
                     <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                       {row.accuracy ?? "—"}
                     </td>
-                    <td
-                      className="max-w-[200px] truncate px-3 py-2 text-xs text-muted-foreground"
-                      title={row.metrics_summary ?? undefined}
-                    >
-                      {row.metrics_summary ?? "—"}
+                    <td className="px-3 py-2 align-top">
+                      <MlRunSummaryCell
+                        run={row}
+                        onView={() => setSummaryRun(row)}
+                      />
                     </td>
                     <td className="px-3 py-2">
                       {row.status === "awaiting_review" ? (
@@ -225,6 +229,11 @@ export function EmbeddingsMonitor() {
           ) : null}
         </>
       )}
+      <MlRunSummaryModal
+        run={summaryRun}
+        open={summaryRun != null}
+        onClose={() => setSummaryRun(null)}
+      />
     </div>
   );
 }

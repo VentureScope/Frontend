@@ -23,10 +23,7 @@ export async function getCurrentTrendingRoles(params?: {
   period?: number;
   limit?: number;
 }): Promise<TrendingCareer[]> {
-  const res = await api.get<TrendingCareer[]>("/api/jobs/trending", {
-    params: { period: 30, ...params },
-  });
-  return res.data;
+  return getTrendingCareers(params);
 }
 
 /** Future predicted roles (dedicated route; may 404 until backend ships). */
@@ -45,12 +42,13 @@ export async function getFutureTrendingRoles(params?: {
  */
 export async function getFutureTrendingRolesForRoadmap(params?: {
   limit?: number;
+  period?: number;
 }): Promise<TrendingCareer[]> {
   const limit = params?.limit ?? 12;
 
   const trending = await getTrendingCareers({
     limit: Math.max(limit, 12),
-    period: 30,
+    period: params?.period ?? 90,
   }).catch(() => [] as TrendingCareer[]);
 
   if (trending.length === 0) {
@@ -110,6 +108,7 @@ export async function getFutureTrendingRolesForRoadmap(params?: {
 
 export async function getInDemandSkills(params?: {
   limit?: number;
+  period?: number;
 }): Promise<InDemandSkill[]> {
   const res = await api.get<InDemandSkill[]>("/api/jobs/in-demand-skills", {
     params,
@@ -117,8 +116,10 @@ export async function getInDemandSkills(params?: {
   return res.data;
 }
 
-export async function getJobStats(): Promise<JobStats> {
-  const res = await api.get<JobStats>("/api/jobs/stats");
+export async function getJobStats(params?: {
+  period?: number;
+}): Promise<JobStats> {
+  const res = await api.get<JobStats>("/api/jobs/stats", { params });
   return res.data;
 }
 

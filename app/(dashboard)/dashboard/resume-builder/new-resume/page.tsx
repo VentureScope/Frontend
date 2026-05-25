@@ -13,6 +13,7 @@ import {
 } from "@/lib/job-market-insights";
 import type { TrendingCareer } from "@/types/jobs";
 import { NewRoadmapRolesSkeleton } from "@/components/learning-path/LearningPathSkeletons";
+import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
 import { toast } from "sonner";
 import { formatResumeWarningSummary } from "@/lib/resume-warning-links";
 
@@ -30,7 +31,10 @@ type ResumeRoleRow = {
   targetRole: string;
 };
 
-function mapTrendingToRoles(careers: TrendingCareer[]): ResumeRoleRow[] {
+function mapTrendingToRoles(
+  careers: TrendingCareer[],
+  lookbackPhrase = "the last 3 months",
+): ResumeRoleRow[] {
   return careers.map((c, i) => {
     const growth = c.growth_pct ?? 0;
     const high = growth >= 8 || c.job_count > 5000;
@@ -49,7 +53,7 @@ function mapTrendingToRoles(careers: TrendingCareer[]): ResumeRoleRow[] {
       metricValue: metric.value,
       metricLabel: metric.label,
       iconName: ICONS[i % ICONS.length],
-      description: `${context} · ${growthText.label} vs prior 30 days`,
+      description: `${context} · ${growthText.label} vs ${lookbackPhrase}`,
       targetRole: c.name,
     };
   });
@@ -57,6 +61,7 @@ function mapTrendingToRoles(careers: TrendingCareer[]): ResumeRoleRow[] {
 
 export default function NewResumePage() {
   const router = useRouter();
+  const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
   const [roles, setRoles] = useState<ResumeRoleRow[]>([]);
   const [selectedRoleId, setSelectedRoleId] = useState("");
   const [loadingTrends, setLoadingTrends] = useState(true);
@@ -67,11 +72,11 @@ export default function NewResumePage() {
     (async () => {
       setLoadingTrends(true);
       try {
-        const careers = await getCurrentTrendingRoles({ limit: 12, period: 30 });
+        const careers = await getCurrentTrendingRoles({ limit: 12, period: days });
         if (cancelled) {
           return;
         }
-        const mapped = mapTrendingToRoles(careers);
+        const mapped = mapTrendingToRoles(careers, lookbackPhrase);
         setRoles(mapped);
         if (mapped[0]) {
           setSelectedRoleId(mapped[0].id);
@@ -89,7 +94,7 @@ export default function NewResumePage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [days, lookbackPhrase]);
 
   const selected = roles.find((r) => r.id === selectedRoleId);
 

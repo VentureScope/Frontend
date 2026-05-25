@@ -1,4 +1,5 @@
 import adminApi from "@/lib/admin-api";
+import { logMlRunsListDebug } from "@/lib/admin-ml-summary";
 import { parseMlRunsList } from "@/lib/admin-response-parsers";
 import type { MlRunListResponse } from "@/types/admin-ml";
 
@@ -20,7 +21,16 @@ export async function listAdminMlRuns(
       ...(params.model_type ? { model_type: params.model_type } : {}),
     },
   });
-  return parseMlRunsList(res.data);
+  const parsed = parseMlRunsList(res.data);
+  logMlRunsListDebug(
+    res.data,
+    parsed.items.map((item) => ({
+      id: item.id,
+      has_summary: item.has_summary,
+      metrics_summary: item.metrics_summary,
+    })),
+  );
+  return parsed;
 }
 
 export async function getAdminMlRun(runId: string): Promise<Record<string, unknown>> {

@@ -57,7 +57,7 @@ export function AdminOverview() {
               subtext={stats.activeUsers.subtext}
               subtextClassName="text-primary"
             />
-            <Link href="/admin/embeddings" className="block">
+            <Link href="/admin/ml-runs" className="block">
               <AdminStatCard
                 label="Failed ML Runs"
                 value={stats.failedMlRuns.value}

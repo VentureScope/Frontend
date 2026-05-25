@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -7,6 +8,7 @@ import {
   Building2,
   MapPinned,
   Shield,
+  Trash2,
   UserCircle,
   UserCog,
 } from "lucide-react";
@@ -14,8 +16,10 @@ import {
   OrganizationHubHeaderSkeleton,
   OrganizationHubMetaSkeleton,
 } from "@/components/organization/OrganizationSkeletons";
+import { DeleteOrganizationDialog } from "@/components/organization/DeleteOrganizationDialog";
 import { Button } from "@/components/ui/button";
 import type { OrganizationRole } from "@/types/organization";
+import { canDeleteOrganization } from "@/lib/organization-permissions";
 import { useOrganization } from "@/hooks/useOrganization";
 import { cn } from "@/lib/utils";
 
@@ -78,8 +82,12 @@ function RoleBadge({ role }: { role: OrganizationRole }) {
 export function OrganizationHubView({ orgId }: { orgId: string }) {
   const { organization, loading, error, notFound, reload } =
     useOrganization(orgId);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const displayName = organization?.displayName ?? "Organization";
+  const canDelete = organization
+    ? canDeleteOrganization(organization.myRole)
+    : false;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
@@ -158,30 +166,62 @@ export function OrganizationHubView({ orgId }: { orgId: string }) {
           )}
 
           {!notFound ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {ORG_LINKS.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href(orgId)}
-                  className="vs-surface-accent flex flex-col gap-3 rounded-md p-5 transition-colors hover:border-primary/30"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="vs-icon-tile-primary flex h-10 w-10 items-center justify-center rounded-md">
-                      <item.icon className="h-5 w-5" />
+            <>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {ORG_LINKS.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href(orgId)}
+                    className="vs-surface-accent flex flex-col gap-3 rounded-md p-5 transition-colors hover:border-primary/30"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="vs-icon-tile-primary flex h-10 w-10 items-center justify-center rounded-md">
+                        <item.icon className="h-5 w-5" />
+                      </div>
+                      <span className="text-sm font-semibold text-foreground">
+                        {item.name}
+                      </span>
                     </div>
-                    <span className="text-sm font-semibold text-foreground">
-                      {item.name}
-                    </span>
-                  </div>
-                  <p className="text-xs leading-relaxed text-muted-foreground">
-                    {item.description}
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      {item.description}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+
+              {canDelete && organization ? (
+                <div className="mt-10 rounded-lg border border-destructive/25 bg-destructive/5 p-5 sm:p-6">
+                  <h2 className="text-sm font-semibold text-foreground">
+                    Danger zone
+                  </h2>
+                  <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+                    Permanently delete this organization. Only the owner can do
+                    this. Members, roadmaps, and chat history will be removed.
                   </p>
-                </Link>
-              ))}
-            </div>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="mt-4 gap-2"
+                    onClick={() => setDeleteOpen(true)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete organization
+                  </Button>
+                </div>
+              ) : null}
+            </>
           ) : null}
         </>
       )}
+      {organization && canDelete ? (
+        <DeleteOrganizationDialog
+          orgId={orgId}
+          orgName={displayName}
+          open={deleteOpen}
+          onOpenChange={setDeleteOpen}
+        />
+      ) : null}
     </div>
   );
 }

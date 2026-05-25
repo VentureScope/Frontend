@@ -43,6 +43,7 @@ export function filterTrendingForArea(
 export function formatTrendingMarketContext(
   careers: TrendingCareer[],
   areaTitle: string,
+  lookbackPhrase = "the last 3 months",
 ): string {
   if (careers.length === 0) {
     return `Market trends: no live data for ${areaTitle}; prioritize organization context.`;
@@ -55,16 +56,16 @@ export function formatTrendingMarketContext(
     return `${c.name} (${c.job_count.toLocaleString()} openings${growth})`;
   });
   return [
-    `Market pulse (last 30 days) for ${areaTitle}: ${lines.join("; ")}.`,
+    `Market pulse (${lookbackPhrase}) for ${areaTitle}: ${lines.join("; ")}.`,
     "Blend rising market skills with the organization's team and stack—team context stays primary.",
   ].join(" ");
 }
 
-export async function fetchTrendingCareersForOrgRoadmap(): Promise<
-  TrendingCareer[]
-> {
+export async function fetchTrendingCareersForOrgRoadmap(
+  periodDays = 90,
+): Promise<TrendingCareer[]> {
   try {
-    return await getCurrentTrendingRoles({ limit: 24, period: 30 });
+    return await getCurrentTrendingRoles({ limit: 24, period: periodDays });
   } catch {
     return getMarketPulseFallbackData().trending;
   }

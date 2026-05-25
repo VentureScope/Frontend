@@ -29,9 +29,9 @@ export function TrendingRolesSkeleton({ rows = 3 }: { rows?: number }) {
           className="flex items-center gap-3 rounded-xl border border-border bg-muted/80 p-3"
         >
           {sk("h-10 w-10 shrink-0 rounded-xl")}
-          <div className="flex-1 space-y-2">
-            {sk("h-4 w-36")}
-            {sk("h-3 w-28")}
+          <div className="min-w-0 flex-1 space-y-2">
+            {sk("h-4 w-3/4 max-w-[12rem]")}
+            {sk("h-3 w-2/3 max-w-[10rem]")}
           </div>
         </div>
       ))}
@@ -41,19 +41,13 @@ export function TrendingRolesSkeleton({ rows = 3 }: { rows?: number }) {
 
 export function MarketStatsSkeleton() {
   return (
-    <div className="flex flex-col justify-between h-full min-h-[240px] space-y-6">
-      <div className="space-y-3">
-        {sk("h-5 w-40 bg-primary/30")}
-        {sk("h-3 w-full max-w-xs bg-primary/20")}
-      </div>
-      <div className="grid grid-cols-3 gap-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="space-y-2">
-            {sk("h-2 w-12 bg-primary/20")}
-            {sk("h-7 w-14 bg-primary/30")}
-          </div>
-        ))}
-      </div>
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="vs-surface space-y-2 p-5">
+          {sk("h-4 w-24")}
+          {sk("h-8 w-20")}
+        </div>
+      ))}
     </div>
   );
 }
@@ -96,17 +90,20 @@ export function ProfileMatchesSkeleton({ rows = 3 }: { rows?: number }) {
 
 export function MarketPulseGridSkeleton() {
   return (
-    <div className="grid gap-5 lg:grid-cols-12">
-      <div className="lg:col-span-5 vs-surface p-6">
-        {sk("h-5 w-40 mb-6")}
-        <SkillDemandSkeleton />
-      </div>
-      <div className="lg:col-span-4 vs-surface p-6">
-        {sk("h-5 w-36 mb-6")}
-        <TrendingRolesSkeleton rows={3} />
-      </div>
-      <div className="lg:col-span-3 vs-surface min-h-[240px] p-6">
+    <div className="space-y-6">
+      <div>
+        {sk("h-4 w-32 mb-3")}
         <MarketStatsSkeleton />
+      </div>
+      <div className="grid gap-5 lg:grid-cols-2">
+        <div className="rounded-lg border border-border bg-muted/50 p-6">
+          {sk("h-5 w-40 mb-6")}
+          <SkillDemandSkeleton rows={5} />
+        </div>
+        <div className="rounded-lg border border-border bg-muted/50 p-6">
+          {sk("h-5 w-36 mb-6")}
+          <TrendingRolesSkeleton rows={3} />
+        </div>
       </div>
     </div>
   );

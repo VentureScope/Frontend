@@ -20,6 +20,7 @@ import {
   getJobProfileMatches,
   getTrendingCareers,
 } from "@/lib/jobs-api";
+import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
 import { getMarketPulseFallbackData } from "@/lib/market-pulse-fallback";
 import { listNotifications } from "@/lib/notifications-api";
 import { listRoadmaps } from "@/lib/roadmaps-api";
@@ -168,6 +169,7 @@ function buildSuggestedActions(
 }
 
 export function useDashboardOverview(careerInterest: string) {
+  const { days } = useMarketAnalyticsPeriod();
   const [data, setData] = useState<DashboardOverviewData>(EMPTY);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -194,8 +196,8 @@ export function useDashboardOverview(careerInterest: string) {
         listResumes(),
         listNotifications({ per_page: 5, page: 1 }),
         getJobProfileMatches({ limit: 5 }),
-        getTrendingCareers({ limit: 7, period: 30 }),
-        getInDemandSkills({ limit: 6 }),
+        getTrendingCareers({ limit: 7, period: days }),
+        getInDemandSkills({ limit: 6, period: days }),
         getGithubSyncedData(),
         getLatestTranscript(),
         getUserReadiness(),
@@ -302,7 +304,7 @@ export function useDashboardOverview(careerInterest: string) {
     } finally {
       setLoading(false);
     }
-  }, [careerInterest]);
+  }, [careerInterest, days]);
 
   useEffect(() => {
     void load();

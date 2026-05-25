@@ -28,6 +28,7 @@ import {
   getReturnPathFromSearchParams,
   resolveReturnPath,
 } from "@/lib/auth-redirect";
+import { resolveMemberEntryPath } from "@/lib/onboarding";
 import { useAppStore } from "@/store/useAppStore";
 import { SignInPayload } from "@/types/auth";
 
@@ -81,7 +82,8 @@ function SignInPageContent() {
 
   useEffect(() => {
     if (!isHydrated || !token) return;
-    router.replace(postAuthPath);
+    const userId = useAppStore.getState().authData.user?.id;
+    router.replace(resolveMemberEntryPath(userId, postAuthPath));
   }, [isHydrated, token, postAuthPath, router]);
 
   if (!isHydrated || token) {
@@ -144,7 +146,9 @@ function SignInPageContent() {
         console.error("MFA Check failed", err);
       }
 
-      router.push(postAuthPath);
+      router.push(
+        resolveMemberEntryPath(authSessionData.user?.id, postAuthPath),
+      );
     } catch (error) {
       // 403 means email not verified — redirect to OTP verification page
       if (error instanceof AxiosError && error.response?.status === 403) {
@@ -176,7 +180,12 @@ function SignInPageContent() {
         challenge_id: challengeId,
         code: mfaCode,
       });
-      router.push(postAuthPath);
+      router.push(
+        resolveMemberEntryPath(
+          useAppStore.getState().authData.user?.id,
+          postAuthPath,
+        ),
+      );
     } catch (err) {
       setMfaError(getApiErrorMessage(err));
       setMfaCode("");

@@ -6,9 +6,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   Activity,
-  Bell,
-  BookOpen,
-  Bot,
   Tags,
   ChevronDown,
   Database,
@@ -73,8 +70,8 @@ const NAV: NavGroup[] = [
       },
       {
         type: "link",
-        name: "Embeddings",
-        href: "/admin/embeddings",
+        name: "ML-Runs",
+        href: "/admin/ml-runs",
         icon: Database,
       },
       {
@@ -89,24 +86,11 @@ const NAV: NavGroup[] = [
     label: "Intelligence",
     items: [
       { type: "link", name: "Role Taxonomy", href: "/admin/taxonomy", icon: Tags },
-      {
-        type: "link",
-        name: "Knowledge Base",
-        href: "/admin/knowledge",
-        icon: BookOpen,
-      },
-      {
-        type: "link",
-        name: "Prompt Config",
-        href: "/admin/prompt-config",
-        icon: Bot,
-      },
     ],
   },
   {
     label: "Communications",
     items: [
-      { type: "link", name: "Broadcasts", href: "/admin/broadcasts", icon: Bell },
       {
         type: "link",
         name: "System Alerts",

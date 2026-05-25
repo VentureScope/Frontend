@@ -22,17 +22,24 @@ export default function ProfileFooter() {
         </div>
 
         <nav className="flex flex-wrap items-center justify-center gap-6 md:gap-8">
-          {["Privacy Policy", "Terms of Service", "Contact Support"].map(
-            (label) => (
-              <Link
-                key={label}
-                href="#"
-                className="text-label text-muted-foreground transition-colors hover:text-primary"
-              >
-                {label}
-              </Link>
-            ),
-          )}
+          <Link
+            href="/privacy"
+            className="text-label text-muted-foreground transition-colors hover:text-primary"
+          >
+            Privacy Policy
+          </Link>
+          <Link
+            href="/terms"
+            className="text-label text-muted-foreground transition-colors hover:text-primary"
+          >
+            Terms of Service
+          </Link>
+          <a
+            href="mailto:support@venturescope.com"
+            className="text-label text-muted-foreground transition-colors hover:text-primary"
+          >
+            Contact Support
+          </a>
         </nav>
 
         <div className="text-label flex items-center gap-2 text-success">

@@ -9,6 +9,7 @@ import MarketTrendsCard from "@/components/dashboard/MarketTrendsCard";
 import RecentActivity from "@/components/dashboard/RecentActivity";
 import SuggestedActions from "@/components/dashboard/SuggestedActions";
 import CareerReadinessPanel from "@/components/dashboard/CareerReadinessPanel";
+import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
 import { useDashboardOverview } from "@/hooks/useDashboardOverview";
 import { getUserProfileView } from "@/lib/user-profile";
 import { useAppStore } from "@/store/useAppStore";
@@ -64,14 +65,22 @@ export default function DashboardOverview() {
         loading={loading}
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:items-stretch">
-        <DataSyncCard items={data.syncItems} loading={loading} />
-        <div className="lg:col-span-2">
-          <MarketTrendsCard
-            trending={data.trendingCareers}
-            skills={data.inDemandSkills}
-            loading={loading}
-          />
+      <div className="space-y-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm font-medium text-muted-foreground">
+            Market analytics
+          </p>
+          <MarketAnalyticsPeriodSelect disabled={loading} compact />
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:items-stretch">
+          <DataSyncCard items={data.syncItems} loading={loading} />
+          <div className="lg:col-span-2">
+            <MarketTrendsCard
+              trending={data.trendingCareers}
+              skills={data.inDemandSkills}
+              loading={loading}
+            />
+          </div>
         </div>
       </div>
 

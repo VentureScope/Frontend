@@ -54,10 +54,11 @@ The codebase is organized into Next.js Route Groups to allow isolated layouts wi
    npm install
    ```
 
-3. Configure Environment Variables:
-   Create a `.env.local` file in the root directory:
+3. Configure Environment Variables (optional for local dev):
+   With the backend on `http://localhost:8000`, you can omit `NEXT_PUBLIC_API_URL` — the dev server proxies `/api/*` to the API and avoids browser CORS errors.
+   For production or a remote API, create `.env.local`:
    ```env
-   NEXT_PUBLIC_API_URL=http://localhost:8000/api
+   NEXT_PUBLIC_API_URL=https://your-api-host.example.com
    ```
 
 4. Start the development server:

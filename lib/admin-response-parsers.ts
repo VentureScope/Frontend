@@ -2,6 +2,7 @@ import type {
   AdminNotificationItem,
   AdminNotificationListResponse,
 } from "@/types/admin-notifications";
+import { buildMlRunDetail } from "@/lib/admin-ml-summary";
 import type { MlRunListResponse, MlRunRow } from "@/types/admin-ml";
 import type {
   TaxonomyRoleListResponse,
@@ -433,12 +434,17 @@ export function parseMlRunsList(data: unknown): MlRunListResponse {
     const id = asString(row.id ?? row.run_id);
     if (!id) return null;
 
-    const metrics = asRecord(row.metrics ?? row.metrics_json);
+    const metrics = asRecord(
+      row.metrics ?? row.metrics_json ?? row.training_metrics,
+    );
     const accuracy =
       row.accuracy ??
       metrics?.accuracy ??
       metrics?.val_accuracy ??
+      metrics?.test_accuracy ??
       null;
+
+    const { shortSummary, detail, has_summary } = buildMlRunDetail(row);
 
     return {
       id,
@@ -446,8 +452,9 @@ export function parseMlRunsList(data: unknown): MlRunListResponse {
       status: asString(row.status, "unknown"),
       created_at: asString(row.created_at ?? row.started_at, ""),
       accuracy: accuracy != null ? asString(accuracy) : null,
-      metrics_summary:
-        asString(row.summary ?? row.error_message ?? row.message, "") || null,
+      metrics_summary: shortSummary,
+      detail,
+      has_summary,
     };
   });
 

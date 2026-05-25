@@ -5,11 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
 import { SelectField } from "@/components/ui/select-field";
 import { Button } from "@/components/ui/button";
-import {
-  getJobForecasts,
-  getJobProfileMatches,
-  getTrendingCareers,
-} from "@/lib/jobs-api";
+import { getJobForecasts, getTrendingCareers } from "@/lib/jobs-api";
 import {
   buildForecastChartPoints,
   FORECAST_CHART_SUBTITLE,
@@ -32,7 +28,13 @@ const MarketForecastChartView = dynamic(
   },
 );
 
-export default function MarketForecastChart() {
+type MarketForecastChartProps = {
+  periodDays?: number;
+};
+
+export default function MarketForecastChart({
+  periodDays = 90,
+}: MarketForecastChartProps) {
   const careerInterest = useAppStore(
     (s) => s.authData.user?.career_interest ?? null,
   );
@@ -48,32 +50,38 @@ export default function MarketForecastChart() {
     setLoadingRoles(true);
     setError(null);
     try {
-      const [trending, matches] = await Promise.all([
-        getTrendingCareers({ limit: 12, period: 30 }),
-        getJobProfileMatches({ limit: 1 }).catch(() => []),
-      ]);
-      const names = trending.map((t) => t.name).filter(Boolean);
-      const unique = [...new Set(names)];
-      const defaultRole = pickDefaultForecastRole(
-        trending,
-        matches,
-        careerInterest,
-      );
-      setRoleOptions(unique.length > 0 ? unique : [defaultRole]);
+      const trending = await getTrendingCareers({
+        limit: 12,
+        period: periodDays,
+      });
+      const unique = [
+        ...new Set(trending.map((t) => t.name.trim()).filter(Boolean)),
+      ];
+      const defaultRole = pickDefaultForecastRole(trending, [], careerInterest);
+
+      setRoleOptions(unique);
       setSelectedRole((prev) => {
-        if (prev && (unique.includes(prev) || prev === defaultRole)) {
+        if (prev && unique.includes(prev)) {
           return prev;
         }
-        return defaultRole;
+        if (defaultRole && unique.includes(defaultRole)) {
+          return defaultRole;
+        }
+        return unique[0] ?? "";
       });
+
+      if (unique.length === 0) {
+        setError("No trending roles returned from the market API.");
+      }
     } catch {
-      setRoleOptions(["Software Engineer"]);
-      setSelectedRole("Software Engineer");
-      setError("Could not load role list. Showing default forecast role.");
+      setRoleOptions([]);
+      setSelectedRole("");
+      setForecasts([]);
+      setError("Could not load trending roles from the market API.");
     } finally {
       setLoadingRoles(false);
     }
-  }, [careerInterest]);
+  }, [careerInterest, periodDays]);
 
   const loadForecasts = useCallback(async (role: string) => {
     if (!role) {
@@ -132,6 +140,7 @@ export default function MarketForecastChart() {
   }));
 
   const isLoading = loadingRoles || loadingForecasts;
+  const noRoles = !loadingRoles && roleOptions.length === 0;
 
   return (
     <div className="vs-surface w-full overflow-hidden p-4 sm:p-6 md:p-10">
@@ -164,7 +173,7 @@ export default function MarketForecastChart() {
             variant="outline"
             size="sm"
             className="h-9 gap-2"
-            disabled={isLoading}
+            disabled={isLoading || !selectedRole}
             onClick={() => {
               void loadForecasts(selectedRole);
             }}
@@ -189,9 +198,16 @@ export default function MarketForecastChart() {
             <Loader2 className="mr-2 h-6 w-6 animate-spin text-primary" />
             Loading forecast…
           </div>
+        ) : noRoles ? (
+          <div className="flex h-80 items-center justify-center px-6 text-center text-sm text-muted-foreground">
+            Trending roles are not available yet. Check that the API is running
+            and try again.
+          </div>
         ) : chartData.length === 0 ? (
           <div className="flex h-80 items-center justify-center text-sm text-muted-foreground">
-            Select a role to view its demand forecast.
+            {selectedRole
+              ? `Select a role or wait for forecast data for “${selectedRole}”.`
+              : "Select a role to view its demand forecast."}
           </div>
         ) : (
           <MarketForecastChartView

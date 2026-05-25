@@ -26,8 +26,11 @@ import { TrendingRolesPanel } from "@/components/landing/market/TrendingRolesPan
 import { CategoryJobsPanel } from "@/components/landing/market/CategoryJobsPanel";
 import { ProfileMatchesPanel } from "@/components/landing/market/ProfileMatchesPanel";
 import { MARKET_TOP_K } from "@/lib/job-market-insights";
+import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
+import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
 
 export default function MarketInsightLive() {
+  const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
   const { isAuthenticated, dashboardHref, registerHref, signInHref } =
     useLandingAuth();
   const token = useAppStore((s) => s.authData.token);
@@ -47,9 +50,9 @@ export default function MarketInsightLive() {
       setError(null);
       try {
         const [sk, st, tr] = await Promise.all([
-          getInDemandSkills({ limit: MARKET_TOP_K.skills }),
-          getJobStats(),
-          getTrendingCareers({ limit: MARKET_TOP_K.trending, period: 30 }),
+          getInDemandSkills({ limit: MARKET_TOP_K.skills, period: days }),
+          getJobStats({ period: days }),
+          getTrendingCareers({ limit: MARKET_TOP_K.trending, period: days }),
         ]);
         if (cancelled) {
           return;
@@ -105,7 +108,7 @@ export default function MarketInsightLive() {
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, days]);
 
   return (
     <div className="bg-muted/50 pb-24">
@@ -125,6 +128,8 @@ export default function MarketInsightLive() {
             </p>
           </div>
 
+          <div className="flex flex-col gap-3 sm:items-end">
+            <MarketAnalyticsPeriodSelect disabled={loading} compact />
           <div className="flex items-center justify-center md:justify-start gap-4 rounded-lg bg-card p-4 shadow-sm border border-border">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
               <RefreshCw className="h-5 w-5 text-primary" />
@@ -144,6 +149,7 @@ export default function MarketInsightLive() {
                     : "—"}
               </p>
             </div>
+          </div>
           </div>
         </div>
       </section>
@@ -166,7 +172,11 @@ export default function MarketInsightLive() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-6 sm:mt-8 lg:px-8">
         <div className="grid gap-6 sm:gap-8 lg:grid-cols-5">
           <div className="lg:col-span-2">
-            <TrendingRolesPanel careers={trending} loading={loading} />
+            <TrendingRolesPanel
+              careers={trending}
+              loading={loading}
+              lookbackPhrase={lookbackPhrase}
+            />
           </div>
           <div className="lg:col-span-3">
             <CategoryJobsPanel
