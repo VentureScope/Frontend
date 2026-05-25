@@ -18,6 +18,10 @@ import {
   buildSignInUrl,
   getClientReturnPath,
 } from "@/lib/auth-redirect";
+import {
+  isOnboardingComplete,
+  ONBOARDING_PATH,
+} from "@/lib/onboarding";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -28,6 +32,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   // TODO: Re-enable real auth checks once backend integration is complete.
   const token = useAppStore((state) => state.authData.token);
+  const userId = useAppStore((state) => state.authData.user?.id);
   const isLoggingOut = useAppStore((state) => state.isLoggingOut);
   const isAuthenticated = Boolean(token);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -66,7 +71,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
     
     checkMFA();
-  }, [isHydrated, isAuthenticated, isLoggingOut, router]);
+
+    if (userId && !isOnboardingComplete(userId)) {
+      router.replace(ONBOARDING_PATH);
+    }
+  }, [isHydrated, isAuthenticated, isLoggingOut, router, userId]);
 
   if (isLoggingOut) {
     return (

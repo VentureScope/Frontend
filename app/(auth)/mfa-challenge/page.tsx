@@ -13,6 +13,8 @@ import {
 } from "@/lib/mfa-api";
 import { getApiErrorMessage } from "@/lib/auth-api";
 import { resolveReturnPath } from "@/lib/auth-redirect";
+import { resolveMemberEntryPath } from "@/lib/onboarding";
+import { useAppStore } from "@/store/useAppStore";
 import { MFAFactor } from "@/types/mfa";
 
 // ── OTP input (6 boxes) ───────────────────────────────────────────────────────
@@ -82,6 +84,9 @@ function MFAChallengeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = resolveReturnPath(searchParams);
+  const userId = useAppStore((state) => state.authData.user?.id);
+
+  const entryPath = () => resolveMemberEntryPath(userId, redirectTo);
 
   const [factors, setFactors] = useState<MFAFactor[]>([]);
   const [selectedFactor, setSelectedFactor] = useState<MFAFactor | null>(null);
@@ -99,14 +104,14 @@ function MFAChallengeContent() {
         // First check if already at aal2
         const aal = await mfaGetAAL();
         if (aal.current_level === "aal2") {
-          router.replace(redirectTo);
+          router.replace(entryPath());
           return;
         }
 
         const data = await mfaListFactors();
         if (data.factors.length === 0) {
           // No factors — user shouldn't be here; go to dashboard
-          router.replace(redirectTo);
+          router.replace(entryPath());
           return;
         }
         setFactors(data.factors);
@@ -159,7 +164,7 @@ function MFAChallengeContent() {
         challenge_id: challengeId,
         code,
       });
-      router.replace(redirectTo);
+      router.replace(entryPath());
     } catch (e) {
       setError(getApiErrorMessage(e));
       setCode("");

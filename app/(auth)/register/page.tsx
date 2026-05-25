@@ -24,6 +24,7 @@ import {
   getReturnPathFromSearchParams,
   resolveReturnPath,
 } from "@/lib/auth-redirect";
+import { resolveMemberEntryPath } from "@/lib/onboarding";
 import { useAppStore } from "@/store/useAppStore";
 import { ACCOUNT_ROLE_OPTIONS, RegisterPayload } from "@/types/auth";
 import { cn } from "@/lib/utils";
@@ -145,7 +146,8 @@ function RegisterPageContent() {
 
   useEffect(() => {
     if (!isHydrated || !token) return;
-    router.replace(postAuthPath);
+    const userId = useAppStore.getState().authData.user?.id;
+    router.replace(resolveMemberEntryPath(userId, postAuthPath));
   }, [isHydrated, token, postAuthPath, router]);
 
   if (!isHydrated || token) {

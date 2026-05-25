@@ -13,6 +13,7 @@ import {
   DEFAULT_MEMBER_PATH,
   isSafeReturnPath,
 } from "@/lib/auth-redirect";
+import { resolveMemberEntryPath } from "@/lib/onboarding";
 import { mfaGetAAL } from "@/lib/mfa-api";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -149,7 +150,9 @@ function GoogleOAuthCallbackContent() {
           // AAL check failure is non-fatal
         }
 
-        router.replace(returnPath);
+        router.replace(
+          resolveMemberEntryPath(sessionData.user?.id, returnPath),
+        );
       } catch (exchangeError) {
         console.log("[oauth] Token exchange failed", { exchangeError });
         setStatusMessage(getApiErrorMessage(exchangeError));

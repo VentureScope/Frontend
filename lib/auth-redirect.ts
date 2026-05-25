@@ -7,6 +7,7 @@ const LEGACY_REDIRECT_PARAM = "redirect";
 const BLOCKED_PATH_PREFIXES = [
   "/sign-in",
   "/register",
+  "/onboarding",
   "/verify-email",
   "/forgot-password",
   "/mfa-challenge",

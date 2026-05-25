@@ -26,6 +26,7 @@ import {
   getReturnPathFromSearchParams,
   resolveReturnPath,
 } from "@/lib/auth-redirect";
+import { resolveMemberEntryPath } from "@/lib/onboarding";
 import { useAppStore } from "@/store/useAppStore";
 
 const OTP_LENGTH = 6;
@@ -77,7 +78,8 @@ function VerifyEmailContent() {
 
   useEffect(() => {
     if (!isHydrated || !token) return;
-    router.replace(postAuthPath);
+    const userId = useAppStore.getState().authData.user?.id;
+    router.replace(resolveMemberEntryPath(userId, postAuthPath));
   }, [isHydrated, token, postAuthPath, router]);
 
   useEffect(() => {
@@ -118,7 +120,11 @@ function VerifyEmailContent() {
             const loginResult = await loginUser({ email, password });
             const authSessionData = await buildAuthSessionData(loginResult);
             setAuthData(authSessionData);
-            setTimeout(() => router.push(postAuthPath), 800);
+            const entryPath = resolveMemberEntryPath(
+              authSessionData.user?.id,
+              postAuthPath,
+            );
+            setTimeout(() => router.push(entryPath), 800);
           } catch {
             setTimeout(() => router.push(signInHref), 1500);
           }
