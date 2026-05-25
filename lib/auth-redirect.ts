@@ -115,6 +115,16 @@ export function resolveReturnPath(
   return fallback;
 }
 
+/** Sign-in / OAuth / MFA — never sends users to onboarding. */
+export function resolveAuthenticatedMemberPath(
+  intendedPath: string | null | undefined = DEFAULT_MEMBER_PATH,
+): string {
+  if (intendedPath && isSafeReturnPath(intendedPath)) {
+    return intendedPath;
+  }
+  return DEFAULT_MEMBER_PATH;
+}
+
 export function resolveAdminReturnPath(
   searchParams: SearchParamsLike,
   fallback = DEFAULT_ADMIN_PATH,

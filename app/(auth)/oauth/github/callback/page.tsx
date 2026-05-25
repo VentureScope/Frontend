@@ -14,7 +14,7 @@ import {
   DEFAULT_MEMBER_PATH,
   isSafeReturnPath,
 } from "@/lib/auth-redirect";
-import { resolveMemberEntryPath } from "@/lib/onboarding";
+import { resolveAuthenticatedMemberPath } from "@/lib/auth-redirect";
 import { mfaGetAAL } from "@/lib/mfa-api";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -111,10 +111,7 @@ function GithubCallbackContent() {
               : DEFAULT_MEMBER_PATH;
 
           setTimeout(async () => {
-            const entryPath = resolveMemberEntryPath(
-              sessionData.user?.id,
-              returnUrl,
-            );
+            const entryPath = resolveAuthenticatedMemberPath(returnUrl);
             try {
               const aal = await mfaGetAAL();
               if (aal.current_level === "aal1" && aal.next_level === "aal2") {
