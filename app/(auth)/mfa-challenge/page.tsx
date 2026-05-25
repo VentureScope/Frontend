@@ -12,8 +12,10 @@ import {
   mfaGetAAL,
 } from "@/lib/mfa-api";
 import { getApiErrorMessage } from "@/lib/auth-api";
-import { resolveReturnPath } from "@/lib/auth-redirect";
-import { resolveMemberEntryPath } from "@/lib/onboarding";
+import {
+  resolveAuthenticatedMemberPath,
+  resolveReturnPath,
+} from "@/lib/auth-redirect";
 import { useAppStore } from "@/store/useAppStore";
 import { MFAFactor } from "@/types/mfa";
 
@@ -84,9 +86,7 @@ function MFAChallengeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = resolveReturnPath(searchParams);
-  const userId = useAppStore((state) => state.authData.user?.id);
-
-  const entryPath = () => resolveMemberEntryPath(userId, redirectTo);
+  const entryPath = () => resolveAuthenticatedMemberPath(redirectTo);
 
   const [factors, setFactors] = useState<MFAFactor[]>([]);
   const [selectedFactor, setSelectedFactor] = useState<MFAFactor | null>(null);

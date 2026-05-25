@@ -18,10 +18,7 @@ import {
   buildSignInUrl,
   getClientReturnPath,
 } from "@/lib/auth-redirect";
-import {
-  isOnboardingComplete,
-  ONBOARDING_PATH,
-} from "@/lib/onboarding";
+import { ONBOARDING_PATH, shouldShowOnboarding } from "@/lib/onboarding";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -72,7 +69,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     
     checkMFA();
 
-    if (userId && !isOnboardingComplete(userId)) {
+    if (userId && shouldShowOnboarding(userId)) {
       router.replace(ONBOARDING_PATH);
     }
   }, [isHydrated, isAuthenticated, isLoggingOut, router, userId]);

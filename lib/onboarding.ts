@@ -9,22 +9,35 @@ const STORAGE_KEY = "venturescope_onboarding_v1";
 
 type OnboardingStorage = {
   completedUserIds: string[];
+  /** Set after email OTP verification; cleared when wizard finishes. */
+  pendingOnboardingUserIds: string[];
   pendingReturnByUser: Record<string, string>;
 };
 
 function readStorage(): OnboardingStorage {
   if (typeof window === "undefined") {
-    return { completedUserIds: [], pendingReturnByUser: {} };
+    return {
+      completedUserIds: [],
+      pendingOnboardingUserIds: [],
+      pendingReturnByUser: {},
+    };
   }
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      return { completedUserIds: [], pendingReturnByUser: {} };
+      return {
+        completedUserIds: [],
+        pendingOnboardingUserIds: [],
+        pendingReturnByUser: {},
+      };
     }
     const parsed = JSON.parse(raw) as Partial<OnboardingStorage>;
     return {
       completedUserIds: Array.isArray(parsed.completedUserIds)
         ? parsed.completedUserIds.filter((id) => typeof id === "string")
+        : [],
+      pendingOnboardingUserIds: Array.isArray(parsed.pendingOnboardingUserIds)
+        ? parsed.pendingOnboardingUserIds.filter((id) => typeof id === "string")
         : [],
       pendingReturnByUser:
         parsed.pendingReturnByUser &&
@@ -33,7 +46,11 @@ function readStorage(): OnboardingStorage {
           : {},
     };
   } catch {
-    return { completedUserIds: [], pendingReturnByUser: {} };
+    return {
+      completedUserIds: [],
+      pendingOnboardingUserIds: [],
+      pendingReturnByUser: {},
+    };
   }
 }
 
@@ -51,11 +68,38 @@ export function isOnboardingComplete(userId: string | undefined): boolean {
   return readStorage().completedUserIds.includes(userId);
 }
 
+export function isOnboardingPending(userId: string | undefined): boolean {
+  if (!userId) {
+    return false;
+  }
+  return readStorage().pendingOnboardingUserIds.includes(userId);
+}
+
+/** True only after verify-email OTP and before the wizard is finished. */
+export function shouldShowOnboarding(userId: string | undefined): boolean {
+  if (!userId || isOnboardingComplete(userId)) {
+    return false;
+  }
+  return isOnboardingPending(userId);
+}
+
+/** Call once after successful email OTP verification (before profile setup). */
+export function markOnboardingPending(userId: string): void {
+  const data = readStorage();
+  if (!data.pendingOnboardingUserIds.includes(userId)) {
+    data.pendingOnboardingUserIds.push(userId);
+  }
+  writeStorage(data);
+}
+
 export function markOnboardingComplete(userId: string): void {
   const data = readStorage();
   if (!data.completedUserIds.includes(userId)) {
     data.completedUserIds.push(userId);
   }
+  data.pendingOnboardingUserIds = data.pendingOnboardingUserIds.filter(
+    (id) => id !== userId,
+  );
   writeStorage(data);
 }
 
@@ -78,15 +122,18 @@ export function getPostOnboardingPath(userId: string): string {
 }
 
 /**
- * First destination after sign-in / email verification.
- * New users go to onboarding; returning users keep their intended path.
+ * Post-auth destination when onboarding may be required (after email OTP only).
  */
 export function resolveMemberEntryPath(
   userId: string | undefined,
   intendedPath = DEFAULT_MEMBER_PATH,
 ): string {
-  if (!userId || isOnboardingComplete(userId)) {
-    return isSafeReturnPath(intendedPath) ? intendedPath : DEFAULT_MEMBER_PATH;
+  const safePath = isSafeReturnPath(intendedPath)
+    ? intendedPath
+    : DEFAULT_MEMBER_PATH;
+
+  if (!userId || !shouldShowOnboarding(userId)) {
+    return safePath;
   }
 
   if (

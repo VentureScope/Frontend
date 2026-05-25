@@ -7,9 +7,13 @@ import { useRouter } from "next/navigation";
 import { useAppStore } from "@/store/useAppStore";
 import { buildSignInUrl } from "@/lib/auth-redirect";
 import {
+  DEFAULT_MEMBER_PATH,
+} from "@/lib/auth-redirect";
+import {
   getPostOnboardingPath,
   isOnboardingComplete,
   ONBOARDING_PATH,
+  shouldShowOnboarding,
 } from "@/lib/onboarding";
 
 export default function OnboardingLayout({
@@ -37,6 +41,10 @@ export default function OnboardingLayout({
     }
     if (userId && isOnboardingComplete(userId)) {
       router.replace(getPostOnboardingPath(userId));
+      return;
+    }
+    if (userId && !shouldShowOnboarding(userId)) {
+      router.replace(DEFAULT_MEMBER_PATH);
     }
   }, [isHydrated, isLoggingOut, token, userId, router]);
 
