@@ -12,6 +12,7 @@ import { AboutJobMarketStats } from "@/components/landing/AboutJobMarketStats";
 import { AboutMarketInsights } from "@/components/landing/AboutMarketInsights";
 import { MarketingPhoto } from "@/components/landing/MarketingPhoto";
 import { marketingImages } from "@/lib/marketing-images";
+import { initialsFromName } from "@/lib/utils";
 
 export default function AboutPage() {
   return (
@@ -256,36 +257,30 @@ export default function AboutPage() {
             {
               name: "Samuel Geremew",
               role: "TEAM LEAD - AI ML / FRONTEND",
-              img: "https://api.dicebear.com/7.x/avataaars/svg?seed=SamuelG&top=shortFlat&facialHairProbability=40",
             },
             {
               name: "Betsegaw Tesfaye",
               role: "FULL STACK / DATA PIPELINE",
-              img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Betsegaw&top=shortWaved&facialHairProbability=40",
             },
             {
               name: "Nikodimos Mekonnen",
               role: "BACKEND / SECURITY",
-              img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Niko&top=shortCurly&facialHairProbability=40",
             },
             {
               name: "Mahlet Demeke",
               role: "FRONTEND",
-              img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mahlet&top=straight02&facialHairProbability=0&accessoriesProbability=20",
             },
             {
               name: "Samuel Fikadesilassie",
               role: "BACKEND",
-              img: "https://api.dicebear.com/7.x/avataaars/svg?seed=SamuelF&top=sides&facialHairProbability=40",
             },
           ].map((t, i) => (
             <div key={i} className="space-y-3 sm:space-y-4">
-              <div className="mx-auto h-32 w-32 sm:h-44 sm:w-44 rounded-full overflow-hidden border-4 sm:border-[6px] border-background shadow-xl">
-                <img
-                  src={t.img}
-                  className="h-full w-full object-cover bg-muted"
-                  alt={t.name}
-                />
+              <div
+                className="mx-auto flex h-32 w-32 sm:h-44 sm:w-44 items-center justify-center rounded-full border-4 border-background bg-primary/15 text-3xl font-bold tracking-tight text-primary shadow-xl sm:border-[6px] sm:text-4xl"
+                aria-hidden
+              >
+                {initialsFromName(t.name)}
               </div>
               <div>
                 <p className="font-bold text-foreground">{t.name}</p>
