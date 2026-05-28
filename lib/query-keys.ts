@@ -24,6 +24,13 @@ export const queryKeys = {
       [...queryKeys.profile.all, "transcript", "latest"] as const,
     experiences: () => [...queryKeys.profile.all, "experiences"] as const,
   },
+  dataHub: {
+    all: ["data-hub"] as const,
+    transcriptList: () =>
+      [...queryKeys.dataHub.all, "transcript", "list"] as const,
+    transcriptConfig: () =>
+      [...queryKeys.dataHub.all, "transcript", "config"] as const,
+  },
   market: {
     all: ["market"] as const,
     trending: (days: number, limit: number) =>

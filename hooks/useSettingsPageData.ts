@@ -1,59 +1,40 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  getCurrentUserProfile,
-  getExperiences,
-  getGithubSyncedData,
-  getLatestTranscript,
-  retryUserEmbedding,
-} from "@/lib/auth-api";
+import { useCallback, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { retryUserEmbedding } from "@/lib/auth-api";
 import {
   buildDataHubSources,
   computeHubCompletionPercent,
   type DataHubSourceStatus,
 } from "@/lib/data-hub-utils";
-import type { AuthUser, Experience } from "@/types/auth";
-import type { GitHubSyncedDataResponse } from "@/types/github";
-import type { TranscriptResponse } from "@/types/transcript";
+import {
+  useExperiencesQuery,
+  useGithubSyncedQuery,
+  useLatestTranscriptQuery,
+  useUserProfileQuery,
+} from "@/hooks/queries/use-profile-queries";
+import { queryKeys } from "@/lib/query-keys";
+import type { AuthUser } from "@/types/auth";
 
 export function useSettingsPageData() {
-  const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<AuthUser | null>(null);
-  const [github, setGithub] = useState<GitHubSyncedDataResponse | null>(null);
-  const [transcript, setTranscript] = useState<TranscriptResponse | null>(null);
-  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const queryClient = useQueryClient();
+  const profileQuery = useUserProfileQuery();
+  const githubQuery = useGithubSyncedQuery();
+  const transcriptQuery = useLatestTranscriptQuery();
+  const experiencesQuery = useExperiencesQuery();
   const [embeddingLoading, setEmbeddingLoading] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [profileRes, githubRes, transcriptRes, expRes] =
-        await Promise.allSettled([
-          getCurrentUserProfile(),
-          getGithubSyncedData(),
-          getLatestTranscript(),
-          getExperiences(),
-        ]);
+  const loading =
+    profileQuery.isPending ||
+    githubQuery.isPending ||
+    transcriptQuery.isPending ||
+    experiencesQuery.isPending;
 
-      setProfile(
-        profileRes.status === "fulfilled" ? profileRes.value : null,
-      );
-      setGithub(githubRes.status === "fulfilled" ? githubRes.value : null);
-      setTranscript(
-        transcriptRes.status === "fulfilled" ? transcriptRes.value : null,
-      );
-      setExperiences(
-        expRes.status === "fulfilled" ? expRes.value : [],
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const profile = profileQuery.data ?? null;
+  const github = githubQuery.data ?? null;
+  const transcript = transcriptQuery.data ?? null;
+  const experiences = experiencesQuery.data ?? [];
 
   const sources: DataHubSourceStatus[] = useMemo(
     () =>
@@ -69,6 +50,22 @@ export function useSettingsPageData() {
   const completionPercent = useMemo(
     () => computeHubCompletionPercent(sources),
     [sources],
+  );
+
+  const reload = useCallback(async () => {
+    await Promise.all([
+      profileQuery.refetch(),
+      githubQuery.refetch(),
+      transcriptQuery.refetch(),
+      experiencesQuery.refetch(),
+    ]);
+  }, [profileQuery, githubQuery, transcriptQuery, experiencesQuery]);
+
+  const setProfile = useCallback(
+    (next: AuthUser | null) => {
+      queryClient.setQueryData(queryKeys.profile.me(), next);
+    },
+    [queryClient],
   );
 
   const retryEmbedding = useCallback(async () => {
@@ -89,7 +86,7 @@ export function useSettingsPageData() {
     experiences,
     sources,
     completionPercent,
-    reload: load,
+    reload,
     setProfile,
     retryEmbedding,
     embeddingLoading,

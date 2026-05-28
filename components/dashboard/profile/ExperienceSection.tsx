@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Briefcase,
   Plus,
@@ -12,10 +13,11 @@ import {
 import {
   createExperience,
   deleteExperience,
-  getExperiences,
   getApiErrorMessage,
   updateExperience,
 } from "@/lib/auth-api";
+import { useExperiencesQuery } from "@/hooks/queries/use-profile-queries";
+import { queryKeys } from "@/lib/query-keys";
 import { Experience, ExperiencePayload } from "@/types/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,15 +25,23 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
+function sortExperiences(experiences: Experience[]): Experience[] {
+  return [...experiences].sort(
+    (a, b) =>
+      new Date(b.start_date).getTime() - new Date(a.start_date).getTime(),
+  );
+}
+
 export default function ExperienceSection() {
-  const [experiences, setExperiences] = useState<Experience[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const experiencesQuery = useExperiencesQuery();
+  const experiences = experiencesQuery.data ?? [];
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Form State
   const [jobTitle, setJobTitle] = useState("");
   const [company, setCompany] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -39,25 +49,12 @@ export default function ExperienceSection() {
   const [description, setDescription] = useState("");
   const [skillsUsed, setSkillsUsed] = useState("");
 
-  const loadExperiences = async () => {
-    try {
-      const data = await getExperiences();
-      // sort by start date descending
-      data.sort(
-        (a, b) =>
-          new Date(b.start_date).getTime() - new Date(a.start_date).getTime(),
-      );
-      setExperiences(data);
-    } catch (error) {
-      toast.error(getApiErrorMessage(error));
-    } finally {
-      setLoading(false);
-    }
+  const setExperiencesCache = (next: Experience[]) => {
+    queryClient.setQueryData(
+      queryKeys.profile.experiences(),
+      sortExperiences(next),
+    );
   };
-
-  useEffect(() => {
-    loadExperiences();
-  }, []);
 
   const resetForm = () => {
     setJobTitle("");
@@ -86,7 +83,7 @@ export default function ExperienceSection() {
     setDeletingId(id);
     try {
       await deleteExperience(id);
-      setExperiences(experiences.filter((exp) => exp.id !== id));
+      setExperiencesCache(experiences.filter((exp) => exp.id !== id));
       toast.success("Experience deleted successfully");
     } catch (error) {
       toast.error(getApiErrorMessage(error));
@@ -120,20 +117,13 @@ export default function ExperienceSection() {
     try {
       if (editingId) {
         const updated = await updateExperience(editingId, payload);
-        setExperiences(
+        setExperiencesCache(
           experiences.map((exp) => (exp.id === editingId ? updated : exp)),
         );
         toast.success("Experience updated successfully");
       } else {
         const created = await createExperience(payload);
-        console.log("sending experience", payload);
-        setExperiences(
-          [...experiences, created].sort(
-            (a, b) =>
-              new Date(b.start_date).getTime() -
-              new Date(a.start_date).getTime(),
-          ),
-        );
+        setExperiencesCache(sortExperiences([...experiences, created]));
         toast.success("Experience added successfully");
       }
       resetForm();
@@ -144,7 +134,7 @@ export default function ExperienceSection() {
     }
   };
 
-  if (loading) {
+  if (experiencesQuery.isPending) {
     return (
       <div className="relative rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
         <div className="mb-6 flex items-center gap-2 text-muted-foreground/50">

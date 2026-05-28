@@ -8,21 +8,18 @@ import DataHubSummary from "@/components/data-hub/DataHubSummary";
 import CvCard from "@/components/data-hub/CvCard";
 import SkillsCard from "@/components/data-hub/SkillsCard";
 import { useDataHub } from "@/hooks/useDataHub";
-import { getGithubSyncedData } from "@/lib/auth-api";
+import { useInvalidateProfileQueries } from "@/hooks/queries/use-profile-queries";
 
 export default function DataHubPage() {
   const hub = useDataHub();
+  const { invalidateGithub, invalidateDataHub } = useInvalidateProfileQueries();
 
   const refreshGithub = async () => {
-    try {
-      const data = await getGithubSyncedData();
-      hub.setGithub(data);
-    } catch {
-      hub.setGithub(null);
-    }
+    await invalidateGithub();
   };
 
   const refreshTranscript = async () => {
+    await invalidateDataHub();
     await hub.reload();
   };
 
