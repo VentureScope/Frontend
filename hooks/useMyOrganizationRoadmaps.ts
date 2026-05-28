@@ -1,68 +1,66 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { getApiErrorMessage } from "@/lib/auth-api";
 import { attachForkMetadata } from "@/lib/organization-roadmap-fork";
 import { parseOrganizationRoadmapList } from "@/lib/organization-roadmap-parsers";
-import {
-  listMyOrganizations,
-  listOrganizationRoadmaps,
-} from "@/lib/organizations-api";
-import { parseOrganizationListItems } from "@/lib/organization-response-parsers";
+import { fetchOrganizationRoadmapsRaw } from "@/lib/queries/organization-roadmaps";
 import { useOrganizationsList } from "@/hooks/useOrganizationsList";
+import { queryKeys } from "@/lib/query-keys";
+import type { OrganizationListItem } from "@/types/organization";
 import type { OrganizationRoadmap } from "@/types/organization-roadmap";
 
+async function fetchAllMyOrgRoadmaps(
+  orgs: OrganizationListItem[],
+  queryClient: QueryClient,
+): Promise<OrganizationRoadmap[]> {
+  const lists = await Promise.all(
+    orgs.map(async (org) => {
+      try {
+        const data = await queryClient.fetchQuery({
+          queryKey: queryKeys.organizations.roadmaps(org.id),
+          queryFn: () => fetchOrganizationRoadmapsRaw(org.id),
+        });
+        return parseOrganizationRoadmapList(data, org.id, []);
+      } catch {
+        return [];
+      }
+    }),
+  );
+
+  return lists.flat();
+}
+
 export function useMyOrganizationRoadmaps() {
+  const queryClient = useQueryClient();
   const { organizations, loading: orgsLoading } = useOrganizationsList();
-  const [apiRoadmaps, setApiRoadmaps] = useState<OrganizationRoadmap[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const reload = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const orgs =
-        organizations.length > 0
-          ? organizations
-          : parseOrganizationListItems(await listMyOrganizations());
+  const orgIdsKey = useMemo(
+    () => organizations.map((o) => o.id).sort().join(","),
+    [organizations],
+  );
 
-      const lists = await Promise.all(
-        orgs.map(async (org) => {
-          try {
-            const data = await listOrganizationRoadmaps(org.id);
-            return parseOrganizationRoadmapList(data, org.id, []);
-          } catch {
-            return [];
-          }
-        }),
-      );
-
-      setApiRoadmaps(lists.flat());
-    } catch (err) {
-      setError(getApiErrorMessage(err));
-      setApiRoadmaps([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [organizations]);
-
-  useEffect(() => {
-    if (!orgsLoading) {
-      void reload();
-    }
-  }, [reload, orgsLoading]);
+  const roadmapsQuery = useQuery({
+    queryKey: queryKeys.organizations.myRoadmaps(orgIdsKey),
+    queryFn: () => fetchAllMyOrgRoadmaps(organizations, queryClient),
+    enabled: !orgsLoading && organizations.length > 0,
+  });
 
   const roadmaps = useMemo(
-    () => apiRoadmaps.map(attachForkMetadata),
-    [apiRoadmaps],
+    () => (roadmapsQuery.data ?? []).map(attachForkMetadata),
+    [roadmapsQuery.data],
   );
 
   return {
     roadmaps,
     organizations,
-    loading: loading || orgsLoading,
-    error,
-    reload,
+    loading:
+      orgsLoading ||
+      (organizations.length > 0 && roadmapsQuery.isPending),
+    error: roadmapsQuery.error
+      ? getApiErrorMessage(roadmapsQuery.error)
+      : null,
+    reload: () => roadmapsQuery.refetch(),
   };
 }

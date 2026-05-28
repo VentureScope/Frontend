@@ -15,6 +15,16 @@ export const queryKeys = {
       [...queryKeys.organizations.all, "members", orgId] as const,
     roadmaps: (orgId: string) =>
       [...queryKeys.organizations.all, "roadmaps", orgId] as const,
+    myRoadmaps: (orgIdsKey: string) =>
+      [...queryKeys.organizations.all, "my-roadmaps", orgIdsKey] as const,
+    myMemberContexts: (orgFilter: string, orgIdsKey: string, userId: string) =>
+      [
+        ...queryKeys.organizations.all,
+        "my-member-contexts",
+        orgFilter,
+        orgIdsKey,
+        userId,
+      ] as const,
   },
   profile: {
     all: ["profile"] as const,

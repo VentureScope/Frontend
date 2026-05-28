@@ -28,15 +28,14 @@ export type FetchOrganizationRoadmapDetailResult = {
 };
 
 /**
- * Resolve a URL segment to the content `roadmap_id`.
- * Accepts legacy assignment ids in bookmarks.
+ * Resolve a URL segment using an already-fetched roadmap list (no HTTP).
  */
-export async function resolveOrgRoadmapContentId(
+export function resolveOrgRoadmapContentIdFromList(
   orgId: string,
   idFromUrl: string,
+  listRaw: unknown,
   members: OrganizationMember[] = [],
-): Promise<string | null> {
-  const listRaw = await listOrganizationRoadmaps(orgId);
+): string | null {
   const items = parseOrganizationRoadmapList(listRaw, orgId, members);
 
   const byRoadmapId = items.find((item) => item.id === idFromUrl);
@@ -49,6 +48,10 @@ export async function resolveOrgRoadmapContentId(
     return byAssignmentId.id;
   }
 
+  if (!Array.isArray(listRaw)) {
+    return null;
+  }
+
   for (const entry of listRaw) {
     const parsed = parseOrgRoadmapListItemApi(entry);
     if (!parsed) continue;
@@ -58,6 +61,24 @@ export async function resolveOrgRoadmapContentId(
   }
 
   return null;
+}
+
+/**
+ * Resolve a URL segment to the content `roadmap_id`.
+ * Accepts legacy assignment ids in bookmarks.
+ */
+export async function resolveOrgRoadmapContentId(
+  orgId: string,
+  idFromUrl: string,
+  members: OrganizationMember[] = [],
+): Promise<string | null> {
+  const listRaw = await listOrganizationRoadmaps(orgId);
+  return resolveOrgRoadmapContentIdFromList(
+    orgId,
+    idFromUrl,
+    listRaw,
+    members,
+  );
 }
 
 /** @deprecated Use {@link resolveOrgRoadmapContentId}. */
@@ -111,13 +132,26 @@ export async function loadOrgRoadmapExpandedContent(
  * - GET /api/roadmaps/{roadmap_id} — steps, resources, your progress
  * - GET /api/organizations/{org_id}/roadmaps/{roadmap_id} — enroll / creator (not shown as team UI)
  */
+export type FetchOrgRoadmapLessonPageOptions = {
+  /** When set, skips listOrganizationRoadmaps (use React Query cache). */
+  roadmapsListRaw?: unknown;
+};
+
 export async function fetchOrgRoadmapLessonPage(
   orgId: string,
   roadmapIdFromUrl: string,
   members: OrganizationMember[],
+  options?: FetchOrgRoadmapLessonPageOptions,
 ): Promise<FetchOrganizationRoadmapDetailResult> {
   const resolvedRoadmapId =
-    (await resolveOrgRoadmapContentId(orgId, roadmapIdFromUrl, members)) ??
+    (options?.roadmapsListRaw != null
+      ? resolveOrgRoadmapContentIdFromList(
+          orgId,
+          roadmapIdFromUrl,
+          options.roadmapsListRaw,
+          members,
+        )
+      : await resolveOrgRoadmapContentId(orgId, roadmapIdFromUrl, members)) ??
     roadmapIdFromUrl;
 
   const [content, orgSummary] = await Promise.all([

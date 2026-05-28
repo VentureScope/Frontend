@@ -1,17 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { getApiErrorMessage } from "@/lib/auth-api";
 import { getCurrentMemberFromList } from "@/lib/organization-member-service";
 import { parseOrganizationMembers } from "@/lib/organization-member-parsers";
 import { toOrganizationProfile } from "@/lib/organization-profile-mapper";
-import { parseOrganizationOutApi } from "@/lib/organization-response-parsers";
-import {
-  getOrganization,
-  listOrganizationMembers,
-} from "@/lib/organizations-api";
 import { ALL_ORGS_FILTER } from "@/components/organization/OrganizationOrgFilter";
 import { useOrganizationsList } from "@/hooks/useOrganizationsList";
+import { queryKeys } from "@/lib/query-keys";
+import {
+  fetchOrganizationDetail,
+  fetchOrganizationMembers,
+} from "@/lib/queries/organizations";
 import { useAppStore } from "@/store/useAppStore";
 import type { OrganizationListItem } from "@/types/organization";
 import type { UserOrganizationContext } from "@/types/organization-profile";
@@ -55,87 +56,100 @@ function memberToContext(
   };
 }
 
+async function fetchMyOrgMemberContexts(
+  targetOrgs: OrganizationListItem[],
+  authUserId: string | null,
+  authUserEmail: string | null,
+  queryClient: QueryClient,
+): Promise<MyOrgMemberContext[]> {
+  const rows = await Promise.all(
+    targetOrgs.map(async (org) => {
+      try {
+        const [detailResult, membersResult] = await Promise.all([
+          queryClient.fetchQuery({
+            queryKey: queryKeys.organizations.detail(org.id),
+            queryFn: () => fetchOrganizationDetail(org.id),
+          }),
+          queryClient.fetchQuery({
+            queryKey: [
+              ...queryKeys.organizations.members(org.id),
+              authUserId ?? "",
+              authUserEmail ?? "",
+            ],
+            queryFn: () =>
+              fetchOrganizationMembers(org.id, authUserId, authUserEmail),
+          }),
+        ]);
+
+        if (detailResult.kind !== "ok") return null;
+
+        const profile = toOrganizationProfile(detailResult.data);
+        const members = membersResult.members;
+        const current = getCurrentMemberFromList(members);
+        if (!current) return null;
+
+        const ctx = memberToContext(
+          org.id,
+          current,
+          profile.techStacks ?? [],
+        );
+        return {
+          org,
+          ctx,
+          techStacks: profile.techStacks ?? [],
+        } satisfies MyOrgMemberContext;
+      } catch {
+        return null;
+      }
+    }),
+  );
+
+  return rows.filter((r): r is MyOrgMemberContext => r !== null);
+}
+
 export function useMyOrganizationMemberContexts(orgFilter: string) {
+  const queryClient = useQueryClient();
   const { organizations, loading: orgsLoading } = useOrganizationsList();
   const authUser = useAppStore((s) => s.authData.user);
   const authUserId = authUser?.id ?? null;
   const authUserEmail = authUser?.email?.toLowerCase() ?? null;
-
-  const [contexts, setContexts] = useState<MyOrgMemberContext[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const targetOrgs = useMemo(() => {
     if (orgFilter === ALL_ORGS_FILTER) return organizations;
     return organizations.filter((o) => o.id === orgFilter);
   }, [organizations, orgFilter]);
 
-  const reload = useCallback(async () => {
-    if (targetOrgs.length === 0) {
-      setContexts([]);
-      setLoading(false);
-      return;
-    }
+  const orgIdsKey = useMemo(
+    () => targetOrgs.map((o) => o.id).sort().join(","),
+    [targetOrgs],
+  );
 
-    setLoading(true);
-    setError(null);
-
-    try {
-      const rows = await Promise.all(
-        targetOrgs.map(async (org) => {
-          try {
-            const [orgOut, membersRaw] = await Promise.all([
-              getOrganization(org.id),
-              listOrganizationMembers(org.id),
-            ]);
-            const parsedOrg = parseOrganizationOutApi(orgOut);
-            const profile = parsedOrg
-              ? toOrganizationProfile(parsedOrg)
-              : null;
-            const members = parseOrganizationMembers(
-              membersRaw,
-              authUserId,
-              authUserEmail,
-            );
-            const current = getCurrentMemberFromList(members);
-            if (!current) return null;
-
-            const ctx = memberToContext(
-              org.id,
-              current,
-              profile?.techStacks ?? [],
-            );
-            return {
-              org,
-              ctx,
-              techStacks: profile?.techStacks ?? [],
-            } satisfies MyOrgMemberContext;
-          } catch {
-            return null;
-          }
-        }),
-      );
-
-      setContexts(rows.filter((r): r is MyOrgMemberContext => r !== null));
-    } catch (err) {
-      setError(getApiErrorMessage(err));
-      setContexts([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [targetOrgs, authUserId, authUserEmail]);
-
-  useEffect(() => {
-    if (!orgsLoading) {
-      void reload();
-    }
-  }, [reload, orgsLoading]);
+  const contextsQuery = useQuery({
+    queryKey: queryKeys.organizations.myMemberContexts(
+      orgFilter,
+      orgIdsKey,
+      authUserId ?? "",
+    ),
+    queryFn: () =>
+      fetchMyOrgMemberContexts(
+        targetOrgs,
+        authUserId,
+        authUserEmail,
+        queryClient,
+      ),
+    enabled: !orgsLoading && targetOrgs.length > 0 && Boolean(authUserId),
+  });
 
   return {
-    contexts,
+    contexts:
+      targetOrgs.length === 0 ? [] : (contextsQuery.data ?? []),
     organizations,
-    loading: loading || orgsLoading,
-    error,
-    reload,
+    loading:
+      orgsLoading ||
+      (targetOrgs.length > 0 && contextsQuery.isPending),
+    error: contextsQuery.error
+      ? getApiErrorMessage(contextsQuery.error)
+      : null,
+    reload: () => contextsQuery.refetch(),
   };
 }
