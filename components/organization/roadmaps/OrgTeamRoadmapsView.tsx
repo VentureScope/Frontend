@@ -18,7 +18,6 @@ import { OrganizationPageHeader } from "@/components/organization/OrganizationPa
 import { OrganizationRoadmapsGridSkeleton } from "@/components/organization/OrganizationSkeletons";
 import { Button } from "@/components/ui/button";
 import { useOrganization } from "@/hooks/useOrganization";
-import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
 import { useOrganizationRoadmaps } from "@/hooks/useOrganizationRoadmaps";
 import {
   buildUserForkMapFromRoadmaps,
@@ -58,9 +57,9 @@ function getIcon(iconName: string) {
 export function OrgTeamRoadmapsView({ orgId }: { orgId: string }) {
   const router = useRouter();
   const { organization, loading: orgLoading } = useOrganization(orgId);
-  const { members } = useOrganizationMembers(orgId);
   const {
     roadmaps,
+    members,
     loading,
     error,
     canCreate,

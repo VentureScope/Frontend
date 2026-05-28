@@ -15,41 +15,52 @@ export function useOrganizationRoadmaps(orgId: string) {
     members,
     myRole,
     loading: membersLoading,
+    reload: reloadMembers,
   } = useOrganizationMembers(orgId);
 
+  const [rawList, setRawList] = useState<unknown>(null);
   const [roadmaps, setRoadmaps] = useState<OrganizationRoadmap[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [listLoading, setListLoading] = useState(Boolean(orgId));
   const [error, setError] = useState<string | null>(null);
   const [loadingDetailId, setLoadingDetailId] = useState<string | null>(null);
 
   const canCreate = canAssignRoadmaps(myRole);
 
-  const reload = useCallback(async () => {
+  const fetchRoadmapList = useCallback(async () => {
     if (!orgId) {
+      setRawList(null);
       setRoadmaps([]);
-      setLoading(false);
+      setListLoading(false);
       return;
     }
 
-    setLoading(true);
+    setListLoading(true);
     setError(null);
 
     try {
       const data = await listOrganizationRoadmaps(orgId);
-      setRoadmaps(parseOrganizationRoadmapList(data, orgId, members));
+      setRawList(data);
     } catch (err) {
       setError(getApiErrorMessage(err));
+      setRawList(null);
       setRoadmaps([]);
     } finally {
-      setLoading(false);
+      setListLoading(false);
     }
-  }, [orgId, members]);
+  }, [orgId]);
 
   useEffect(() => {
-    if (!membersLoading) {
-      void reload();
-    }
-  }, [reload, membersLoading]);
+    void fetchRoadmapList();
+  }, [fetchRoadmapList]);
+
+  useEffect(() => {
+    if (!rawList || !orgId) return;
+    setRoadmaps(parseOrganizationRoadmapList(rawList, orgId, members));
+  }, [rawList, orgId, members]);
+
+  const reload = useCallback(async () => {
+    await Promise.all([fetchRoadmapList(), reloadMembers()]);
+  }, [fetchRoadmapList, reloadMembers]);
 
   const loadRoadmapDetail = useCallback(
     async (roadmapId: string) => {
@@ -75,7 +86,8 @@ export function useOrganizationRoadmaps(orgId: string) {
 
   return {
     roadmaps,
-    loading: loading || membersLoading,
+    members,
+    loading: listLoading || (membersLoading && roadmaps.length === 0 && !error),
     error,
     canCreate,
     myRole,
