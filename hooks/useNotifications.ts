@@ -1,7 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { getApiErrorMessage } from "@/lib/auth-api";
+import {
+  adjustCachedNotificationUnreadCount,
+  setNotificationSummaryCache,
+} from "@/lib/notification-summary-cache";
 import {
   deleteNotification,
   listNotifications,
@@ -14,7 +18,6 @@ const NAV_PAGE_SIZE = 20;
 
 export function useNotifications() {
   const [items, setItems] = useState<NotificationItem[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
@@ -28,19 +31,14 @@ export function useNotifications() {
         per_page: NAV_PAGE_SIZE,
       });
       setItems(res.notifications);
-      setUnreadCount(res.unread_count);
+      setNotificationSummaryCache(res.unread_count);
     } catch (err) {
       setError(getApiErrorMessage(err));
       setItems([]);
-      setUnreadCount(0);
     } finally {
       setLoading(false);
     }
   }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
 
   const markRead = useCallback(async (id: string) => {
     setActionLoading(true);
@@ -49,7 +47,7 @@ export function useNotifications() {
       setItems((prev) =>
         prev.map((n) => (n.id === id ? { ...n, ...updated, is_read: true } : n)),
       );
-      setUnreadCount((c) => Math.max(0, c - 1));
+      adjustCachedNotificationUnreadCount(-1);
     } catch (err) {
       setError(getApiErrorMessage(err));
     } finally {
@@ -62,7 +60,7 @@ export function useNotifications() {
     try {
       await markAllNotificationsRead();
       setItems((prev) => prev.map((n) => ({ ...n, is_read: true })));
-      setUnreadCount(0);
+      setNotificationSummaryCache(0);
     } catch (err) {
       setError(getApiErrorMessage(err));
     } finally {
@@ -77,7 +75,7 @@ export function useNotifications() {
       await deleteNotification(id);
       setItems((prev) => prev.filter((n) => n.id !== id));
       if (target && !target.is_read) {
-        setUnreadCount((c) => Math.max(0, c - 1));
+        adjustCachedNotificationUnreadCount(-1);
       }
     } catch (err) {
       setError(getApiErrorMessage(err));
@@ -88,7 +86,6 @@ export function useNotifications() {
 
   return {
     items,
-    unreadCount,
     loading,
     error,
     actionLoading,

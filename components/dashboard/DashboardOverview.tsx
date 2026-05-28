@@ -61,7 +61,6 @@ export default function DashboardOverview() {
         activeRoadmap={data.activeRoadmap}
         latestResume={data.latestResume}
         profileMatchPercent={data.profileMatchPercent}
-        topJobMatch={data.topJobMatch}
         loading={loading}
       />
 

@@ -10,23 +10,19 @@ import {
 } from "@/lib/readiness-insights";
 import type { UserReadiness } from "@/types/readiness";
 import {
-  jobMatchToPercent,
   mapNotificationToActivity,
   pickActiveRoadmap,
   type DashboardActivityItem,
 } from "@/lib/dashboard-utils";
-import {
-  getInDemandSkills,
-  getJobProfileMatches,
-  getTrendingCareers,
-} from "@/lib/jobs-api";
+import { getInDemandSkills, getTrendingCareers } from "@/lib/jobs-api";
 import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
 import { getMarketPulseFallbackData } from "@/lib/market-pulse-fallback";
+import { setNotificationSummaryCache } from "@/lib/notification-summary-cache";
 import { listNotifications } from "@/lib/notifications-api";
 import { listRoadmaps } from "@/lib/roadmaps-api";
 import { listResumes } from "@/lib/resume-api";
 import type { GeneratedResumeOut } from "@/types/generated-resume";
-import type { InDemandSkill, JobMatch, TrendingCareer } from "@/types/jobs";
+import type { InDemandSkill, TrendingCareer } from "@/types/jobs";
 import type { RoadmapListItem } from "@/types/roadmap";
 
 export type DashboardSuggestedAction = {
@@ -50,7 +46,6 @@ export type DashboardOverviewData = {
   activeRoadmap: RoadmapListItem | null;
   latestResume: GeneratedResumeOut | null;
   profileMatchPercent: number | null;
-  topJobMatch: JobMatch | null;
   trendingCareers: TrendingCareer[];
   inDemandSkills: InDemandSkill[];
   activities: DashboardActivityItem[];
@@ -67,7 +62,6 @@ const EMPTY: DashboardOverviewData = {
   activeRoadmap: null,
   latestResume: null,
   profileMatchPercent: null,
-  topJobMatch: null,
   trendingCareers: [],
   inDemandSkills: [],
   activities: [],
@@ -91,17 +85,8 @@ const EMPTY: DashboardOverviewData = {
 
 function buildInsightHeadline(
   careerInterest: string,
-  topMatch: JobMatch | null,
   readiness: number,
 ): string {
-  if (topMatch) {
-    const pct = jobMatchToPercent(topMatch);
-    const role = topMatch.normalized_title || topMatch.job_title;
-    if (pct != null) {
-      return `Your profile alignment for ${role} roles is ${pct}%. Review gaps in your learning path.`;
-    }
-    return `Strong matches found for ${role} at ${topMatch.company_name}. Keep building toward ${careerInterest}.`;
-  }
   if (readiness > 0) {
     return `Your overall learning readiness is ${readiness}%. Continue your active roadmap to improve market fit.`;
   }
@@ -112,7 +97,6 @@ function buildSuggestedActions(
   roadmaps: RoadmapListItem[],
   hasGithub: boolean,
   hasTranscript: boolean,
-  topMatch: JobMatch | null,
 ): DashboardSuggestedAction[] {
   const actions: DashboardSuggestedAction[] = [];
 
@@ -146,15 +130,6 @@ function buildSuggestedActions(
     });
   }
 
-  if (topMatch && actions.length < 3) {
-    actions.push({
-      id: "explore-matches",
-      title: `Explore ${topMatch.normalized_title || topMatch.job_title} roles`,
-      description: `See market demand and companies hiring for roles like yours at ${topMatch.company_name}.`,
-      href: "/dashboard/market-trends",
-    });
-  }
-
   if (actions.length === 0) {
     actions.push({
       id: "new-roadmap",
@@ -172,22 +147,18 @@ export function useDashboardOverview(careerInterest: string) {
   const { days } = useMarketAnalyticsPeriod();
   const [data, setData] = useState<DashboardOverviewData>(EMPTY);
   const [loading, setLoading] = useState(true);
+  const [marketLoading, setMarketLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
+  const loadCore = useCallback(async () => {
     setLoading(true);
     setError(null);
-
-    const fallback = getMarketPulseFallbackData();
 
     try {
       const [
         roadmapsResult,
         resumesResult,
         notificationsResult,
-        matchesResult,
-        trendingResult,
-        skillsResult,
         githubResult,
         transcriptResult,
         readinessResult,
@@ -195,9 +166,6 @@ export function useDashboardOverview(careerInterest: string) {
         listRoadmaps(),
         listResumes(),
         listNotifications({ per_page: 5, page: 1 }),
-        getJobProfileMatches({ limit: 5 }),
-        getTrendingCareers({ limit: 7, period: days }),
-        getInDemandSkills({ limit: 6, period: days }),
         getGithubSyncedData(),
         getLatestTranscript(),
         getUserReadiness(),
@@ -211,18 +179,6 @@ export function useDashboardOverview(careerInterest: string) {
         notificationsResult.status === "fulfilled"
           ? notificationsResult.value
           : { notifications: [], total_count: 0, unread_count: 0 };
-      const jobMatches =
-        matchesResult.status === "fulfilled" ? matchesResult.value : [];
-      const trendingCareers =
-        trendingResult.status === "fulfilled" && trendingResult.value.length > 0
-          ? trendingResult.value
-          : fallback.trending;
-      const inDemandSkills =
-        skillsResult.status === "fulfilled" && skillsResult.value.length > 0
-          ? skillsResult.value
-          : fallback.skills;
-
-      const topJobMatch = jobMatches[0] ?? null;
       const readiness =
         readinessResult.status === "fulfilled" ? readinessResult.value : null;
       const readinessScore = readiness?.overall_score ?? 0;
@@ -261,13 +217,15 @@ export function useDashboardOverview(careerInterest: string) {
           ? notifications.notifications.map(mapNotificationToActivity)
           : [];
 
+      setNotificationSummaryCache(notifications.unread_count);
+
       const fallbackHeadline = buildInsightHeadline(
         careerInterest,
-        topJobMatch,
         readinessScore,
       );
 
-      setData({
+      setData((prev) => ({
+        ...prev,
         readiness,
         readinessScore,
         insightHeadline: readinessInsightHeadline(
@@ -276,39 +234,82 @@ export function useDashboardOverview(careerInterest: string) {
         ),
         activeRoadmap,
         latestResume,
-        profileMatchPercent: jobMatchToPercent(topJobMatch ?? undefined),
-        topJobMatch,
-        trendingCareers,
-        inDemandSkills,
+        profileMatchPercent: null,
         activities,
         suggestedActions: mergeSuggestedActions(
           suggestedActionsFromReadiness(readiness),
-          buildSuggestedActions(
-            roadmaps,
-            hasGithub,
-            hasTranscript,
-            topJobMatch,
-          ),
+          buildSuggestedActions(roadmaps, hasGithub, hasTranscript),
         ),
         syncItems,
         unreadNotifications: notifications.unread_count,
-      });
+      }));
     } catch {
       setError("Could not load dashboard overview.");
-      setData({
-        ...EMPTY,
-        trendingCareers: fallback.trending,
-        inDemandSkills: fallback.skills,
-        insightHeadline: buildInsightHeadline(careerInterest, null, 0),
-      });
+      setData((prev) => ({
+        ...prev,
+        insightHeadline: buildInsightHeadline(careerInterest, 0),
+      }));
     } finally {
       setLoading(false);
     }
-  }, [careerInterest, days]);
+  }, [careerInterest]);
+
+  const loadMarket = useCallback(async () => {
+    setMarketLoading(true);
+    const fallback = getMarketPulseFallbackData();
+
+    try {
+      const [trendingResult, skillsResult] = await Promise.allSettled([
+        getTrendingCareers({ limit: 7, period: days }),
+        getInDemandSkills({ limit: 6, period: days }),
+      ]);
+
+      const trendingCareers =
+        trendingResult.status === "fulfilled" && trendingResult.value.length > 0
+          ? trendingResult.value
+          : fallback.trending;
+      const inDemandSkills =
+        skillsResult.status === "fulfilled" && skillsResult.value.length > 0
+          ? skillsResult.value
+          : fallback.skills;
+
+      setData((prev) => ({
+        ...prev,
+        trendingCareers,
+        inDemandSkills,
+      }));
+    } catch {
+      setData((prev) => ({
+        ...prev,
+        trendingCareers: fallback.trending,
+        inDemandSkills: fallback.skills,
+      }));
+    } finally {
+      setMarketLoading(false);
+    }
+  }, [days]);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    void loadCore();
+  }, [loadCore]);
+
+  useEffect(() => {
+    void loadMarket();
+  }, [loadMarket]);
+
+  useEffect(() => {
+    setData((prev) => ({
+      ...prev,
+      insightHeadline: readinessInsightHeadline(
+        prev.readiness,
+        buildInsightHeadline(careerInterest, prev.readinessScore),
+      ),
+    }));
+  }, [careerInterest]);
+
+  const reload = useCallback(async () => {
+    await Promise.all([loadCore(), loadMarket()]);
+  }, [loadCore, loadMarket]);
 
   const refreshReadiness = useCallback(async () => {
     try {
@@ -331,5 +332,11 @@ export function useDashboardOverview(careerInterest: string) {
     }
   }, []);
 
-  return { data, loading, error, reload: load, refreshReadiness };
+  return {
+    data,
+    loading: loading || marketLoading,
+    error,
+    reload,
+    refreshReadiness,
+  };
 }

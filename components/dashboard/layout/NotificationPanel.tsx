@@ -8,6 +8,7 @@ import {
   getNotificationHref,
   notificationSourceLabel,
 } from "@/lib/dashboard-utils";
+import { useNotificationUnreadBadge } from "@/hooks/useNotificationUnreadBadge";
 import { useNotifications } from "@/hooks/useNotifications";
 import { cn } from "@/lib/utils";
 import type { NotificationItem } from "@/types/notifications";
@@ -26,9 +27,9 @@ function truncateBody(body: string, max = 96): string {
 export function NotificationPanel({ open, onOpenChange }: NotificationPanelProps) {
   const router = useRouter();
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const unreadCount = useNotificationUnreadBadge();
   const {
     items,
-    unreadCount,
     loading,
     error,
     actionLoading,
