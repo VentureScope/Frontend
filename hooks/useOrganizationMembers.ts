@@ -1,60 +1,30 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getApiErrorMessage } from "@/lib/auth-api";
-import { cacheMemberName } from "@/lib/organization-label-cache";
-import {
-  getCurrentMemberFromList,
-  canInviteMembers,
-} from "@/lib/organization-member-service";
-import { parseOrganizationMembers } from "@/lib/organization-member-parsers";
-import { parseOrganizationRole } from "@/lib/organization-permissions";
-import { listOrganizationMembers } from "@/lib/organizations-api";
+import { getCurrentMemberFromList, canInviteMembers } from "@/lib/organization-member-service";
+import { queryKeys } from "@/lib/query-keys";
+import { fetchOrganizationMembers } from "@/lib/queries/organizations";
 import { useAppStore } from "@/store/useAppStore";
-import type { OrganizationRole } from "@/types/organization";
-import type { OrganizationMember } from "@/types/organization-profile";
 
 export function useOrganizationMembers(orgId: string) {
   const authUser = useAppStore((s) => s.authData.user);
   const authUserId = authUser?.id ?? null;
   const authUserEmail = authUser?.email?.toLowerCase() ?? null;
 
-  const [members, setMembers] = useState<OrganizationMember[]>([]);
-  const [myRole, setMyRole] = useState<OrganizationRole>("member");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const query = useQuery({
+    queryKey: [
+      ...queryKeys.organizations.members(orgId),
+      authUserId ?? "",
+      authUserEmail ?? "",
+    ],
+    queryFn: () =>
+      fetchOrganizationMembers(orgId, authUserId, authUserEmail),
+    enabled: Boolean(orgId),
+  });
 
-  const reload = useCallback(async () => {
-    if (!orgId) {
-      setMembers([]);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const data = await listOrganizationMembers(orgId);
-      const parsed = parseOrganizationMembers(data, authUserId, authUserEmail);
-      for (const m of parsed) {
-        cacheMemberName(orgId, m.id, m.name);
-      }
-      setMembers(parsed);
-      const current = getCurrentMemberFromList(parsed);
-      setMyRole(current?.role ?? parseOrganizationRole("member"));
-    } catch (err: unknown) {
-      setError(getApiErrorMessage(err));
-      setMembers([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [orgId, authUserId, authUserEmail]);
-
-  useEffect(() => {
-    void reload();
-  }, [reload]);
-
+  const members = query.data?.members ?? [];
+  const myRole = query.data?.myRole ?? "member";
   const currentMember = getCurrentMemberFromList(members);
   const canInvite = canInviteMembers(myRole);
 
@@ -64,8 +34,8 @@ export function useOrganizationMembers(orgId: string) {
     currentMember,
     currentUserId: authUserId,
     canInvite,
-    loading,
-    error,
-    reload,
+    loading: query.isPending,
+    error: query.error ? getApiErrorMessage(query.error) : null,
+    reload: () => query.refetch(),
   };
 }

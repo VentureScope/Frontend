@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo } from "react";
+import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { getGithubSyncedData, getLatestTranscript } from "@/lib/auth-api";
 import { getUserReadiness } from "@/lib/readiness-api";
 import {
@@ -16,9 +17,9 @@ import {
 } from "@/lib/dashboard-utils";
 import { getInDemandSkills, getTrendingCareers } from "@/lib/jobs-api";
 import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
+import { useNotificationsListQuery } from "@/hooks/queries/use-notifications-list-query";
 import { getMarketPulseFallbackData } from "@/lib/market-pulse-fallback";
-import { setNotificationSummaryCache } from "@/lib/notification-summary-cache";
-import { listNotifications } from "@/lib/notifications-api";
+import { queryKeys } from "@/lib/query-keys";
 import { listRoadmaps } from "@/lib/roadmaps-api";
 import { listResumes } from "@/lib/resume-api";
 import type { GeneratedResumeOut } from "@/types/generated-resume";
@@ -54,34 +55,7 @@ export type DashboardOverviewData = {
   unreadNotifications: number;
 };
 
-const EMPTY: DashboardOverviewData = {
-  readiness: null,
-  readinessScore: 0,
-  insightHeadline:
-    "Complete your profile and sync data sources to unlock personalized insights.",
-  activeRoadmap: null,
-  latestResume: null,
-  profileMatchPercent: null,
-  trendingCareers: [],
-  inDemandSkills: [],
-  activities: [],
-  suggestedActions: [],
-  syncItems: [
-    {
-      id: "github",
-      label: "GitHub Repos",
-      status: "NOT_CONNECTED",
-      href: "/dashboard/data-hub",
-    },
-    {
-      id: "estudent",
-      label: "eStudent Records",
-      status: "NOT_CONNECTED",
-      href: "/dashboard/data-hub",
-    },
-  ],
-  unreadNotifications: 0,
-};
+const ACTIVITY_NOTIFICATION_LIMIT = 5;
 
 function buildInsightHeadline(
   careerInterest: string,
@@ -145,197 +119,209 @@ function buildSuggestedActions(
 
 export function useDashboardOverview(careerInterest: string) {
   const { days } = useMarketAnalyticsPeriod();
-  const [data, setData] = useState<DashboardOverviewData>(EMPTY);
-  const [loading, setLoading] = useState(true);
-  const [marketLoading, setMarketLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const fallback = getMarketPulseFallbackData();
 
-  const loadCore = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const notificationsQuery = useNotificationsListQuery();
 
-    try {
-      const [
-        roadmapsResult,
-        resumesResult,
-        notificationsResult,
-        githubResult,
-        transcriptResult,
-        readinessResult,
-      ] = await Promise.allSettled([
-        listRoadmaps(),
-        listResumes(),
-        listNotifications({ per_page: 5, page: 1 }),
-        getGithubSyncedData(),
-        getLatestTranscript(),
-        getUserReadiness(),
-      ]);
-
-      const roadmaps =
-        roadmapsResult.status === "fulfilled" ? roadmapsResult.value : [];
-      const resumes =
-        resumesResult.status === "fulfilled" ? resumesResult.value : [];
-      const notifications =
-        notificationsResult.status === "fulfilled"
-          ? notificationsResult.value
-          : { notifications: [], total_count: 0, unread_count: 0 };
-      const readiness =
-        readinessResult.status === "fulfilled" ? readinessResult.value : null;
-      const readinessScore = readiness?.overall_score ?? 0;
-      const activeRoadmap = pickActiveRoadmap(roadmaps);
-      const latestResume =
-        resumes.length > 0
-          ? [...resumes].sort(
-              (a, b) =>
-                new Date(b.created_at).getTime() -
-                new Date(a.created_at).getTime(),
-            )[0]
-          : null;
-
-      const hasGithub =
-        githubResult.status === "fulfilled" &&
-        (githubResult.value.repositories?.length ?? 0) > 0;
-      const hasTranscript = transcriptResult.status === "fulfilled";
-
-      const syncItems: DashboardSyncItem[] = [
+  const [roadmapsQuery, resumesQuery, githubQuery, transcriptQuery, readinessQuery] =
+    useQueries({
+      queries: [
         {
-          id: "github",
-          label: "GitHub Repos",
-          status: hasGithub ? "SYNCED" : "NOT_CONNECTED",
-          href: "/dashboard/data-hub",
+          queryKey: queryKeys.roadmaps.list(),
+          queryFn: listRoadmaps,
         },
         {
-          id: "estudent",
-          label: "eStudent Records",
-          status: hasTranscript ? "SYNCED" : "NOT_CONNECTED",
-          href: "/dashboard/data-hub",
+          queryKey: queryKeys.resumes.list(),
+          queryFn: listResumes,
         },
-      ];
+        {
+          queryKey: queryKeys.profile.github(),
+          queryFn: getGithubSyncedData,
+        },
+        {
+          queryKey: queryKeys.profile.transcriptLatest(),
+          queryFn: getLatestTranscript,
+        },
+        {
+          queryKey: queryKeys.readiness.user(),
+          queryFn: () => getUserReadiness(),
+        },
+      ],
+    });
 
-      const activities =
-        notifications.notifications.length > 0
-          ? notifications.notifications.map(mapNotificationToActivity)
-          : [];
+  const marketQuery = useQueries({
+    queries: [
+      {
+        queryKey: queryKeys.market.trending(days, 7),
+        queryFn: () => getTrendingCareers({ limit: 7, period: days }),
+      },
+      {
+        queryKey: queryKeys.market.inDemandSkills(days, 6),
+        queryFn: () => getInDemandSkills({ limit: 6, period: days }),
+      },
+    ],
+  });
 
-      setNotificationSummaryCache(notifications.unread_count);
+  const [trendingQuery, skillsQuery] = marketQuery;
 
-      const fallbackHeadline = buildInsightHeadline(
-        careerInterest,
-        readinessScore,
-      );
+  const corePending =
+    roadmapsQuery.isPending ||
+    resumesQuery.isPending ||
+    notificationsQuery.isPending ||
+    githubQuery.isPending ||
+    transcriptQuery.isPending ||
+    readinessQuery.isPending;
 
-      setData((prev) => ({
-        ...prev,
-        readiness,
-        readinessScore,
-        insightHeadline: readinessInsightHeadline(
-          readiness,
-          fallbackHeadline,
-        ),
-        activeRoadmap,
-        latestResume,
-        profileMatchPercent: null,
-        activities,
-        suggestedActions: mergeSuggestedActions(
-          suggestedActionsFromReadiness(readiness),
-          buildSuggestedActions(roadmaps, hasGithub, hasTranscript),
-        ),
-        syncItems,
-        unreadNotifications: notifications.unread_count,
-      }));
-    } catch {
-      setError("Could not load dashboard overview.");
-      setData((prev) => ({
-        ...prev,
-        insightHeadline: buildInsightHeadline(careerInterest, 0),
-      }));
-    } finally {
-      setLoading(false);
-    }
-  }, [careerInterest]);
+  const marketPending = trendingQuery.isPending || skillsQuery.isPending;
 
-  const loadMarket = useCallback(async () => {
-    setMarketLoading(true);
-    const fallback = getMarketPulseFallbackData();
+  const coreError =
+    roadmapsQuery.error ||
+    resumesQuery.error ||
+    notificationsQuery.error ||
+    githubQuery.error ||
+    transcriptQuery.error ||
+    readinessQuery.error;
 
-    try {
-      const [trendingResult, skillsResult] = await Promise.allSettled([
-        getTrendingCareers({ limit: 7, period: days }),
-        getInDemandSkills({ limit: 6, period: days }),
-      ]);
+  const data = useMemo((): DashboardOverviewData => {
+    const roadmaps = roadmapsQuery.data ?? [];
+    const resumes = resumesQuery.data ?? [];
+    const notifications = notificationsQuery.data ?? {
+      notifications: [],
+      total_count: 0,
+      unread_count: 0,
+    };
+    const readiness = readinessQuery.data ?? null;
+    const readinessScore = readiness?.overall_score ?? 0;
+    const activeRoadmap = pickActiveRoadmap(roadmaps);
+    const latestResume =
+      resumes.length > 0
+        ? [...resumes].sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime(),
+          )[0]
+        : null;
 
-      const trendingCareers =
-        trendingResult.status === "fulfilled" && trendingResult.value.length > 0
-          ? trendingResult.value
-          : fallback.trending;
-      const inDemandSkills =
-        skillsResult.status === "fulfilled" && skillsResult.value.length > 0
-          ? skillsResult.value
-          : fallback.skills;
+    const hasGithub = (githubQuery.data?.repositories?.length ?? 0) > 0;
+    const hasTranscript = transcriptQuery.isSuccess;
 
-      setData((prev) => ({
-        ...prev,
-        trendingCareers,
-        inDemandSkills,
-      }));
-    } catch {
-      setData((prev) => ({
-        ...prev,
-        trendingCareers: fallback.trending,
-        inDemandSkills: fallback.skills,
-      }));
-    } finally {
-      setMarketLoading(false);
-    }
-  }, [days]);
+    const syncItems: DashboardSyncItem[] = [
+      {
+        id: "github",
+        label: "GitHub Repos",
+        status: hasGithub ? "SYNCED" : "NOT_CONNECTED",
+        href: "/dashboard/data-hub",
+      },
+      {
+        id: "estudent",
+        label: "eStudent Records",
+        status: hasTranscript ? "SYNCED" : "NOT_CONNECTED",
+        href: "/dashboard/data-hub",
+      },
+    ];
 
-  useEffect(() => {
-    void loadCore();
-  }, [loadCore]);
+    const activityItems = notifications.notifications.slice(
+      0,
+      ACTIVITY_NOTIFICATION_LIMIT,
+    );
+    const activities =
+      activityItems.length > 0
+        ? activityItems.map(mapNotificationToActivity)
+        : [];
 
-  useEffect(() => {
-    void loadMarket();
-  }, [loadMarket]);
+    const trendingCareers =
+      trendingQuery.data && trendingQuery.data.length > 0
+        ? trendingQuery.data
+        : fallback.trending;
+    const inDemandSkills =
+      skillsQuery.data && skillsQuery.data.length > 0
+        ? skillsQuery.data
+        : fallback.skills;
 
-  useEffect(() => {
-    setData((prev) => ({
-      ...prev,
+    const fallbackHeadline = buildInsightHeadline(
+      careerInterest,
+      readinessScore,
+    );
+
+    return {
+      readiness,
+      readinessScore,
       insightHeadline: readinessInsightHeadline(
-        prev.readiness,
-        buildInsightHeadline(careerInterest, prev.readinessScore),
+        readiness,
+        fallbackHeadline,
       ),
-    }));
-  }, [careerInterest]);
+      activeRoadmap,
+      latestResume,
+      profileMatchPercent: null,
+      trendingCareers,
+      inDemandSkills,
+      activities,
+      suggestedActions: mergeSuggestedActions(
+        suggestedActionsFromReadiness(readiness),
+        buildSuggestedActions(roadmaps, hasGithub, hasTranscript),
+      ),
+      syncItems,
+      unreadNotifications: notifications.unread_count,
+    };
+  }, [
+    roadmapsQuery.data,
+    resumesQuery.data,
+    notificationsQuery.data,
+    githubQuery.data,
+    githubQuery.isSuccess,
+    transcriptQuery.isSuccess,
+    readinessQuery.data,
+    trendingQuery.data,
+    skillsQuery.data,
+    careerInterest,
+    fallback.trending,
+    fallback.skills,
+  ]);
 
   const reload = useCallback(async () => {
-    await Promise.all([loadCore(), loadMarket()]);
-  }, [loadCore, loadMarket]);
+    await Promise.all([
+      roadmapsQuery.refetch(),
+      resumesQuery.refetch(),
+      notificationsQuery.refetch(),
+      githubQuery.refetch(),
+      transcriptQuery.refetch(),
+      readinessQuery.refetch(),
+      trendingQuery.refetch(),
+      skillsQuery.refetch(),
+    ]);
+  }, [
+    roadmapsQuery,
+    resumesQuery,
+    notificationsQuery,
+    githubQuery,
+    transcriptQuery,
+    readinessQuery,
+    trendingQuery,
+    skillsQuery,
+  ]);
 
   const refreshReadiness = useCallback(async () => {
     try {
       const readiness = await getUserReadiness({ refresh: true });
-      setData((prev) => ({
-        ...prev,
-        readiness,
-        readinessScore: readiness.overall_score,
-        insightHeadline: readinessInsightHeadline(
-          readiness,
-          prev.insightHeadline,
-        ),
-        suggestedActions: mergeSuggestedActions(
-          suggestedActionsFromReadiness(readiness),
-          prev.suggestedActions.filter((a) => !a.id.startsWith("readiness-")),
-        ),
-      }));
+      queryClient.setQueryData(queryKeys.readiness.user(), readiness);
     } catch {
       // Keep existing readiness on refresh failure
     }
-  }, []);
+  }, [queryClient]);
+
+  const hasAnyCoreData =
+    roadmapsQuery.isSuccess ||
+    resumesQuery.isSuccess ||
+    notificationsQuery.isSuccess;
 
   return {
     data,
-    loading: loading || marketLoading,
-    error,
+    loading: corePending || marketPending,
+    error:
+      !hasAnyCoreData && !corePending && coreError
+        ? "Could not load dashboard overview."
+        : null,
     reload,
     refreshReadiness,
   };

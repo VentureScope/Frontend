@@ -67,10 +67,8 @@ export const useAppStore = create<AppState>()(
       clearAuth: () => {
         clearBrowserAuthStorage();
         set({ authData: EMPTY_AUTH_DATA });
-        void import("@/lib/notification-summary-cache").then((m) =>
-          m.clearNotificationSummaryCache(),
-        );
         void import("@/lib/mfa-aal-cache").then((m) => m.clearMfaAalCache());
+        void import("@/lib/query-client").then((m) => m.getQueryClient().clear());
       },
       isLoggingOut: false,
       setLoggingOut: (isLoggingOut) => set({ isLoggingOut }),

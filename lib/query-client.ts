@@ -15,3 +15,16 @@ export function createQueryClient(): QueryClient {
     },
   });
 }
+
+let browserQueryClient: QueryClient | undefined;
+
+/** Browser singleton for cache invalidation on logout (client only). */
+export function getQueryClient(): QueryClient {
+  if (typeof window === "undefined") {
+    return createQueryClient();
+  }
+  if (!browserQueryClient) {
+    browserQueryClient = createQueryClient();
+  }
+  return browserQueryClient;
+}

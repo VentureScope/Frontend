@@ -1,7 +1,7 @@
 "use client";
 
-import { AxiosError } from "axios";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { getApiErrorMessage } from "@/lib/auth-api";
 import { cacheOrganizationName } from "@/lib/organization-label-cache";
 import { canEditOrganizationProfile } from "@/lib/organization-permissions";
@@ -10,9 +10,10 @@ import {
   toOrganizationProfile,
 } from "@/lib/organization-profile-mapper";
 import { parseOrganizationOutApi } from "@/lib/organization-response-parsers";
+import { useOrganizationDetailQuery } from "@/hooks/queries/use-organization-detail-query";
+import { queryKeys } from "@/lib/query-keys";
 import {
   deleteOrganizationLogo,
-  getOrganization,
   updateOrganization,
   uploadOrganizationLogo,
 } from "@/lib/organizations-api";
@@ -24,57 +25,24 @@ export type SaveOrganizationProfileOptions = {
 };
 
 export function useOrganizationProfile(orgId: string) {
-  const [profile, setProfile] = useState<OrganizationProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const query = useOrganizationDetailQuery(orgId);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [notFound, setNotFound] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  const profile = useMemo((): OrganizationProfile | null => {
+    if (!query.data || query.data.kind !== "ok") return null;
+    return toOrganizationProfile(query.data.data);
+  }, [query.data]);
+
+  const notFound =
+    !query.isPending &&
+    !query.isError &&
+    query.data?.kind === "not_found";
 
   const canEdit = profile
     ? canEditOrganizationProfile(profile.myRole ?? "member")
     : false;
-
-  const reload = useCallback(async () => {
-    if (!orgId) {
-      setProfile(null);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    setNotFound(false);
-
-    try {
-      const data = await getOrganization(orgId);
-      const parsed = parseOrganizationOutApi(data);
-      if (!parsed) {
-        setProfile(null);
-        setNotFound(true);
-        return;
-      }
-      const nextProfile = toOrganizationProfile(parsed);
-      cacheOrganizationName(orgId, nextProfile.displayName);
-      setProfile(nextProfile);
-    } catch (err: unknown) {
-      const status =
-        err instanceof AxiosError ? err.response?.status : undefined;
-      if (status === 404) {
-        setNotFound(true);
-        setProfile(null);
-        setError(null);
-      } else {
-        setError(getApiErrorMessage(err));
-        setProfile(null);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [orgId]);
-
-  useEffect(() => {
-    void reload();
-  }, [reload]);
 
   const saveProfile = useCallback(
     async (
@@ -82,7 +50,7 @@ export function useOrganizationProfile(orgId: string) {
       options: SaveOrganizationProfileOptions = {},
     ) => {
       setSaving(true);
-      setError(null);
+      setSaveError(null);
       try {
         if (options.removeLogo) {
           await deleteOrganizationLogo(orgId);
@@ -100,17 +68,20 @@ export function useOrganizationProfile(orgId: string) {
         }
         const saved = toOrganizationProfile(parsed);
         cacheOrganizationName(orgId, saved.displayName);
-        setProfile(saved);
+        queryClient.setQueryData(queryKeys.organizations.detail(orgId), {
+          kind: "ok" as const,
+          data: parsed,
+        });
         return saved;
       } catch (err) {
         const message = getApiErrorMessage(err);
-        setError(message);
+        setSaveError(message);
         throw err;
       } finally {
         setSaving(false);
       }
     },
-    [orgId],
+    [orgId, queryClient],
   );
 
   const displayName =
@@ -121,12 +92,12 @@ export function useOrganizationProfile(orgId: string) {
   return {
     profile,
     displayName,
-    loading,
+    loading: query.isPending,
     saving,
-    error,
+    error: saveError ?? (query.error ? getApiErrorMessage(query.error) : null),
     notFound,
     canEdit,
-    reload,
+    reload: () => query.refetch(),
     saveProfile,
   };
 }

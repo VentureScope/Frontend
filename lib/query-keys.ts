@@ -35,4 +35,16 @@ export const queryKeys = {
     all: ["dashboard"] as const,
     overview: () => [...queryKeys.dashboard.all, "overview"] as const,
   },
+  roadmaps: {
+    all: ["roadmaps"] as const,
+    list: () => [...queryKeys.roadmaps.all, "list"] as const,
+  },
+  resumes: {
+    all: ["resumes"] as const,
+    list: () => [...queryKeys.resumes.all, "list"] as const,
+  },
+  readiness: {
+    all: ["readiness"] as const,
+    user: () => [...queryKeys.readiness.all, "user"] as const,
+  },
 } as const;
