@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { usePathname } from "next/navigation";
 
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Sidebar, {
   SIDEBAR_WIDTH_COLLAPSED,
   SIDEBAR_WIDTH_EXPANDED,
@@ -110,7 +111,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           breadcrumb={getDashboardBreadcrumb(pathname)}
           onMenuClick={() => setIsMobileMenuOpen(true)}
         />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          <ErrorBoundary section="Dashboard">{children}</ErrorBoundary>
+        </main>
       </div>
     </div>
   );

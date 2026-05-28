@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AdminShell } from "@/components/admin/shell/AdminShell";
 import { getCurrentAdminProfile } from "@/lib/admin-auth-api";
 import {
@@ -135,5 +136,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  return <AdminShell>{children}</AdminShell>;
+  return (
+    <AdminShell>
+      <ErrorBoundary section="Admin">{children}</ErrorBoundary>
+    </AdminShell>
+  );
 }

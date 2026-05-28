@@ -1,5 +1,12 @@
-import { AdminSystemConfig } from "@/components/admin/pages/AdminSystemConfig";
+"use client";
 
-export default function Page() {
+import { lazyAdminNamedPage } from "@/lib/lazy-admin-page";
+
+const AdminSystemConfig = lazyAdminNamedPage(
+  () => import("@/components/admin/pages/AdminSystemConfig"),
+  "AdminSystemConfig",
+);
+
+export default function AdminConfigPage() {
   return <AdminSystemConfig />;
 }

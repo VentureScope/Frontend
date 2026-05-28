@@ -1,3 +1,6 @@
+"use client";
+
+import { memo } from "react";
 import { ChevronDown, ChevronUp, Check } from "lucide-react";
 import ResourceItem from "./ResourceItem";
 import { PathCardModulesSkeleton } from "./LearningPathSkeletons";
@@ -18,7 +21,7 @@ function moduleStepClass(status: string): string {
   return "border-2 border-border bg-card text-sm font-semibold text-muted-foreground";
 }
 
-export const PathCard = ({
+const PathCardComponent = ({
   path,
   isExpanded,
   onToggleExpand,
@@ -163,3 +166,5 @@ export const PathCard = ({
     </div>
   );
 };
+
+export const PathCard = memo(PathCardComponent);
