@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getJobStats } from "@/lib/jobs-api";
 import { formatCompactNumber } from "@/lib/job-market-insights";
 import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
+import { logMarketSectionFailure } from "@/lib/log-jobs-api";
 
 export function AboutJobMarketStats() {
   const { days } = useMarketAnalyticsPeriod();
@@ -24,7 +25,8 @@ export function AboutJobMarketStats() {
         if (!cancelled) {
           setStats(s);
         }
-      } catch {
+      } catch (err) {
+        logMarketSectionFailure("AboutJobMarketStats", err);
         if (!cancelled) {
           setStats(null);
         }

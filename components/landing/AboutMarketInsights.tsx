@@ -16,6 +16,7 @@ import { TrendingRolesPanel } from "@/components/landing/market/TrendingRolesPan
 import { MARKET_TOP_K, trendingInsight } from "@/lib/job-market-insights";
 import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
 import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
+import { logMarketSectionFailure } from "@/lib/log-jobs-api";
 
 export function AboutMarketInsights() {
   const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
@@ -38,8 +39,8 @@ export function AboutMarketInsights() {
           setStats(st);
           setTrending(tr);
         }
-      } catch {
-        /* keep section with empty states */
+      } catch (err) {
+        logMarketSectionFailure("AboutMarketInsights", err);
       } finally {
         if (!cancelled) {
           setLoading(false);

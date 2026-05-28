@@ -28,6 +28,7 @@ import { ProfileMatchesPanel } from "@/components/landing/market/ProfileMatchesP
 import { MARKET_TOP_K } from "@/lib/job-market-insights";
 import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
 import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
+import { logMarketSectionFailure } from "@/lib/log-jobs-api";
 
 export default function MarketInsightLive() {
   const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
@@ -95,7 +96,8 @@ export default function MarketInsightLive() {
         } else if (!cancelled) {
           setMatches([]);
         }
-      } catch {
+      } catch (err) {
+        logMarketSectionFailure("MarketInsightLive", err);
         if (!cancelled) {
           setError("Could not load market analytics.");
         }
