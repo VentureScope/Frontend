@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getApiErrorMessage } from "@/lib/auth-api";
+import { patchNotificationCaches } from "@/lib/queries/notification-cache";
 import { queryKeys } from "@/lib/query-keys";
 import { NOTIFICATION_LIST_PAGE_SIZE } from "@/lib/queries/constants";
 import { useNotificationsListQuery } from "@/hooks/queries/use-notifications-list-query";
@@ -13,21 +14,22 @@ import {
 } from "@/lib/notifications-api";
 import type { NotificationListResponse } from "@/types/notifications";
 
-export function useNotifications() {
+type UseNotificationsOptions = {
+  /** Fetch the full list only while the notification panel is open. */
+  enabled: boolean;
+};
+
+export function useNotifications({ enabled }: UseNotificationsOptions) {
   const queryClient = useQueryClient();
-  const listQuery = useNotificationsListQuery();
+  const listQuery = useNotificationsListQuery({ enabled });
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const listKey = queryKeys.notifications.list(NOTIFICATION_LIST_PAGE_SIZE);
-
   const setListData = useCallback(
     (updater: (list: NotificationListResponse) => NotificationListResponse) => {
-      queryClient.setQueryData<NotificationListResponse>(listKey, (prev) =>
-        prev ? updater(prev) : prev,
-      );
+      patchNotificationCaches(queryClient, updater);
     },
-    [queryClient, listKey],
+    [queryClient],
   );
 
   const markRead = useCallback(
@@ -78,6 +80,7 @@ export function useNotifications() {
 
   const remove = useCallback(
     async (id: string) => {
+      const listKey = queryKeys.notifications.list(NOTIFICATION_LIST_PAGE_SIZE);
       const prev = queryClient.getQueryData<NotificationListResponse>(listKey);
       const target = prev?.notifications.find((n) => n.id === id);
       setActionLoading(true);
@@ -99,12 +102,12 @@ export function useNotifications() {
         setActionLoading(false);
       }
     },
-    [queryClient, listKey, setListData],
+    [queryClient, setListData],
   );
 
   return {
     items: listQuery.data?.notifications ?? [],
-    loading: listQuery.isFetching,
+    loading: enabled && listQuery.isFetching,
     error:
       actionError ??
       (listQuery.error ? getApiErrorMessage(listQuery.error) : null),

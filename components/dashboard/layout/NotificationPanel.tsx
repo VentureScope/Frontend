@@ -37,7 +37,7 @@ export function NotificationPanel({ open, onOpenChange }: NotificationPanelProps
     markRead,
     markAllRead,
     remove,
-  } = useNotifications();
+  } = useNotifications({ enabled: open });
 
   useEffect(() => {
     if (!open) return;

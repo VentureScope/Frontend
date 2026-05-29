@@ -34,8 +34,8 @@ This document describes what was implemented in each phase of the VentureScope f
 
 | Before | After |
 |--------|-------|
-| `useNotifications` auto-fetched 20 items on every page | Fetch only when the notification panel **opens** |
-| Dashboard overview also fetched 5 items → **duplicate** | Single shared path in Phase 3; Phase 1 removed mount fetch |
+| `useNotifications` auto-fetched 20 items on every page | Full list (`per_page=20`) only when the notification panel **opens** |
+| Dashboard overview also fetched 5 items → **duplicate** | Home: `per_page=5` activity query; other dashboard routes: `per_page=1` summary for badge only |
 
 **Files:** `hooks/useNotifications.ts`, `components/dashboard/layout/NotificationPanel.tsx`
 
@@ -115,9 +115,9 @@ Not roadmaps, resumes, notifications, GitHub, transcript, or readiness.
 
 | Item | Detail |
 |------|--------|
-| Key | `queryKeys.notifications.list(20)` |
-| Hook | `hooks/queries/use-notifications-list-query.ts` |
-| Consumers | `useNotifications`, `useNotificationUnreadBadge`, `useDashboardOverview` (first 5 for activity) |
+| Key | `list(20)` panel; `activity()` home; `summary()` other dashboard routes |
+| Hooks | `use-notifications-list-query`, `use-notifications-activity-query`, `use-notifications-summary-query` |
+| Consumers | `useNotifications` (panel), `useNotificationUnreadBadge`, `useDashboardOverview` (activity) |
 | Mutations | `useNotifications` updates cache optimistically; `reload` = `refetch` |
 
 **Removed:** `lib/notification-summary-cache.ts` (Phase 1 interim).
@@ -349,7 +349,7 @@ Admin routes load with `next/dynamic`, `ssr: false`.
 
 1. DevTools → Network → filter `api`
 2. Hard refresh `/dashboard`
-3. Expect: **one** `notifications` request (not `per_page=20` on mount + `per_page=5` duplicate)
+3. On `/dashboard/profile`: **no** `per_page=20`; at most `per_page=1` summary. On `/dashboard`: `per_page=5` activity. Opening panel: `per_page=20`
 4. Expect: **no** `jobs/match-profile`
 5. Change market period → only trending + in-demand-skills refetch
 
