@@ -4,7 +4,6 @@ import type {
   InDemandSkill,
   JobByCategoryRow,
   JobForecast,
-  JobMatch,
   JobStats,
   TrendingCareer,
 } from "@/types/jobs";
@@ -131,13 +130,6 @@ export async function getJobsByCategory(params: {
   const res = await api.get<JobByCategoryRow[]>("/api/jobs/by-category", {
     params,
   });
-  return res.data;
-}
-
-export async function getJobProfileMatches(params?: {
-  limit?: number;
-}): Promise<JobMatch[]> {
-  const res = await api.get<JobMatch[]>("/api/jobs/match-profile", { params });
   return res.data;
 }
 
