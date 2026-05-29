@@ -10,47 +10,38 @@ import {
 } from "lucide-react";
 import {
   getApiErrorMessage,
-  getCurrentUserProfile,
   uploadCurrentUserCv,
 } from "@/lib/auth-api";
+import {
+  useInvalidateProfileQueries,
+  useUserProfileQuery,
+} from "@/hooks/queries/use-profile-queries";
 import { useAppStore } from "@/store/useAppStore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
 export default function CVManager() {
-  const authData = useAppStore((state) => state.authData);
   const setAuthData = useAppStore((state) => state.setAuthData);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const profileQuery = useUserProfileQuery();
+  const { invalidateProfile } = useInvalidateProfileQueries();
 
-  const [cvUrl, setCvUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const loadProfile = async () => {
-    const user = await getCurrentUserProfile();
-    const nextCvUrl = typeof user.cv_url === "string" ? user.cv_url : null;
-
-    setCvUrl(nextCvUrl);
-    setAuthData({
-      ...authData,
-      user,
-    });
-  };
+  const cvUrl =
+    typeof profileQuery.data?.cv_url === "string"
+      ? profileQuery.data.cv_url
+      : null;
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        await loadProfile();
-      } catch (error) {
-        toast.error(getApiErrorMessage(error));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void load();
-  }, []);
+    if (!profileQuery.data) return;
+    const session = useAppStore.getState().authData;
+    setAuthData({
+      ...session,
+      user: profileQuery.data,
+    });
+  }, [profileQuery.data, setAuthData]);
 
   const cvFileName = useMemo(() => {
     if (!cvUrl) {
@@ -109,16 +100,14 @@ export default function CVManager() {
     setIsUploading(true);
     try {
       const result = await uploadCurrentUserCv(file);
-      setCvUrl(result.cv_url);
-
-      const refreshedUser = await getCurrentUserProfile().catch(() => null);
-      if (refreshedUser) {
+      await invalidateProfile();
+      const { data: refreshed } = await profileQuery.refetch();
+      if (refreshed) {
         setAuthData({
-          ...authData,
-          user: refreshedUser,
+          ...useAppStore.getState().authData,
+          user: refreshed,
         });
       }
-
       toast.success(result.message || "CV uploaded successfully.");
     } catch (error) {
       toast.error(getApiErrorMessage(error));
@@ -131,7 +120,13 @@ export default function CVManager() {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await loadProfile();
+      const { data } = await profileQuery.refetch();
+      if (data) {
+        setAuthData({
+          ...useAppStore.getState().authData,
+          user: data,
+        });
+      }
       toast.success("CV status refreshed.");
     } catch (error) {
       toast.error(getApiErrorMessage(error));
@@ -140,7 +135,7 @@ export default function CVManager() {
     }
   };
 
-  if (loading) {
+  if (profileQuery.isPending) {
     return (
       <div className="space-y-6 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
         <Skeleton className="h-4 w-40" />

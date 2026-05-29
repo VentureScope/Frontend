@@ -6,7 +6,6 @@ import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   getInDemandSkills,
-  getJobProfileMatches,
   getJobStats,
   getJobsByCategory,
   getTrendingCareers,
@@ -14,12 +13,10 @@ import {
 import type {
   InDemandSkill,
   JobByCategoryRow,
-  JobMatch,
   JobStats,
   TrendingCareer,
 } from "@/types/jobs";
 import { useLandingAuth } from "@/hooks/useLandingAuth";
-import { useAppStore } from "@/store/useAppStore";
 import { SkillDemandPanel } from "@/components/landing/market/SkillDemandPanel";
 import { MarketStatsPanel } from "@/components/landing/market/MarketStatsPanel";
 import { TrendingRolesPanel } from "@/components/landing/market/TrendingRolesPanel";
@@ -28,16 +25,15 @@ import { ProfileMatchesPanel } from "@/components/landing/market/ProfileMatchesP
 import { MARKET_TOP_K } from "@/lib/job-market-insights";
 import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
 import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
+import { logMarketSectionFailure } from "@/lib/log-jobs-api";
 
 export default function MarketInsightLive() {
   const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
   const { isAuthenticated, dashboardHref, registerHref, signInHref } =
     useLandingAuth();
-  const token = useAppStore((s) => s.authData.token);
   const [skills, setSkills] = useState<InDemandSkill[]>([]);
   const [stats, setStats] = useState<JobStats | null>(null);
   const [trending, setTrending] = useState<TrendingCareer[]>([]);
-  const [matches, setMatches] = useState<JobMatch[]>([]);
   const [categoryRows, setCategoryRows] = useState<JobByCategoryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,24 +74,8 @@ export default function MarketInsightLive() {
             }
           }
         }
-
-        if (token) {
-          try {
-            const m = await getJobProfileMatches({
-              limit: MARKET_TOP_K.profileMatches,
-            });
-            if (!cancelled) {
-              setMatches(m);
-            }
-          } catch {
-            if (!cancelled) {
-              setMatches([]);
-            }
-          }
-        } else if (!cancelled) {
-          setMatches([]);
-        }
-      } catch {
+      } catch (err) {
+        logMarketSectionFailure("MarketInsightLive", err);
         if (!cancelled) {
           setError("Could not load market analytics.");
         }
@@ -108,7 +88,7 @@ export default function MarketInsightLive() {
     return () => {
       cancelled = true;
     };
-  }, [token, days]);
+  }, [days]);
 
   return (
     <div className="bg-muted/50 pb-24">
@@ -184,11 +164,7 @@ export default function MarketInsightLive() {
               categoryName={trending[0]?.name ?? null}
               loading={loading}
             />
-            <ProfileMatchesPanel
-              matches={matches}
-              loading={loading}
-              signedIn={Boolean(token)}
-            />
+            <ProfileMatchesPanel signedIn={isAuthenticated} />
           </div>
         </div>
       </section>

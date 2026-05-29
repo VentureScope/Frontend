@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import { ChevronRight, Mail } from "lucide-react";
 import { formatMemberRole } from "@/lib/organization-member-format";
@@ -10,7 +11,7 @@ type OrgMemberCardProps = {
   member: OrganizationMember;
 };
 
-export function OrgMemberCard({ orgId, member }: OrgMemberCardProps) {
+function OrgMemberCardComponent({ orgId, member }: OrgMemberCardProps) {
   return (
     <Link
       href={`/dashboard/organization/${orgId}/members/${member.id}`}
@@ -55,3 +56,5 @@ export function OrgMemberCard({ orgId, member }: OrgMemberCardProps) {
     </Link>
   );
 }
+
+export const OrgMemberCard = memo(OrgMemberCardComponent);

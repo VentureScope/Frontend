@@ -9,12 +9,19 @@ import { ChatSessionList } from "@/components/chat/ChatSessionList";
 import { ChatSessionListSkeleton } from "@/components/chat/ChatSkeletons";
 import { NewChatTitleDialog } from "@/components/chat/NewChatTitleDialog";
 import { ORG_ADVISOR_QUICK_PROMPTS } from "@/lib/org-advisor-mock";
-import { useOrganizationsList } from "@/hooks/useOrganizationsList";
 import { useOrgAdvisorStore } from "@/store/useOrgAdvisorStore";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { OrganizationListItem } from "@/types/organization";
 
-export function OrgAdvisorSidebar() {
-  const { organizations, loading: orgsLoading } = useOrganizationsList();
+type OrgAdvisorSidebarProps = {
+  organizations: OrganizationListItem[];
+  orgsLoading: boolean;
+};
+
+export function OrgAdvisorSidebar({
+  organizations,
+  orgsLoading,
+}: OrgAdvisorSidebarProps) {
   const {
     selectedOrgId,
     setSelectedOrgId,

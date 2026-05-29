@@ -4,6 +4,7 @@ import {
   getClientReturnPath,
   isProtectedMemberPath,
 } from "@/lib/auth-redirect";
+import { logJobsApiError, logJobsApiSuccess } from "@/lib/log-jobs-api";
 import { useAppStore } from "@/store/useAppStore";
 
 /** Server-side and build-time API root. */
@@ -83,9 +84,17 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
+    logJobsApiSuccess(
+      response.config.method,
+      response.config.url,
+      response.status,
+      response.config.params,
+      response.data,
+    );
     return response;
   },
   (error) => {
+    logJobsApiError(error);
     if (error.response) {
       if (error.response.status === 401 && typeof window !== "undefined") {
         const pathname = window.location.pathname;

@@ -1,31 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
-import { ProfileMatchesSkeleton } from "@/components/landing/market/MarketPulseSkeletons";
+import { Briefcase, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLandingAuth } from "@/hooks/useLandingAuth";
-import type { JobMatch } from "@/types/jobs";
-import {
-  MARKET_TOP_K,
-  matchFitLabel,
-  profileMatchesInsight,
-} from "@/lib/job-market-insights";
 
-export function ProfileMatchesPanel({
-  matches,
-  loading,
-  signedIn,
-  limit = MARKET_TOP_K.profileMatches,
-}: {
-  matches: JobMatch[];
-  loading: boolean;
-  signedIn: boolean;
-  limit?: number;
-}) {
-  const { signInHref, profileHref, dataHubHref } = useLandingAuth();
-  const topMatches = matches.slice(0, limit);
-  const insight = profileMatchesInsight(topMatches);
+/** Job match API is disabled (501); no fetch until backend is live. */
+export function ProfileMatchesPanel({ signedIn }: { signedIn: boolean }) {
+  const { signInHref } = useLandingAuth();
 
   if (!signedIn) {
     return (
@@ -50,66 +32,17 @@ export function ProfileMatchesPanel({
       <h3 className="text-sm font-bold text-foreground mb-1">
         Matched to your profile
       </h3>
-      {insight && !loading && (
-        <p className="text-xs text-muted-foreground mb-4 leading-relaxed">{insight}</p>
-      )}
-
-      {loading ? (
-        <ProfileMatchesSkeleton rows={limit} />
-      ) : topMatches.length === 0 ? (
-        <div className="space-y-3">
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Complete your profile and connect GitHub to unlock ranked matches.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Button asChild variant="outline" size="sm" className="rounded-lg">
-              <Link href={profileHref}>Update profile</Link>
-            </Button>
-            <Button asChild variant="outline" size="sm" className="rounded-lg">
-              <Link href={dataHubHref}>Open data hub</Link>
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <ul className="space-y-3">
-          {topMatches.map((m) => {
-            const fit = matchFitLabel(m.distance);
-            return (
-              <li
-                key={m.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl bg-card p-4 border border-border"
-              >
-                <div className="min-w-0">
-                  <p className="font-semibold text-sm text-foreground truncate">
-                    {m.job_title}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {m.company_name}
-                    {m.city ? ` · ${m.city}` : ""}
-                    {m.job_type ? ` · ${m.job_type}` : ""}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <div className="w-16 h-1.5 rounded-full bg-muted overflow-hidden">
-                    <div
-                      className="h-full bg-primary rounded-full"
-                      style={{ width: `${fit.pct}%` }}
-                    />
-                  </div>
-                  <span className="text-[10px] font-bold text-primary w-20 text-right">
-                    {fit.label}
-                  </span>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-      {signedIn && topMatches.length > 0 && !loading && (
-        <Button asChild variant="outline" size="sm" className="mt-4 w-full rounded-lg">
-          <Link href="/dashboard/market-trends">View all matches</Link>
-        </Button>
-      )}
+      <p className="text-xs text-muted-foreground leading-relaxed">
+        Personalized job matches are coming soon. Explore market demand and
+        trending roles in your dashboard in the meantime.
+      </p>
+      <Link
+        href="/dashboard/market-trends"
+        className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-primary"
+      >
+        <Briefcase className="h-3.5 w-3.5" />
+        Explore hiring demand
+      </Link>
     </div>
   );
 }

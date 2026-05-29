@@ -1,98 +1,115 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { getApiErrorMessage } from "@/lib/auth-api";
+import { queryKeys } from "@/lib/query-keys";
+import { NOTIFICATION_LIST_PAGE_SIZE } from "@/lib/queries/constants";
+import { useNotificationsListQuery } from "@/hooks/queries/use-notifications-list-query";
 import {
   deleteNotification,
-  listNotifications,
   markAllNotificationsRead,
   markNotificationRead,
 } from "@/lib/notifications-api";
-import type { NotificationItem } from "@/types/notifications";
-
-const NAV_PAGE_SIZE = 20;
+import type { NotificationListResponse } from "@/types/notifications";
 
 export function useNotifications() {
-  const [items, setItems] = useState<NotificationItem[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const listQuery = useNotificationsListQuery();
   const [actionLoading, setActionLoading] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await listNotifications({
-        page: 1,
-        per_page: NAV_PAGE_SIZE,
-      });
-      setItems(res.notifications);
-      setUnreadCount(res.unread_count);
-    } catch (err) {
-      setError(getApiErrorMessage(err));
-      setItems([]);
-      setUnreadCount(0);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const listKey = queryKeys.notifications.list(NOTIFICATION_LIST_PAGE_SIZE);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  const markRead = useCallback(async (id: string) => {
-    setActionLoading(true);
-    try {
-      const updated = await markNotificationRead(id);
-      setItems((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, ...updated, is_read: true } : n)),
+  const setListData = useCallback(
+    (updater: (list: NotificationListResponse) => NotificationListResponse) => {
+      queryClient.setQueryData<NotificationListResponse>(listKey, (prev) =>
+        prev ? updater(prev) : prev,
       );
-      setUnreadCount((c) => Math.max(0, c - 1));
-    } catch (err) {
-      setError(getApiErrorMessage(err));
-    } finally {
-      setActionLoading(false);
-    }
-  }, []);
+    },
+    [queryClient, listKey],
+  );
+
+  const markRead = useCallback(
+    async (id: string) => {
+      setActionLoading(true);
+      setActionError(null);
+      try {
+        const updated = await markNotificationRead(id);
+        setListData((prev) => {
+          const wasUnread = prev.notifications.find(
+            (n) => n.id === id && !n.is_read,
+          );
+          return {
+            ...prev,
+            notifications: prev.notifications.map((n) =>
+              n.id === id ? { ...n, ...updated, is_read: true } : n,
+            ),
+            unread_count: wasUnread
+              ? Math.max(0, prev.unread_count - 1)
+              : prev.unread_count,
+          };
+        });
+      } catch (err) {
+        setActionError(getApiErrorMessage(err));
+      } finally {
+        setActionLoading(false);
+      }
+    },
+    [setListData],
+  );
 
   const markAllRead = useCallback(async () => {
     setActionLoading(true);
+    setActionError(null);
     try {
       await markAllNotificationsRead();
-      setItems((prev) => prev.map((n) => ({ ...n, is_read: true })));
-      setUnreadCount(0);
+      setListData((prev) => ({
+        ...prev,
+        notifications: prev.notifications.map((n) => ({ ...n, is_read: true })),
+        unread_count: 0,
+      }));
     } catch (err) {
-      setError(getApiErrorMessage(err));
+      setActionError(getApiErrorMessage(err));
     } finally {
       setActionLoading(false);
     }
-  }, []);
+  }, [setListData]);
 
-  const remove = useCallback(async (id: string) => {
-    const target = items.find((n) => n.id === id);
-    setActionLoading(true);
-    try {
-      await deleteNotification(id);
-      setItems((prev) => prev.filter((n) => n.id !== id));
-      if (target && !target.is_read) {
-        setUnreadCount((c) => Math.max(0, c - 1));
+  const remove = useCallback(
+    async (id: string) => {
+      const prev = queryClient.getQueryData<NotificationListResponse>(listKey);
+      const target = prev?.notifications.find((n) => n.id === id);
+      setActionLoading(true);
+      setActionError(null);
+      try {
+        await deleteNotification(id);
+        setListData((list) => ({
+          ...list,
+          notifications: list.notifications.filter((n) => n.id !== id),
+          total_count: Math.max(0, list.total_count - 1),
+          unread_count:
+            target && !target.is_read
+              ? Math.max(0, list.unread_count - 1)
+              : list.unread_count,
+        }));
+      } catch (err) {
+        setActionError(getApiErrorMessage(err));
+      } finally {
+        setActionLoading(false);
       }
-    } catch (err) {
-      setError(getApiErrorMessage(err));
-    } finally {
-      setActionLoading(false);
-    }
-  }, [items]);
+    },
+    [queryClient, listKey, setListData],
+  );
 
   return {
-    items,
-    unreadCount,
-    loading,
-    error,
+    items: listQuery.data?.notifications ?? [],
+    loading: listQuery.isFetching,
+    error:
+      actionError ??
+      (listQuery.error ? getApiErrorMessage(listQuery.error) : null),
     actionLoading,
-    reload: load,
+    reload: () => listQuery.refetch(),
     markRead,
     markAllRead,
     remove,

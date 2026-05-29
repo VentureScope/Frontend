@@ -1,5 +1,12 @@
-import { AdminTranscripts } from "@/components/admin/pages/AdminTranscripts";
+"use client";
 
-export default function Page() {
+import { lazyAdminNamedPage } from "@/lib/lazy-admin-page";
+
+const AdminTranscripts = lazyAdminNamedPage(
+  () => import("@/components/admin/pages/AdminTranscripts"),
+  "AdminTranscripts",
+);
+
+export default function AdminTranscriptsPage() {
   return <AdminTranscripts />;
 }

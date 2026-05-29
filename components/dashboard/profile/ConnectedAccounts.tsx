@@ -1,52 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Share2, Github, GraduationCap } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
-import { getGithubSyncedData, getLatestTranscript } from "@/lib/auth-api";
+import {
+  useGithubSyncedQuery,
+  useLatestTranscriptQuery,
+} from "@/hooks/queries/use-profile-queries";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
 
 export default function ConnectedAccounts() {
   const user = useAppStore((state) => state.authData.user);
+  const githubQuery = useGithubSyncedQuery();
+  const transcriptQuery = useLatestTranscriptQuery();
 
-  const [hasGithub, setHasGithub] = useState(false);
-  const [githubUsername, setGithubUsername] = useState<string | null>(null);
-  const [hasAcademic, setHasAcademic] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const loading = githubQuery.isPending || transcriptQuery.isPending;
+  const githubRes = githubQuery.data;
+  const transcriptRes = transcriptQuery.data;
 
-  // We can check if the user object has github_username, but to be sure we also try to fetch synced data
-  // Also checking for transcripts
-  useEffect(() => {
-    async function checkConnections() {
-      try {
-        const [githubRes, transcriptRes] = await Promise.all([
-          getGithubSyncedData().catch(() => null),
-          getLatestTranscript().catch(() => null),
-        ]);
-
-        if (githubRes?.github_username) {
-          setHasGithub(true);
-          setGithubUsername(githubRes.github_username);
-        } else if (user?.github_username) {
-          setHasGithub(true);
-          setGithubUsername(user.github_username);
-        }
-
-        if ((transcriptRes?.transcript_data?.semesters?.length ?? 0) > 0) {
-          setHasAcademic(true);
-        }
-      } catch (err) {
-        console.error("Failed to check connected accounts", err);
-        toast.error("Failed to sync connected accounts status");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    checkConnections();
-  }, [user]);
+  const hasGithub = Boolean(
+    githubRes?.github_username || user?.github_username,
+  );
+  const githubUsername =
+    githubRes?.github_username ?? user?.github_username ?? null;
+  const hasAcademic =
+    (transcriptRes?.transcript_data?.semesters?.length ?? 0) > 0;
 
   if (loading) {
     return (
@@ -83,7 +61,6 @@ export default function ConnectedAccounts() {
       </div>
 
       <div className="space-y-3">
-        {/* GitHub Integration */}
         <div
           className={
             "flex flex-col gap-2 rounded-xl border p-3 sm:flex-row sm:items-center sm:justify-between " +
@@ -120,7 +97,6 @@ export default function ConnectedAccounts() {
           )}
         </div>
 
-        {/* Academic Portal (eStudent) */}
         <div
           className={
             "flex flex-col gap-2 rounded-xl border p-3 sm:flex-row sm:items-center sm:justify-between " +

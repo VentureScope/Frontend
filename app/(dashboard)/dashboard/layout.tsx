@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 
 import { usePathname } from "next/navigation";
 
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Sidebar, {
   SIDEBAR_WIDTH_COLLAPSED,
   SIDEBAR_WIDTH_EXPANDED,
 } from "@/components/dashboard/layout/Sidebar";
 import TopNav from "@/components/dashboard/layout/TopNav";
 import { useAppStore } from "@/store/useAppStore";
-import { mfaGetAAL } from "@/lib/mfa-api";
+import { getMfaAalCached } from "@/lib/mfa-aal-cache";
 import { getDashboardBreadcrumb } from "@/lib/dashboard-breadcrumb";
 import {
   buildMfaChallengeUrl,
@@ -56,7 +57,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     // Check MFA/AAL requirement
     async function checkMFA() {
       try {
-        const aal = await mfaGetAAL();
+        const aal = await getMfaAalCached();
         // If user has MFA enabled (aal2 next level) but is currently at aal1,
         // redirect to challenge page.
         if (aal.current_level === "aal1" && aal.next_level === "aal2") {
@@ -110,7 +111,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           breadcrumb={getDashboardBreadcrumb(pathname)}
           onMenuClick={() => setIsMobileMenuOpen(true)}
         />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          <ErrorBoundary section="Dashboard">{children}</ErrorBoundary>
+        </main>
       </div>
     </div>
   );

@@ -2,18 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import {
-  getApiErrorMessage,
-  getCurrentUserProfile,
-  getGithubSyncedData,
-  updateCurrentUserSkills,
-} from "@/lib/auth-api";
-import {
-  GitHubRepositorySummary,
-  GitHubSyncedDataResponse,
-} from "@/types/github";
+import { getApiErrorMessage, updateCurrentUserSkills } from "@/lib/auth-api";
+import { GitHubRepositorySummary } from "@/types/github";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAppStore } from "@/store/useAppStore";
+import {
+  useGithubSyncedQuery,
+  useInvalidateProfileQueries,
+  useUserProfileQuery,
+} from "@/hooks/queries/use-profile-queries";
 import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -54,7 +51,6 @@ function deriveGithubLanguages(
     return [];
   }
 
-  // Sort primarily by bytes, then by repo count
   const sortedLangs = Array.from(languageBytes.keys()).sort((a, b) => {
     const bytesDiff = (languageBytes.get(b) ?? 0) - (languageBytes.get(a) ?? 0);
     if (bytesDiff !== 0) return bytesDiff;
@@ -91,50 +87,46 @@ function normalizeUserSkills(value: unknown): string[] {
 }
 
 export default function SkillIntelligence() {
-  const authData = useAppStore((state) => state.authData);
+  const authUser = useAppStore((state) => state.authData.user);
   const setAuthData = useAppStore((state) => state.setAuthData);
+  const githubQuery = useGithubSyncedQuery();
+  const profileQuery = useUserProfileQuery();
+  const { invalidateProfile } = useInvalidateProfileQueries();
 
-  const [githubData, setGithubData] = useState<GitHubSyncedDataResponse | null>(
-    null,
-  );
   const [savedUserSkills, setSavedUserSkills] = useState<string[]>([]);
   const [draftUserSkills, setDraftUserSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
   const [isSavingSkills, setIsSavingSkills] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [skillsInitialized, setSkillsInitialized] = useState(false);
+
+  const loading = githubQuery.isPending || profileQuery.isPending;
+  const githubData = githubQuery.data;
 
   useEffect(() => {
-    const loadSignals = async () => {
-      try {
-        const [github, userProfile] = await Promise.all([
-          getGithubSyncedData().catch(() => null),
-          getCurrentUserProfile().catch(() => null),
-        ]);
+    if (skillsInitialized || loading) return;
 
-        setGithubData(github);
-
-        if (userProfile) {
-          const normalized = normalizeUserSkills(userProfile.skills);
-          setSavedUserSkills(normalized);
-          setDraftUserSkills(normalized);
-          setAuthData({
-            ...authData,
-            user: userProfile,
-          });
-        } else {
-          const fromStore = normalizeUserSkills(authData.user?.skills);
-          setSavedUserSkills(fromStore);
-          setDraftUserSkills(fromStore);
-        }
-      } catch (error) {
-        toast.error(getApiErrorMessage(error));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void loadSignals();
-  }, []);
+    const userProfile = profileQuery.data;
+    if (userProfile) {
+      const normalized = normalizeUserSkills(userProfile.skills);
+      setSavedUserSkills(normalized);
+      setDraftUserSkills(normalized);
+      setAuthData({
+        ...useAppStore.getState().authData,
+        user: userProfile,
+      });
+    } else {
+      const fromStore = normalizeUserSkills(authUser?.skills);
+      setSavedUserSkills(fromStore);
+      setDraftUserSkills(fromStore);
+    }
+    setSkillsInitialized(true);
+  }, [
+    loading,
+    profileQuery.data,
+    authUser?.skills,
+    skillsInitialized,
+    setAuthData,
+  ]);
 
   const githubLanguages = useMemo(
     () => deriveGithubLanguages(githubData?.repositories),
@@ -155,12 +147,13 @@ export default function SkillIntelligence() {
     setIsSavingSkills(true);
     try {
       await updateCurrentUserSkills({ skills: nextSkills });
-      const refreshedProfile = await getCurrentUserProfile().catch(() => null);
+      await invalidateProfile();
+      const { data: refreshedProfile } = await profileQuery.refetch();
 
       if (refreshedProfile) {
         const normalized = normalizeUserSkills(refreshedProfile.skills);
         setAuthData({
-          ...authData,
+          ...useAppStore.getState().authData,
           user: refreshedProfile,
         });
         setSavedUserSkills(normalized);

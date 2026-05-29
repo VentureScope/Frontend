@@ -28,9 +28,8 @@ import type { TrendingCareer } from "@/types/jobs";
 export function CreateOrgRoadmapWizard({ orgId }: { orgId: string }) {
   const router = useRouter();
   const { days } = useMarketAnalyticsPeriod();
-  const { displayName: orgName } = useOrganizationProfile(orgId);
+  const { displayName: orgName, profile } = useOrganizationProfile(orgId);
   const { members } = useOrganizationMembers(orgId);
-  const { profile } = useOrganizationProfile(orgId);
 
   const areas = useMemo(
     () => getOrgRoadmapFocusAreas(orgId, { profile, members }),

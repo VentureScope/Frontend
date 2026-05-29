@@ -11,13 +11,16 @@ import { ChatMessageList } from "@/components/chat/ChatMessageList";
 import { ChatPromptChips } from "@/components/chat/ChatPromptChips";
 import { ORG_ADVISOR_QUICK_PROMPTS } from "@/lib/org-advisor-mock";
 import { deriveChatTitle } from "@/lib/chat-utils";
-import { useOrganizationsList } from "@/hooks/useOrganizationsList";
 import { useOrgAdvisorStore } from "@/store/useOrgAdvisorStore";
 import { useAppStore } from "@/store/useAppStore";
+import type { OrganizationListItem } from "@/types/organization";
 
-export function OrgAdvisorChat() {
+type OrgAdvisorChatProps = {
+  organizations: OrganizationListItem[];
+};
+
+export function OrgAdvisorChat({ organizations }: OrgAdvisorChatProps) {
   const authUser = useAppStore((s) => s.authData.user);
-  const { organizations } = useOrganizationsList();
   const {
     selectedOrgId,
     isTyping,

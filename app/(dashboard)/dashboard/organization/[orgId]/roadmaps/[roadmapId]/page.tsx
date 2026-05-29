@@ -31,6 +31,7 @@ import {
 } from "@/lib/organization-roadmap-utils";
 import { useOrganization } from "@/hooks/useOrganization";
 import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
+import { useOrganizationRoadmapsQuery } from "@/hooks/queries/use-organization-roadmaps-query";
 import { getApiErrorMessage } from "@/lib/auth-api";
 import { useRoadmapResourceToggle } from "@/hooks/useRoadmapResourceToggle";
 import { enrollOrganizationRoadmap } from "@/lib/organizations-api";
@@ -48,7 +49,8 @@ export default function OrganizationRoadmapDetailPage({
   const { orgId, roadmapId } = use(params);
   const router = useRouter();
   const { organization } = useOrganization(orgId);
-  const { members } = useOrganizationMembers(orgId);
+  const { members, loading: membersLoading } = useOrganizationMembers(orgId);
+  const roadmapsListQuery = useOrganizationRoadmapsQuery(orgId);
   const authUser = useAppStore((s) => s.authData.user);
   const userId = resolveCurrentUserId(authUser?.id as string | undefined);
   const userName = authUser?.full_name?.trim() || "You";
@@ -63,6 +65,10 @@ export default function OrganizationRoadmapDetailPage({
   const [enrolling, setEnrolling] = useState(false);
 
   useEffect(() => {
+    if (roadmapsListQuery.isPending || membersLoading) {
+      return;
+    }
+
     let cancelled = false;
     (async () => {
       setLoading(true);
@@ -73,6 +79,9 @@ export default function OrganizationRoadmapDetailPage({
           orgId,
           roadmapId,
           members,
+          {
+            roadmapsListRaw: roadmapsListQuery.data,
+          },
         );
 
         if (cancelled) return;
@@ -104,7 +113,15 @@ export default function OrganizationRoadmapDetailPage({
     return () => {
       cancelled = true;
     };
-  }, [orgId, roadmapId, members, router]);
+  }, [
+    orgId,
+    roadmapId,
+    members,
+    membersLoading,
+    router,
+    roadmapsListQuery.data,
+    roadmapsListQuery.isPending,
+  ]);
 
   const { syncingResourceId, handleToggleResource } =
     useRoadmapResourceToggle(setPath);

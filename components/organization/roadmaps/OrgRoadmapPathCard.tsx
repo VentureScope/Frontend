@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 import {
   ArrowRight,
   ChevronDown,
@@ -87,7 +87,7 @@ function ProgressBlock({
   );
 }
 
-export function OrgRoadmapPathCard({
+function OrgRoadmapPathCardComponent({
   roadmap,
   isExpanded,
   onToggleExpand,
@@ -309,3 +309,5 @@ export function OrgRoadmapPathCard({
     </div>
   );
 }
+
+export const OrgRoadmapPathCard = memo(OrgRoadmapPathCardComponent);

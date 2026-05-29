@@ -17,9 +17,8 @@ import { useAppStore } from "@/store/useAppStore";
 export default function DashboardOverview() {
   const user = useAppStore((state) => state.authData.user);
   const profile = getUserProfileView(user);
-  const { data, loading, refreshReadiness } = useDashboardOverview(
-    profile.careerInterest,
-  );
+  const { data, loading, error, refreshReadiness, reload } =
+    useDashboardOverview(profile.careerInterest);
   const [refreshingReadiness, setRefreshingReadiness] = useState(false);
 
   const handleRefreshReadiness = async () => {
@@ -33,6 +32,22 @@ export default function DashboardOverview() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
+      {error && !loading ? (
+        <div
+          role="alert"
+          className="flex flex-col gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p className="text-sm text-destructive">{error}</p>
+          <button
+            type="button"
+            onClick={() => void reload()}
+            className="shrink-0 text-xs font-semibold text-primary hover:underline"
+          >
+            Retry
+          </button>
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:items-stretch">
         <div className="vs-surface flex h-full min-h-0 flex-col p-6 sm:p-8 lg:col-span-2">
           <WelcomeHeader
@@ -61,7 +76,6 @@ export default function DashboardOverview() {
         activeRoadmap={data.activeRoadmap}
         latestResume={data.latestResume}
         profileMatchPercent={data.profileMatchPercent}
-        topJobMatch={data.topJobMatch}
         loading={loading}
       />
 

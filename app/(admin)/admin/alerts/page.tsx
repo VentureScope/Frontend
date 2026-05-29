@@ -1,4 +1,11 @@
-import { AdminAlerts } from "@/components/admin/pages/AdminAlerts";
+"use client";
+
+import { lazyAdminNamedPage } from "@/lib/lazy-admin-page";
+
+const AdminAlerts = lazyAdminNamedPage(
+  () => import("@/components/admin/pages/AdminAlerts"),
+  "AdminAlerts",
+);
 
 export default function AdminAlertsPage() {
   return <AdminAlerts />;

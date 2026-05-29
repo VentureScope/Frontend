@@ -1,55 +1,41 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getApiErrorMessage } from "@/lib/auth-api";
 import { parseOrganizationRoadmapList } from "@/lib/organization-roadmap-parsers";
 import { loadOrgRoadmapExpandedContent } from "@/lib/organization-roadmap-service";
-import { listOrganizationRoadmaps } from "@/lib/organizations-api";
 import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
+import { useOrganizationRoadmapsQuery } from "@/hooks/queries/use-organization-roadmaps-query";
 import { matchesOrgRoadmapId } from "@/lib/organization-roadmap-utils";
 import { canAssignRoadmaps } from "@/lib/organization-permissions";
 import type { OrganizationRoadmap } from "@/types/organization-roadmap";
 
 export function useOrganizationRoadmaps(orgId: string) {
+  const roadmapsQuery = useOrganizationRoadmapsQuery(orgId);
   const {
     members,
     myRole,
     loading: membersLoading,
+    reload: reloadMembers,
   } = useOrganizationMembers(orgId);
 
+  const parsedRoadmaps = useMemo((): OrganizationRoadmap[] => {
+    if (!roadmapsQuery.data || !orgId) return [];
+    return parseOrganizationRoadmapList(roadmapsQuery.data, orgId, members);
+  }, [roadmapsQuery.data, orgId, members]);
+
   const [roadmaps, setRoadmaps] = useState<OrganizationRoadmap[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [loadingDetailId, setLoadingDetailId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setRoadmaps(parsedRoadmaps);
+  }, [parsedRoadmaps]);
 
   const canCreate = canAssignRoadmaps(myRole);
 
   const reload = useCallback(async () => {
-    if (!orgId) {
-      setRoadmaps([]);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const data = await listOrganizationRoadmaps(orgId);
-      setRoadmaps(parseOrganizationRoadmapList(data, orgId, members));
-    } catch (err) {
-      setError(getApiErrorMessage(err));
-      setRoadmaps([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [orgId, members]);
-
-  useEffect(() => {
-    if (!membersLoading) {
-      void reload();
-    }
-  }, [reload, membersLoading]);
+    await Promise.all([roadmapsQuery.refetch(), reloadMembers()]);
+  }, [roadmapsQuery, reloadMembers]);
 
   const loadRoadmapDetail = useCallback(
     async (roadmapId: string) => {
@@ -73,9 +59,15 @@ export function useOrganizationRoadmaps(orgId: string) {
     [roadmaps],
   );
 
+  const listLoading = roadmapsQuery.isPending;
+  const error = roadmapsQuery.error
+    ? getApiErrorMessage(roadmapsQuery.error)
+    : null;
+
   return {
     roadmaps,
-    loading: loading || membersLoading,
+    members,
+    loading: listLoading || (membersLoading && roadmaps.length === 0 && !error),
     error,
     canCreate,
     myRole,
@@ -83,5 +75,6 @@ export function useOrganizationRoadmaps(orgId: string) {
     loadRoadmapDetail,
     loadingDetailId,
     setRoadmaps,
+    roadmapsListRaw: roadmapsQuery.data,
   };
 }
