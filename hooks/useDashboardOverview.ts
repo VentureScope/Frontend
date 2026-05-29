@@ -17,7 +17,7 @@ import {
 } from "@/lib/dashboard-utils";
 import { getInDemandSkills, getTrendingCareers } from "@/lib/jobs-api";
 import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
-import { useNotificationsListQuery } from "@/hooks/queries/use-notifications-list-query";
+import { useNotificationsActivityQuery } from "@/hooks/queries/use-notifications-activity-query";
 import { getMarketPulseFallbackData } from "@/lib/market-pulse-fallback";
 import { queryKeys } from "@/lib/query-keys";
 import { listRoadmaps } from "@/lib/roadmaps-api";
@@ -122,7 +122,7 @@ export function useDashboardOverview(careerInterest: string) {
   const queryClient = useQueryClient();
   const fallback = getMarketPulseFallbackData();
 
-  const notificationsQuery = useNotificationsListQuery();
+  const notificationsQuery = useNotificationsActivityQuery();
 
   const [roadmapsQuery, resumesQuery, githubQuery, transcriptQuery, readinessQuery] =
     useQueries({

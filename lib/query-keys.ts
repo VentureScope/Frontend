@@ -3,6 +3,8 @@
 export const queryKeys = {
   notifications: {
     all: ["notifications"] as const,
+    summary: () => [...queryKeys.notifications.all, "summary"] as const,
+    activity: () => [...queryKeys.notifications.all, "activity"] as const,
     list: (perPage: number) =>
       [...queryKeys.notifications.all, "list", perPage] as const,
   },
