@@ -39,6 +39,7 @@ export function EmbeddingsMonitor() {
     pages,
     reload,
     deploy,
+    redeploy,
     triggerTraining,
     actionLoading,
     fetchCounts,
@@ -191,6 +192,16 @@ export function EmbeddingsMonitor() {
                           onClick={() => void deploy(row.id)}
                         >
                           {actionLoading === row.id ? "…" : "Deploy"}
+                        </button>
+                      ) : row.status === "superseded" ? (
+                        <button
+                          type="button"
+                          className={adminGhostBtn}
+                          disabled={actionLoading === row.id}
+                          onClick={() => void redeploy(row.id)}
+                          title="Reactivate this superseded run and supersede the current deployed one"
+                        >
+                          {actionLoading === row.id ? "…" : "Redeploy"}
                         </button>
                       ) : (
                         <span className="text-xs text-muted-foreground">—</span>

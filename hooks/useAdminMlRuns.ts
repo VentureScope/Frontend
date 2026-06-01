@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   deployAdminMlRun,
+  redeployAdminMlRun,
   listAdminMlRuns,
   triggerAdminMlTraining,
   type ListMlRunsParams,
@@ -55,6 +56,18 @@ export function useAdminMlRuns(initial: ListMlRunsParams = {}) {
     }
   }, [load]);
 
+  const redeploy = useCallback(async (runId: string) => {
+    setActionLoading(runId);
+    try {
+      await redeployAdminMlRun(runId);
+      await load();
+    } catch (err) {
+      setError(getAdminApiErrorMessage(err));
+    } finally {
+      setActionLoading(null);
+    }
+  }, [load]);
+
   const triggerTraining = useCallback(async () => {
     setActionLoading("trigger");
     try {
@@ -99,6 +112,7 @@ export function useAdminMlRuns(initial: ListMlRunsParams = {}) {
     setPage,
     reload: load,
     deploy,
+    redeploy,
     triggerTraining,
     actionLoading,
     fetchCounts: counts,
