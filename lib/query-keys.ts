@@ -66,6 +66,8 @@ export const queryKeys = {
   resumes: {
     all: ["resumes"] as const,
     list: () => [...queryKeys.resumes.all, "list"] as const,
+    detail: (resumeId: string) =>
+      [...queryKeys.resumes.all, "detail", resumeId] as const,
   },
   readiness: {
     all: ["readiness"] as const,

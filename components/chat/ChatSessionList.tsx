@@ -18,9 +18,10 @@ type ChatSessionListProps = {
   activeId: string | null;
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
-  onNewChat: () => void;
+  onNewChat?: () => void;
   newChatLabel?: string;
   emptyLabel?: string;
+  showNewChatButton?: boolean;
   isCreating?: boolean;
   isBusy?: boolean;
   deletingId?: string | null;
@@ -34,6 +35,7 @@ export function ChatSessionList({
   onNewChat,
   newChatLabel = "New chat",
   emptyLabel = "No conversations yet",
+  showNewChatButton = true,
   isCreating = false,
   isBusy = false,
   deletingId = null,
@@ -42,19 +44,21 @@ export function ChatSessionList({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      {isCreating ? (
-        <ChatNewChatButtonSkeleton />
-      ) : (
-        <button
-          type="button"
-          onClick={onNewChat}
-          disabled={isBusy}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/30 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary/30 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <MessageSquarePlus className="h-4 w-4 text-primary" />
-          {newChatLabel}
-        </button>
-      )}
+      {showNewChatButton ? (
+        isCreating ? (
+          <ChatNewChatButtonSkeleton />
+        ) : (
+          <button
+            type="button"
+            onClick={() => onNewChat?.()}
+            disabled={isBusy}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/30 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary/30 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <MessageSquarePlus className="h-4 w-4 text-primary" />
+            {newChatLabel}
+          </button>
+        )
+      ) : null}
 
       <div className="min-h-0 flex-1 overflow-y-auto scrollbar-none">
         {sessions.length === 0 && !isCreating ? (

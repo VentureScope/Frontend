@@ -1,67 +1,29 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import { Search, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ResumeListSkeleton } from "@/components/resume/ResumeSkeletons";
+import {
+  ResumeCardsSkeleton,
+  ResumePortfolioSummarySkeleton,
+} from "@/components/resume/ResumeSkeletons";
 import { ResumePortfolioSummary } from "@/components/resume/ResumePortfolioSummary";
-import { deleteResume, listResumes } from "@/lib/resume-api";
-import { getApiErrorMessage } from "@/lib/auth-api";
-import { generatedResumeToListingResume } from "@/lib/map-generated-resume-to-ui";
 import { RESUME_COMPLETENESS_LABEL } from "@/lib/resume-utils";
-import type { Resume } from "@/app/(dashboard)/dashboard/resume-builder/mockData";
-import type { GeneratedResumeOut } from "@/types/generated-resume";
-import { toast } from "sonner";
+import { useResumeListingPage } from "@/hooks/useResumeListingPage";
 
 export default function ResumeListingPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [resumes, setResumes] = useState<Resume[]>([]);
-  const [rawResumes, setRawResumes] = useState<GeneratedResumeOut[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const router = useRouter();
-
-  const loadResumes = useCallback(async () => {
-    setLoading(true);
-    try {
-      const list = await listResumes();
-      setRawResumes(list);
-      setResumes(list.map(generatedResumeToListingResume));
-    } catch {
-      toast.error("Could not load resumes.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadResumes();
-  }, [loadResumes]);
-
-  const handleDelete = async (id: string, title: string) => {
-    if (
-      !window.confirm(`Delete “${title}” permanently? This cannot be undone.`)
-    ) {
-      return;
-    }
-    setDeletingId(id);
-    try {
-      await deleteResume(id);
-      toast.success("Resume deleted.");
-      await loadResumes();
-    } catch (err) {
-      toast.error(getApiErrorMessage(err));
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  const filteredResumes = resumes.filter(
-    (resume) =>
-      resume.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      resume.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      resume.content.summary.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const {
+    searchQuery,
+    setSearchQuery,
+    rawResumes,
+    resumes,
+    filteredResumes,
+    deletingId,
+    handleDelete,
+    cardsLoading,
+    portfolioLoading,
+    hasNoResumes,
+  } = useResumeListingPage();
 
   return (
     <div className="min-h-screen bg-background">
@@ -114,12 +76,12 @@ export default function ResumeListingPage() {
             </p>
           ) : null}
 
-          <div className="mt-6 space-y-6">
-            {loading ? (
-              <ResumeListSkeleton />
-            ) : (
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <div className="space-y-6 lg:col-span-2">
+          <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div className="space-y-6 lg:col-span-2">
+              {cardsLoading ? (
+                <ResumeCardsSkeleton />
+              ) : (
+                <>
                   {filteredResumes.map((resume) => (
                     <div
                       key={resume.id}
@@ -209,7 +171,7 @@ export default function ResumeListingPage() {
 
                   {filteredResumes.length === 0 && (
                     <div className="py-12 text-center text-muted-foreground">
-                      {resumes.length === 0 ? (
+                      {hasNoResumes ? (
                         <>
                           No resumes yet.{" "}
                           <button
@@ -229,10 +191,14 @@ export default function ResumeListingPage() {
                       )}
                     </div>
                   )}
-                </div>
+                </>
+              )}
+            </div>
 
-                <ResumePortfolioSummary resumes={rawResumes} />
-              </div>
+            {portfolioLoading ? (
+              <ResumePortfolioSummarySkeleton />
+            ) : (
+              <ResumePortfolioSummary resumes={rawResumes} />
             )}
           </div>
         </div>

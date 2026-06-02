@@ -52,6 +52,22 @@ function MessageBubbleSkeleton({ align }: { align: "user" | "assistant" }) {
   );
 }
 
+/** Suspense / initial load for the main advisor panel. */
+export function ChatWelcomeSkeleton() {
+  return (
+    <div
+      className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-4"
+      aria-busy
+      aria-label="Loading advisor"
+    >
+      <Skeleton className="h-14 w-14 rounded-2xl" />
+      <Skeleton className="h-7 w-56 max-w-full" />
+      <Skeleton className="h-4 w-72 max-w-full" />
+      <Skeleton className="mt-2 h-11 w-44 rounded-xl" />
+    </div>
+  );
+}
+
 /** Main conversation panel while loading or switching chats. */
 export function ChatConversationSkeleton() {
   return (
