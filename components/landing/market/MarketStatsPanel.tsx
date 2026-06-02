@@ -16,11 +16,13 @@ import {
 
 export function MarketStatsPanel({
   stats,
+  allTimeStats,
   loading,
   showCta = true,
   variant = "hero",
 }: {
   stats: JobStats | null;
+  allTimeStats?: JobStats | null;
   loading: boolean;
   showCta?: boolean;
   variant?: "hero" | "inline";
@@ -28,6 +30,10 @@ export function MarketStatsPanel({
   const { isAuthenticated, dashboardHref, registerHref } = useLandingAuth();
   const coverage = stats ? marketCoverageIndex(stats) : null;
   const insight = stats ? statsInsight(stats) : null;
+
+  // Use all-time totals for the overview numbers when available,
+  // fall back to the filtered stats so the card always shows something.
+  const overviewStats = allTimeStats ?? stats;
 
   if (variant === "inline") {
     return (
@@ -77,9 +83,18 @@ export function MarketStatsPanel({
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 min-[400px]:grid-cols-3">
-        <MiniStat label="Roles" value={stats?.total_jobs} />
-        <MiniStat label="Employers" value={stats?.unique_companies} />
-        <MiniStat label="Categories" value={stats?.unique_categories} />
+        <MiniStat
+          label="Roles indexed"
+          value={overviewStats?.total_jobs}
+          subValue={
+            allTimeStats && stats && allTimeStats.total_jobs > stats.total_jobs
+              ? stats.total_jobs
+              : undefined
+          }
+          subLabel="in period"
+        />
+        <MiniStat label="Employers" value={overviewStats?.unique_companies} />
+        <MiniStat label="Categories" value={overviewStats?.unique_categories} />
       </div>
 
       {coverage != null && (
@@ -135,9 +150,13 @@ function StatTile({
 function MiniStat({
   label,
   value,
+  subValue,
+  subLabel,
 }: {
   label: string;
   value: number | undefined;
+  subValue?: number;
+  subLabel?: string;
 }) {
   return (
     <div>
@@ -145,6 +164,14 @@ function MiniStat({
       <p className="mt-0.5 text-xl font-semibold text-foreground sm:text-2xl">
         {value != null ? formatCompactNumber(value) : "—"}
       </p>
+      {subValue != null && subLabel && (
+        <p className="mt-0.5 text-[10px] text-muted-foreground">
+          <span className="font-medium text-foreground/70">
+            {formatCompactNumber(subValue)}
+          </span>{" "}
+          {subLabel}
+        </p>
+      )}
     </div>
   );
 }

@@ -268,55 +268,91 @@ export function TechnicalHealth() {
                     }
                   />
                 </div>
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border">
-                      {["File", "Size", "Modified", ""].map((col) => (
-                        <th key={col || "url"} className={adminTableTh}>
-                          {col}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {files.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={4}
-                          className="px-3 py-6 text-center text-xs text-muted-foreground"
+
+                {/* Group files by YYYY-MM run folder */}
+                {(() => {
+                  const runMap = new Map<string, typeof files>();
+                  for (const f of files) {
+                    // key = first path segment after the prefix, e.g. "2026-05"
+                    const segment = f.name.split("/")[0] ?? f.name;
+                    if (!runMap.has(segment)) runMap.set(segment, []);
+                    runMap.get(segment)!.push(f);
+                  }
+                  const runs = Array.from(runMap.entries());
+
+                  if (runs.length === 0) {
+                    return (
+                      <p className="py-6 text-center text-xs text-muted-foreground">
+                        No files in this bucket.
+                      </p>
+                    );
+                  }
+
+                  return (
+                    <div className="space-y-3">
+                      {runs.map(([runFolder, runFiles]) => (
+                        <div
+                          key={runFolder}
+                          className="overflow-hidden rounded-lg border border-border bg-card"
                         >
-                          No files in this bucket.
-                        </td>
-                      </tr>
-                    ) : (
-                      files.map((file) => (
-                        <tr key={file.name} className={adminTableRow}>
-                          <td className="px-3 py-2 font-mono text-xs text-foreground">
-                            {file.name}
-                          </td>
-                          <td className="px-3 py-2 text-xs text-muted-foreground">
-                            {file.size}
-                          </td>
-                          <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
-                            {file.modified}
-                          </td>
-                          <td className="px-3 py-2">
-                            {file.url ? (
-                              <a
-                                href={file.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-xs text-primary hover:underline"
-                              >
-                                Open ↗
-                              </a>
-                            ) : null}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                          {/* Run folder header */}
+                          <div className="flex items-center justify-between border-b border-border/60 bg-muted/30 px-4 py-2.5">
+                            <span className="font-mono text-xs font-semibold text-foreground">
+                              {runFolder}
+                            </span>
+                            <span className="rounded-full border border-border px-2 py-0.5 text-[10px] text-muted-foreground">
+                              {runFiles.length} file{runFiles.length !== 1 ? "s" : ""}
+                            </span>
+                          </div>
+                          {/* Files inside this run */}
+                          <table className="w-full text-sm">
+                            <tbody>
+                              {runFiles.map((file) => {
+                                // Show just the filename without the run-folder prefix
+                                const displayName = file.name.includes("/")
+                                  ? file.name.split("/").slice(1).join("/")
+                                  : file.name;
+                                return (
+                                  <tr
+                                    key={file.name}
+                                    className="border-b border-border/30 last:border-b-0 hover:bg-muted/20"
+                                  >
+                                    <td className="px-4 py-2.5">
+                                      <span className="flex items-center gap-2">
+                                        <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary/50" />
+                                        <span className="font-mono text-xs text-foreground">
+                                          {displayName}
+                                        </span>
+                                      </span>
+                                    </td>
+                                    <td className="px-4 py-2.5 text-xs text-muted-foreground">
+                                      {file.size}
+                                    </td>
+                                    <td className="px-4 py-2.5 font-mono text-xs text-muted-foreground">
+                                      {file.modified}
+                                    </td>
+                                    <td className="px-4 py-2.5 text-right">
+                                      {file.url ? (
+                                        <a
+                                          href={file.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-xs text-primary hover:underline"
+                                        >
+                                          Open ↗
+                                        </a>
+                                      ) : null}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </>
             )}
           </section>

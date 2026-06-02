@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 
 type JobListingsStatProps = {
   stats: JobStats | null;
+  allTimeStats?: JobStats | null;
   loading?: boolean;
   lookbackPhrase?: string;
   isAllTime?: boolean;
@@ -16,6 +17,7 @@ type JobListingsStatProps = {
 
 export default function JobListingsStat({
   stats,
+  allTimeStats,
   loading,
   lookbackPhrase,
   isAllTime = false,
@@ -31,11 +33,18 @@ export default function JobListingsStat({
       >
         <div className="h-4 w-40 rounded bg-muted" />
         <div className="h-12 w-32 rounded bg-muted" />
+        <div className="mt-4 h-3 w-48 rounded bg-muted" />
       </div>
     );
   }
 
-  const total = stats?.total_jobs ?? 0;
+  const filtered = stats?.total_jobs ?? 0;
+  const allTimeTotal = allTimeStats?.total_jobs;
+  const showAllTimeContext =
+    allTimeStats != null && (allTimeTotal ?? 0) > filtered;
+  const headlineTotal = showAllTimeContext
+    ? (allTimeTotal ?? filtered)
+    : filtered;
   const companies = stats?.unique_companies ?? 0;
   const categories = stats?.unique_categories ?? 0;
   const periodCaption = formatJobStatsPeriodCaption(
@@ -55,14 +64,25 @@ export default function JobListingsStat({
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
           {isAllTime ? "Total jobs in database" : "Indexed job listings"}
         </p>
+
         <h2 className="text-4xl font-semibold tracking-tighter text-foreground sm:text-5xl">
-          {formatCompactNumber(total)}
+          {formatCompactNumber(headlineTotal)}
         </h2>
-        <p className="text-xs text-muted-foreground">{periodCaption}</p>
+
+        {showAllTimeContext ? (
+          <p className="text-xs text-muted-foreground">
+            <span className="font-semibold text-foreground">
+              {formatCompactNumber(filtered)}
+            </span>{" "}
+            in selected period
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground">{periodCaption}</p>
+        )}
       </div>
 
       <div className="mt-6 flex w-fit items-center gap-2 rounded-full border border-success/30 bg-success/15 px-3 py-2 text-[10px] font-bold text-foreground sm:mt-8 sm:px-4 sm:text-[11px]">
-        {total > 0 ? (
+        {headlineTotal > 0 ? (
           <>
             <TrendingUp
               className="h-3 w-3 shrink-0 text-success sm:h-3.5 sm:w-3.5"
@@ -76,7 +96,11 @@ export default function JobListingsStat({
           </>
         ) : (
           <>
-            <TrendingDown className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={3} />
+            <TrendingDown
+              className="h-3 w-3 sm:h-3.5 sm:w-3.5"
+              strokeWidth={3}
+              aria-hidden
+            />
             <span>No jobs in this period</span>
           </>
         )}

@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   deployAdminMlRun,
+  redeployAdminMlRun,
+  deployAdminMlBundle,
   listAdminMlRuns,
   triggerAdminMlTraining,
   type ListMlRunsParams,
@@ -55,6 +57,41 @@ export function useAdminMlRuns(initial: ListMlRunsParams = {}) {
     }
   }, [load]);
 
+  const redeploy = useCallback(async (runId: string) => {
+    setActionLoading(runId);
+    try {
+      await redeployAdminMlRun(runId);
+      await load();
+    } catch (err) {
+      setError(getAdminApiErrorMessage(err));
+    } finally {
+      setActionLoading(null);
+    }
+  }, [load]);
+
+  /**
+   * Deploy an entire bundle (both prophet + lstm from the same training
+   * instance) atomically via the backend bundle endpoint.
+   * `actionKey` is the bundle's base run ID (used for the loading spinner).
+   * `runYearMonth` identifies the training instance to deploy.
+   */
+  const deployBundle = useCallback(
+    async (actionKey: string, runYearMonth: string) => {
+      setActionLoading(actionKey);
+      setError(null);
+      try {
+        await deployAdminMlBundle(runYearMonth);
+        await load();
+      } catch (err) {
+        setError(getAdminApiErrorMessage(err));
+        await load();
+      } finally {
+        setActionLoading(null);
+      }
+    },
+    [load],
+  );
+
   const triggerTraining = useCallback(async () => {
     setActionLoading("trigger");
     try {
@@ -99,6 +136,8 @@ export function useAdminMlRuns(initial: ListMlRunsParams = {}) {
     setPage,
     reload: load,
     deploy,
+    redeploy,
+    deployBundle,
     triggerTraining,
     actionLoading,
     fetchCounts: counts,

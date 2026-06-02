@@ -44,6 +44,24 @@ export async function deployAdminMlRun(runId: string): Promise<string> {
   return typeof data?.message === "string" ? data.message : "Deploy queued";
 }
 
+export async function redeployAdminMlRun(runId: string): Promise<string> {
+  const res = await adminApi.post<unknown>(`/api/admin/ml/redeploy/${runId}`);
+  const data = res.data as Record<string, unknown> | undefined;
+  return typeof data?.message === "string" ? data.message : "Redeploy queued";
+}
+
+/**
+ * Deploy an entire training bundle (both prophet + lstm) from one instance.
+ * The backend deploys both models atomically from the same run_yearmonth.
+ */
+export async function deployAdminMlBundle(runYearMonth: string): Promise<string> {
+  const res = await adminApi.post<unknown>(
+    `/api/admin/ml/deploy-bundle/${encodeURIComponent(runYearMonth)}`,
+  );
+  const data = res.data as Record<string, unknown> | undefined;
+  return typeof data?.message === "string" ? data.message : "Bundle deployed";
+}
+
 export async function triggerAdminMlTraining(): Promise<string> {
   const res = await adminApi.post<unknown>("/api/admin/ml/trigger");
   const data = res.data as Record<string, unknown> | undefined;

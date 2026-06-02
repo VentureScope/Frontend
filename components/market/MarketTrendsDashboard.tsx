@@ -4,12 +4,8 @@ import { formatRelativeTime } from "@/lib/dashboard-utils";
 import { CurrentMarketPanel } from "@/components/market/CurrentMarketPanel";
 import { FutureMarketPanel } from "@/components/market/FutureMarketPanel";
 import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
-import {
-  MARKET_TRENDS_CURRENT_TAB,
-} from "@/lib/market-trends-tabs";
-import {
-  MarketTrendsTabs,
-} from "@/components/market/MarketTrendsTabs";
+import { MARKET_TRENDS_CURRENT_TAB } from "@/lib/market-trends-tabs";
+import { MarketTrendsTabs } from "@/components/market/MarketTrendsTabs";
 import { useMarketTrendsPage } from "@/hooks/useMarketTrendsPage";
 
 export default function MarketTrendsDashboard() {

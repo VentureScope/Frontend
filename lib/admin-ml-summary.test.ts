@@ -14,7 +14,7 @@ describe("buildMlRunDetail", () => {
       record_count: 4200,
       months_covered: 18,
       model_size_bytes: 2_500_000,
-      staging_pkl_key: "staging/models/run-abc.pkl",
+      staging_forecast_key: "models/staging/2026-05/prophet/forecasts.csv",
       created_at: "2026-05-20T10:00:00Z",
     });
 

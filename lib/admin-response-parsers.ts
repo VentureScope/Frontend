@@ -334,12 +334,15 @@ function parseStorageBucket(
   });
 
   const count = asNumber(row.count, files.length);
+  // Use run-folder count (YYYY-MM dirs) when available — 1 production run,
+  // N staging runs — falls back to file count if backend doesn't send `runs`.
+  const runs = asNumber(row.runs ?? row.count, count);
   const totalBytes = asNumber(
     row.total_bytes ?? row.total_size_bytes ?? row.bytes,
     -1,
   );
   const displayLabel =
-    count > 0 || row.count != null ? `${label} (${count})` : label;
+    runs > 0 || row.runs != null ? `${label} (${runs})` : label;
 
   return {
     label: displayLabel,
@@ -452,6 +455,7 @@ export function parseMlRunsList(data: unknown): MlRunListResponse {
       status: asString(row.status, "unknown"),
       created_at: asString(row.created_at ?? row.started_at, ""),
       accuracy: accuracy != null ? asString(accuracy) : null,
+      run_yearmonth: asString(row.run_yearmonth, "") || null,
       metrics_summary: shortSummary,
       detail,
       has_summary,

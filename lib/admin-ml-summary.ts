@@ -134,6 +134,63 @@ export type MlRunParsedDetail = {
   has_summary: boolean;
 };
 
+/**
+ * Try to parse the class_balance column which may contain either:
+ *   - legacy: {"Mobile Developer": 512, ...}  — plain class balance object
+ *   - rich:   {"class_balance": {...}, "cv_mae_by_role": {...}, "cv_rmse_by_role": {...}}
+ */
+function parseClassBalance(raw: unknown): {
+  classBalance: Record<string, number> | null;
+  cvMae: Record<string, number | null> | null;
+  cvRmse: Record<string, number | null> | null;
+} {
+  const obj = asRecord(raw);
+  if (!obj) {
+    // Try to parse from string
+    if (typeof raw === "string") {
+      try {
+        return parseClassBalance(JSON.parse(raw));
+      } catch {
+        return { classBalance: null, cvMae: null, cvRmse: null };
+      }
+    }
+    return { classBalance: null, cvMae: null, cvRmse: null };
+  }
+
+  // Rich format: has cv_mae_by_role key
+  if ("cv_mae_by_role" in obj || "cv_rmse_by_role" in obj) {
+    return {
+      classBalance: asRecord(obj.class_balance) as Record<string, number> | null,
+      cvMae: asRecord(obj.cv_mae_by_role) as Record<string, number | null> | null,
+      cvRmse: asRecord(obj.cv_rmse_by_role) as Record<string, number | null> | null,
+    };
+  }
+
+  // Legacy: plain class balance object
+  return { classBalance: obj as Record<string, number>, cvMae: null, cvRmse: null };
+}
+
+/** Build per-role MAE/RMSE table fields, sorted by MAE descending. */
+function buildPerRoleFields(
+  cvMae: Record<string, number | null>,
+  cvRmse: Record<string, number | null> | null,
+  topN = 8,
+): MlRunDetailField[] {
+  const roles = Object.keys(cvMae)
+    .filter((r) => cvMae[r] != null)
+    .sort((a, b) => (cvMae[b] ?? 0) - (cvMae[a] ?? 0))
+    .slice(0, topN);
+
+  return roles.map((role) => {
+    const mae = cvMae[role];
+    const rmse = cvRmse?.[role];
+    const maeStr = mae != null ? mae.toFixed(2) : "—";
+    const rmseStr = rmse != null ? rmse.toFixed(2) : null;
+    const value = rmseStr ? `MAE ${maeStr}  RMSE ${rmseStr}` : `MAE ${maeStr}`;
+    return { label: role, value };
+  });
+}
+
 /** Build modal sections + short line from VentureScope list item shape. */
 export function buildMlRunDetail(row: Record<string, unknown>): MlRunParsedDetail {
   const textFields = [
@@ -167,8 +224,11 @@ export function buildMlRunDetail(row: Record<string, unknown>): MlRunParsedDetai
       row.evaluation_metrics,
   );
 
+  const { classBalance, cvMae, cvRmse } = parseClassBalance(row.class_balance);
+
   const sections: MlRunDetailSection[] = [];
 
+  // ── Performance ─────────────────────────────────────────────────────────────
   const performance = section("Performance", [
     field("Accuracy", formatPercentMetric("accuracy", row.accuracy)),
     field("F1 score", formatPercentMetric("f1_score", row.f1_score)),
@@ -178,9 +238,24 @@ export function buildMlRunDetail(row: Record<string, unknown>): MlRunParsedDetai
       row.loss != null ? formatPercentMetric("loss", row.loss) : null,
     ),
   ]);
-  if (performance) {
-    sections.push(performance);
+  if (performance) sections.push(performance);
+
+  // ── Per-role forecast error (cv_mae_by_role + cv_rmse_by_role) ───────────────
+  if (cvMae && Object.keys(cvMae).length > 0) {
+    const perRoleFields = buildPerRoleFields(cvMae, cvRmse);
+    if (perRoleFields.length > 0) {
+      const hiddenCount = Object.keys(cvMae).filter((r) => cvMae[r] != null).length - perRoleFields.length;
+      sections.push({
+        title: `Per-role error — top ${perRoleFields.length} by MAE${hiddenCount > 0 ? ` (+ ${hiddenCount} more)` : ""}`,
+        fields: perRoleFields,
+      });
+    }
   }
+
+  // ── Training data ────────────────────────────────────────────────────────────
+  const totalSamples = classBalance
+    ? Object.values(classBalance).reduce((s, v) => s + (typeof v === "number" ? v : 0), 0)
+    : null;
 
   const dataset = section("Training data", [
     field(
@@ -188,34 +263,52 @@ export function buildMlRunDetail(row: Record<string, unknown>): MlRunParsedDetai
       row.record_count != null ? asString(row.record_count) : null,
     ),
     field(
+      "Total samples",
+      totalSamples != null ? totalSamples.toLocaleString() : null,
+    ),
+    field(
       "Months covered",
-      row.months_covered != null ? asString(row.months_covered) : null,
+      row.months_covered != null
+        ? (() => {
+            try {
+              const arr = typeof row.months_covered === "string"
+                ? JSON.parse(row.months_covered)
+                : row.months_covered;
+              if (Array.isArray(arr) && arr.length > 0) {
+                return `${arr[0]} → ${arr[arr.length - 1]} (${arr.length} months)`;
+              }
+            } catch { /* ignore */ }
+            return asString(row.months_covered);
+          })()
+        : null,
     ),
   ]);
-  if (dataset) {
-    sections.push(dataset);
+  if (dataset) sections.push(dataset);
+
+  // ── Class balance (top 5 roles by sample count) ──────────────────────────────
+  if (classBalance && Object.keys(classBalance).length > 0) {
+    const topRoles = Object.entries(classBalance)
+      .sort(([, a], [, b]) => (b as number) - (a as number))
+      .slice(0, 5);
+    const balanceSection: MlRunDetailSection = {
+      title: "Top roles by training samples",
+      fields: topRoles.map(([role, count]) => ({
+        label: role,
+        value: (count as number).toLocaleString(),
+      })),
+    };
+    sections.push(balanceSection);
   }
 
-  const artifact = section("Model artifact", [
-    field("Model size", formatBytes(row.model_size_bytes)),
-    field("Staging PKL key", asString(row.staging_pkl_key) || null),
-  ]);
-  if (artifact) {
-    sections.push(artifact);
-  }
-
+  // ── Deployment ───────────────────────────────────────────────────────────────
   const deployment = section("Deployment", [
     field("Deployed at", formatTimestamp(row.deployed_at)),
     field("Deployed by", asString(row.deployed_by) || null),
-    field(
-      "Notification sent",
-      formatTimestamp(row.notification_sent_at),
-    ),
+    field("Notification sent", formatTimestamp(row.notification_sent_at)),
   ]);
-  if (deployment) {
-    sections.push(deployment);
-  }
+  if (deployment) sections.push(deployment);
 
+  // ── Run info ─────────────────────────────────────────────────────────────────
   const runInfo = section("Run", [
     field("Run ID", asString(row.run_id ?? row.id) || null),
     field("DAG", asString(row.dag_id) || null),
@@ -223,9 +316,7 @@ export function buildMlRunDetail(row: Record<string, unknown>): MlRunParsedDetai
     field("Status", asString(row.status) || null),
     field("Created", formatTimestamp(row.created_at ?? row.started_at)),
   ]);
-  if (runInfo) {
-    sections.push(runInfo);
-  }
+  if (runInfo) sections.push(runInfo);
 
   if (nestedMetrics) {
     const nestedLine = summarizeMetricsObject(nestedMetrics);
@@ -234,13 +325,8 @@ export function buildMlRunDetail(row: Record<string, unknown>): MlRunParsedDetai
         title: "Metrics (raw)",
         fields: nestedLine.split(" · ").map((part) => {
           const idx = part.indexOf(":");
-          if (idx === -1) {
-            return { label: "Metric", value: part };
-          }
-          return {
-            label: part.slice(0, idx).trim(),
-            value: part.slice(idx + 1).trim(),
-          };
+          if (idx === -1) return { label: "Metric", value: part };
+          return { label: part.slice(0, idx).trim(), value: part.slice(idx + 1).trim() };
         }),
       });
     }
@@ -248,16 +334,26 @@ export function buildMlRunDetail(row: Record<string, unknown>): MlRunParsedDetai
 
   const error = asString(row.error_message ?? row.error ?? row.message, "");
   if (error) {
-    sections.push({
-      title: "Error",
-      fields: [{ label: "Message", value: error }],
-    });
+    sections.push({ title: "Error", fields: [{ label: "Message", value: error }] });
   }
 
+  // ── Short summary line ───────────────────────────────────────────────────────
   const metricParts: string[] = [];
   if (performance) {
     for (const f of performance.fields.slice(0, 3)) {
       metricParts.push(`${f.label}: ${f.value}`);
+    }
+  }
+  // Add best/worst role hint if we have per-role MAE
+  if (cvMae) {
+    const roles = Object.entries(cvMae).filter(([, v]) => v != null) as [string, number][];
+    if (roles.length > 0) {
+      roles.sort(([, a], [, b]) => a - b);
+      const best = roles[0];
+      const worst = roles[roles.length - 1];
+      if (best && worst && best[0] !== worst[0]) {
+        metricParts.push(`Best: ${best[0]} (MAE ${best[1].toFixed(2)})`);
+      }
     }
   }
 
@@ -272,11 +368,7 @@ export function buildMlRunDetail(row: Record<string, unknown>): MlRunParsedDetai
     (s) => s.title !== "Run" && s.fields.length > 0,
   );
 
-  return {
-    shortSummary: shortFromMetrics,
-    detail: sections,
-    has_summary,
-  };
+  return { shortSummary: shortFromMetrics, detail: sections, has_summary };
 }
 
 /** @deprecated Use buildMlRunDetail().shortSummary */
