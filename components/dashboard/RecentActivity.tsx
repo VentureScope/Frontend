@@ -18,13 +18,13 @@ export default function RecentActivity({
 
   return (
     <div className="vs-surface h-full min-h-0 p-6 sm:p-8 lg:p-10">
-      <div className="mb-6 flex items-center justify-between sm:mb-8">
+      <div className="mb-6 flex flex-col gap-2 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
           Recent activity
         </h2>
         <Link
           href="/dashboard/profile"
-          className="text-btn font-medium text-primary transition-colors hover:text-primary/80"
+          className="text-btn shrink-0 font-medium text-primary transition-colors hover:text-primary/80"
         >
           {unreadCount > 0 ? `${unreadCount} unread · ` : ""}
           View profile

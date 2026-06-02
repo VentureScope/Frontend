@@ -51,8 +51,8 @@ export default function DashboardOverview() {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:items-stretch">
-        <div className="vs-surface flex h-full min-h-0 flex-col p-6 sm:p-8 lg:col-span-2">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 lg:items-stretch">
+        <div className="vs-surface flex h-full min-h-0 flex-col p-6 sm:p-8 md:col-span-1 lg:col-span-2">
           <WelcomeHeader
             readinessScore={data.readinessScore}
             readinessLevel={data.readiness?.level}
@@ -63,7 +63,7 @@ export default function DashboardOverview() {
           headline={data.insightHeadline}
           loading={sectionLoading.readiness}
           readiness={data.readiness}
-          className="min-h-[220px] lg:min-h-0"
+          className="min-h-[220px] md:min-h-0 lg:min-h-0"
         />
       </div>
 
@@ -93,12 +93,12 @@ export default function DashboardOverview() {
             compact
           />
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:items-stretch">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 lg:items-stretch">
           <DataSyncCard
             items={data.syncItems}
             loading={sectionLoading.sync}
           />
-          <div className="lg:col-span-2">
+          <div className="md:col-span-1 lg:col-span-2">
             <MarketTrendsCard
               trending={data.trendingCareers}
               skills={data.inDemandSkills}
@@ -108,8 +108,8 @@ export default function DashboardOverview() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:items-stretch">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 lg:items-stretch">
+        <div className="md:col-span-1 lg:col-span-2">
           <RecentActivity
             activities={data.activities}
             unreadCount={data.unreadNotifications}
