@@ -55,6 +55,17 @@ export type DashboardOverviewData = {
   unreadNotifications: number;
 };
 
+/** Per-section loading — each card skeletons independently. */
+export type DashboardOverviewLoading = {
+  readiness: boolean;
+  roadmaps: boolean;
+  resumes: boolean;
+  sync: boolean;
+  market: boolean;
+  notifications: boolean;
+  suggestedActions: boolean;
+};
+
 const ACTIVITY_NOTIFICATION_LIMIT = 5;
 
 function buildInsightHeadline(
@@ -165,15 +176,19 @@ export function useDashboardOverview(careerInterest: string) {
 
   const [trendingQuery, skillsQuery] = marketQuery;
 
-  const corePending =
-    roadmapsQuery.isPending ||
-    resumesQuery.isPending ||
-    notificationsQuery.isPending ||
-    githubQuery.isPending ||
-    transcriptQuery.isPending ||
-    readinessQuery.isPending;
-
-  const marketPending = trendingQuery.isPending || skillsQuery.isPending;
+  const sectionLoading: DashboardOverviewLoading = {
+    readiness: readinessQuery.isPending,
+    roadmaps: roadmapsQuery.isPending,
+    resumes: resumesQuery.isPending,
+    sync: githubQuery.isPending || transcriptQuery.isPending,
+    market: trendingQuery.isPending || skillsQuery.isPending,
+    notifications: notificationsQuery.isPending,
+    suggestedActions:
+      roadmapsQuery.isPending ||
+      githubQuery.isPending ||
+      transcriptQuery.isPending ||
+      readinessQuery.isPending,
+  };
 
   const coreError =
     roadmapsQuery.error ||
@@ -315,9 +330,16 @@ export function useDashboardOverview(careerInterest: string) {
     resumesQuery.isSuccess ||
     notificationsQuery.isSuccess;
 
+  const corePending =
+    sectionLoading.readiness ||
+    sectionLoading.roadmaps ||
+    sectionLoading.resumes ||
+    sectionLoading.sync ||
+    sectionLoading.notifications;
+
   return {
     data,
-    loading: corePending || marketPending,
+    loading: sectionLoading,
     error:
       !hasAnyCoreData && !corePending && coreError
         ? "Could not load dashboard overview."

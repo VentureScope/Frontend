@@ -33,7 +33,7 @@ export function InsightCardSkeleton({ className }: { className?: string }) {
   );
 }
 
-function ModuleCardSkeleton() {
+export function ModuleCardSkeleton() {
   return (
     <div className="vs-surface p-6 sm:p-8">
       <div className="mb-6 flex items-center justify-between sm:mb-8">
@@ -45,6 +45,25 @@ function ModuleCardSkeleton() {
         {sk("h-4 w-1/2")}
       </div>
       {sk("h-2 w-full rounded-full")}
+    </div>
+  );
+}
+
+export function ModuleResumeCardSkeleton() {
+  return (
+    <div className="vs-surface flex flex-col p-6 sm:p-8">
+      <div className="mb-6 flex items-center justify-between sm:mb-8">
+        {sk("h-11 w-11 rounded-lg")}
+        <div className="space-y-1 text-right">
+          {sk("ml-auto h-3 w-20")}
+          {sk("ml-auto h-7 w-14")}
+        </div>
+      </div>
+      {sk("mb-6 h-6 w-40 sm:mb-8")}
+      <div className="mt-auto space-y-2">
+        {sk("h-11 w-full rounded-md")}
+        {sk("h-11 w-full rounded-md")}
+      </div>
     </div>
   );
 }
@@ -62,20 +81,7 @@ export function ModuleGridSkeleton() {
         {sk("h-12 w-full rounded-md")}
         {sk("mt-3 h-4 w-32")}
       </div>
-      <div className="vs-surface flex flex-col p-6 sm:p-8">
-        <div className="mb-6 flex items-center justify-between sm:mb-8">
-          {sk("h-11 w-11 rounded-lg")}
-          <div className="space-y-1 text-right">
-            {sk("ml-auto h-3 w-20")}
-            {sk("ml-auto h-7 w-14")}
-          </div>
-        </div>
-        {sk("mb-6 h-6 w-40 sm:mb-8")}
-        <div className="mt-auto space-y-2">
-          {sk("h-11 w-full rounded-md")}
-          {sk("h-11 w-full rounded-md")}
-        </div>
-      </div>
+      <ModuleResumeCardSkeleton />
     </div>
   );
 }

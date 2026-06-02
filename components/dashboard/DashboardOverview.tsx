@@ -17,7 +17,7 @@ import { useAppStore } from "@/store/useAppStore";
 export default function DashboardOverview() {
   const user = useAppStore((state) => state.authData.user);
   const profile = getUserProfileView(user);
-  const { data, loading, error, refreshReadiness, reload } =
+  const { data, loading: sectionLoading, error, refreshReadiness, reload } =
     useDashboardOverview(profile.careerInterest);
   const [refreshingReadiness, setRefreshingReadiness] = useState(false);
 
@@ -32,7 +32,10 @@ export default function DashboardOverview() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
-      {error && !loading ? (
+      {error &&
+      !sectionLoading.readiness &&
+      !sectionLoading.roadmaps &&
+      !sectionLoading.resumes ? (
         <div
           role="alert"
           className="flex flex-col gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
@@ -53,12 +56,12 @@ export default function DashboardOverview() {
           <WelcomeHeader
             readinessScore={data.readinessScore}
             readinessLevel={data.readiness?.level}
-            loading={loading}
+            loading={sectionLoading.readiness}
           />
         </div>
         <InsightCard
           headline={data.insightHeadline}
-          loading={loading}
+          loading={sectionLoading.readiness}
           readiness={data.readiness}
           className="min-h-[220px] lg:min-h-0"
         />
@@ -66,7 +69,7 @@ export default function DashboardOverview() {
 
       <CareerReadinessPanel
         readiness={data.readiness}
-        loading={loading}
+        loading={sectionLoading.readiness}
         refreshing={refreshingReadiness}
         onRefresh={() => void handleRefreshReadiness()}
         variant="compact"
@@ -76,7 +79,8 @@ export default function DashboardOverview() {
         activeRoadmap={data.activeRoadmap}
         latestResume={data.latestResume}
         profileMatchPercent={data.profileMatchPercent}
-        loading={loading}
+        roadmapsLoading={sectionLoading.roadmaps}
+        resumesLoading={sectionLoading.resumes}
       />
 
       <div className="space-y-3">
@@ -84,15 +88,21 @@ export default function DashboardOverview() {
           <p className="text-sm font-medium text-muted-foreground">
             Market analytics
           </p>
-          <MarketAnalyticsPeriodSelect disabled={loading} compact />
+          <MarketAnalyticsPeriodSelect
+            disabled={sectionLoading.market}
+            compact
+          />
         </div>
         <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:items-stretch">
-          <DataSyncCard items={data.syncItems} loading={loading} />
+          <DataSyncCard
+            items={data.syncItems}
+            loading={sectionLoading.sync}
+          />
           <div className="lg:col-span-2">
             <MarketTrendsCard
               trending={data.trendingCareers}
               skills={data.inDemandSkills}
-              loading={loading}
+              loading={sectionLoading.market}
             />
           </div>
         </div>
@@ -103,10 +113,13 @@ export default function DashboardOverview() {
           <RecentActivity
             activities={data.activities}
             unreadCount={data.unreadNotifications}
-            loading={loading}
+            loading={sectionLoading.notifications}
           />
         </div>
-        <SuggestedActions actions={data.suggestedActions} loading={loading} />
+        <SuggestedActions
+          actions={data.suggestedActions}
+          loading={sectionLoading.suggestedActions}
+        />
       </div>
     </div>
   );
