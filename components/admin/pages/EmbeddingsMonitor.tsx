@@ -30,13 +30,34 @@ function baseRunId(id: string): string {
   return id.replace(/_(prophet|lstm)$/, "");
 }
 
-/** Group rows by their base run ID, preserving insertion order. */
+/**
+ * Group rows into deployable bundles. A bundle == one training instance,
+ * keyed by run_yearmonth (which is what the backend deploy-bundle endpoint
+ * operates on). Falls back to the base run ID only when run_yearmonth is
+ * missing, so the UI bundle always matches the backend's deployable unit.
+ *
+ * When several runs share the same run_yearmonth (e.g. manual reruns), only
+ * the most recent run per model_type is kept — matching the backend, which
+ * deploys exactly one prophet + one lstm per instance.
+ */
 function groupByRun(rows: MlRunRow[]): Map<string, MlRunRow[]> {
   const map = new Map<string, MlRunRow[]>();
   for (const row of rows) {
-    const key = baseRunId(row.id);
+    const key = row.run_yearmonth || baseRunId(row.id);
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(row);
+  }
+
+  // Collapse to one row per model_type (keep most recent by created_at).
+  for (const [key, group] of map) {
+    const latestByModel = new Map<string, MlRunRow>();
+    for (const r of group) {
+      const existing = latestByModel.get(r.model_type);
+      if (!existing || (r.created_at ?? "") > (existing.created_at ?? "")) {
+        latestByModel.set(r.model_type, r);
+      }
+    }
+    map.set(key, Array.from(latestByModel.values()));
   }
   return map;
 }
