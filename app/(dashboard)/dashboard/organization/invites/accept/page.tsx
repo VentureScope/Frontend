@@ -1,15 +1,10 @@
 import { Suspense } from "react";
 import { AcceptOrganizationInviteView } from "@/components/organization/invites/AcceptOrganizationInviteView";
+import { OrganizationInviteAcceptPageSkeleton } from "@/components/organization/OrganizationSkeletons";
 
 export default function AcceptOrganizationInvitePage() {
   return (
-    <Suspense
-      fallback={
-        <div className="mx-auto max-w-5xl py-16 text-center text-sm text-muted-foreground">
-          Loading invitation…
-        </div>
-      }
-    >
+    <Suspense fallback={<OrganizationInviteAcceptPageSkeleton />}>
       <AcceptOrganizationInviteView />
     </Suspense>
   );

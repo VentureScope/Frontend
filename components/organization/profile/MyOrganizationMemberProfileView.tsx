@@ -27,13 +27,7 @@ export function MyOrganizationMemberProfileView() {
       ? null
       : organizations.find((o) => o.id === orgFilter)?.name;
 
-  if (loading && contexts.length === 0) {
-    return (
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-        <OrganizationProfilePageSkeleton />
-      </div>
-    );
-  }
+  const showSectionSkeleton = loading && contexts.length === 0;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
@@ -63,7 +57,11 @@ export function MyOrganizationMemberProfileView() {
         className="mt-8"
       />
 
-      {contexts.length === 0 ? (
+      {showSectionSkeleton ? (
+        <div className="mt-10">
+          <OrganizationProfilePageSkeleton />
+        </div>
+      ) : contexts.length === 0 ? (
         <div className="vs-surface mt-10 rounded-md border border-dashed border-border px-6 py-14 text-center">
           <p className="text-sm font-medium text-foreground">
             {selectedOrgName

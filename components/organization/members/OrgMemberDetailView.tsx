@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { MemberCompanyIntelligence } from "@/components/organization/members/MemberCompanyIntelligence";
 import { RemoveMemberDialog } from "@/components/organization/members/RemoveMemberDialog";
-import { OrganizationMembersListSkeleton } from "@/components/organization/OrganizationSkeletons";
+import { OrganizationMemberDetailSkeleton } from "@/components/organization/OrganizationSkeletons";
 import { Button } from "@/components/ui/button";
 import { useOrganization } from "@/hooks/useOrganization";
 import { useOrganizationMembers } from "@/hooks/useOrganizationMembers";
@@ -58,7 +58,7 @@ export function OrgMemberDetailView({ orgId, memberId }: Props) {
   if (loading) {
     return (
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
-        <OrganizationMembersListSkeleton count={1} />
+        <OrganizationMemberDetailSkeleton />
       </div>
     );
   }
