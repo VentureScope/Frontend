@@ -8,10 +8,13 @@ export default function LandingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="min-h-screen bg-background font-sans text-foreground selection:bg-primary/25 selection:text-foreground">
-      <Navbar />
-      {children}
-      <Footer />
-    </main>
+    <>
+      <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="" />
+      <main className="min-h-screen bg-background font-sans text-foreground selection:bg-primary/25 selection:text-foreground">
+        <Navbar />
+        {children}
+        <Footer />
+      </main>
+    </>
   );
 }
