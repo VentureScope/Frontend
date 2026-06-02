@@ -35,6 +35,7 @@ import type {
 export default function MarketTrendsDashboard() {
   const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
   const [stats, setStats] = useState<JobStats | null>(null);
+  const [allTimeStats, setAllTimeStats] = useState<JobStats | null>(null);
   const [skills, setSkills] = useState<InDemandSkill[]>([]);
   const [trending, setTrending] = useState<TrendingCareer[]>([]);
   const [topCompanies, setTopCompanies] = useState<HiringCompanyRow[]>([]);
@@ -48,13 +49,15 @@ export default function MarketTrendsDashboard() {
       setLoading(true);
       setError(null);
       try {
-        const [st, sk, tr] = await Promise.all([
+        const [st, allSt, sk, tr] = await Promise.all([
           getJobStats({ period: days }),
+          getJobStats({ period: 3650 }),
           getInDemandSkills({ limit: MARKET_TOP_K.skills, period: days }),
           getTrendingCareers({ limit: 8, period: days }),
         ]);
         if (!cancelled) {
           setStats(st);
+          setAllTimeStats(allSt);
           setSkills(sk);
           setTrending(tr);
           if (tr.length === 0) {
@@ -163,7 +166,7 @@ export default function MarketTrendsDashboard() {
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:items-stretch">
-            <JobListingsStat stats={stats} loading={loading} />
+            <JobListingsStat stats={stats} allTimeStats={allTimeStats} loading={loading} />
             <TopHiringCompanies
               companies={topCompanies}
               loading={loading || loadingCompanies}

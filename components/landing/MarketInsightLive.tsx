@@ -33,6 +33,7 @@ export default function MarketInsightLive() {
     useLandingAuth();
   const [skills, setSkills] = useState<InDemandSkill[]>([]);
   const [stats, setStats] = useState<JobStats | null>(null);
+  const [allTimeStats, setAllTimeStats] = useState<JobStats | null>(null);
   const [trending, setTrending] = useState<TrendingCareer[]>([]);
   const [categoryRows, setCategoryRows] = useState<JobByCategoryRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,9 +46,10 @@ export default function MarketInsightLive() {
       setLoading(true);
       setError(null);
       try {
-        const [sk, st, tr] = await Promise.all([
+        const [sk, st, allSt, tr] = await Promise.all([
           getInDemandSkills({ limit: MARKET_TOP_K.skills, period: days }),
           getJobStats({ period: days }),
+          getJobStats({ period: 3650 }),
           getTrendingCareers({ limit: MARKET_TOP_K.trending, period: days }),
         ]);
         if (cancelled) {
@@ -55,6 +57,7 @@ export default function MarketInsightLive() {
         }
         setSkills(sk);
         setStats(st);
+        setAllTimeStats(allSt);
         setTrending(tr);
         setUpdatedAt(new Date());
 
@@ -145,7 +148,7 @@ export default function MarketInsightLive() {
           <div className="lg:col-span-2">
             <SkillDemandPanel skills={skills} loading={loading} />
           </div>
-          <MarketStatsPanel stats={stats} loading={loading} />
+          <MarketStatsPanel stats={stats} allTimeStats={allTimeStats} loading={loading} />
         </div>
       </section>
 

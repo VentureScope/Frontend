@@ -4,9 +4,11 @@ import type { JobStats } from "@/types/jobs";
 
 export default function JobListingsStat({
   stats,
+  allTimeStats,
   loading,
 }: {
   stats: JobStats | null;
+  allTimeStats?: JobStats | null;
   loading?: boolean;
 }) {
   if (loading) {
@@ -14,12 +16,15 @@ export default function JobListingsStat({
       <div className="vs-surface-accent flex min-h-[180px] animate-pulse flex-col justify-between p-6 sm:p-10">
         <div className="h-4 w-40 rounded bg-muted" />
         <div className="h-12 w-32 rounded bg-muted" />
+        <div className="mt-4 h-3 w-48 rounded bg-muted" />
       </div>
     );
   }
 
-  const total = stats?.total_jobs ?? 0;
+  const filtered = stats?.total_jobs ?? 0;
+  const total = allTimeStats?.total_jobs ?? filtered;
   const categories = stats?.unique_categories ?? 0;
+  const showAllTime = allTimeStats && total > filtered;
 
   return (
     <div className="vs-surface-accent flex flex-col justify-between p-6 transition-colors sm:p-10">
@@ -27,9 +32,21 @@ export default function JobListingsStat({
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
           Indexed job listings
         </p>
+
+        {/* All-time total — primary headline */}
         <h2 className="text-4xl font-semibold tracking-tighter text-foreground sm:text-5xl">
           {formatCompactNumber(total)}
         </h2>
+
+        {/* Filtered count in context of selected period */}
+        {showAllTime && (
+          <p className="text-xs text-muted-foreground">
+            <span className="font-semibold text-foreground">
+              {formatCompactNumber(filtered)}
+            </span>
+            {" "}in selected period
+          </p>
+        )}
       </div>
 
       <div className="mt-6 flex w-fit items-center gap-2 rounded-full border border-success/20 bg-success/15 px-3 py-2 text-[10px] font-bold text-success sm:mt-8 sm:px-4 sm:text-[11px]">
