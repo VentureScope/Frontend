@@ -6,3 +6,12 @@ export const NOTIFICATION_ACTIVITY_PAGE_SIZE = 5;
 
 /** Minimal fetch for unread badge on non-home dashboard routes. */
 export const NOTIFICATION_UNREAD_PAGE_SIZE = 1;
+
+/** Role picker on new-roadmap / new-resume. */
+export const ROADMAP_ROLE_PICKER_LIMIT = 12;
+
+/** Market trends page — shared trending fetch (forecast chart + panel). */
+export const MARKET_TRENDS_TRENDING_LIMIT = 12;
+
+/** Trending roles shown in the market trends panel. */
+export const MARKET_TRENDS_PANEL_LIMIT = 6;

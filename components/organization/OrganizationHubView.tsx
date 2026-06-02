@@ -15,6 +15,7 @@ import {
 import {
   OrganizationHubHeaderSkeleton,
   OrganizationHubMetaSkeleton,
+  OrganizationHubNavGridSkeleton,
 } from "@/components/organization/OrganizationSkeletons";
 import { DeleteOrganizationDialog } from "@/components/organization/DeleteOrganizationDialog";
 import { Button } from "@/components/ui/button";
@@ -167,27 +168,31 @@ export function OrganizationHubView({ orgId }: { orgId: string }) {
 
           {!notFound ? (
             <>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {ORG_LINKS.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href(orgId)}
-                    className="vs-surface-accent flex flex-col gap-3 rounded-md p-5 transition-colors hover:border-primary/30"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="vs-icon-tile-primary flex h-10 w-10 items-center justify-center rounded-md">
-                        <item.icon className="h-5 w-5" />
+              {loading ? (
+                <OrganizationHubNavGridSkeleton />
+              ) : (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {ORG_LINKS.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href(orgId)}
+                      className="vs-surface-accent flex flex-col gap-3 rounded-md p-5 transition-colors hover:border-primary/30"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="vs-icon-tile-primary flex h-10 w-10 items-center justify-center rounded-md">
+                          <item.icon className="h-5 w-5" />
+                        </div>
+                        <span className="text-sm font-semibold text-foreground">
+                          {item.name}
+                        </span>
                       </div>
-                      <span className="text-sm font-semibold text-foreground">
-                        {item.name}
-                      </span>
-                    </div>
-                    <p className="text-xs leading-relaxed text-muted-foreground">
-                      {item.description}
-                    </p>
-                  </Link>
-                ))}
-              </div>
+                      <p className="text-xs leading-relaxed text-muted-foreground">
+                        {item.description}
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+              )}
 
               {canDelete && organization ? (
                 <div className="mt-10 rounded-lg border border-destructive/25 bg-destructive/5 p-5 sm:p-6">

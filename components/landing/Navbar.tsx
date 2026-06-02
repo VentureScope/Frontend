@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { performClientLogout } from "@/lib/client-logout";
 import { useLandingAuth } from "@/hooks/useLandingAuth";
 import { useAppStore } from "@/store/useAppStore";
+import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
   { name: "Home", href: "/" },
@@ -27,47 +28,13 @@ export default function Navbar() {
     registerHref,
   } = useLandingAuth();
   const isLoggingOut = useAppStore((state) => state.isLoggingOut);
-  const navLinks = NAV_LINKS;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [indicatorStyle, setIndicatorStyle] = useState({
-    left: 0,
-    width: 0,
-    opacity: 0,
-  });
-  const linksRef = useRef<(HTMLAnchorElement | null)[]>([]);
 
-  // Calculate sliding underline indicator styles for active desktop nav link
   useEffect(() => {
-    const activeIndex = navLinks.findIndex((link) => link.href === pathname);
-
-    // Slight delay to ensure refs are firmly mounted before calc
-    const timer = setTimeout(() => {
-      if (activeIndex !== -1 && linksRef.current[activeIndex]) {
-        const activeTab = linksRef.current[activeIndex];
-        if (activeTab) {
-          setIndicatorStyle({
-            left: activeTab.offsetLeft,
-            width: activeTab.offsetWidth,
-            opacity: 1,
-          });
-        }
-      } else {
-        setIndicatorStyle({ left: 0, width: 0, opacity: 0 });
-      }
-    }, 50);
-
-    return () => clearTimeout(timer);
-  }, [pathname, navLinks]);
-
-  // Lock body scroll when mobile menu is open
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
+    const root = document.documentElement;
+    root.classList.toggle("overflow-hidden", isMobileMenuOpen);
     return () => {
-      document.body.style.overflow = "unset";
+      root.classList.remove("overflow-hidden");
     };
   }, [isMobileMenuOpen]);
 
@@ -80,7 +47,6 @@ export default function Navbar() {
     <>
       <nav className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/logo.png"
@@ -88,46 +54,33 @@ export default function Navbar() {
               width={28}
               height={28}
               className="h-7 w-7 object-contain"
+              priority
             />
             <span className="text-lg font-semibold tracking-tight text-foreground">
               VentureScope
             </span>
           </Link>
 
-          {/* Desktop Links */}
-          <div className="hidden items-center gap-8 md:flex relative pb-1">
-            {navLinks.map((link, index) => {
+          <div className="hidden items-center gap-8 md:flex pb-1">
+            {NAV_LINKS.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link
                   key={link.name}
                   href={link.href}
-                  ref={(el) => {
-                    linksRef.current[index] = el;
-                  }}
-                  className={`text-btn transition-colors ${
+                  className={cn(
+                    "text-btn relative pb-1 transition-colors after:absolute after:-bottom-1 after:left-0 after:h-[3px] after:rounded-lg after:bg-primary after:transition-opacity",
                     isActive
-                      ? "font-medium text-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                      ? "font-medium text-primary after:w-full after:opacity-100"
+                      : "text-muted-foreground after:w-full after:opacity-0 hover:text-foreground",
+                  )}
                 >
                   {link.name}
                 </Link>
               );
             })}
-
-            {/* Animated Sliding Underline for Desktop */}
-            <span
-              className="absolute -bottom-1 h-[3px] rounded-lg bg-primary transition-all duration-500 ease-in-out"
-              style={{
-                left: `${indicatorStyle.left}px`,
-                width: `${indicatorStyle.width}px`,
-                opacity: indicatorStyle.opacity,
-              }}
-            />
           </div>
 
-          {/* Desktop Actions */}
           <div className="hidden items-center gap-4 md:flex">
             <ThemeToggle />
             {!isHydrated ? (
@@ -170,7 +123,6 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu Toggle */}
           <button
             className="md:hidden text-foreground focus:outline-none p-2 -mr-2"
             onClick={() => setIsMobileMenuOpen(true)}
@@ -181,7 +133,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile Sidebar Overlay */}
       <div
         className={`fixed inset-0 z-50 bg-foreground/40 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
           isMobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -189,7 +140,6 @@ export default function Navbar() {
         onClick={() => setIsMobileMenuOpen(false)}
       />
 
-      {/* Mobile Sidebar Slide-out */}
       <div
         className={`fixed top-0 right-0 z-50 flex h-dvh w-4/5 max-w-sm flex-col bg-card shadow-2xl transition-transform duration-500 ease-in-out md:hidden ${
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
@@ -223,7 +173,7 @@ export default function Navbar() {
 
         <div className="flex flex-col flex-1 overflow-y-auto px-6 py-8">
           <div className="flex flex-col gap-6">
-            {navLinks.map((link) => {
+            {NAV_LINKS.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link

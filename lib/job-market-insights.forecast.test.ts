@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   buildForecastChartPoints,
+  buildFutureRoleForecastBars,
+  deriveTrendingCareersFromForecasts,
   formatForecastMonth,
   pickDefaultForecastRole,
 } from "@/lib/job-market-insights";
@@ -34,6 +36,102 @@ describe("buildForecastChartPoints", () => {
     expect(points[0].forecast_date).toBe("2026-06");
     expect(points[1].forecast_date).toBe("2026-08");
     expect(points[0].predicted).toBe(1.49);
+  });
+});
+
+describe("deriveTrendingCareersFromForecasts", () => {
+  it("ranks roles by average projected postings and excludes Other", () => {
+    const rows: JobForecast[] = [
+      {
+        normalized_title: "Systems Administrator",
+        forecast_date: "2026-06",
+        predicted_count: 26.21,
+        lower_bound: 17,
+        upper_bound: 35,
+      },
+      {
+        normalized_title: "Systems Administrator",
+        forecast_date: "2026-11",
+        predicted_count: 22.69,
+        lower_bound: 13,
+        upper_bound: 31,
+      },
+      {
+        normalized_title: "QA Engineer",
+        forecast_date: "2026-06",
+        predicted_count: 6.45,
+        lower_bound: 4,
+        upper_bound: 8,
+      },
+      {
+        normalized_title: "QA Engineer",
+        forecast_date: "2026-11",
+        predicted_count: 2.8,
+        lower_bound: 1,
+        upper_bound: 4,
+      },
+      {
+        normalized_title: "Other",
+        forecast_date: "2026-06",
+        predicted_count: 10,
+        lower_bound: 5,
+        upper_bound: 15,
+      },
+      {
+        normalized_title: "Other",
+        forecast_date: "2026-11",
+        predicted_count: 20,
+        lower_bound: 10,
+        upper_bound: 30,
+      },
+    ];
+
+    const ranked = deriveTrendingCareersFromForecasts(rows, 2);
+    expect(ranked).toHaveLength(2);
+    expect(ranked[0].name).toBe("Systems Administrator");
+    expect(ranked[0].job_count).toBeGreaterThan(ranked[1].job_count);
+    expect(ranked[1].name).toBe("QA Engineer");
+  });
+});
+
+describe("buildFutureRoleForecastBars", () => {
+  it("includes monthly breakdown and ranks by average postings", () => {
+    const rows: JobForecast[] = [
+      {
+        normalized_title: "Systems Administrator",
+        forecast_date: "2026-06",
+        predicted_count: 26,
+        lower_bound: 17,
+        upper_bound: 35,
+      },
+      {
+        normalized_title: "Systems Administrator",
+        forecast_date: "2026-11",
+        predicted_count: 22,
+        lower_bound: 13,
+        upper_bound: 31,
+      },
+      {
+        normalized_title: "QA Engineer",
+        forecast_date: "2026-06",
+        predicted_count: 6,
+        lower_bound: 4,
+        upper_bound: 8,
+      },
+      {
+        normalized_title: "QA Engineer",
+        forecast_date: "2026-11",
+        predicted_count: 2,
+        lower_bound: 1,
+        upper_bound: 4,
+      },
+    ];
+
+    const bars = buildFutureRoleForecastBars(rows);
+    expect(bars[0].name).toBe("Systems Administrator");
+    expect(bars[0].rank).toBe(1);
+    expect(bars[0].monthlyPostings).toHaveLength(2);
+    expect(bars[0].projectedPosts).toBe(24);
   });
 });
 

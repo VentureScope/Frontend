@@ -127,6 +127,158 @@ export function OrganizationRoadmapsGridSkeleton({ count = 3 }: { count?: number
   );
 }
 
+export function OrganizationHubNavGridSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div
+          key={i}
+          className="vs-surface-accent flex flex-col gap-3 rounded-md p-5"
+        >
+          <div className="flex items-center gap-3">
+            <OrgSk className="h-10 w-10 shrink-0 rounded-md" />
+            <OrgSk className="h-4 w-28" />
+          </div>
+          <OrgSk className="h-3 w-full" />
+          <OrgSk className="h-3 w-4/5" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function OrganizationMemberDetailSkeleton() {
+  return (
+    <>
+      <OrgSk className="mb-6 h-4 w-36" />
+      <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start gap-4">
+          <OrgSk className="h-14 w-14 shrink-0 rounded-full" />
+          <div className="space-y-2">
+            <OrgSk className="h-8 w-48 max-w-full" />
+            <OrgSk className="h-4 w-32" />
+            <OrgSk className="h-4 w-56" />
+          </div>
+        </div>
+      </div>
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <OrgSk key={i} className="h-[72px] rounded-md" />
+        ))}
+      </div>
+      <OrganizationProfileSectionSkeleton lines={4} />
+    </>
+  );
+}
+
+export function OrganizationsListPageSkeleton() {
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      <header className="mb-8 flex flex-col gap-6 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
+        <div className="max-w-2xl space-y-2">
+          <OrgSk className="h-9 w-64 max-w-full" />
+          <OrgSk className="h-4 w-full max-w-xl" />
+        </div>
+        <OrgSk className="h-11 w-44 shrink-0 rounded-md" />
+      </header>
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <OrganizationCardGridSkeleton count={2} />
+      </div>
+    </div>
+  );
+}
+
+export function OrganizationHubPageSkeleton() {
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      <OrgSk className="mb-6 h-4 w-32" />
+      <OrganizationHubHeaderSkeleton />
+      <OrganizationHubMetaSkeleton />
+      <OrganizationHubNavGridSkeleton />
+    </div>
+  );
+}
+
+export function OrganizationCompanyProfileRouteSkeleton() {
+  return (
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      <OrgSk className="mb-6 h-4 w-40" />
+      <div className="mb-8 space-y-2">
+        <OrgSk className="h-3 w-24" />
+        <OrgSk className="h-8 w-48 max-w-full" />
+        <OrgSk className="h-4 w-full max-w-xl" />
+      </div>
+      <OrganizationProfilePageSkeleton />
+    </div>
+  );
+}
+
+export function OrganizationMembersPageSkeleton() {
+  return (
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      <OrgSk className="mb-6 h-4 w-36" />
+      <div className="mb-8 space-y-2">
+        <OrgSk className="h-3 w-24" />
+        <OrgSk className="h-8 w-32 max-w-full" />
+        <OrgSk className="h-4 w-full max-w-xl" />
+      </div>
+      <OrganizationMembersListSkeleton count={4} />
+    </div>
+  );
+}
+
+export function OrganizationTeamRoadmapsPageSkeleton() {
+  return (
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      <OrgSk className="mb-6 h-4 w-36" />
+      <div className="mb-8 space-y-2">
+        <OrgSk className="h-3 w-24" />
+        <OrgSk className="h-8 w-40 max-w-full" />
+        <OrgSk className="h-4 w-full max-w-xl" />
+      </div>
+      <OrganizationRoadmapsGridSkeleton count={3} />
+    </div>
+  );
+}
+
+export function OrganizationInviteAcceptPageSkeleton() {
+  return (
+    <div className="mx-auto max-w-5xl">
+      <OrgSk className="mb-6 h-4 w-28" />
+      <div className="mb-8 space-y-2">
+        <OrgSk className="h-3 w-24" />
+        <OrgSk className="h-8 w-44 max-w-full" />
+        <OrgSk className="h-4 w-full max-w-xl" />
+      </div>
+      <div className="grid gap-8 lg:grid-cols-5 lg:items-start">
+        <div className="lg:col-span-3">
+          <OrganizationInviteAcceptDetailsSkeleton />
+        </div>
+        <div className="space-y-6 lg:col-span-2">
+          <OrgSk className="h-48 w-full rounded-xl" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function OrganizationMyMemberProfilePageSkeleton() {
+  return (
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      <div className="mb-8 space-y-2">
+        <OrgSk className="h-3 w-24" />
+        <OrgSk className="h-8 w-56 max-w-full" />
+        <OrgSk className="h-4 w-full max-w-2xl" />
+      </div>
+      <OrgSk className="h-24 w-full rounded-md" />
+      <OrgSk className="mt-8 h-10 w-full max-w-md rounded-md" />
+      <div className="mt-10">
+        <OrganizationProfilePageSkeleton />
+      </div>
+    </div>
+  );
+}
+
 /** Mirrors the accept-invite details card while JWT / preview loads. */
 export function OrganizationInviteAcceptDetailsSkeleton() {
   return (

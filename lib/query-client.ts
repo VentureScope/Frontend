@@ -10,7 +10,7 @@ export function createQueryClient(): QueryClient {
         staleTime: STALE_TIME_MS,
         gcTime: GC_TIME_MS,
         retry: 1,
-        refetchOnWindowFocus: true,
+        refetchOnWindowFocus: false,
       },
     },
   });

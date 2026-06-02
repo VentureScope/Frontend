@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 
 type MarketAnalyticsPeriodSelectProps = {
   disabled?: boolean;
+  /** Shows subtle updating state without blocking interaction. */
+  busy?: boolean;
   className?: string;
   /** Shorter label for tight headers */
   compact?: boolean;
@@ -14,6 +16,7 @@ type MarketAnalyticsPeriodSelectProps = {
 
 export function MarketAnalyticsPeriodSelect({
   disabled,
+  busy,
   className,
   compact = false,
 }: MarketAnalyticsPeriodSelectProps) {
@@ -35,8 +38,12 @@ export function MarketAnalyticsPeriodSelect({
       disabled={disabled}
       hint={
         compact
-          ? undefined
-          : "Trending roles and job stats use this lookback window."
+          ? busy
+            ? "Updating market data…"
+            : undefined
+          : busy
+            ? "Updating market data for this period…"
+            : "Trending roles and job stats use this lookback window."
       }
       className={cn(compact ? "min-w-[140px]" : "w-full max-w-xs", className)}
     />

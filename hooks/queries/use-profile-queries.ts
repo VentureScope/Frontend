@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  getCertificates,
   getCurrentUserProfile,
   getExperiences,
   getGithubSyncedData,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/auth-api";
 import { queryKeys } from "@/lib/query-keys";
 import type { Experience } from "@/types/auth";
+import type { Certificate } from "@/types/certificate";
 
 function sortExperiences(experiences: Experience[]): Experience[] {
   return [...experiences].sort(
@@ -58,6 +60,22 @@ export function useExperiencesQuery() {
   });
 }
 
+function sortCertificates(certificates: Certificate[]): Certificate[] {
+  return [...certificates].sort((a, b) => {
+    const aDate = a.issue_date ?? a.created_at;
+    const bDate = b.issue_date ?? b.created_at;
+    return new Date(bDate).getTime() - new Date(aDate).getTime();
+  });
+}
+
+export function useCertificatesQuery() {
+  return useQuery({
+    queryKey: queryKeys.profile.certificates(),
+    queryFn: getCertificates,
+    select: sortCertificates,
+  });
+}
+
 export function useInvalidateProfileQueries() {
   const queryClient = useQueryClient();
 
@@ -75,6 +93,10 @@ export function useInvalidateProfileQueries() {
     invalidateExperiences: () =>
       queryClient.invalidateQueries({
         queryKey: queryKeys.profile.experiences(),
+      }),
+    invalidateCertificates: () =>
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.profile.certificates(),
       }),
     invalidateDataHub: () =>
       Promise.all([

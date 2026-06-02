@@ -5,14 +5,17 @@ import Link from "next/link";
 import { getApiErrorMessage, updateCurrentUserSkills } from "@/lib/auth-api";
 import { GitHubRepositorySummary } from "@/types/github";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAppStore } from "@/store/useAppStore";
-import {
-  useGithubSyncedQuery,
-  useInvalidateProfileQueries,
-  useUserProfileQuery,
-} from "@/hooks/queries/use-profile-queries";
+import { useInvalidateProfileQueries } from "@/hooks/queries/use-profile-queries";
 import { Plus, X } from "lucide-react";
+import type { AuthUser } from "@/types/auth";
+import type { GitHubSyncedDataResponse } from "@/types/github";
 import { toast } from "sonner";
+
+type SkillIntelligenceProps = {
+  profile: AuthUser | null;
+  github: GitHubSyncedDataResponse | null;
+  loading?: boolean;
+};
 
 function deriveGithubLanguages(
   repositories: GitHubRepositorySummary[] | null | undefined,
@@ -86,51 +89,31 @@ function normalizeUserSkills(value: unknown): string[] {
   return [];
 }
 
-export default function SkillIntelligence() {
-  const authUser = useAppStore((state) => state.authData.user);
-  const setAuthData = useAppStore((state) => state.setAuthData);
-  const githubQuery = useGithubSyncedQuery();
-  const profileQuery = useUserProfileQuery();
+export default function SkillIntelligence({
+  profile,
+  github,
+  loading = false,
+}: SkillIntelligenceProps) {
   const { invalidateProfile } = useInvalidateProfileQueries();
 
   const [savedUserSkills, setSavedUserSkills] = useState<string[]>([]);
   const [draftUserSkills, setDraftUserSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
   const [isSavingSkills, setIsSavingSkills] = useState(false);
-  const [skillsInitialized, setSkillsInitialized] = useState(false);
-
-  const loading = githubQuery.isPending || profileQuery.isPending;
-  const githubData = githubQuery.data;
 
   useEffect(() => {
-    if (skillsInitialized || loading) return;
-
-    const userProfile = profileQuery.data;
-    if (userProfile) {
-      const normalized = normalizeUserSkills(userProfile.skills);
-      setSavedUserSkills(normalized);
-      setDraftUserSkills(normalized);
-      setAuthData({
-        ...useAppStore.getState().authData,
-        user: userProfile,
-      });
-    } else {
-      const fromStore = normalizeUserSkills(authUser?.skills);
-      setSavedUserSkills(fromStore);
-      setDraftUserSkills(fromStore);
+    if (loading) {
+      return;
     }
-    setSkillsInitialized(true);
-  }, [
-    loading,
-    profileQuery.data,
-    authUser?.skills,
-    skillsInitialized,
-    setAuthData,
-  ]);
+
+    const normalized = normalizeUserSkills(profile?.skills);
+    setSavedUserSkills(normalized);
+    setDraftUserSkills(normalized);
+  }, [loading, profile?.skills]);
 
   const githubLanguages = useMemo(
-    () => deriveGithubLanguages(githubData?.repositories),
-    [githubData?.repositories],
+    () => deriveGithubLanguages(github?.repositories),
+    [github?.repositories],
   );
 
   const hasUnsavedSkillChanges = useMemo(() => {
@@ -148,21 +131,9 @@ export default function SkillIntelligence() {
     try {
       await updateCurrentUserSkills({ skills: nextSkills });
       await invalidateProfile();
-      const { data: refreshedProfile } = await profileQuery.refetch();
-
-      if (refreshedProfile) {
-        const normalized = normalizeUserSkills(refreshedProfile.skills);
-        setAuthData({
-          ...useAppStore.getState().authData,
-          user: refreshedProfile,
-        });
-        setSavedUserSkills(normalized);
-        setDraftUserSkills(normalized);
-      } else {
-        setSavedUserSkills(nextSkills);
-        setDraftUserSkills(nextSkills);
-      }
-
+      const normalized = normalizeUserSkills(nextSkills);
+      setSavedUserSkills(normalized);
+      setDraftUserSkills(normalized);
       toast.success("Skills updated successfully.");
     } catch (error) {
       toast.error(getApiErrorMessage(error));
@@ -187,14 +158,12 @@ export default function SkillIntelligence() {
       return;
     }
 
-    const next = [...draftUserSkills, normalized];
-    setDraftUserSkills(next);
+    setDraftUserSkills([...draftUserSkills, normalized]);
     setNewSkill("");
   };
 
   const handleRemoveSkill = (skillToRemove: string) => {
-    const next = draftUserSkills.filter((skill) => skill !== skillToRemove);
-    setDraftUserSkills(next);
+    setDraftUserSkills(draftUserSkills.filter((skill) => skill !== skillToRemove));
   };
 
   const handleResetSkills = () => {
@@ -237,7 +206,7 @@ export default function SkillIntelligence() {
         </div>
         <Link
           href="/dashboard/data-hub"
-          className="text-btn w-full rounded-xl bg-primary px-4 py-2 text-center text-primary-foreground  transition-colors hover:bg-primary/90 sm:w-auto"
+          className="text-btn w-full rounded-xl bg-primary px-4 py-2 text-center text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto"
         >
           Update Data Sources
         </Link>
@@ -281,9 +250,7 @@ export default function SkillIntelligence() {
               <button
                 type="button"
                 disabled={isSavingSkills}
-                onClick={() => {
-                  handleRemoveSkill(skill);
-                }}
+                onClick={() => handleRemoveSkill(skill)}
                 className="text-accent hover:text-destructive disabled:opacity-60"
                 aria-label={`Remove ${skill}`}
               >
@@ -308,9 +275,7 @@ export default function SkillIntelligence() {
           <button
             type="button"
             disabled={isSavingSkills}
-            onClick={() => {
-              handleAddSkill();
-            }}
+            onClick={handleAddSkill}
             className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Plus size={14} />
@@ -322,9 +287,7 @@ export default function SkillIntelligence() {
           <button
             type="button"
             disabled={!hasUnsavedSkillChanges || isSavingSkills}
-            onClick={() => {
-              void handleSaveSkills();
-            }}
+            onClick={() => void handleSaveSkills()}
             className="inline-flex items-center justify-center rounded-xl bg-foreground px-4 py-2 text-xs font-medium text-background transition-colors hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSavingSkills ? "Saving..." : "Save Changes"}

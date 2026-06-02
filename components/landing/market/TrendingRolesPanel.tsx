@@ -19,6 +19,8 @@ export function TrendingRolesPanel({
   title = "Trending careers",
   embedded = false,
   lookbackPhrase = "the last 3 months",
+  selectedRoleName = null,
+  onRoleSelect,
 }: {
   careers: TrendingCareer[];
   loading: boolean;
@@ -31,6 +33,9 @@ export function TrendingRolesPanel({
   embedded?: boolean;
   /** e.g. "the last 6 months" — matches analytics period selector */
   lookbackPhrase?: string;
+  /** Highlights the row and syncs with the forecast chart when set. */
+  selectedRoleName?: string | null;
+  onRoleSelect?: (roleName: string) => void;
 }) {
   const topCareers = careers.slice(0, limit);
   const insight = showInsight ? trendingInsight(topCareers) : null;
@@ -59,6 +64,7 @@ export function TrendingRolesPanel({
         {!compact && (
           <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
             Top {limit} roles by hiring volume in {lookbackPhrase}.
+            {onRoleSelect ? " Click a role to update the forecast chart." : ""}
           </p>
         )}
         {insight && !loading && (
@@ -83,22 +89,17 @@ export function TrendingRolesPanel({
             const rankClass = `flex h-9 w-9 shrink-0 items-center justify-center rounded-md border text-xs font-bold ${rankStyles[i % rankStyles.length]}`;
             const growth = formatGrowthLabel(role.growth_pct);
             const volume = Math.round((role.job_count / maxJobs) * 100);
+            const isSelected = selectedRoleName === role.name;
+            const isInteractive = Boolean(onRoleSelect);
 
-            return (
-              <div
-                key={`${role.name}-${i}`}
-                className={
-                  compact
-                    ? "flex items-center gap-3 rounded-xl border border-border bg-card p-3 shadow-sm"
-                    : "flex flex-col sm:flex-row sm:items-center justify-between bg-card p-4 sm:p-5 rounded-lg shadow-sm border border-border gap-3"
-                }
-              >
+            const rowContent = (
+              <>
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div className={rankClass}>
                     {i + 1}
                   </div>
                   <div className="min-w-0">
-                    <p className="font-semibold text-foreground text-sm truncate">
+                    <p className="font-semibold text-foreground text-sm truncate" title={role.name}>
                       {role.name}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
@@ -109,7 +110,7 @@ export function TrendingRolesPanel({
                 </div>
 
                 {showGrowth && (
-                  <div className="flex items-center gap-2 shrink-0 pl-12 sm:pl-0">
+                  <div className="flex items-center gap-2 shrink-0 sm:pl-0 pl-12">
                     <span
                       className={`vs-badge ${
                         growth.tone === "up"
@@ -134,6 +135,35 @@ export function TrendingRolesPanel({
                     </div>
                   </div>
                 )}
+              </>
+            );
+
+            const rowClass = `${
+              compact
+                ? "flex items-center gap-3 rounded-xl border bg-card p-3 shadow-sm"
+                : "flex flex-col sm:flex-row sm:items-center justify-between bg-card p-4 sm:p-5 rounded-lg shadow-sm border gap-3"
+            } ${
+              isSelected
+                ? "border-primary/40 ring-1 ring-primary/20"
+                : "border-border"
+            } ${isInteractive ? "cursor-pointer transition-colors hover:border-primary/30 hover:bg-primary/[0.02]" : ""}`;
+
+            if (isInteractive) {
+              return (
+                <button
+                  key={`${role.name}-${i}`}
+                  type="button"
+                  onClick={() => onRoleSelect?.(role.name)}
+                  className={`${rowClass} w-full text-left`}
+                >
+                  {rowContent}
+                </button>
+              );
+            }
+
+            return (
+              <div key={`${role.name}-${i}`} className={rowClass}>
+                {rowContent}
               </div>
             );
           })

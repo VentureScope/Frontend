@@ -12,36 +12,25 @@ import {
   getApiErrorMessage,
   uploadCurrentUserCv,
 } from "@/lib/auth-api";
-import {
-  useInvalidateProfileQueries,
-  useUserProfileQuery,
-} from "@/hooks/queries/use-profile-queries";
-import { useAppStore } from "@/store/useAppStore";
+import { useInvalidateProfileQueries } from "@/hooks/queries/use-profile-queries";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { AuthUser } from "@/types/auth";
 import { toast } from "sonner";
 
-export default function CVManager() {
-  const setAuthData = useAppStore((state) => state.setAuthData);
+type CVManagerProps = {
+  profile: AuthUser | null;
+  loading?: boolean;
+};
+
+export default function CVManager({ profile, loading = false }: CVManagerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const profileQuery = useUserProfileQuery();
   const { invalidateProfile } = useInvalidateProfileQueries();
 
   const [isUploading, setIsUploading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const cvUrl =
-    typeof profileQuery.data?.cv_url === "string"
-      ? profileQuery.data.cv_url
-      : null;
-
-  useEffect(() => {
-    if (!profileQuery.data) return;
-    const session = useAppStore.getState().authData;
-    setAuthData({
-      ...session,
-      user: profileQuery.data,
-    });
-  }, [profileQuery.data, setAuthData]);
+    typeof profile?.cv_url === "string" ? profile.cv_url : null;
 
   const cvFileName = useMemo(() => {
     if (!cvUrl) {
@@ -101,13 +90,6 @@ export default function CVManager() {
     try {
       const result = await uploadCurrentUserCv(file);
       await invalidateProfile();
-      const { data: refreshed } = await profileQuery.refetch();
-      if (refreshed) {
-        setAuthData({
-          ...useAppStore.getState().authData,
-          user: refreshed,
-        });
-      }
       toast.success(result.message || "CV uploaded successfully.");
     } catch (error) {
       toast.error(getApiErrorMessage(error));
@@ -120,13 +102,7 @@ export default function CVManager() {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      const { data } = await profileQuery.refetch();
-      if (data) {
-        setAuthData({
-          ...useAppStore.getState().authData,
-          user: data,
-        });
-      }
+      await invalidateProfile();
       toast.success("CV status refreshed.");
     } catch (error) {
       toast.error(getApiErrorMessage(error));
@@ -135,7 +111,7 @@ export default function CVManager() {
     }
   };
 
-  if (profileQuery.isPending) {
+  if (loading) {
     return (
       <div className="space-y-6 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:p-8">
         <Skeleton className="h-4 w-40" />
@@ -162,9 +138,7 @@ export default function CVManager() {
         </div>
         <button
           type="button"
-          onClick={() => {
-            void handleRefresh();
-          }}
+          onClick={() => void handleRefresh()}
           disabled={isRefreshing}
           className="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary hover:text-primary/90 disabled:opacity-60"
         >
@@ -176,14 +150,14 @@ export default function CVManager() {
       {cvUrl ? (
         <div className="flex flex-col gap-4 rounded-lg border border-border bg-muted/50 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-sm text-primary border border-border">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card text-primary shadow-sm">
               <FileText size={20} />
             </div>
             <div className="min-w-0">
               <p className="break-all text-sm font-bold text-foreground">
                 {cvFileName}
               </p>
-              <p className="text-[10px] text-muted-foreground uppercase font-bold">
+              <p className="text-[10px] font-bold uppercase text-muted-foreground">
                 Stored in backend
               </p>
             </div>
@@ -226,20 +200,20 @@ export default function CVManager() {
             ) : (
               <Upload
                 size={24}
-                className="mb-2 text-muted-foreground group-hover:text-primary transition-colors"
+                className="mb-2 text-muted-foreground transition-colors group-hover:text-primary"
               />
             )}
             <p className="text-sm font-bold text-muted-foreground group-hover:text-foreground">
               {isUploading ? "Uploading CV..." : "Upload your CV"}
             </p>
-            <p className="text-[10px] text-muted-foreground mt-1">
+            <p className="mt-1 text-[10px] text-muted-foreground">
               PDF, DOC, DOCX up to 10MB.
             </p>
           </div>
         </button>
       )}
 
-      <p className="text-[11px] text-muted-foreground leading-relaxed italic">
+      <p className="text-[11px] italic leading-relaxed text-muted-foreground">
         * Uploading your CV helps the backend update embeddings and improve
         profile intelligence.
       </p>

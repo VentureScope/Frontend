@@ -9,9 +9,11 @@ const TILE_CLASSES = [
 export default function TopHiringCompanies({
   companies,
   loading,
+  categories = [],
 }: {
   companies: HiringCompanyRow[];
   loading?: boolean;
+  categories?: string[];
 }) {
   return (
     <div className="rounded-lg border border-border bg-card p-6 shadow-sm sm:rounded-xl sm:p-8">
@@ -21,7 +23,9 @@ export default function TopHiringCompanies({
             Top Hiring Companies
           </h3>
           <p className="mt-1 text-[11px] text-muted-foreground">
-            From indexed listings in leading role categories
+            {categories.length > 0
+              ? `From listings in ${categories.slice(0, 3).join(", ")}`
+              : "From indexed listings in leading role categories"}
           </p>
         </div>
         <span className="shrink-0 text-right text-[9px] font-bold uppercase leading-none tracking-widest text-muted-foreground sm:text-[10px]">

@@ -13,7 +13,6 @@ import type { InDemandSkill, JobStats, TrendingCareer } from "@/types/jobs";
 import { SkillDemandPanel } from "@/components/landing/market/SkillDemandPanel";
 import { TrendingRolesPanel } from "@/components/landing/market/TrendingRolesPanel";
 import { MarketStatsPanel } from "@/components/landing/market/MarketStatsPanel";
-import { MARKET_TOP_K } from "@/lib/job-market-insights";
 import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
 import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
 import { useLandingAuth } from "@/hooks/useLandingAuth";
@@ -60,7 +59,9 @@ export default function MarketPulse() {
           : fallback.trending,
       );
       setStats(
-        statsResult.status === "fulfilled" ? statsResult.value : fallback.stats,
+        statsResult.status === "fulfilled"
+          ? statsResult.value
+          : fallback.stats,
       );
 
       const anyFailed =

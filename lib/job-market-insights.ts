@@ -110,7 +110,57 @@ export function topSkillInsight(skills: InDemandSkill[]): string | null {
 export function statsInsight(stats: JobStats): string {
   const employers = formatCompactNumber(stats.unique_companies);
   const roles = formatCompactNumber(stats.total_jobs);
-  return `${employers} employers are actively hiring across ${stats.unique_categories} role categories, with ${roles} open roles indexed in our dataset.`;
+  const since = formatJobStatsSinceLabel(stats);
+  const windowHint = since ? ` (${since})` : "";
+  return `${employers} employers are actively hiring across ${stats.unique_categories} role categories, with ${roles} open roles indexed in our dataset${windowHint}.`;
+}
+
+/** Short caption from API `date_range` start (and optional end). */
+export function formatJobStatsSinceLabel(stats: JobStats | null): string | null {
+  const start = stats?.date_range?.[0];
+  if (!start) {
+    return null;
+  }
+
+  const startLabel = new Date(start).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const end = stats?.date_range?.[1];
+  if (!end) {
+    return `since ${startLabel}`;
+  }
+
+  const endLabel = new Date(end).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  return `since ${startLabel} · through ${endLabel}`;
+}
+
+export function formatJobStatsPeriodCaption(
+  stats: JobStats | null,
+  lookbackPhrase?: string,
+  isAllTime?: boolean,
+): string {
+  const since = formatJobStatsSinceLabel(stats);
+  if (isAllTime) {
+    if (since) {
+      return `Full indexed corpus · listings ${since}.`;
+    }
+    return "All job listings stored in our database.";
+  }
+  if (since) {
+    return `Listings ${since}.`;
+  }
+  if (lookbackPhrase) {
+    return `Open roles posted in ${lookbackPhrase}.`;
+  }
+  return "Open roles in the selected lookback window.";
 }
 
 export function trendingInsight(careers: TrendingCareer[]): string | null {
@@ -190,6 +240,13 @@ export function formatRoadmapRoleMetric(
   career: TrendingCareer,
   variant: "current" | "future",
 ): { value: string; label: string } {
+  if (variant === "future" && career.job_count > 0) {
+    return {
+      value: career.job_count.toFixed(1),
+      label: "Avg. predicted monthly postings",
+    };
+  }
+
   const growth = career.growth_pct;
   const hasGrowth = growth != null && !Number.isNaN(growth);
 
@@ -424,11 +481,11 @@ export function computeForecastGrowthPct(
 }
 
 /**
- * Rank roles by projected posting growth from `/api/jobs/forecasts` (all roles when unfiltered).
+ * Rank roles by average projected monthly postings from bulk `/api/jobs/forecasts`.
  */
 export function deriveTrendingCareersFromForecasts(
   forecasts: JobForecast[],
-  limit = 12,
+  limit?: number,
 ): TrendingCareer[] {
   const byRole = new Map<string, JobForecast[]>();
 
@@ -443,6 +500,7 @@ export function deriveTrendingCareersFromForecasts(
   }
 
   const ranked = [...byRole.entries()]
+    .filter(([name]) => name.toLowerCase() !== "other")
     .map(([name, rows]) => {
       const sorted = [...rows].sort((a, b) =>
         a.forecast_date.localeCompare(b.forecast_date),
@@ -456,14 +514,276 @@ export function deriveTrendingCareersFromForecasts(
 
       return {
         name,
-        job_count: Math.max(1, Math.round(avgPostings)),
+        job_count: Math.round(avgPostings * 10) / 10,
         company_count: 0,
         growth_pct,
       };
     })
-    .sort((a, b) => (b.growth_pct ?? 0) - (a.growth_pct ?? 0));
+    .sort((a, b) => {
+      const postsDiff = b.job_count - a.job_count;
+      if (postsDiff !== 0) {
+        return postsDiff;
+      }
+      return (b.growth_pct ?? 0) - (a.growth_pct ?? 0);
+    });
 
-  return ranked.slice(0, limit);
+  return limit != null ? ranked.slice(0, limit) : ranked;
+}
+
+export type FutureRoleMonthlyPosting = {
+  month: string;
+  forecastDate: string;
+  predictedCount: number;
+};
+
+export type FutureRoleForecastBar = {
+  id: string;
+  name: string;
+  rank: number;
+  projectedPosts: number;
+  growthPct: number;
+  monthCount: number;
+  forecastWindow: string;
+  monthlyPostings: FutureRoleMonthlyPosting[];
+  peakPosts: number;
+};
+
+export type ForecastAggregationMeta = {
+  monthCount: number;
+  forecastWindow: string;
+  roleCount: number;
+};
+
+/** Shared forecast window + how bar values are computed from monthly API rows. */
+export function getForecastAggregationMeta(
+  forecasts: JobForecast[],
+): ForecastAggregationMeta | null {
+  if (!forecasts.length) {
+    return null;
+  }
+  const dates = [
+    ...new Set(
+      forecasts.map((row) => row.forecast_date).filter(Boolean),
+    ),
+  ].sort();
+  const roles = new Set(
+    forecasts
+      .map((row) => row.normalized_title?.trim())
+      .filter((name) => name && name.toLowerCase() !== "other"),
+  );
+
+  return {
+    monthCount: dates.length,
+    forecastWindow: `${formatForecastMonth(dates[0])} – ${formatForecastMonth(dates[dates.length - 1])}`,
+    roleCount: roles.size,
+  };
+}
+
+function mapRoleForecastRows(rows: JobForecast[]): {
+  monthlyPostings: FutureRoleMonthlyPosting[];
+  avgPostings: number;
+  peakPosts: number;
+  growth_pct: number;
+} {
+  const sorted = [...rows].sort((a, b) =>
+    a.forecast_date.localeCompare(b.forecast_date),
+  );
+  const monthlyPostings = sorted.map((row) => ({
+    month: formatForecastMonth(row.forecast_date),
+    forecastDate: row.forecast_date,
+    predictedCount: row.predicted_count,
+  }));
+  const first = sorted[0]?.predicted_count ?? 0;
+  const last = sorted[sorted.length - 1]?.predicted_count ?? 0;
+  const growth_pct =
+    first > 0 ? ((last - first) / first) * 100 : last > 0 ? 100 : 0;
+  const avgPostings =
+    sorted.reduce((sum, row) => sum + row.predicted_count, 0) / sorted.length;
+  const peakPosts = Math.max(...sorted.map((row) => row.predicted_count), 0);
+
+  return {
+    monthlyPostings,
+    avgPostings: Math.round(avgPostings * 10) / 10,
+    peakPosts: Math.round(peakPosts * 10) / 10,
+    growth_pct,
+  };
+}
+
+/** Horizontal bar chart rows for new-roadmap future tab (all roles, ranked by volume). */
+export function buildFutureRoleForecastBars(
+  forecasts: JobForecast[],
+): FutureRoleForecastBar[] {
+  const meta = getForecastAggregationMeta(forecasts);
+  const byRole = new Map<string, JobForecast[]>();
+
+  for (const row of forecasts) {
+    const title = row.normalized_title?.trim();
+    if (!title || title.toLowerCase() === "other") {
+      continue;
+    }
+    const bucket = byRole.get(title) ?? [];
+    bucket.push(row);
+    byRole.set(title, bucket);
+  }
+
+  const ranked = [...byRole.entries()]
+    .map(([name, rows]) => {
+      const stats = mapRoleForecastRows(rows);
+      return {
+        name,
+        job_count: stats.avgPostings,
+        growth_pct: stats.growth_pct,
+        monthCount: stats.monthlyPostings.length,
+        forecastWindow: meta?.forecastWindow ?? "",
+        monthlyPostings: stats.monthlyPostings,
+        peakPosts: stats.peakPosts,
+      };
+    })
+    .sort((a, b) => {
+      const postsDiff = b.job_count - a.job_count;
+      if (postsDiff !== 0) {
+        return postsDiff;
+      }
+      return (b.growth_pct ?? 0) - (a.growth_pct ?? 0);
+    });
+
+  return ranked.map((career, index) => ({
+    id: `forecast-${index}-${encodeURIComponent(career.name)}`,
+    name: career.name,
+    rank: index + 1,
+    projectedPosts: career.job_count,
+    growthPct: career.growth_pct ?? 0,
+    monthCount: career.monthCount,
+    forecastWindow: career.forecastWindow,
+    monthlyPostings: career.monthlyPostings,
+    peakPosts: career.peakPosts,
+  }));
+}
+
+/** Slice bulk `/api/jobs/forecasts` rows for one role (line chart). */
+export function filterForecastsForRole(
+  forecasts: JobForecast[],
+  roleName: string,
+): JobForecast[] {
+  const needle = roleName.trim().toLowerCase();
+  if (!needle) {
+    return [];
+  }
+  return forecasts.filter(
+    (row) => row.normalized_title?.trim().toLowerCase() === needle,
+  );
+}
+
+export type MarketInsightCard = {
+  id: string;
+  title: string;
+  value: string;
+  description: string;
+};
+
+/** Snapshot chips for the current-market tab (trending, skills, stats APIs). */
+export function buildMarketCurrentInsights(
+  trending: TrendingCareer[],
+  skills: InDemandSkill[],
+  stats: JobStats | null,
+  lookbackPhrase: string,
+): MarketInsightCard[] {
+  const cards: MarketInsightCard[] = [];
+
+  if (stats && stats.total_jobs > 0) {
+    cards.push({
+      id: "indexed",
+      title: "Indexed openings",
+      value: formatCompactNumber(stats.total_jobs),
+      description: `${formatCompactNumber(stats.unique_companies)} employers · ${stats.unique_categories} role categories tracked.`,
+    });
+  }
+
+  const top = trending[0];
+  if (top) {
+    cards.push({
+      id: "top-role",
+      title: "Highest volume",
+      value: top.name,
+      description: `${formatCompactNumber(top.job_count)} openings · ${formatCompactNumber(top.company_count)} companies in ${lookbackPhrase}.`,
+    });
+  }
+
+  const fastestGrowing = [...trending]
+    .filter((c) => (c.growth_pct ?? 0) > 0)
+    .sort((a, b) => (b.growth_pct ?? 0) - (a.growth_pct ?? 0))[0];
+
+  if (fastestGrowing) {
+    const growth = formatGrowthLabel(fastestGrowing.growth_pct);
+    cards.push({
+      id: "momentum",
+      title: "Fastest momentum",
+      value: fastestGrowing.name,
+      description: `${growth.label} vs prior period in ${lookbackPhrase}.`,
+    });
+  } else if (skills[0]) {
+    cards.push({
+      id: "top-skill",
+      title: "Top skill signal",
+      value: skills[0].skill,
+      description: skills[1]
+        ? `Often paired with ${skills[1].skill} in live postings.`
+        : "Most frequent skill in indexed job listings.",
+    });
+  }
+
+  return cards.slice(0, 3);
+}
+
+/** Snapshot chips for the future-demand tab (bulk forecasts API). */
+export function buildMarketFutureInsights(
+  bars: FutureRoleForecastBar[],
+  meta: ForecastAggregationMeta | null,
+  selectedBar: FutureRoleForecastBar | null,
+): MarketInsightCard[] {
+  const cards: MarketInsightCard[] = [];
+
+  if (meta) {
+    cards.push({
+      id: "coverage",
+      title: "Forecast coverage",
+      value: `${meta.roleCount} roles`,
+      description: `${meta.monthCount}-month ensemble window (${meta.forecastWindow}).`,
+    });
+  }
+
+  const leader = bars[0];
+  if (leader) {
+    cards.push({
+      id: "projected-leader",
+      title: "Highest projected demand",
+      value: leader.name,
+      description: `${leader.projectedPosts.toFixed(1)} avg predicted postings/mo · rank #${leader.rank}.`,
+    });
+  }
+
+  const fastest = [...bars]
+    .filter((b) => b.growthPct > 0)
+    .sort((a, b) => b.growthPct - a.growthPct)[0];
+
+  if (fastest && fastest.id !== leader?.id) {
+    const growth = formatGrowthLabel(fastest.growthPct);
+    cards.push({
+      id: "projected-growth",
+      title: "Strongest projected growth",
+      value: fastest.name,
+      description: `${growth.label} across the forecast window.`,
+    });
+  } else if (selectedBar) {
+    cards.push({
+      id: "selected",
+      title: "Selected role",
+      value: selectedBar.name,
+      description: `Peak ${selectedBar.peakPosts.toFixed(1)} · avg ${selectedBar.projectedPosts.toFixed(1)} postings/mo.`,
+    });
+  }
+
+  return cards.slice(0, 3);
 }
 
 export function marketCoverageIndex(stats: JobStats): number {

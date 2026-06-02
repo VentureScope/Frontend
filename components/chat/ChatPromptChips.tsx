@@ -1,13 +1,20 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+
 type ChatPromptChipsProps = {
   prompts: { label: string; onClick: () => void }[];
   disabled?: boolean;
+  className?: string;
 };
 
-export function ChatPromptChips({ prompts, disabled }: ChatPromptChipsProps) {
+export function ChatPromptChips({
+  prompts,
+  disabled,
+  className,
+}: ChatPromptChipsProps) {
   return (
-    <div className="flex flex-wrap justify-start gap-2">
+    <div className={cn("flex flex-wrap justify-start gap-2", className)}>
       {prompts.map((p) => (
         <button
           key={p.label}

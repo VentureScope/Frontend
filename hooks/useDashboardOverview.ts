@@ -17,13 +17,15 @@ import {
 } from "@/lib/dashboard-utils";
 import { getInDemandSkills, getTrendingCareers } from "@/lib/jobs-api";
 import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
+import { useDeferredMount } from "@/hooks/useDeferredMount";
+import { useJobStatsQuery } from "@/hooks/queries/use-job-stats-query";
 import { useNotificationsActivityQuery } from "@/hooks/queries/use-notifications-activity-query";
 import { getMarketPulseFallbackData } from "@/lib/market-pulse-fallback";
 import { queryKeys } from "@/lib/query-keys";
 import { listRoadmaps } from "@/lib/roadmaps-api";
 import { listResumes } from "@/lib/resume-api";
 import type { GeneratedResumeOut } from "@/types/generated-resume";
-import type { InDemandSkill, TrendingCareer } from "@/types/jobs";
+import type { InDemandSkill, JobStats, TrendingCareer } from "@/types/jobs";
 import type { RoadmapListItem } from "@/types/roadmap";
 
 export type DashboardSuggestedAction = {
@@ -49,10 +51,23 @@ export type DashboardOverviewData = {
   profileMatchPercent: number | null;
   trendingCareers: TrendingCareer[];
   inDemandSkills: InDemandSkill[];
+  jobStats: JobStats | null;
   activities: DashboardActivityItem[];
   suggestedActions: DashboardSuggestedAction[];
   syncItems: DashboardSyncItem[];
   unreadNotifications: number;
+};
+
+/** Per-section loading — each card skeletons independently. */
+export type DashboardOverviewLoading = {
+  readiness: boolean;
+  roadmaps: boolean;
+  resumes: boolean;
+  sync: boolean;
+  market: boolean;
+  jobStats: boolean;
+  notifications: boolean;
+  suggestedActions: boolean;
 };
 
 const ACTIVITY_NOTIFICATION_LIMIT = 5;
@@ -118,11 +133,14 @@ function buildSuggestedActions(
 }
 
 export function useDashboardOverview(careerInterest: string) {
-  const { days } = useMarketAnalyticsPeriod();
+  const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
   const queryClient = useQueryClient();
   const fallback = getMarketPulseFallbackData();
+  const deferSecondary = useDeferredMount();
 
-  const notificationsQuery = useNotificationsActivityQuery();
+  const notificationsQuery = useNotificationsActivityQuery({
+    enabled: deferSecondary,
+  });
 
   const [roadmapsQuery, resumesQuery, githubQuery, transcriptQuery, readinessQuery] =
     useQueries({
@@ -138,10 +156,12 @@ export function useDashboardOverview(careerInterest: string) {
         {
           queryKey: queryKeys.profile.github(),
           queryFn: getGithubSyncedData,
+          enabled: deferSecondary,
         },
         {
           queryKey: queryKeys.profile.transcriptLatest(),
           queryFn: getLatestTranscript,
+          enabled: deferSecondary,
         },
         {
           queryKey: queryKeys.readiness.user(),
@@ -155,25 +175,39 @@ export function useDashboardOverview(careerInterest: string) {
       {
         queryKey: queryKeys.market.trending(days, 7),
         queryFn: () => getTrendingCareers({ limit: 7, period: days }),
+        enabled: deferSecondary,
       },
       {
         queryKey: queryKeys.market.inDemandSkills(days, 6),
         queryFn: () => getInDemandSkills({ limit: 6, period: days }),
+        enabled: deferSecondary,
       },
     ],
   });
 
   const [trendingQuery, skillsQuery] = marketQuery;
+  const jobStatsQuery = useJobStatsQuery(days, { enabled: deferSecondary });
 
-  const corePending =
-    roadmapsQuery.isPending ||
-    resumesQuery.isPending ||
-    notificationsQuery.isPending ||
-    githubQuery.isPending ||
-    transcriptQuery.isPending ||
-    readinessQuery.isPending;
-
-  const marketPending = trendingQuery.isPending || skillsQuery.isPending;
+  const sectionLoading: DashboardOverviewLoading = {
+    readiness: readinessQuery.isPending,
+    roadmaps: roadmapsQuery.isPending,
+    resumes: resumesQuery.isPending,
+    sync:
+      !deferSecondary ||
+      githubQuery.isPending ||
+      transcriptQuery.isPending,
+    market:
+      !deferSecondary ||
+      trendingQuery.isPending ||
+      skillsQuery.isPending,
+    jobStats: !deferSecondary || jobStatsQuery.isPending,
+    notifications: !deferSecondary || notificationsQuery.isPending,
+    suggestedActions:
+      roadmapsQuery.isPending ||
+      githubQuery.isPending ||
+      transcriptQuery.isPending ||
+      readinessQuery.isPending,
+  };
 
   const coreError =
     roadmapsQuery.error ||
@@ -256,6 +290,7 @@ export function useDashboardOverview(careerInterest: string) {
       profileMatchPercent: null,
       trendingCareers,
       inDemandSkills,
+      jobStats: jobStatsQuery.data ?? null,
       activities,
       suggestedActions: mergeSuggestedActions(
         suggestedActionsFromReadiness(readiness),
@@ -274,6 +309,7 @@ export function useDashboardOverview(careerInterest: string) {
     readinessQuery.data,
     trendingQuery.data,
     skillsQuery.data,
+    jobStatsQuery.data,
     careerInterest,
     fallback.trending,
     fallback.skills,
@@ -289,6 +325,7 @@ export function useDashboardOverview(careerInterest: string) {
       readinessQuery.refetch(),
       trendingQuery.refetch(),
       skillsQuery.refetch(),
+      jobStatsQuery.refetch(),
     ]);
   }, [
     roadmapsQuery,
@@ -299,6 +336,7 @@ export function useDashboardOverview(careerInterest: string) {
     readinessQuery,
     trendingQuery,
     skillsQuery,
+    jobStatsQuery,
   ]);
 
   const refreshReadiness = useCallback(async () => {
@@ -315,14 +353,22 @@ export function useDashboardOverview(careerInterest: string) {
     resumesQuery.isSuccess ||
     notificationsQuery.isSuccess;
 
+  const corePending =
+    sectionLoading.readiness ||
+    sectionLoading.roadmaps ||
+    sectionLoading.resumes ||
+    sectionLoading.sync ||
+    sectionLoading.notifications;
+
   return {
     data,
-    loading: corePending || marketPending,
+    loading: sectionLoading,
     error:
       !hasAnyCoreData && !corePending && coreError
         ? "Could not load dashboard overview."
         : null,
     reload,
     refreshReadiness,
+    lookbackPhrase,
   };
 }

@@ -1,23 +1,41 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import WelcomeHeader from "@/components/dashboard/WelcomeHeader";
 import InsightCard from "@/components/dashboard/InsightCard";
 import ModuleGrid from "@/components/dashboard/ModuleGrid";
 import DataSyncCard from "@/components/dashboard/DataSyncCard";
-import MarketTrendsCard from "@/components/dashboard/MarketTrendsCard";
-import RecentActivity from "@/components/dashboard/RecentActivity";
-import SuggestedActions from "@/components/dashboard/SuggestedActions";
-import CareerReadinessPanel from "@/components/dashboard/CareerReadinessPanel";
+import JobListingsStat from "@/components/market/JobListingsStat";
 import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
 import { useDashboardOverview } from "@/hooks/useDashboardOverview";
 import { getUserProfileView } from "@/lib/user-profile";
 import { useAppStore } from "@/store/useAppStore";
 
+const CareerReadinessPanel = dynamic(
+  () => import("@/components/dashboard/CareerReadinessPanel"),
+  { ssr: false },
+);
+
+const MarketTrendsCard = dynamic(
+  () => import("@/components/dashboard/MarketTrendsCard"),
+  { ssr: false },
+);
+
+const RecentActivity = dynamic(
+  () => import("@/components/dashboard/RecentActivity"),
+  { ssr: false },
+);
+
+const SuggestedActions = dynamic(
+  () => import("@/components/dashboard/SuggestedActions"),
+  { ssr: false },
+);
+
 export default function DashboardOverview() {
   const user = useAppStore((state) => state.authData.user);
   const profile = getUserProfileView(user);
-  const { data, loading, error, refreshReadiness, reload } =
+  const { data, loading: sectionLoading, error, refreshReadiness, reload, lookbackPhrase } =
     useDashboardOverview(profile.careerInterest);
   const [refreshingReadiness, setRefreshingReadiness] = useState(false);
 
@@ -32,7 +50,10 @@ export default function DashboardOverview() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
-      {error && !loading ? (
+      {error &&
+      !sectionLoading.readiness &&
+      !sectionLoading.roadmaps &&
+      !sectionLoading.resumes ? (
         <div
           role="alert"
           className="flex flex-col gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
@@ -48,65 +69,88 @@ export default function DashboardOverview() {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:items-stretch">
-        <div className="vs-surface flex h-full min-h-0 flex-col p-6 sm:p-8 lg:col-span-2">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 lg:items-stretch">
+        <div className="vs-surface flex h-full min-h-0 flex-col p-6 sm:p-8 md:col-span-1 lg:col-span-2">
           <WelcomeHeader
             readinessScore={data.readinessScore}
             readinessLevel={data.readiness?.level}
-            loading={loading}
+            loading={sectionLoading.readiness}
           />
         </div>
         <InsightCard
           headline={data.insightHeadline}
-          loading={loading}
+          loading={sectionLoading.readiness}
           readiness={data.readiness}
-          className="min-h-[220px] lg:min-h-0"
+          className="min-h-[220px] md:min-h-0 lg:min-h-0"
         />
       </div>
 
       <CareerReadinessPanel
         readiness={data.readiness}
-        loading={loading}
+        loading={sectionLoading.readiness}
         refreshing={refreshingReadiness}
         onRefresh={() => void handleRefreshReadiness()}
         variant="compact"
       />
 
-      <ModuleGrid
-        activeRoadmap={data.activeRoadmap}
-        latestResume={data.latestResume}
-        profileMatchPercent={data.profileMatchPercent}
-        loading={loading}
-      />
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12 lg:items-stretch">
+        <div className="lg:col-span-8">
+          <ModuleGrid
+            activeRoadmap={data.activeRoadmap}
+            latestResume={data.latestResume}
+            profileMatchPercent={data.profileMatchPercent}
+            roadmapsLoading={sectionLoading.roadmaps}
+            resumesLoading={sectionLoading.resumes}
+          />
+        </div>
+        <div className="flex h-full min-h-0 lg:col-span-4">
+          <DataSyncCard
+            items={data.syncItems}
+            loading={sectionLoading.sync}
+          />
+        </div>
+      </div>
 
       <div className="space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm font-medium text-muted-foreground">
             Market analytics
           </p>
-          <MarketAnalyticsPeriodSelect disabled={loading} compact />
+          <MarketAnalyticsPeriodSelect
+            disabled={sectionLoading.market}
+            compact
+          />
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:items-stretch">
-          <DataSyncCard items={data.syncItems} loading={loading} />
-          <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12 lg:items-stretch">
+          <div className="lg:col-span-4">
+            <JobListingsStat
+              stats={data.jobStats}
+              loading={sectionLoading.jobStats}
+              lookbackPhrase={lookbackPhrase}
+            />
+          </div>
+          <div className="lg:col-span-8">
             <MarketTrendsCard
               trending={data.trendingCareers}
               skills={data.inDemandSkills}
-              loading={loading}
+              loading={sectionLoading.market}
             />
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 lg:items-stretch">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 lg:items-stretch">
+        <div className="md:col-span-1 lg:col-span-2">
           <RecentActivity
             activities={data.activities}
             unreadCount={data.unreadNotifications}
-            loading={loading}
+            loading={sectionLoading.notifications}
           />
         </div>
-        <SuggestedActions actions={data.suggestedActions} loading={loading} />
+        <SuggestedActions
+          actions={data.suggestedActions}
+          loading={sectionLoading.suggestedActions}
+        />
       </div>
     </div>
   );

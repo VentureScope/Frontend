@@ -1,30 +1,30 @@
 "use client";
 
 import { Share2, Github, GraduationCap } from "lucide-react";
-import { useAppStore } from "@/store/useAppStore";
-import {
-  useGithubSyncedQuery,
-  useLatestTranscriptQuery,
-} from "@/hooks/queries/use-profile-queries";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { AuthUser } from "@/types/auth";
+import type { GitHubSyncedDataResponse } from "@/types/github";
+import type { TranscriptResponse } from "@/types/transcript";
 
-export default function ConnectedAccounts() {
-  const user = useAppStore((state) => state.authData.user);
-  const githubQuery = useGithubSyncedQuery();
-  const transcriptQuery = useLatestTranscriptQuery();
+type ConnectedAccountsProps = {
+  profile: AuthUser | null;
+  github: GitHubSyncedDataResponse | null;
+  transcript: TranscriptResponse | null;
+  loading?: boolean;
+};
 
-  const loading = githubQuery.isPending || transcriptQuery.isPending;
-  const githubRes = githubQuery.data;
-  const transcriptRes = transcriptQuery.data;
-
-  const hasGithub = Boolean(
-    githubRes?.github_username || user?.github_username,
-  );
+export default function ConnectedAccounts({
+  profile,
+  github,
+  transcript,
+  loading = false,
+}: ConnectedAccountsProps) {
+  const hasGithub = Boolean(github?.github_username || profile?.github_username);
   const githubUsername =
-    githubRes?.github_username ?? user?.github_username ?? null;
+    github?.github_username ?? profile?.github_username ?? null;
   const hasAcademic =
-    (transcriptRes?.transcript_data?.semesters?.length ?? 0) > 0;
+    (transcript?.transcript_data?.semesters?.length ?? 0) > 0;
 
   if (loading) {
     return (
@@ -89,7 +89,7 @@ export default function ConnectedAccounts() {
             </span>
           ) : (
             <Link
-              href="/dashboard/settings"
+              href="/dashboard/data-hub"
               className="self-start text-[10px] font-bold text-primary hover:underline sm:self-auto"
             >
               CONNECT
@@ -125,7 +125,7 @@ export default function ConnectedAccounts() {
             </span>
           ) : (
             <Link
-              href="/dashboard/settings"
+              href="/dashboard/data-hub"
               className="self-start text-[10px] font-bold text-primary hover:underline sm:self-auto"
             >
               CONNECT

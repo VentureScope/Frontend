@@ -1,23 +1,29 @@
 "use client";
 
-import { useState } from "react";
-import { Menu, Shield } from "lucide-react";
-import { DashboardHelpPanel } from "@/components/dashboard/layout/DashboardHelpPanel";
-import { NotificationPanel } from "@/components/dashboard/layout/NotificationPanel";
-import Link from "next/link";
+import dynamic from "next/dynamic";
+import { Menu } from "lucide-react";
 import { getUserProfileView } from "@/lib/user-profile";
 import { useAppStore } from "@/store/useAppStore";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { cn } from "@/lib/utils";
-import {
-  CommandSearch,
-  type CommandSearchItem,
-} from "@/components/shared/CommandSearch";
+import { useDeferredMount } from "@/hooks/useDeferredMount";
+import type { CommandSearchItem } from "@/components/shared/CommandSearch";
 
-type TopNavProps = {
-  breadcrumb: string;
-  onMenuClick?: () => void;
-};
+const CommandSearch = dynamic(
+  () =>
+    import("@/components/shared/CommandSearch").then((m) => ({
+      default: m.CommandSearch,
+    })),
+  { ssr: false },
+);
+
+const TopNavDeferredWidgets = dynamic(
+  () =>
+    import("@/components/dashboard/layout/TopNavDeferredWidgets").then(
+      (m) => ({
+        default: m.TopNavDeferredWidgets,
+      }),
+    ),
+  { ssr: false },
+);
 
 const DASHBOARD_SEARCH_ITEMS: CommandSearchItem[] = [
   { label: "Dashboard Overview", path: "/dashboard", group: "Workspace" },
@@ -62,58 +68,17 @@ const DASHBOARD_SEARCH_ITEMS: CommandSearchItem[] = [
   },
 ];
 
-function TopNavActions({
-  profile,
-  isAdmin,
-}: {
-  profile: ReturnType<typeof getUserProfileView>;
-  isAdmin: boolean;
-}) {
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
+type TopNavProps = {
+  breadcrumb: string;
+  onMenuClick?: () => void;
+};
 
+function TopNavActionsPlaceholder() {
   return (
     <>
-      {isAdmin ? (
-        <Link
-          href="/admin"
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/50 px-2 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted sm:px-2.5",
-          )}
-          title="Open admin console"
-        >
-          <Shield className="h-3.5 w-3.5 text-primary" />
-          <span className="hidden md:inline">Admin</span>
-        </Link>
-      ) : null}
-      <ThemeToggle />
-      <NotificationPanel
-        open={notificationsOpen}
-        onOpenChange={(next) => {
-          setNotificationsOpen(next);
-          if (next) setHelpOpen(false);
-        }}
-      />
-      <DashboardHelpPanel
-        open={helpOpen}
-        onOpenChange={(next) => {
-          setHelpOpen(next);
-          if (next) setNotificationsOpen(false);
-        }}
-      />
-      <Link
-        href="/dashboard/profile"
-        className={cn(
-          "ml-1 flex h-9 w-9 overflow-hidden rounded-full border border-border sm:h-10 sm:w-10",
-          "ring-offset-background transition-shadow hover:ring-2 hover:ring-primary/30",
-        )}
-      >
-        <img
-          src={profile.avatarUrl}
-          alt={profile.fullName}
-          className="h-full w-full bg-muted object-cover"
-        />
-      </Link>
+      <div className="h-9 w-9 rounded-lg bg-muted" aria-hidden />
+      <div className="h-9 w-9 rounded-lg bg-muted" aria-hidden />
+      <div className="h-9 w-9 rounded-full bg-muted" aria-hidden />
     </>
   );
 }
@@ -122,6 +87,8 @@ export default function TopNav({ breadcrumb, onMenuClick }: TopNavProps) {
   const user = useAppStore((state) => state.authData.user);
   const isAdmin = Boolean(user?.is_admin);
   const profile = getUserProfileView(user);
+  const widgetsReady = useDeferredMount(800);
+  const searchReady = useDeferredMount(1200);
 
   return (
     <header className="sticky top-0 z-30 w-full border-b border-border bg-background/95 backdrop-blur-md">
@@ -145,14 +112,25 @@ export default function TopNav({ breadcrumb, onMenuClick }: TopNavProps) {
         </div>
 
         <div className="flex shrink-0 items-center justify-end gap-1 sm:gap-2 md:col-start-4">
-          <TopNavActions profile={profile} isAdmin={isAdmin} />
+          {widgetsReady ? (
+            <TopNavDeferredWidgets profile={profile} isAdmin={isAdmin} />
+          ) : (
+            <TopNavActionsPlaceholder />
+          )}
         </div>
 
-        <CommandSearch
-          items={DASHBOARD_SEARCH_ITEMS}
-          placeholder="Search pages…"
-          className="col-span-3 min-w-0 md:col-span-1 md:col-start-3 md:row-start-1"
-        />
+        {searchReady ? (
+          <CommandSearch
+            items={DASHBOARD_SEARCH_ITEMS}
+            placeholder="Search pages…"
+            className="col-span-3 min-w-0 md:col-span-1 md:col-start-3 md:row-start-1"
+          />
+        ) : (
+          <div
+            className="col-span-3 hidden h-10 min-w-0 rounded-lg bg-muted md:col-span-1 md:col-start-3 md:block md:row-start-1"
+            aria-hidden
+          />
+        )}
       </div>
     </header>
   );

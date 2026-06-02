@@ -1,4 +1,5 @@
 import type { DataHubSourceStatus } from "@/lib/data-hub-utils";
+import { OnboardingStepsSkeleton } from "@/components/data-hub/DataHubSkeletons";
 
 const STEP_META = [
   {
@@ -23,9 +24,17 @@ const STEP_META = [
 
 type OnboardingStepsProps = {
   sources: DataHubSourceStatus[];
+  sourcesReady?: boolean;
 };
 
-export default function OnboardingSteps({ sources }: OnboardingStepsProps) {
+export default function OnboardingSteps({
+  sources,
+  sourcesReady = true,
+}: OnboardingStepsProps) {
+  if (!sourcesReady) {
+    return <OnboardingStepsSkeleton />;
+  }
+
   const github = sources.find((s) => s.id === "github")?.status === "synced";
   const transcript =
     sources.find((s) => s.id === "transcript")?.status === "synced";

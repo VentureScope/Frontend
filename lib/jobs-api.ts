@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import { computeForecastGrowthPct } from "@/lib/job-market-insights";
+import { deriveTrendingCareersFromForecasts } from "@/lib/job-market-insights";
 import type {
   InDemandSkill,
   JobByCategoryRow,
@@ -36,73 +36,29 @@ export async function getFutureTrendingRoles(params?: {
 }
 
 /**
- * Roles projected to trend in the future — uses the same market-trends APIs as
- * `/dashboard/market-trends`: trending roles plus per-role `/api/jobs/forecasts`.
+ * Roles projected to trend — one bulk `GET /api/jobs/forecasts` (all roles),
+ * ranked by average projected monthly postings.
  */
 export async function getFutureTrendingRolesForRoadmap(params?: {
   limit?: number;
-  period?: number;
 }): Promise<TrendingCareer[]> {
   const limit = params?.limit ?? 12;
 
-  const trending = await getTrendingCareers({
-    limit: Math.max(limit, 12),
-    period: params?.period ?? 90,
-  }).catch(() => [] as TrendingCareer[]);
-
-  if (trending.length === 0) {
-    try {
-      const dedicated = await getFutureTrendingRoles({ limit });
-      if (dedicated.length > 0) {
-        return dedicated;
-      }
-    } catch {
-      // no dedicated endpoint
+  try {
+    const forecasts = await getJobForecasts();
+    const derived = deriveTrendingCareersFromForecasts(forecasts, limit);
+    if (derived.length > 0) {
+      return derived;
     }
-    return [];
+  } catch {
+    // fall through to legacy endpoint
   }
 
-  const forecastGrowthByRole = new Map<string, number>();
-  await Promise.all(
-    trending.map(async (career) => {
-      const rows = await getJobForecasts({ role: career.name }).catch(
-        () => [] as JobForecast[],
-      );
-      const growth = computeForecastGrowthPct(rows);
-      if (growth !== null) {
-        forecastGrowthByRole.set(career.name.trim().toLowerCase(), growth);
-      }
-    }),
-  );
-
-  const merged = trending.map((career) => {
-    const key = career.name.trim().toLowerCase();
-    const forecastGrowth = forecastGrowthByRole.get(key);
-    return {
-      ...career,
-      growth_pct:
-        forecastGrowth !== undefined
-          ? forecastGrowth
-          : (career.growth_pct ?? 0),
-    };
-  });
-
-  return [...merged]
-    .sort((a, b) => {
-      const aKey = a.name.trim().toLowerCase();
-      const bKey = b.name.trim().toLowerCase();
-      const aHasForecast = forecastGrowthByRole.has(aKey);
-      const bHasForecast = forecastGrowthByRole.has(bKey);
-      if (aHasForecast !== bHasForecast) {
-        return aHasForecast ? -1 : 1;
-      }
-      const growthDiff = (b.growth_pct ?? 0) - (a.growth_pct ?? 0);
-      if (growthDiff !== 0) {
-        return growthDiff;
-      }
-      return b.job_count - a.job_count;
-    })
-    .slice(0, limit);
+  try {
+    return await getFutureTrendingRoles({ limit });
+  } catch {
+    return [];
+  }
 }
 
 export async function getInDemandSkills(params?: {
@@ -115,10 +71,14 @@ export async function getInDemandSkills(params?: {
   return res.data;
 }
 
-export async function getJobStats(params?: {
+/** Job corpus stats for a lookback window (`period` days; API default 90). */
+export async function getJobStats(options?: {
   period?: number;
 }): Promise<JobStats> {
-  const res = await api.get<JobStats>("/api/jobs/stats", { params });
+  const res = await api.get<JobStats>("/api/jobs/stats", {
+    params:
+      options?.period != null ? { period: options.period } : undefined,
+  });
   return res.data;
 }
 

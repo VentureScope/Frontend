@@ -1,3 +1,4 @@
+import { preload } from "react-dom";
 import {
   CheckCircle,
   Zap,
@@ -15,6 +16,11 @@ import { marketingImages } from "@/lib/marketing-images";
 import { initialsFromName } from "@/lib/utils";
 
 export default function AboutPage() {
+  preload(marketingImages.aboutHero.src, {
+    as: "image",
+    fetchPriority: "high",
+  });
+
   return (
     <div className="bg-background">
       {/* HERO SECTION */}
@@ -47,6 +53,7 @@ export default function AboutPage() {
                 src={marketingImages.aboutHero.src}
                 alt={marketingImages.aboutHero.alt}
                 priority
+                fetchPriority="high"
                 sizes="(max-width: 1024px) 100vw, 560px"
               />
             </div>

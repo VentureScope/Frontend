@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  DEFAULT_MARKET_PERIOD_ID,
   dispatchMarketPeriodChange,
+  DEFAULT_MARKET_PERIOD_ID,
   MARKET_ANALYTICS_PERIODS,
   marketPeriodDays,
   marketPeriodFromId,

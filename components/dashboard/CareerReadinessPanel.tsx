@@ -36,10 +36,10 @@ function SkillGroup({
 
   const chipClass =
     tone === "matched"
-      ? "border-success/25 bg-success/10 text-success"
+      ? "border-success/40 bg-success/15 text-foreground"
       : tone === "missing"
-        ? "border-destructive/25 bg-destructive/10 text-destructive"
-        : "border-primary/25 bg-primary/10 text-primary";
+        ? "border-destructive/40 bg-destructive/15 text-foreground"
+        : "border-primary/40 bg-primary/15 text-foreground";
 
   return (
     <div className="min-w-0 rounded-lg border border-border bg-muted/30 p-4">

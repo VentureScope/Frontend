@@ -24,8 +24,11 @@ export interface ChatMessage {
   created_at?: string;
 }
 
+const SESSIONS_STALE_MS = 60_000;
+
 export interface ChatState {
   sessions: ChatSession[];
+  sessionsFetchedAt: number | null;
   activeSessionId: string | null;
   activeSession: ChatSession | null;
   isFetchingSessions: boolean;
@@ -36,7 +39,7 @@ export interface ChatState {
   error: string | null;
   ws: WebSocket | null;
 
-  fetchSessions: () => Promise<void>;
+  fetchSessions: (options?: { force?: boolean }) => Promise<void>;
   createSession: (title?: string | null) => Promise<string | null>;
   startNewChatWithMessage: (content: string) => Promise<string | null>;
   setActiveSession: (id: string) => Promise<void>;
@@ -98,6 +101,7 @@ function applySessionTitle(
 
 export const useChatStore = create<ChatState>((set, get) => ({
   sessions: [],
+  sessionsFetchedAt: null,
   activeSessionId: null,
   activeSession: null,
   isFetchingSessions: false,
@@ -108,11 +112,27 @@ export const useChatStore = create<ChatState>((set, get) => ({
   error: null,
   ws: null,
 
-  fetchSessions: async () => {
+  fetchSessions: async (options) => {
+    const { isFetchingSessions, sessions, sessionsFetchedAt } = get();
+    if (isFetchingSessions) {
+      return;
+    }
+    const isFresh =
+      sessions.length > 0 &&
+      sessionsFetchedAt != null &&
+      Date.now() - sessionsFetchedAt < SESSIONS_STALE_MS;
+    if (!options?.force && isFresh) {
+      return;
+    }
+
     set({ isFetchingSessions: true, error: null });
     try {
       const { data } = await api.get("/api/chat/sessions");
-      set({ sessions: data, isFetchingSessions: false });
+      set({
+        sessions: data,
+        isFetchingSessions: false,
+        sessionsFetchedAt: Date.now(),
+      });
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "Failed to load conversations";
@@ -148,6 +168,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       });
       set((state) => ({
         sessions: [data, ...state.sessions],
+        sessionsFetchedAt: Date.now(),
         isSessionBusy: true,
       }));
       await get().setActiveSession(data.id);
@@ -398,6 +419,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
       set((state) => ({
         sessions: state.sessions.filter((s) => s.id !== id),
+        sessionsFetchedAt: Date.now(),
         activeSession: wasActive ? null : state.activeSession,
         activeSessionId: wasActive ? null : state.activeSessionId,
         deletingSessionId: null,

@@ -12,15 +12,10 @@ import { useInvalidateProfileQueries } from "@/hooks/queries/use-profile-queries
 
 export default function DataHubPage() {
   const hub = useDataHub();
-  const { invalidateGithub, invalidateDataHub } = useInvalidateProfileQueries();
+  const { invalidateGithub } = useInvalidateProfileQueries();
 
   const refreshGithub = async () => {
     await invalidateGithub();
-  };
-
-  const refreshTranscript = async () => {
-    await invalidateDataHub();
-    await hub.reload();
   };
 
   return (
@@ -38,14 +33,14 @@ export default function DataHubPage() {
       <DataHubSummary
         sources={hub.sources}
         completionPercent={hub.completionPercent}
-        loading={hub.loading}
+        loading={hub.loading.summary}
       />
 
       <div className="mb-6 grid grid-cols-1 gap-6 sm:mb-8 sm:gap-8 lg:grid-cols-12">
         <div className="lg:col-span-7">
           <GitHubCard
             data={hub.github}
-            loading={hub.loading}
+            loading={hub.loading.github}
             onRefresh={refreshGithub}
           />
         </div>
@@ -53,6 +48,7 @@ export default function DataHubPage() {
           <ExtensionCard
             transcript={hub.transcript}
             versionCount={hub.transcriptList?.total_count ?? 0}
+            loading={hub.loading.extension}
           />
         </div>
       </div>
@@ -60,14 +56,14 @@ export default function DataHubPage() {
       <div className="mb-6 grid grid-cols-1 gap-6 sm:mb-8 lg:grid-cols-2">
         <CvCard
           profile={hub.profile}
-          loading={hub.loading}
+          loading={hub.loading.cv}
           onUpload={hub.uploadCv}
           onChanged={hub.refreshProfile}
         />
         <SkillsCard
           profile={hub.profile}
           experiences={hub.experiences}
-          loading={hub.loading}
+          loading={hub.loading.skills}
         />
       </div>
 
@@ -76,12 +72,12 @@ export default function DataHubPage() {
           transcript={hub.transcript}
           transcriptList={hub.transcriptList}
           config={hub.config}
-          loading={hub.loading}
-          onRefresh={refreshTranscript}
+          loading={hub.loading.academic}
+          onRefresh={hub.refreshTranscript}
         />
       </div>
 
-      <OnboardingSteps sources={hub.sources} />
+      <OnboardingSteps sources={hub.sources} sourcesReady={hub.sourcesReady} />
     </div>
   );
 }

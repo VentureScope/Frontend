@@ -17,6 +17,13 @@ export const queryKeys = {
       [...queryKeys.organizations.all, "members", orgId] as const,
     roadmaps: (orgId: string) =>
       [...queryKeys.organizations.all, "roadmaps", orgId] as const,
+    roadmapDetail: (orgId: string, roadmapId: string) =>
+      [
+        ...queryKeys.organizations.all,
+        "roadmap-detail",
+        orgId,
+        roadmapId,
+      ] as const,
     myRoadmaps: (orgIdsKey: string) =>
       [...queryKeys.organizations.all, "my-roadmaps", orgIdsKey] as const,
     myMemberContexts: (orgFilter: string, orgIdsKey: string, userId: string) =>
@@ -35,6 +42,7 @@ export const queryKeys = {
     transcriptLatest: () =>
       [...queryKeys.profile.all, "transcript", "latest"] as const,
     experiences: () => [...queryKeys.profile.all, "experiences"] as const,
+    certificates: () => [...queryKeys.profile.all, "certificates"] as const,
   },
   dataHub: {
     all: ["data-hub"] as const,
@@ -47,8 +55,22 @@ export const queryKeys = {
     all: ["market"] as const,
     trending: (days: number, limit: number) =>
       [...queryKeys.market.all, "trending", days, limit] as const,
+    forecasts: () => [...queryKeys.market.all, "forecasts"] as const,
+    futureRoadmapRoles: (limit: number) =>
+      [...queryKeys.market.all, "future-roadmap-roles", limit] as const,
     inDemandSkills: (days: number, limit: number) =>
       [...queryKeys.market.all, "in-demand-skills", days, limit] as const,
+    jobStats: (period: number) =>
+      [...queryKeys.market.all, "job-stats", period] as const,
+    hiringCompanies: (days: number, categoriesKey: string) =>
+      [
+        ...queryKeys.market.all,
+        "hiring-companies",
+        days,
+        categoriesKey,
+      ] as const,
+    roleForecasts: (role: string) =>
+      [...queryKeys.market.all, "forecasts", role] as const,
   },
   dashboard: {
     all: ["dashboard"] as const,
@@ -57,10 +79,14 @@ export const queryKeys = {
   roadmaps: {
     all: ["roadmaps"] as const,
     list: () => [...queryKeys.roadmaps.all, "list"] as const,
+    detail: (roadmapId: string) =>
+      [...queryKeys.roadmaps.all, "detail", roadmapId] as const,
   },
   resumes: {
     all: ["resumes"] as const,
     list: () => [...queryKeys.resumes.all, "list"] as const,
+    detail: (resumeId: string) =>
+      [...queryKeys.resumes.all, "detail", resumeId] as const,
   },
   readiness: {
     all: ["readiness"] as const,

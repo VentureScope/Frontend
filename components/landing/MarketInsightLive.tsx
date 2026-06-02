@@ -23,6 +23,7 @@ import { TrendingRolesPanel } from "@/components/landing/market/TrendingRolesPan
 import { CategoryJobsPanel } from "@/components/landing/market/CategoryJobsPanel";
 import { ProfileMatchesPanel } from "@/components/landing/market/ProfileMatchesPanel";
 import { MARKET_TOP_K } from "@/lib/job-market-insights";
+import { MARKET_ALL_TIME_DAYS } from "@/lib/market-analytics-period";
 import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
 import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
 import { logMarketSectionFailure } from "@/lib/log-jobs-api";
@@ -49,7 +50,7 @@ export default function MarketInsightLive() {
         const [sk, st, allSt, tr] = await Promise.all([
           getInDemandSkills({ limit: MARKET_TOP_K.skills, period: days }),
           getJobStats({ period: days }),
-          getJobStats({ period: 3650 }),
+          getJobStats({ period: MARKET_ALL_TIME_DAYS }),
           getTrendingCareers({ limit: MARKET_TOP_K.trending, period: days }),
         ]);
         if (cancelled) {
@@ -113,26 +114,26 @@ export default function MarketInsightLive() {
 
           <div className="flex flex-col gap-3 sm:items-end">
             <MarketAnalyticsPeriodSelect disabled={loading} compact />
-          <div className="flex items-center justify-center md:justify-start gap-4 rounded-lg bg-card p-4 shadow-sm border border-border">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-              <RefreshCw className="h-5 w-5 text-primary" />
+            <div className="flex items-center justify-center md:justify-start gap-4 rounded-lg bg-card p-4 shadow-sm border border-border">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+                <RefreshCw className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Last refreshed
+                </p>
+                <p className="font-bold text-foreground">
+                  {loading
+                    ? "Updating…"
+                    : updatedAt
+                      ? updatedAt.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "—"}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                Last refreshed
-              </p>
-              <p className="font-bold text-foreground">
-                {loading
-                  ? "Updating…"
-                  : updatedAt
-                    ? updatedAt.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : "—"}
-              </p>
-            </div>
-          </div>
           </div>
         </div>
       </section>
@@ -148,7 +149,11 @@ export default function MarketInsightLive() {
           <div className="lg:col-span-2">
             <SkillDemandPanel skills={skills} loading={loading} />
           </div>
-          <MarketStatsPanel stats={stats} allTimeStats={allTimeStats} loading={loading} />
+          <MarketStatsPanel
+            stats={stats}
+            allTimeStats={allTimeStats}
+            loading={loading}
+          />
         </div>
       </section>
 

@@ -14,6 +14,16 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: projectRoot,
   },
+  experimental: {
+    inlineCss: true,
+    optimizePackageImports: [
+      "lucide-react",
+      "recharts",
+      "date-fns",
+      "@radix-ui/react-icons",
+      "react-icons",
+    ],
+  },
   async rewrites() {
     return [
       {

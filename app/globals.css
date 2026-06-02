@@ -253,21 +253,21 @@
   }
 
   .vs-badge-success {
-    border-color: color-mix(in srgb, var(--success) 28%, transparent);
-    background-color: color-mix(in srgb, var(--success) 12%, transparent);
-    color: var(--success);
+    border-color: color-mix(in srgb, var(--success) 35%, transparent);
+    background-color: color-mix(in srgb, var(--success) 14%, var(--card));
+    color: var(--foreground);
   }
 
   .vs-badge-warning {
-    border-color: color-mix(in srgb, var(--warning) 28%, transparent);
-    background-color: color-mix(in srgb, var(--warning) 12%, transparent);
-    color: var(--warning);
+    border-color: color-mix(in srgb, var(--warning) 35%, transparent);
+    background-color: color-mix(in srgb, var(--warning) 14%, var(--card));
+    color: var(--foreground);
   }
 
   .vs-badge-danger {
-    border-color: color-mix(in srgb, var(--destructive) 28%, transparent);
-    background-color: color-mix(in srgb, var(--destructive) 12%, transparent);
-    color: var(--destructive);
+    border-color: color-mix(in srgb, var(--destructive) 35%, transparent);
+    background-color: color-mix(in srgb, var(--destructive) 14%, var(--card));
+    color: var(--foreground);
   }
 
   .vs-badge-neutral {
@@ -326,9 +326,9 @@
   }
 
   .vs-badge-accent {
-    border-color: color-mix(in srgb, var(--accent) 28%, transparent);
-    background-color: color-mix(in srgb, var(--accent) 12%, transparent);
-    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    background-color: color-mix(in srgb, var(--accent) 14%, var(--card));
+    color: var(--foreground);
   }
 
   .vs-nav-active {

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Briefcase,
@@ -22,10 +23,10 @@ import { Button } from "@/components/ui/button";
 import { EditableResumeDocument } from "@/components/resume/EditableResumeDocument";
 import { ResumeExportPreviewModal } from "@/components/resume/ResumeExportPreviewModal";
 import { ResumeWarningsBanner } from "@/components/resume/ResumeWarningsBanner";
-import { ResumeDetailSkeleton } from "@/components/resume/ResumeSkeletons";
+import { ResumeEditorShellSkeleton } from "@/components/resume/ResumeSkeletons";
+import { useResumeDetailQuery } from "@/hooks/queries/use-resume-detail-query";
 import {
   deleteResume,
-  getResume,
   updateResume,
 } from "@/lib/resume-api";
 import { buildResumeSectionPatch } from "@/lib/resume-editor-mappers";
@@ -38,6 +39,7 @@ import {
   resumeSectionCounts,
 } from "@/lib/resume-utils";
 import { getApiErrorMessage } from "@/lib/auth-api";
+import { queryKeys } from "@/lib/query-keys";
 import type { Resume } from "@/app/(dashboard)/dashboard/resume-builder/mockData";
 import type { GeneratedResumeOut, ResumeEditorSection } from "@/types/generated-resume";
 import { cn } from "@/lib/utils";
@@ -124,11 +126,12 @@ function refreshScores(resume: Resume, api: GeneratedResumeOut): Resume {
 
 export function ResumeEditorWorkspace({ resumeId }: { resumeId: string }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const detailQuery = useResumeDetailQuery(resumeId);
   const [resume, setResume] = useState<Resume | null>(null);
   const [apiResume, setApiResume] = useState<GeneratedResumeOut | null>(null);
   const [activeSection, setActiveSection] =
     useState<ResumeEditorSection>("target");
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -139,25 +142,20 @@ export function ResumeEditorWorkspace({ resumeId }: { resumeId: string }) {
     resumeRef.current = resume;
   }, [resume]);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const api = await getResume(resumeId);
-      setApiResume(api);
-      setResume(applyApiToResume(api));
-      setDirty(false);
-    } catch (err) {
-      toast.error(getApiErrorMessage(err));
-      setResume(null);
-      setApiResume(null);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (!detailQuery.data) {
+      return;
     }
-  }, [resumeId]);
+    setApiResume(detailQuery.data);
+    setResume(applyApiToResume(detailQuery.data));
+    setDirty(false);
+  }, [detailQuery.data]);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    if (detailQuery.isError) {
+      toast.error(getApiErrorMessage(detailQuery.error));
+    }
+  }, [detailQuery.isError, detailQuery.error]);
 
   useEffect(() => {
     const el = document.querySelector(`[data-section="${activeSection}"]`);
@@ -201,6 +199,10 @@ export function ResumeEditorWorkspace({ resumeId }: { resumeId: string }) {
     try {
       const patch = buildResumeSectionPatch(activeSection, current);
       const updated = await updateResume(resumeId, patch);
+      queryClient.setQueryData(queryKeys.resumes.detail(resumeId), updated);
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.list(),
+      });
       setApiResume(updated);
       setResume(refreshScores(applyApiToResume(updated), updated));
       setDirty(false);
@@ -210,7 +212,7 @@ export function ResumeEditorWorkspace({ resumeId }: { resumeId: string }) {
     } finally {
       setSaving(false);
     }
-  }, [activeSection, resumeId, flushActiveFieldEdits]);
+  }, [activeSection, resumeId, flushActiveFieldEdits, queryClient]);
 
   const handleDelete = useCallback(async () => {
     if (
@@ -223,6 +225,12 @@ export function ResumeEditorWorkspace({ resumeId }: { resumeId: string }) {
     setDeleting(true);
     try {
       await deleteResume(resumeId);
+      queryClient.removeQueries({
+        queryKey: queryKeys.resumes.detail(resumeId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.resumes.list(),
+      });
       toast.success("Resume deleted.");
       router.push("/dashboard/resume-builder");
     } catch (err) {
@@ -230,7 +238,7 @@ export function ResumeEditorWorkspace({ resumeId }: { resumeId: string }) {
     } finally {
       setDeleting(false);
     }
-  }, [resumeId, router]);
+  }, [resumeId, router, queryClient]);
 
   const sectionMeta = useMemo(() => {
     if (!apiResume) {
@@ -239,12 +247,8 @@ export function ResumeEditorWorkspace({ resumeId }: { resumeId: string }) {
     return resumeSectionCounts(apiResume);
   }, [apiResume]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
-        <ResumeDetailSkeleton />
-      </div>
-    );
+  if (detailQuery.isPending && !detailQuery.data) {
+    return <ResumeEditorShellSkeleton />;
   }
 
   if (!resume || !apiResume) {

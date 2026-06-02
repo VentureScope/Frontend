@@ -22,9 +22,9 @@ export default function WelcomeHeader({
   }
 
   return (
-    <div className="flex h-full flex-col justify-center gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 lg:flex-col lg:items-start">
+    <div className="flex h-full flex-col items-center justify-center gap-4 text-center sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:text-left lg:flex-col lg:items-start">
       <div className="space-y-3 sm:space-y-4">
-        <h1 className="text-h1 text-foreground">
+        <h1 className="text-[1.625rem] font-normal leading-[1.15] tracking-[-0.02em] text-foreground sm:text-h1">
           Welcome back, {profile.firstName}
         </h1>
         <p className="max-w-md text-body text-muted-foreground">

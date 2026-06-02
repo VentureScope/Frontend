@@ -1,55 +1,86 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { Bot } from "lucide-react";
-import { ChatPromptChips } from "@/components/chat/ChatPromptChips";
+import { useShallow } from "zustand/react/shallow";
 import { ChatSessionList } from "@/components/chat/ChatSessionList";
 import { ChatSessionListSkeleton } from "@/components/chat/ChatSkeletons";
 import { Skeleton } from "@/components/ui/skeleton";
-import { NewChatTitleDialog } from "@/components/chat/NewChatTitleDialog";
 import { useChatStore } from "@/store/useChatStore";
 
-const QUICK_PROMPTS = [
-  "How do I improve my GitHub for DevOps?",
-  "Compare my profile to a senior architect",
-  "Check salary benchmarks in my city",
-];
+type AdvisorSideBarProps = {
+  sidebarToggleId?: string;
+};
 
-export default function AdvisorSideBar() {
+export default function AdvisorSideBar({
+  sidebarToggleId = "advisor-sidebar",
+}: AdvisorSideBarProps) {
   const {
     sessions,
     activeSessionId,
     fetchSessions,
-    createSession,
-    startNewChatWithMessage,
     setActiveSession,
     deleteSession,
     isFetchingSessions,
     isSessionBusy,
     deletingSessionId,
-    isConnecting,
-  } = useChatStore();
+  } = useChatStore(
+    useShallow((s) => ({
+      sessions: s.sessions,
+      activeSessionId: s.activeSessionId,
+      fetchSessions: s.fetchSessions,
+      setActiveSession: s.setActiveSession,
+      deleteSession: s.deleteSession,
+      isFetchingSessions: s.isFetchingSessions,
+      isSessionBusy: s.isSessionBusy,
+      deletingSessionId: s.deletingSessionId,
+    })),
+  );
 
-  const [titleDialogOpen, setTitleDialogOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
+  const sessionItems = useMemo(
+    () =>
+      sessions.map((s) => ({
+        id: s.id,
+        title: s.title || "Untitled",
+      })),
+    [sessions],
+  );
 
   useEffect(() => {
-    fetchSessions();
-  }, [fetchSessions]);
+    const toggle = document.getElementById(sidebarToggleId) as
+      | HTMLInputElement
+      | null;
+    const desktop = window.matchMedia("(min-width: 1024px)");
 
-  async function handleTitleConfirm(title: string) {
-    setIsCreating(true);
-    try {
-      await createSession(title);
-      setTitleDialogOpen(false);
-    } finally {
-      setIsCreating(false);
+    const loadIfNeeded = () => {
+      void fetchSessions();
+    };
+
+    if (desktop.matches) {
+      loadIfNeeded();
     }
-  }
 
-  async function handleQuickPrompt(text: string) {
-    await startNewChatWithMessage(text);
-  }
+    const onToggle = () => {
+      if (toggle?.checked) {
+        loadIfNeeded();
+      }
+    };
+
+    toggle?.addEventListener("change", onToggle);
+
+    const onDesktopChange = (event: MediaQueryListEvent) => {
+      if (event.matches) {
+        loadIfNeeded();
+      }
+    };
+
+    desktop.addEventListener("change", onDesktopChange);
+
+    return () => {
+      toggle?.removeEventListener("change", onToggle);
+      desktop.removeEventListener("change", onDesktopChange);
+    };
+  }, [fetchSessions, sidebarToggleId]);
 
   if (isFetchingSessions && sessions.length === 0) {
     return (
@@ -63,59 +94,35 @@ export default function AdvisorSideBar() {
             <Skeleton className="h-3 w-32" />
           </div>
         </div>
-        <ChatSessionListSkeleton />
+        <ChatSessionListSkeleton rows={5} />
       </div>
     );
   }
 
   return (
-    <>
-      <div className="flex h-full min-h-0 flex-col gap-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <Bot className="h-4 w-4" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-foreground">AI Advisor</p>
-            <p className="text-[11px] text-muted-foreground">Personal career help</p>
-          </div>
+    <div className="flex h-full min-h-0 flex-col gap-4">
+      <div className="flex items-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Bot className="h-4 w-4" />
         </div>
-
-        <ChatSessionList
-          sessions={sessions.map((s) => ({
-            id: s.id,
-            title: s.title || "Untitled",
-          }))}
-          activeId={activeSessionId}
-          onSelect={(id) => void setActiveSession(id)}
-          onDelete={(id) => void deleteSession(id)}
-          onNewChat={() => setTitleDialogOpen(true)}
-          isCreating={isCreating}
-          isBusy={isSessionBusy}
-          deletingId={deletingSessionId}
-        />
-
-        <div className="shrink-0 space-y-2 border-t border-border pt-4">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-            Try asking
+        <div>
+          <p className="text-sm font-semibold text-foreground">Chat history</p>
+          <p className="text-[11px] text-muted-foreground">
+            Resume a past conversation
           </p>
-          <ChatPromptChips
-            disabled={isConnecting || isSessionBusy || isCreating}
-            prompts={QUICK_PROMPTS.map((label) => ({
-              label,
-              onClick: () => void handleQuickPrompt(label),
-            }))}
-          />
         </div>
       </div>
 
-      <NewChatTitleDialog
-        open={titleDialogOpen}
-        onOpenChange={setTitleDialogOpen}
-        onConfirm={handleTitleConfirm}
-        isSubmitting={isCreating}
-        description="Name this chat so it is easy to spot in your conversation list."
+      <ChatSessionList
+        sessions={sessionItems}
+        activeId={activeSessionId}
+        onSelect={(id) => void setActiveSession(id)}
+        onDelete={(id) => void deleteSession(id)}
+        showNewChatButton={false}
+        emptyLabel="No conversations yet — start one in the main panel"
+        isBusy={isSessionBusy}
+        deletingId={deletingSessionId}
       />
-    </>
+    </div>
   );
 }

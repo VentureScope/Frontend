@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 import { Toaster } from "@/components/ui/sonner";
+import { BfcacheGuard } from "@/components/BfcacheGuard";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeSync } from "@/components/theme-sync";
@@ -11,11 +12,13 @@ import { ThemeSync } from "@/components/theme-sync";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -36,6 +39,7 @@ export default function RootLayout({
         <QueryProvider>
           <ThemeProvider>
             <ThemeSync />
+            <BfcacheGuard />
             <Analytics />
             {children}
             <Toaster />
