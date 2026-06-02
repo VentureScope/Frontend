@@ -6,6 +6,7 @@ import { ArrowUpRight, Radio } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   getInDemandSkills,
+  getJobStats,
   getTrendingCareers,
 } from "@/lib/jobs-api";
 import type { InDemandSkill, JobStats, TrendingCareer } from "@/types/jobs";
@@ -37,9 +38,10 @@ export default function MarketPulse() {
       setUsingFallback(false);
 
       const fallback = getMarketPulseFallbackData();
-      const [skillsResult, trendingResult] = await Promise.allSettled([
+      const [skillsResult, trendingResult, statsResult] = await Promise.allSettled([
         getInDemandSkills({ limit: HOME_SKILLS_LIMIT, period: days }),
         getTrendingCareers({ limit: HOME_TRENDING_LIMIT, period: days }),
+        getJobStats({ period: days }),
       ]);
 
       if (cancelled) {
@@ -56,11 +58,16 @@ export default function MarketPulse() {
           ? trendingResult.value
           : fallback.trending,
       );
-      setStats(fallback.stats);
+      setStats(
+        statsResult.status === "fulfilled"
+          ? statsResult.value
+          : fallback.stats,
+      );
 
       const anyFailed =
         skillsResult.status === "rejected" ||
-        trendingResult.status === "rejected";
+        trendingResult.status === "rejected" ||
+        statsResult.status === "rejected";
       setUsingFallback(anyFailed);
       setLoading(false);
     })();

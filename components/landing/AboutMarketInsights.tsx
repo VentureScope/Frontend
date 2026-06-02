@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   getInDemandSkills,
+  getJobStats,
   getTrendingCareers,
 } from "@/lib/jobs-api";
 import type { InDemandSkill, JobStats, TrendingCareer } from "@/types/jobs";
@@ -29,17 +30,21 @@ export function AboutMarketInsights() {
     let cancelled = false;
     (async () => {
       try {
-        const [sk, tr] = await Promise.all([
+        const [sk, tr, st] = await Promise.all([
           getInDemandSkills({ limit: 5, period: days }),
           getTrendingCareers({ limit: 4, period: days }),
+          getJobStats({ period: days }),
         ]);
         if (!cancelled) {
           setSkills(sk);
-          setStats(getMarketPulseFallbackData().stats);
+          setStats(st);
           setTrending(tr);
         }
       } catch (err) {
         logMarketSectionFailure("AboutMarketInsights", err);
+        if (!cancelled) {
+          setStats(getMarketPulseFallbackData().stats);
+        }
       } finally {
         if (!cancelled) {
           setLoading(false);
