@@ -41,7 +41,7 @@ export default function JobListingsStat({
         ) : (
           <>
             <TrendingDown className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={3} />
-            <span>Market data syncing</span>
+            <span>No categories indexed yet</span>
           </>
         )}
       </div>

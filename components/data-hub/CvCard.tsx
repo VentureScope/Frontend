@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { FileText, Upload, ExternalLink, Loader2, Trash2 } from "lucide-react";
+import { DataHubProfileCardSkeleton } from "@/components/data-hub/DataHubSkeletons";
 import { getApiErrorMessage } from "@/lib/auth-api";
 import { deleteCurrentUserCv, getCvPresignedUrl } from "@/lib/data-hub-api";
 import { formatHubTimestamp, isCvSynced } from "@/lib/data-hub-utils";
@@ -41,6 +42,10 @@ export default function CvCard({
       return "Uploaded CV";
     }
   }, [cvUrl]);
+
+  if (loading) {
+    return <DataHubProfileCardSkeleton />;
+  }
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -161,7 +166,7 @@ export default function CvCard({
 
       <div className="mt-8 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-muted-foreground">
-          {loading ? "Loading…" : `Last checked ${formatHubTimestamp(new Date().toISOString())}`}
+          Last checked {formatHubTimestamp(new Date().toISOString())}
         </p>
         <div className="flex flex-wrap gap-2">
           {connected ? (
@@ -210,7 +215,7 @@ export default function CvCard({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              disabled={uploading || loading}
+              disabled={uploading}
               className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 sm:w-auto"
             >
               {uploading ? (

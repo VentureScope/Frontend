@@ -610,6 +610,132 @@ export function buildFutureRoleForecastBars(
   }));
 }
 
+/** Slice bulk `/api/jobs/forecasts` rows for one role (line chart). */
+export function filterForecastsForRole(
+  forecasts: JobForecast[],
+  roleName: string,
+): JobForecast[] {
+  const needle = roleName.trim().toLowerCase();
+  if (!needle) {
+    return [];
+  }
+  return forecasts.filter(
+    (row) => row.normalized_title?.trim().toLowerCase() === needle,
+  );
+}
+
+export type MarketInsightCard = {
+  id: string;
+  title: string;
+  value: string;
+  description: string;
+};
+
+/** Snapshot chips for the current-market tab (trending, skills, stats APIs). */
+export function buildMarketCurrentInsights(
+  trending: TrendingCareer[],
+  skills: InDemandSkill[],
+  stats: JobStats | null,
+  lookbackPhrase: string,
+): MarketInsightCard[] {
+  const cards: MarketInsightCard[] = [];
+
+  if (stats && stats.total_jobs > 0) {
+    cards.push({
+      id: "indexed",
+      title: "Indexed openings",
+      value: formatCompactNumber(stats.total_jobs),
+      description: `${formatCompactNumber(stats.unique_companies)} employers · ${stats.unique_categories} role categories tracked.`,
+    });
+  }
+
+  const top = trending[0];
+  if (top) {
+    cards.push({
+      id: "top-role",
+      title: "Highest volume",
+      value: top.name,
+      description: `${formatCompactNumber(top.job_count)} openings · ${formatCompactNumber(top.company_count)} companies in ${lookbackPhrase}.`,
+    });
+  }
+
+  const fastestGrowing = [...trending]
+    .filter((c) => (c.growth_pct ?? 0) > 0)
+    .sort((a, b) => (b.growth_pct ?? 0) - (a.growth_pct ?? 0))[0];
+
+  if (fastestGrowing) {
+    const growth = formatGrowthLabel(fastestGrowing.growth_pct);
+    cards.push({
+      id: "momentum",
+      title: "Fastest momentum",
+      value: fastestGrowing.name,
+      description: `${growth.label} vs prior period in ${lookbackPhrase}.`,
+    });
+  } else if (skills[0]) {
+    cards.push({
+      id: "top-skill",
+      title: "Top skill signal",
+      value: skills[0].skill,
+      description: skills[1]
+        ? `Often paired with ${skills[1].skill} in live postings.`
+        : "Most frequent skill in indexed job listings.",
+    });
+  }
+
+  return cards.slice(0, 3);
+}
+
+/** Snapshot chips for the future-demand tab (bulk forecasts API). */
+export function buildMarketFutureInsights(
+  bars: FutureRoleForecastBar[],
+  meta: ForecastAggregationMeta | null,
+  selectedBar: FutureRoleForecastBar | null,
+): MarketInsightCard[] {
+  const cards: MarketInsightCard[] = [];
+
+  if (meta) {
+    cards.push({
+      id: "coverage",
+      title: "Forecast coverage",
+      value: `${meta.roleCount} roles`,
+      description: `${meta.monthCount}-month ensemble window (${meta.forecastWindow}).`,
+    });
+  }
+
+  const leader = bars[0];
+  if (leader) {
+    cards.push({
+      id: "projected-leader",
+      title: "Highest projected demand",
+      value: leader.name,
+      description: `${leader.projectedPosts.toFixed(1)} avg predicted postings/mo · rank #${leader.rank}.`,
+    });
+  }
+
+  const fastest = [...bars]
+    .filter((b) => b.growthPct > 0)
+    .sort((a, b) => b.growthPct - a.growthPct)[0];
+
+  if (fastest && fastest.id !== leader?.id) {
+    const growth = formatGrowthLabel(fastest.growthPct);
+    cards.push({
+      id: "projected-growth",
+      title: "Strongest projected growth",
+      value: fastest.name,
+      description: `${growth.label} across the forecast window.`,
+    });
+  } else if (selectedBar) {
+    cards.push({
+      id: "selected",
+      title: "Selected role",
+      value: selectedBar.name,
+      description: `Peak ${selectedBar.peakPosts.toFixed(1)} · avg ${selectedBar.projectedPosts.toFixed(1)} postings/mo.`,
+    });
+  }
+
+  return cards.slice(0, 3);
+}
+
 export function marketCoverageIndex(stats: JobStats): number {
   if (stats.total_jobs <= 0) {
     return 64;

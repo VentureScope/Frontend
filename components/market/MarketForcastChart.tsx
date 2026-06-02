@@ -1,20 +1,18 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
 import { SelectField } from "@/components/ui/select-field";
 import { Button } from "@/components/ui/button";
-import { getJobForecasts, getTrendingCareers } from "@/lib/jobs-api";
+import { MarketSectionError } from "@/components/market/MarketSectionError";
+import { useRoleForecastsQuery } from "@/hooks/queries/use-role-forecasts-query";
 import {
   buildForecastChartPoints,
   FORECAST_CHART_SUBTITLE,
   FORECAST_POSTING_COUNT_LABEL,
   forecastTrendInsight,
-  pickDefaultForecastRole,
 } from "@/lib/job-market-insights";
-import { useAppStore } from "@/store/useAppStore";
-import type { JobForecast } from "@/types/jobs";
 
 const MarketForecastChartView = dynamic(
   () => import("@/components/market/MarketForecastChartView"),
@@ -29,99 +27,32 @@ const MarketForecastChartView = dynamic(
 );
 
 type MarketForecastChartProps = {
-  periodDays?: number;
+  roleOptions: string[];
+  selectedRole: string;
+  onSelectedRoleChange: (role: string) => void;
+  loadingRoles?: boolean;
+  rolesError?: boolean;
+  onRetryRoles?: () => void;
 };
 
 export default function MarketForecastChart({
-  periodDays = 90,
+  roleOptions,
+  selectedRole,
+  onSelectedRoleChange,
+  loadingRoles = false,
+  rolesError = false,
+  onRetryRoles,
 }: MarketForecastChartProps) {
-  const careerInterest = useAppStore(
-    (s) => s.authData.user?.career_interest ?? null,
-  );
-
-  const [roleOptions, setRoleOptions] = useState<string[]>([]);
-  const [selectedRole, setSelectedRole] = useState("");
-  const [forecasts, setForecasts] = useState<JobForecast[]>([]);
-  const [loadingRoles, setLoadingRoles] = useState(true);
-  const [loadingForecasts, setLoadingForecasts] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const loadRoleOptions = useCallback(async () => {
-    setLoadingRoles(true);
-    setError(null);
-    try {
-      const trending = await getTrendingCareers({
-        limit: 12,
-        period: periodDays,
-      });
-      const unique = [
-        ...new Set(trending.map((t) => t.name.trim()).filter(Boolean)),
-      ];
-      const defaultRole = pickDefaultForecastRole(trending, [], careerInterest);
-
-      setRoleOptions(unique);
-      setSelectedRole((prev) => {
-        if (prev && unique.includes(prev)) {
-          return prev;
-        }
-        if (defaultRole && unique.includes(defaultRole)) {
-          return defaultRole;
-        }
-        return unique[0] ?? "";
-      });
-
-      if (unique.length === 0) {
-        setError("No trending roles returned from the market API.");
-      }
-    } catch {
-      setRoleOptions([]);
-      setSelectedRole("");
-      setForecasts([]);
-      setError("Could not load trending roles from the market API.");
-    } finally {
-      setLoadingRoles(false);
-    }
-  }, [careerInterest, periodDays]);
-
-  const loadForecasts = useCallback(async (role: string) => {
-    if (!role) {
-      return;
-    }
-    setLoadingForecasts(true);
-    setError(null);
-    try {
-      const data = await getJobForecasts({ role });
-      setForecasts(data);
-      if (data.length === 0) {
-        setError(`No forecast data returned for “${role}”. Try another role.`);
-      }
-    } catch {
-      setForecasts([]);
-      setError(`Could not load forecasts for “${role}”.`);
-    } finally {
-      setLoadingForecasts(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadRoleOptions();
-  }, [loadRoleOptions]);
-
-  useEffect(() => {
-    if (!selectedRole) {
-      return;
-    }
-    void loadForecasts(selectedRole);
-  }, [selectedRole, loadForecasts]);
+  const forecastsQuery = useRoleForecastsQuery(selectedRole);
 
   const chartData = useMemo(
-    () => buildForecastChartPoints(forecasts),
-    [forecasts],
+    () => buildForecastChartPoints(forecastsQuery.data ?? []),
+    [forecastsQuery.data],
   );
 
   const insight = useMemo(
-    () => forecastTrendInsight(forecasts, selectedRole),
-    [forecasts, selectedRole],
+    () => forecastTrendInsight(forecastsQuery.data ?? [], selectedRole),
+    [forecastsQuery.data, selectedRole],
   );
 
   const yDomain = useMemo(() => {
@@ -139,8 +70,14 @@ export default function MarketForecastChart({
     label: name,
   }));
 
-  const isLoading = loadingRoles || loadingForecasts;
+  const loadingForecasts = forecastsQuery.isPending || forecastsQuery.isFetching;
   const noRoles = !loadingRoles && roleOptions.length === 0;
+  const forecastError =
+    forecastsQuery.isError ||
+    (!loadingForecasts &&
+      selectedRole &&
+      (forecastsQuery.data?.length ?? 0) === 0 &&
+      forecastsQuery.isFetched);
 
   return (
     <div className="vs-surface w-full overflow-hidden p-4 sm:p-6 md:p-10">
@@ -152,7 +89,7 @@ export default function MarketForecastChart({
           <p className="text-sm font-medium text-muted-foreground sm:text-[15px]">
             {FORECAST_CHART_SUBTITLE}
           </p>
-          {insight && !isLoading && (
+          {insight && !loadingForecasts && chartData.length > 0 && (
             <p className="max-w-xl pt-2 text-sm leading-relaxed text-muted-foreground line-clamp-2">
               {insight}
             </p>
@@ -163,7 +100,7 @@ export default function MarketForecastChart({
           <SelectField
             label="Role"
             value={selectedRole}
-            onChange={setSelectedRole}
+            onChange={onSelectedRoleChange}
             options={selectOptions}
             disabled={loadingRoles || selectOptions.length === 0}
             placeholder="Select role…"
@@ -173,10 +110,8 @@ export default function MarketForecastChart({
             variant="outline"
             size="sm"
             className="h-9 gap-2"
-            disabled={isLoading || !selectedRole}
-            onClick={() => {
-              void loadForecasts(selectedRole);
-            }}
+            disabled={loadingForecasts || !selectedRole}
+            onClick={() => void forecastsQuery.refetch()}
           >
             <RefreshCw
               className={`h-3.5 w-3.5 ${loadingForecasts ? "animate-spin" : ""}`}
@@ -186,28 +121,45 @@ export default function MarketForecastChart({
         </div>
       </div>
 
-      {error && (
-        <div className="mb-4 rounded-lg border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
+      {rolesError && (
+        <MarketSectionError
+          className="mb-4"
+          message="Could not load trending roles for the forecast picker."
+          onRetry={onRetryRoles}
+        />
       )}
 
-      <div className="relative w-full" style={{ minHeight: 320 }}>
-        {isLoading && chartData.length === 0 ? (
+      {forecastsQuery.isError && (
+        <MarketSectionError
+          className="mb-4"
+          message={`Could not load forecasts for “${selectedRole}”.`}
+          onRetry={() => void forecastsQuery.refetch()}
+        />
+      )}
+
+      <div className="relative w-full min-w-0" style={{ minHeight: 320 }}>
+        {loadingRoles && roleOptions.length === 0 ? (
           <div className="flex h-80 items-center justify-center text-muted-foreground">
             <Loader2 className="mr-2 h-6 w-6 animate-spin text-primary" />
-            Loading forecast…
+            Loading roles…
           </div>
         ) : noRoles ? (
           <div className="flex h-80 items-center justify-center px-6 text-center text-sm text-muted-foreground">
             Trending roles are not available yet. Check that the API is running
             and try again.
           </div>
+        ) : loadingForecasts && chartData.length === 0 ? (
+          <div className="flex h-80 items-center justify-center text-muted-foreground">
+            <Loader2 className="mr-2 h-6 w-6 animate-spin text-primary" />
+            Loading forecast…
+          </div>
+        ) : forecastError && chartData.length === 0 ? (
+          <div className="flex h-80 items-center justify-center px-6 text-center text-sm text-muted-foreground">
+            No forecast data returned for “{selectedRole}”. Try another role.
+          </div>
         ) : chartData.length === 0 ? (
           <div className="flex h-80 items-center justify-center text-sm text-muted-foreground">
-            {selectedRole
-              ? `Select a role or wait for forecast data for “${selectedRole}”.`
-              : "Select a role to view its demand forecast."}
+            Select a role to view its demand forecast.
           </div>
         ) : (
           <MarketForecastChartView
@@ -218,22 +170,25 @@ export default function MarketForecastChart({
         )}
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 text-xs text-muted-foreground">
-        <div className="flex flex-wrap items-center gap-4">
+      <div className="mt-6 flex flex-col gap-3 border-t border-border pt-4 text-xs text-muted-foreground sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2">
           <div className="flex items-center gap-1.5">
-            <div className="h-0.5 w-5 rounded-full bg-primary" />
+            <div className="h-0.5 w-5 shrink-0 rounded-full bg-primary" />
             <span>{FORECAST_POSTING_COUNT_LABEL}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="h-0 w-5 border-t border-dashed border-primary/40" />
+            <div className="h-0 w-5 shrink-0 border-t border-dashed border-primary/40" />
             <span>Confidence range (lower–upper bound)</span>
           </div>
         </div>
-        {selectedRole && (
-          <span className="font-mono text-[11px] text-muted-foreground/70">
+        {selectedRole ? (
+          <span
+            className="max-w-full shrink-0 truncate font-mono text-[11px] text-muted-foreground/70 sm:max-w-[220px] sm:text-right"
+            title={selectedRole}
+          >
             {selectedRole}
           </span>
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -20,11 +20,16 @@ import {
 } from "@/hooks/queries/use-profile-queries";
 import { queryKeys } from "@/lib/query-keys";
 import type { GitHubSyncedDataResponse } from "@/types/github";
-import type {
-  TranscriptConfigResponse,
-  TranscriptListResponse,
-  TranscriptResponse,
-} from "@/types/transcript";
+import type { TranscriptResponse } from "@/types/transcript";
+
+export type DataHubLoading = {
+  summary: boolean;
+  github: boolean;
+  cv: boolean;
+  skills: boolean;
+  academic: boolean;
+  extension: boolean;
+};
 
 export function useDataHub() {
   const queryClient = useQueryClient();
@@ -46,13 +51,38 @@ export function useDataHub() {
     ],
   });
 
-  const loading =
-    githubQuery.isPending ||
-    transcriptQuery.isPending ||
-    profileQuery.isPending ||
-    experiencesQuery.isPending ||
-    transcriptListQuery.isPending ||
-    configQuery.isPending;
+  const loading = useMemo<DataHubLoading>(
+    () => ({
+      summary:
+        githubQuery.isPending ||
+        transcriptQuery.isPending ||
+        profileQuery.isPending ||
+        experiencesQuery.isPending,
+      github: githubQuery.isPending,
+      cv: profileQuery.isPending,
+      skills: profileQuery.isPending || experiencesQuery.isPending,
+      academic:
+        transcriptQuery.isPending ||
+        transcriptListQuery.isPending ||
+        configQuery.isPending,
+      extension:
+        transcriptQuery.isPending || transcriptListQuery.isPending,
+    }),
+    [
+      githubQuery.isPending,
+      transcriptQuery.isPending,
+      profileQuery.isPending,
+      experiencesQuery.isPending,
+      transcriptListQuery.isPending,
+      configQuery.isPending,
+    ],
+  );
+
+  const sourcesReady =
+    githubQuery.isFetched &&
+    transcriptQuery.isFetched &&
+    profileQuery.isFetched &&
+    experiencesQuery.isFetched;
 
   const github = githubQuery.data ?? null;
   const transcript = transcriptQuery.data ?? null;
@@ -95,6 +125,20 @@ export function useDataHub() {
     configQuery,
   ]);
 
+  const refreshTranscript = useCallback(async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.dataHub.all }),
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.profile.transcriptLatest(),
+      }),
+    ]);
+    await Promise.all([
+      transcriptQuery.refetch(),
+      transcriptListQuery.refetch(),
+      configQuery.refetch(),
+    ]);
+  }, [queryClient, transcriptQuery, transcriptListQuery, configQuery]);
+
   const refreshProfile = useCallback(async () => {
     await Promise.all([profileQuery.refetch(), experiencesQuery.refetch()]);
   }, [profileQuery, experiencesQuery]);
@@ -126,6 +170,7 @@ export function useDataHub() {
 
   return {
     loading,
+    sourcesReady,
     github,
     transcript,
     transcriptList,
@@ -135,6 +180,7 @@ export function useDataHub() {
     sources,
     completionPercent,
     reload,
+    refreshTranscript,
     refreshProfile,
     uploadCv,
     setTranscript,

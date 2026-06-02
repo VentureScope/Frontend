@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Briefcase, Sparkles } from "lucide-react";
+import { DataHubSkillsCardSkeleton } from "@/components/data-hub/DataHubSkeletons";
 import type { AuthUser, Experience } from "@/types/auth";
 import { isSkillsSynced } from "@/lib/data-hub-utils";
 
@@ -18,6 +19,10 @@ export default function SkillsCard({
 }: SkillsCardProps) {
   const skills = profile?.skills ?? [];
   const connected = isSkillsSynced(profile, experiences);
+
+  if (loading) {
+    return <DataHubSkillsCardSkeleton />;
+  }
 
   return (
     <div className="flex h-full flex-col justify-between rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
@@ -47,9 +52,7 @@ export default function SkillsCard({
           </span>
         </div>
 
-        {loading ? (
-          <p className="text-sm text-muted-foreground">Loading profile…</p>
-        ) : connected ? (
+        {connected ? (
           <>
             <div className="flex flex-wrap gap-2">
               {skills.slice(0, 12).map((skill) => (

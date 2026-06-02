@@ -1,15 +1,18 @@
 import { Chrome, ShieldCheck, Zap, Download } from "lucide-react";
+import { ExtensionCardVersionSkeleton } from "@/components/data-hub/DataHubSkeletons";
 import { isTranscriptSynced } from "@/lib/data-hub-utils";
 import type { TranscriptResponse } from "@/types/transcript";
 
 type ExtensionCardProps = {
   transcript?: TranscriptResponse | null;
   versionCount?: number;
+  loading?: boolean;
 };
 
 export default function ExtensionCard({
   transcript = null,
   versionCount = 0,
+  loading = false,
 }: ExtensionCardProps) {
   const hasRecords = isTranscriptSynced(transcript);
 
@@ -40,7 +43,9 @@ export default function ExtensionCard({
             university portals — uploads to{" "}
             <code className="text-[10px]">POST /api/transcripts/</code>.
           </p>
-          {hasRecords && versionCount > 0 ? (
+          {loading ? (
+            <ExtensionCardVersionSkeleton />
+          ) : hasRecords && versionCount > 0 ? (
             <p className="text-xs font-semibold text-primary">
               {versionCount} transcript version
               {versionCount === 1 ? "" : "s"} stored on your account.

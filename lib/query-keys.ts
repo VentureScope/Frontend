@@ -52,6 +52,17 @@ export const queryKeys = {
       [...queryKeys.market.all, "future-roadmap-roles", limit] as const,
     inDemandSkills: (days: number, limit: number) =>
       [...queryKeys.market.all, "in-demand-skills", days, limit] as const,
+    jobStats: (days: number) =>
+      [...queryKeys.market.all, "job-stats", days] as const,
+    hiringCompanies: (days: number, categoriesKey: string) =>
+      [
+        ...queryKeys.market.all,
+        "hiring-companies",
+        days,
+        categoriesKey,
+      ] as const,
+    roleForecasts: (role: string) =>
+      [...queryKeys.market.all, "forecasts", role] as const,
   },
   dashboard: {
     all: ["dashboard"] as const,

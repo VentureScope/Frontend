@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { DataHubSummarySkeleton } from "@/components/data-hub/DataHubSkeletons";
 import type { DataHubSourceStatus } from "@/lib/data-hub-utils";
 
 function statusBadgeClass(status: DataHubSourceStatus["status"]) {
@@ -23,14 +24,7 @@ export default function DataHubSummary({
   loading,
 }: DataHubSummaryProps) {
   if (loading) {
-    return (
-      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <Skeleton className="col-span-full h-24 rounded-xl" />
-        {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-20 rounded-xl" />
-        ))}
-      </div>
-    );
+    return <DataHubSummarySkeleton />;
   }
 
   return (
