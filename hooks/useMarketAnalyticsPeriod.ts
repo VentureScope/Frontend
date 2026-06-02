@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  DEFAULT_MARKET_PERIOD_ID,
   dispatchMarketPeriodChange,
   MARKET_ANALYTICS_PERIODS,
   marketPeriodDays,
@@ -16,13 +15,11 @@ import {
 } from "@/lib/market-analytics-period";
 
 export function useMarketAnalyticsPeriod() {
-  const [periodId, setPeriodIdState] = useState<MarketPeriodId>(
-    DEFAULT_MARKET_PERIOD_ID,
+  const [periodId, setPeriodIdState] = useState<MarketPeriodId>(() =>
+    readStoredMarketPeriodId(),
   );
 
   useEffect(() => {
-    setPeriodIdState(readStoredMarketPeriodId());
-
     function onPeriodChange(event: Event) {
       const detail = (event as CustomEvent<MarketPeriodId>).detail;
       if (detail) {

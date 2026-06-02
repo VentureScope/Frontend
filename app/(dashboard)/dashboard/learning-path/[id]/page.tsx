@@ -3,15 +3,16 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { RoadmapDetailView } from "@/components/roadmap-view/RoadmapDetailView";
 import type { LearningPath } from "../mockData";
-import { getRoadmap } from "@/lib/roadmaps-api";
-import { roadmapOutToLearningPath } from "@/lib/map-roadmap-to-learning-path";
 import {
   formatRoadmapStatus,
   roadmapStatusBadgeClass,
 } from "@/lib/roadmap-utils";
 import { useRoadmapResourceToggle } from "@/hooks/useRoadmapResourceToggle";
+import { useRoadmapDetailQuery } from "@/hooks/queries/use-roadmap-detail-query";
+import { queryKeys } from "@/lib/query-keys";
 import { RoadmapDetailPageSkeleton } from "@/components/learning-path/LearningPathSkeletons";
 import { RoadmapUxTips } from "@/components/roadmap-view/RoadmapUxTips";
 
@@ -21,37 +22,32 @@ export default function StandaloneRoadmapPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const queryClient = useQueryClient();
+  const detailQuery = useRoadmapDetailQuery(id);
   const [path, setPath] = useState<LearningPath | null>(null);
-  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const full = await getRoadmap(id);
-        if (!cancelled) {
-          setPath(roadmapOutToLearningPath(full));
-        }
-      } catch {
-        if (!cancelled) {
-          setLoadError(true);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [id]);
+    if (detailQuery.data) {
+      setPath(detailQuery.data);
+    }
+  }, [detailQuery.data]);
+
+  useEffect(() => {
+    if (path) {
+      queryClient.setQueryData(queryKeys.roadmaps.detail(id), path);
+    }
+  }, [path, id, queryClient]);
 
   const { syncingResourceId, handleToggleResource } =
     useRoadmapResourceToggle(setPath);
 
-  if (loadError || (!path && !loadError)) {
-    if (!path && !loadError) {
-      return <RoadmapDetailPageSkeleton />;
-    }
+  if (detailQuery.isPending && !path) {
+    return <RoadmapDetailPageSkeleton />;
+  }
+
+  if (detailQuery.isError || !path) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background">
         <h1 className="text-h1 text-foreground">Roadmap Not Found</h1>
         <Link
           href="/dashboard/learning-path"
@@ -61,10 +57,6 @@ export default function StandaloneRoadmapPage({
         </Link>
       </div>
     );
-  }
-
-  if (!path) {
-    return null;
   }
 
   return (

@@ -6,10 +6,11 @@ export type RoadmapRoleItem = {
   title: string;
   description: string;
   badge: string;
-  badgeType: "high-demand" | "steady-growth";
+  badgeType: "high-demand" | "steady-growth" | "declining";
   metricValue: string;
   metricLabel: string;
   iconName: string;
+  rank?: number;
 };
 
 interface RoleItemProps extends RoadmapRoleItem {
@@ -41,6 +42,7 @@ const RoleItem = ({
   metricValue,
   metricLabel,
   iconName,
+  rank,
   isSelected,
   onSelect,
 }: RoleItemProps) => {
@@ -88,6 +90,11 @@ const RoleItem = ({
 
         <div className="min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            {rank != null ? (
+              <span className="flex h-7 min-w-7 items-center justify-center rounded-md bg-primary/10 px-1.5 text-xs font-bold text-primary">
+                #{rank}
+              </span>
+            ) : null}
             <h3 className="text-lg font-semibold text-foreground sm:text-xl">
               {title}
             </h3>
@@ -96,7 +103,9 @@ const RoleItem = ({
                 "rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
                 badgeType === "high-demand"
                   ? "bg-muted text-secondary"
-                  : "bg-success/15 text-success",
+                  : badgeType === "declining"
+                    ? "bg-destructive/10 text-destructive"
+                    : "bg-success/15 text-success",
               )}
             >
               {badge}
@@ -122,13 +131,15 @@ export const RoleSelectionList = ({
   roles,
   selectedId,
   onSelect,
+  listLabel = "Trending roles",
 }: {
   roles: RoadmapRoleItem[];
   selectedId: string;
   onSelect: (id: string) => void;
+  listLabel?: string;
 }) => {
   return (
-    <div className="space-y-4" role="listbox" aria-label="Trending roles">
+    <div className="space-y-4" role="listbox" aria-label={listLabel}>
       {roles.map((role) => (
         <RoleItem
           key={role.id}

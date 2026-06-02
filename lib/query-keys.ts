@@ -47,6 +47,9 @@ export const queryKeys = {
     all: ["market"] as const,
     trending: (days: number, limit: number) =>
       [...queryKeys.market.all, "trending", days, limit] as const,
+    forecasts: () => [...queryKeys.market.all, "forecasts"] as const,
+    futureRoadmapRoles: (limit: number) =>
+      [...queryKeys.market.all, "future-roadmap-roles", limit] as const,
     inDemandSkills: (days: number, limit: number) =>
       [...queryKeys.market.all, "in-demand-skills", days, limit] as const,
   },
@@ -57,6 +60,8 @@ export const queryKeys = {
   roadmaps: {
     all: ["roadmaps"] as const,
     list: () => [...queryKeys.roadmaps.all, "list"] as const,
+    detail: (roadmapId: string) =>
+      [...queryKeys.roadmaps.all, "detail", roadmapId] as const,
   },
   resumes: {
     all: ["resumes"] as const,

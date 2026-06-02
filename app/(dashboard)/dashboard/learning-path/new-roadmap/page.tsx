@@ -1,172 +1,32 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { NewRoadmapHeader } from "@/components/new-roadmap/NewRoadmapHeader";
 import { EvolutionTabs } from "@/components/new-roadmap/NewRoadmapTabs";
+import { FutureRolesForecastChart } from "@/components/new-roadmap/FutureRolesForecastChart";
 import { RoleSelectionList } from "@/components/new-roadmap/RoleSelectionList";
 import {
-  getCurrentTrendingRoles,
-  getFutureTrendingRolesForRoadmap,
-} from "@/lib/jobs-api";
-import { generateRoadmap } from "@/lib/roadmaps-api";
-import {
-  formatCompactNumber,
-  formatGrowthLabel,
-  formatRoadmapRoleMetric,
-} from "@/lib/job-market-insights";
-import type { TrendingCareer } from "@/types/jobs";
-import { NewRoadmapRolesSkeleton } from "@/components/learning-path/LearningPathSkeletons";
-import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
-import { toast } from "sonner";
-
-const ICONS = ["Cpu", "Share2", "Shield", "BarChart2"] as const;
-
-type RoadmapRoleRow = {
-  id: string;
-  title: string;
-  badge: string;
-  badgeType: "high-demand" | "steady-growth";
-  metricValue: string;
-  metricLabel: string;
-  iconName: string;
-  description: string;
-  trendName: string;
-};
-
-function mapTrendingToRoles(
-  careers: TrendingCareer[],
-  variant: "current" | "future" = "current",
-  lookbackPhrase = "the last 3 months",
-): RoadmapRoleRow[] {
-  return careers.map((c, i) => {
-    const growth = c.growth_pct ?? 0;
-    const high = growth >= 8 || c.job_count > 5000;
-    const growthText = formatGrowthLabel(c.growth_pct);
-    const trendDetail =
-      variant === "future"
-        ? `${growthText.label} in forecast window`
-        : `${growthText.label} vs ${lookbackPhrase}`;
-    const context =
-      c.company_count > 0
-        ? `${formatCompactNumber(c.company_count)} employers in market data`
-        : variant === "future"
-          ? "Demand forecast model"
-          : "Indexed market listings";
-    const metric = formatRoadmapRoleMetric(c, variant);
-
-    return {
-      id: `trend-${i}-${encodeURIComponent(c.name)}`,
-      title: c.name,
-      badge: high ? "STRONG SIGNAL" : "EMERGING",
-      badgeType: high ? "high-demand" : "steady-growth",
-      metricValue: metric.value,
-      metricLabel: metric.label,
-      iconName: ICONS[i % ICONS.length],
-      description: `${context} · ${trendDetail}`,
-      trendName: c.name,
-    };
-  });
-}
+  FutureRolesChartSkeleton,
+  NewRoadmapRolesSkeleton,
+} from "@/components/learning-path/LearningPathSkeletons";
+import { useNewRoadmapPage } from "@/hooks/useNewRoadmapPage";
 
 export default function NewRoadmapPage() {
-  const router = useRouter();
-  const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
-  const [currentRoles, setCurrentRoles] = useState<RoadmapRoleRow[]>([]);
-  const [futureRoles, setFutureRoles] = useState<RoadmapRoleRow[]>([]);
-  const [selectedRoleId, setSelectedRoleId] = useState<string>("");
-  const [activeTab, setActiveTab] = useState("current");
-  const [loadingTrends, setLoadingTrends] = useState(true);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const {
+    activeTab,
+    selectedRoleId,
+    setSelectedRoleId,
+    displayedRoles,
+    futureForecastBars,
+    forecastMeta,
+    loadingCurrent,
+    loadingFuture,
+    isEmpty,
+    isGenerating,
+    handleTabChange,
+    handleGenerate,
+  } = useNewRoadmapPage();
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoadingTrends(true);
-      const [currentResult, futureResult] = await Promise.allSettled([
-        getCurrentTrendingRoles({ limit: 12, period: days }),
-        getFutureTrendingRolesForRoadmap({ limit: 12, period: days }),
-      ]);
-
-      if (cancelled) {
-        return;
-      }
-
-      const currentCareers =
-        currentResult.status === "fulfilled" ? currentResult.value : [];
-      const futureCareers =
-        futureResult.status === "fulfilled" ? futureResult.value : [];
-
-      const mappedCurrent = mapTrendingToRoles(
-        currentCareers,
-        "current",
-        lookbackPhrase,
-      );
-      const mappedFuture = mapTrendingToRoles(futureCareers, "future");
-      setCurrentRoles(mappedCurrent);
-      setFutureRoles(mappedFuture);
-
-      if (mappedCurrent[0]) {
-        setSelectedRoleId(mappedCurrent[0].id);
-      } else if (mappedFuture[0]) {
-        setSelectedRoleId(mappedFuture[0].id);
-      }
-
-      if (currentResult.status === "rejected") {
-        toast.error("Could not load current trending roles.");
-      }
-      if (futureResult.status === "rejected") {
-        toast.error("Could not load future predicted roles from market trends.");
-      }
-
-      if (!cancelled) {
-        setLoadingTrends(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [days, lookbackPhrase]);
-
-  const displayedRoles =
-    activeTab === "current" ? currentRoles : futureRoles;
-
-  const allRoles = [...currentRoles, ...futureRoles];
-  const selected = allRoles.find((r) => r.id === selectedRoleId);
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    const nextList = tab === "current" ? currentRoles : futureRoles;
-    if (nextList.length > 0) {
-      const stillVisible = nextList.some((r) => r.id === selectedRoleId);
-      if (!stillVisible) {
-        setSelectedRoleId(nextList[0].id);
-      }
-    }
-  };
-
-  const handleGenerate = useCallback(async () => {
-    const trendName = selected?.trendName;
-    if (!trendName) {
-      toast.error("Select a role first.");
-      return;
-    }
-    const useMarketTrends = activeTab === "current";
-    setIsGenerating(true);
-    try {
-      const roadmap = await generateRoadmap({
-        trend_name: trendName,
-        goal: `Build skills to grow as a ${trendName}`,
-        use_market_trends: useMarketTrends,
-      });
-      toast.success("Roadmap created.");
-      router.push(`/dashboard/learning-path/${roadmap.id}`);
-    } catch {
-      toast.error("Could not generate roadmap.");
-    } finally {
-      setIsGenerating(false);
-    }
-  }, [activeTab, router, selected?.trendName]);
+  const listLoading = activeTab === "current" ? loadingCurrent : loadingFuture;
 
   return (
     <div className="relative min-h-screen bg-background">
@@ -201,19 +61,31 @@ export default function NewRoadmapPage() {
         <div className="mt-16">
           <EvolutionTabs activeTab={activeTab} onTabChange={handleTabChange} />
           <div className="mt-10">
-            {loadingTrends ? (
-              <NewRoadmapRolesSkeleton />
-            ) : displayedRoles.length === 0 ? (
+            {listLoading ? (
+              activeTab === "future" ? (
+                <FutureRolesChartSkeleton />
+              ) : (
+                <NewRoadmapRolesSkeleton />
+              )
+            ) : isEmpty ? (
               <p className="text-center text-sm text-muted-foreground">
                 {activeTab === "future"
-                  ? "Future predicted roles are not available yet."
+                  ? "Forecast data is not available yet. Try again later."
                   : "No current trending roles available."}
               </p>
+            ) : activeTab === "future" ? (
+              <FutureRolesForecastChart
+                bars={futureForecastBars}
+                selectedId={selectedRoleId}
+                onSelect={setSelectedRoleId}
+                meta={forecastMeta}
+              />
             ) : (
               <RoleSelectionList
                 roles={displayedRoles}
                 selectedId={selectedRoleId}
                 onSelect={setSelectedRoleId}
+                listLabel="Current trending roles"
               />
             )}
           </div>

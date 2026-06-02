@@ -181,3 +181,23 @@ export function NewRoadmapRolesSkeleton({ count = 4 }: { count?: number }) {
     </div>
   );
 }
+
+/** New roadmap future tab: horizontal bar chart placeholder */
+export function FutureRolesChartSkeleton() {
+  return (
+    <div className="rounded-[24px] border border-border bg-card p-4 sm:p-6">
+      <div className="mb-6 space-y-2">
+        {sk("h-6 w-56")}
+        {sk("h-4 w-full max-w-xl")}
+      </div>
+      <div className="space-y-3">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-3">
+            {sk("h-4 w-36 shrink-0")}
+            {sk("h-7 flex-1 rounded-md")}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
