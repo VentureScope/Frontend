@@ -1,19 +1,36 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import WelcomeHeader from "@/components/dashboard/WelcomeHeader";
 import InsightCard from "@/components/dashboard/InsightCard";
 import ModuleGrid from "@/components/dashboard/ModuleGrid";
 import DataSyncCard from "@/components/dashboard/DataSyncCard";
-import MarketTrendsCard from "@/components/dashboard/MarketTrendsCard";
 import JobListingsStat from "@/components/market/JobListingsStat";
-import RecentActivity from "@/components/dashboard/RecentActivity";
-import SuggestedActions from "@/components/dashboard/SuggestedActions";
-import CareerReadinessPanel from "@/components/dashboard/CareerReadinessPanel";
 import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
 import { useDashboardOverview } from "@/hooks/useDashboardOverview";
 import { getUserProfileView } from "@/lib/user-profile";
 import { useAppStore } from "@/store/useAppStore";
+
+const CareerReadinessPanel = dynamic(
+  () => import("@/components/dashboard/CareerReadinessPanel"),
+  { ssr: false },
+);
+
+const MarketTrendsCard = dynamic(
+  () => import("@/components/dashboard/MarketTrendsCard"),
+  { ssr: false },
+);
+
+const RecentActivity = dynamic(
+  () => import("@/components/dashboard/RecentActivity"),
+  { ssr: false },
+);
+
+const SuggestedActions = dynamic(
+  () => import("@/components/dashboard/SuggestedActions"),
+  { ssr: false },
+);
 
 export default function DashboardOverview() {
   const user = useAppStore((state) => state.authData.user);

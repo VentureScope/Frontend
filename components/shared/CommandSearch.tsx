@@ -154,8 +154,8 @@ export function CommandSearch({
   }
 
   const showPanel = isOpen;
-  const activeId =
-    matches[activeIndex] != null
+  const activeOptionId =
+    showPanel && matches.length > 0
       ? `${listboxId}-option-${activeIndex}`
       : undefined;
 
@@ -184,8 +184,9 @@ export function CommandSearch({
           enterKeyHint="search"
           role="combobox"
           aria-expanded={showPanel}
-          aria-controls={listboxId}
-          aria-activedescendant={activeId}
+          aria-autocomplete="list"
+          {...(showPanel ? { "aria-controls": listboxId } : {})}
+          {...(activeOptionId ? { "aria-activedescendant": activeOptionId } : {})}
           autoComplete="off"
           spellCheck={false}
           placeholder={placeholder}

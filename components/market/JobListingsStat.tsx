@@ -61,10 +61,14 @@ export default function JobListingsStat({
         <p className="text-xs text-muted-foreground">{periodCaption}</p>
       </div>
 
-      <div className="mt-6 flex w-fit items-center gap-2 rounded-full border border-success/20 bg-success/15 px-3 py-2 text-[10px] font-bold text-success sm:mt-8 sm:px-4 sm:text-[11px]">
+      <div className="mt-6 flex w-fit items-center gap-2 rounded-full border border-success/30 bg-success/15 px-3 py-2 text-[10px] font-bold text-foreground sm:mt-8 sm:px-4 sm:text-[11px]">
         {total > 0 ? (
           <>
-            <TrendingUp className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={3} />
+            <TrendingUp
+              className="h-3 w-3 shrink-0 text-success sm:h-3.5 sm:w-3.5"
+              strokeWidth={3}
+              aria-hidden
+            />
             <span>
               {formatCompactNumber(companies)} employers · {categories} role
               categories

@@ -8,10 +8,13 @@ import { fetchNotificationsActivity } from "@/lib/queries/notifications";
 import { useAppStore } from "@/store/useAppStore";
 
 /** Recent notifications for dashboard overview (home only). */
-export function useNotificationsActivityQuery() {
+export function useNotificationsActivityQuery(options?: { enabled?: boolean }) {
   const pathname = usePathname();
   const token = useAppStore((s) => s.authData.token);
-  const enabled = Boolean(token) && isDashboardHomePath(pathname);
+  const enabled =
+    Boolean(token) &&
+    isDashboardHomePath(pathname) &&
+    (options?.enabled ?? true);
 
   return useQuery({
     queryKey: queryKeys.notifications.activity(),

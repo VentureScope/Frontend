@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 import { Toaster } from "@/components/ui/sonner";
+import { BfcacheGuard } from "@/components/BfcacheGuard";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeSync } from "@/components/theme-sync";
@@ -38,6 +39,7 @@ export default function RootLayout({
         <QueryProvider>
           <ThemeProvider>
             <ThemeSync />
+            <BfcacheGuard />
             <Analytics />
             {children}
             <Toaster />

@@ -17,6 +17,7 @@ import {
 } from "@/lib/dashboard-utils";
 import { getInDemandSkills, getTrendingCareers } from "@/lib/jobs-api";
 import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
+import { useDeferredMount } from "@/hooks/useDeferredMount";
 import { useJobStatsQuery } from "@/hooks/queries/use-job-stats-query";
 import { useNotificationsActivityQuery } from "@/hooks/queries/use-notifications-activity-query";
 import { getMarketPulseFallbackData } from "@/lib/market-pulse-fallback";
@@ -135,8 +136,11 @@ export function useDashboardOverview(careerInterest: string) {
   const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
   const queryClient = useQueryClient();
   const fallback = getMarketPulseFallbackData();
+  const deferSecondary = useDeferredMount();
 
-  const notificationsQuery = useNotificationsActivityQuery();
+  const notificationsQuery = useNotificationsActivityQuery({
+    enabled: deferSecondary,
+  });
 
   const [roadmapsQuery, resumesQuery, githubQuery, transcriptQuery, readinessQuery] =
     useQueries({
@@ -152,10 +156,12 @@ export function useDashboardOverview(careerInterest: string) {
         {
           queryKey: queryKeys.profile.github(),
           queryFn: getGithubSyncedData,
+          enabled: deferSecondary,
         },
         {
           queryKey: queryKeys.profile.transcriptLatest(),
           queryFn: getLatestTranscript,
+          enabled: deferSecondary,
         },
         {
           queryKey: queryKeys.readiness.user(),
@@ -169,25 +175,33 @@ export function useDashboardOverview(careerInterest: string) {
       {
         queryKey: queryKeys.market.trending(days, 7),
         queryFn: () => getTrendingCareers({ limit: 7, period: days }),
+        enabled: deferSecondary,
       },
       {
         queryKey: queryKeys.market.inDemandSkills(days, 6),
         queryFn: () => getInDemandSkills({ limit: 6, period: days }),
+        enabled: deferSecondary,
       },
     ],
   });
 
   const [trendingQuery, skillsQuery] = marketQuery;
-  const jobStatsQuery = useJobStatsQuery(days);
+  const jobStatsQuery = useJobStatsQuery(days, { enabled: deferSecondary });
 
   const sectionLoading: DashboardOverviewLoading = {
     readiness: readinessQuery.isPending,
     roadmaps: roadmapsQuery.isPending,
     resumes: resumesQuery.isPending,
-    sync: githubQuery.isPending || transcriptQuery.isPending,
-    market: trendingQuery.isPending || skillsQuery.isPending,
-    jobStats: jobStatsQuery.isPending,
-    notifications: notificationsQuery.isPending,
+    sync:
+      !deferSecondary ||
+      githubQuery.isPending ||
+      transcriptQuery.isPending,
+    market:
+      !deferSecondary ||
+      trendingQuery.isPending ||
+      skillsQuery.isPending,
+    jobStats: !deferSecondary || jobStatsQuery.isPending,
+    notifications: !deferSecondary || notificationsQuery.isPending,
     suggestedActions:
       roadmapsQuery.isPending ||
       githubQuery.isPending ||
