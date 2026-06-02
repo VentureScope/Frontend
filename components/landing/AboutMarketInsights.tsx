@@ -6,7 +6,6 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   getInDemandSkills,
-  getJobStats,
   getTrendingCareers,
 } from "@/lib/jobs-api";
 import type { InDemandSkill, JobStats, TrendingCareer } from "@/types/jobs";
@@ -17,6 +16,7 @@ import { MARKET_TOP_K, trendingInsight } from "@/lib/job-market-insights";
 import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
 import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
 import { logMarketSectionFailure } from "@/lib/log-jobs-api";
+import { getMarketPulseFallbackData } from "@/lib/market-pulse-fallback";
 
 export function AboutMarketInsights() {
   const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
@@ -29,14 +29,13 @@ export function AboutMarketInsights() {
     let cancelled = false;
     (async () => {
       try {
-        const [sk, st, tr] = await Promise.all([
+        const [sk, tr] = await Promise.all([
           getInDemandSkills({ limit: 5, period: days }),
-          getJobStats({ period: days }),
           getTrendingCareers({ limit: 4, period: days }),
         ]);
         if (!cancelled) {
           setSkills(sk);
-          setStats(st);
+          setStats(getMarketPulseFallbackData().stats);
           setTrending(tr);
         }
       } catch (err) {

@@ -41,6 +41,8 @@ type FutureMarketPanelProps = {
   onSelectRoleId: (id: string) => void;
   loading: boolean;
   error: boolean;
+  /** API succeeded but returned no forecast rows (empty ensemble table). */
+  empty?: boolean;
   onRetry: () => void;
 };
 
@@ -53,6 +55,7 @@ export function FutureMarketPanel({
   onSelectRoleId,
   loading,
   error,
+  empty = false,
   onRetry,
 }: FutureMarketPanelProps) {
   const selectedBar = forecastBars.find((bar) => bar.id === selectedRoleId);
@@ -106,10 +109,20 @@ export function FutureMarketPanel({
 
   if (!loading && forecastBars.length === 0) {
     return (
-      <p className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-        Forecast data is not available yet. Check that the API is running and try
-        again.
-      </p>
+      <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+        <p>
+          {empty
+            ? "No forecast data is in the database yet. Job listings are available, but the ensemble forecast table has no rows — run the backend ML forecasting pipeline to populate it."
+            : "Forecast data could not be loaded. Check that the API is running and try again."}
+        </p>
+        <button
+          type="button"
+          onClick={onRetry}
+          className="mt-3 font-semibold text-primary hover:underline"
+        >
+          Retry
+        </button>
+      </div>
     );
   }
 

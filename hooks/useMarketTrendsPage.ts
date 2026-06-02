@@ -209,6 +209,8 @@ export function useMarketTrendsPage() {
       companies: companiesQuery.isError,
       future: forecastsQuery.isError,
     },
+    forecastsEmpty:
+      forecastsQuery.isSuccess && (forecastsQuery.data?.length ?? 0) === 0,
     isRefetching,
     updatedAt,
     retryForecasts,

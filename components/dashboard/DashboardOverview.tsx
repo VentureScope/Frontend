@@ -6,6 +6,7 @@ import InsightCard from "@/components/dashboard/InsightCard";
 import ModuleGrid from "@/components/dashboard/ModuleGrid";
 import DataSyncCard from "@/components/dashboard/DataSyncCard";
 import MarketTrendsCard from "@/components/dashboard/MarketTrendsCard";
+import JobListingsStat from "@/components/market/JobListingsStat";
 import RecentActivity from "@/components/dashboard/RecentActivity";
 import SuggestedActions from "@/components/dashboard/SuggestedActions";
 import CareerReadinessPanel from "@/components/dashboard/CareerReadinessPanel";
@@ -17,7 +18,7 @@ import { useAppStore } from "@/store/useAppStore";
 export default function DashboardOverview() {
   const user = useAppStore((state) => state.authData.user);
   const profile = getUserProfileView(user);
-  const { data, loading: sectionLoading, error, refreshReadiness, reload } =
+  const { data, loading: sectionLoading, error, refreshReadiness, reload, lookbackPhrase } =
     useDashboardOverview(profile.careerInterest);
   const [refreshingReadiness, setRefreshingReadiness] = useState(false);
 
@@ -75,13 +76,23 @@ export default function DashboardOverview() {
         variant="compact"
       />
 
-      <ModuleGrid
-        activeRoadmap={data.activeRoadmap}
-        latestResume={data.latestResume}
-        profileMatchPercent={data.profileMatchPercent}
-        roadmapsLoading={sectionLoading.roadmaps}
-        resumesLoading={sectionLoading.resumes}
-      />
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12 lg:items-stretch">
+        <div className="lg:col-span-8">
+          <ModuleGrid
+            activeRoadmap={data.activeRoadmap}
+            latestResume={data.latestResume}
+            profileMatchPercent={data.profileMatchPercent}
+            roadmapsLoading={sectionLoading.roadmaps}
+            resumesLoading={sectionLoading.resumes}
+          />
+        </div>
+        <div className="flex h-full min-h-0 lg:col-span-4">
+          <DataSyncCard
+            items={data.syncItems}
+            loading={sectionLoading.sync}
+          />
+        </div>
+      </div>
 
       <div className="space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -93,12 +104,15 @@ export default function DashboardOverview() {
             compact
           />
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 lg:items-stretch">
-          <DataSyncCard
-            items={data.syncItems}
-            loading={sectionLoading.sync}
-          />
-          <div className="md:col-span-1 lg:col-span-2">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12 lg:items-stretch">
+          <div className="lg:col-span-4">
+            <JobListingsStat
+              stats={data.jobStats}
+              loading={sectionLoading.jobStats}
+              lookbackPhrase={lookbackPhrase}
+            />
+          </div>
+          <div className="lg:col-span-8">
             <MarketTrendsCard
               trending={data.trendingCareers}
               skills={data.inDemandSkills}

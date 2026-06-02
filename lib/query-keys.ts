@@ -35,6 +35,7 @@ export const queryKeys = {
     transcriptLatest: () =>
       [...queryKeys.profile.all, "transcript", "latest"] as const,
     experiences: () => [...queryKeys.profile.all, "experiences"] as const,
+    certificates: () => [...queryKeys.profile.all, "certificates"] as const,
   },
   dataHub: {
     all: ["data-hub"] as const,
@@ -52,8 +53,8 @@ export const queryKeys = {
       [...queryKeys.market.all, "future-roadmap-roles", limit] as const,
     inDemandSkills: (days: number, limit: number) =>
       [...queryKeys.market.all, "in-demand-skills", days, limit] as const,
-    jobStats: (days: number) =>
-      [...queryKeys.market.all, "job-stats", days] as const,
+    jobStats: (period: number) =>
+      [...queryKeys.market.all, "job-stats", period] as const,
     hiringCompanies: (days: number, categoriesKey: string) =>
       [
         ...queryKeys.market.all,

@@ -741,3 +741,62 @@ export async function deleteExperience(experienceId: string): Promise<void> {
     throw error;
   }
 }
+
+// Certificate APIs
+import {
+  Certificate,
+  CertificatePayload,
+  CertificateUpdatePayload,
+} from "@/types/certificate";
+
+export async function getCertificates(): Promise<Certificate[]> {
+  const path = "/api/users/me/certificates";
+  try {
+    const response = await api.get<Certificate[]>(path);
+    logRequestSuccess("GET", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("GET", path, error);
+    throw error;
+  }
+}
+
+export async function createCertificate(
+  payload: CertificatePayload,
+): Promise<Certificate> {
+  const path = "/api/users/me/certificates";
+  try {
+    const response = await api.post<Certificate>(path, payload);
+    logRequestSuccess("POST", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("POST", path, error);
+    throw error;
+  }
+}
+
+export async function updateCertificate(
+  certificateId: string,
+  payload: CertificateUpdatePayload,
+): Promise<Certificate> {
+  const path = `/api/users/me/certificates/${certificateId}`;
+  try {
+    const response = await api.put<Certificate>(path, payload);
+    logRequestSuccess("PUT", path, { status: response.status });
+    return response.data;
+  } catch (error) {
+    logRequestError("PUT", path, error);
+    throw error;
+  }
+}
+
+export async function deleteCertificate(certificateId: string): Promise<void> {
+  const path = `/api/users/me/certificates/${certificateId}`;
+  try {
+    const response = await api.delete(path);
+    logRequestSuccess("DELETE", path, { status: response.status });
+  } catch (error) {
+    logRequestError("DELETE", path, error);
+    throw error;
+  }
+}

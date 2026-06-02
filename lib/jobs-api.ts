@@ -71,10 +71,14 @@ export async function getInDemandSkills(params?: {
   return res.data;
 }
 
-export async function getJobStats(params?: {
+/** Job corpus stats for a lookback window (`period` days; API default 90). */
+export async function getJobStats(options?: {
   period?: number;
 }): Promise<JobStats> {
-  const res = await api.get<JobStats>("/api/jobs/stats", { params });
+  const res = await api.get<JobStats>("/api/jobs/stats", {
+    params:
+      options?.period != null ? { period: options.period } : undefined,
+  });
   return res.data;
 }
 

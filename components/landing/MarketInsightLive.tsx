@@ -6,7 +6,6 @@ import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   getInDemandSkills,
-  getJobStats,
   getJobsByCategory,
   getTrendingCareers,
 } from "@/lib/jobs-api";
@@ -26,6 +25,7 @@ import { MARKET_TOP_K } from "@/lib/job-market-insights";
 import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
 import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
 import { logMarketSectionFailure } from "@/lib/log-jobs-api";
+import { getMarketPulseFallbackData } from "@/lib/market-pulse-fallback";
 
 export default function MarketInsightLive() {
   const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
@@ -45,16 +45,15 @@ export default function MarketInsightLive() {
       setLoading(true);
       setError(null);
       try {
-        const [sk, st, tr] = await Promise.all([
+        const [sk, tr] = await Promise.all([
           getInDemandSkills({ limit: MARKET_TOP_K.skills, period: days }),
-          getJobStats({ period: days }),
           getTrendingCareers({ limit: MARKET_TOP_K.trending, period: days }),
         ]);
         if (cancelled) {
           return;
         }
         setSkills(sk);
-        setStats(st);
+        setStats(getMarketPulseFallbackData().stats);
         setTrending(tr);
         setUpdatedAt(new Date());
 

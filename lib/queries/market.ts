@@ -39,8 +39,8 @@ export async function fetchInDemandSkills(days: number, limit: number) {
   return getInDemandSkills({ limit, period: days });
 }
 
-export async function fetchJobStats(days: number) {
-  return getJobStats({ period: days });
+export async function fetchJobStats(period: number) {
+  return getJobStats({ period });
 }
 
 export async function fetchTopHiringCompanies(

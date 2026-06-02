@@ -87,6 +87,7 @@ export default function MarketTrendsDashboard() {
           onSelectRoleId={page.setSelectedRoleId}
           loading={page.loading.future}
           error={page.errors.future}
+          empty={page.forecastsEmpty}
           onRetry={page.retryForecasts}
         />
       )}

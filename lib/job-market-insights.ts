@@ -110,7 +110,57 @@ export function topSkillInsight(skills: InDemandSkill[]): string | null {
 export function statsInsight(stats: JobStats): string {
   const employers = formatCompactNumber(stats.unique_companies);
   const roles = formatCompactNumber(stats.total_jobs);
-  return `${employers} employers are actively hiring across ${stats.unique_categories} role categories, with ${roles} open roles indexed in our dataset.`;
+  const since = formatJobStatsSinceLabel(stats);
+  const windowHint = since ? ` (${since})` : "";
+  return `${employers} employers are actively hiring across ${stats.unique_categories} role categories, with ${roles} open roles indexed in our dataset${windowHint}.`;
+}
+
+/** Short caption from API `date_range` start (and optional end). */
+export function formatJobStatsSinceLabel(stats: JobStats | null): string | null {
+  const start = stats?.date_range?.[0];
+  if (!start) {
+    return null;
+  }
+
+  const startLabel = new Date(start).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const end = stats?.date_range?.[1];
+  if (!end) {
+    return `since ${startLabel}`;
+  }
+
+  const endLabel = new Date(end).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  return `since ${startLabel} · through ${endLabel}`;
+}
+
+export function formatJobStatsPeriodCaption(
+  stats: JobStats | null,
+  lookbackPhrase?: string,
+  isAllTime?: boolean,
+): string {
+  const since = formatJobStatsSinceLabel(stats);
+  if (isAllTime) {
+    if (since) {
+      return `Full indexed corpus · listings ${since}.`;
+    }
+    return "All job listings stored in our database.";
+  }
+  if (since) {
+    return `Listings ${since}.`;
+  }
+  if (lookbackPhrase) {
+    return `Open roles posted in ${lookbackPhrase}.`;
+  }
+  return "Open roles in the selected lookback window.";
 }
 
 export function trendingInsight(careers: TrendingCareer[]): string | null {

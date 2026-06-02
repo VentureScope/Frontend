@@ -1,37 +1,48 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { getApiErrorMessage, updateCurrentUserProfile } from "@/lib/auth-api";
 import { getUserProfileView } from "@/lib/user-profile";
-import { useAppStore } from "@/store/useAppStore";
 import { Plus, X } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { AuthUser } from "@/types/auth";
 import { toast } from "sonner";
 
-export default function CareerInterests() {
-  const authData = useAppStore((state) => state.authData);
-  const setAuthData = useAppStore((state) => state.setAuthData);
-  const user = useAppStore((state) => state.authData.user);
+type CareerInterestsProps = {
+  user: AuthUser | null;
+  loading?: boolean;
+  onProfileUpdated?: (user: AuthUser) => void;
+};
+
+function parseInterestTags(value: string | null | undefined): string[] {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    return [];
+  }
+
+  return Array.from(
+    new Set(
+      value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+    ),
+  );
+}
+
+export default function CareerInterests({
+  user,
+  loading = false,
+  onProfileUpdated,
+}: CareerInterestsProps) {
   const profile = getUserProfileView(user);
-
   const [tags, setTags] = useState<string[]>([]);
-
   const [isAdding, setIsAdding] = useState(false);
   const [newTag, setNewTag] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const value = user?.career_interest;
-    if (typeof value !== "string" || value.trim().length === 0) {
-      setTags([]);
-      return;
-    }
-
-    const parsed = value
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
-
-    setTags(Array.from(new Set(parsed)));
+    setTags(parseInterestTags(user?.career_interest));
   }, [user?.career_interest]);
 
   const helperText = useMemo(() => {
@@ -54,10 +65,7 @@ export default function CareerInterests() {
         career_interest: nextValue.length > 0 ? nextValue : null,
       });
 
-      setAuthData({
-        ...authData,
-        user: updatedUser,
-      });
+      onProfileUpdated?.(updatedUser);
     } catch (error) {
       toast.error(getApiErrorMessage(error));
       throw error;
@@ -77,6 +85,7 @@ export default function CareerInterests() {
       return;
     }
 
+    const previous = tags;
     const next = [...tags, normalized];
     setTags(next);
     setNewTag("");
@@ -86,11 +95,12 @@ export default function CareerInterests() {
       await persistInterests(next);
       toast.success("Career interests updated.");
     } catch {
-      setTags(tags);
+      setTags(previous);
     }
   };
 
   const removeTag = async (tagToRemove: string) => {
+    const previous = tags;
     const next = tags.filter((tag) => tag !== tagToRemove);
     setTags(next);
 
@@ -98,9 +108,25 @@ export default function CareerInterests() {
       await persistInterests(next);
       toast.success("Career interests updated.");
     } catch {
-      setTags(tags);
+      setTags(previous);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="space-y-5 rounded-xl border border-border bg-card p-5 shadow-sm sm:space-y-6 sm:p-6 lg:p-8">
+          <Skeleton className="h-7 w-40" />
+          <Skeleton className="h-16 w-full" />
+          <div className="flex flex-wrap gap-3">
+            <Skeleton className="h-9 w-24 rounded-full" />
+            <Skeleton className="h-9 w-28 rounded-full" />
+          </div>
+        </div>
+        <Skeleton className="h-24 rounded-lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -108,7 +134,7 @@ export default function CareerInterests() {
         <h3 className="text-lg font-bold text-foreground sm:text-xl">
           Career Interests
         </h3>
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        <p className="text-sm leading-relaxed text-muted-foreground">
           Your interests are synced from your profile and shape personalized
           role recommendations for {profile.firstName}.
         </p>
@@ -131,7 +157,7 @@ export default function CareerInterests() {
               <button
                 type="button"
                 disabled={isSaving}
-                onClick={() => removeTag(t)}
+                onClick={() => void removeTag(t)}
                 className="text-muted-foreground/50 hover:text-rose-500"
               >
                 <X size={12} />
@@ -156,9 +182,7 @@ export default function CareerInterests() {
               <button
                 type="button"
                 disabled={isSaving}
-                onClick={() => {
-                  void addTag();
-                }}
+                onClick={() => void addTag()}
                 className="rounded-lg bg-primary px-3 py-2 text-[11px] font-medium text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Save
@@ -180,7 +204,17 @@ export default function CareerInterests() {
 
       <div className="space-y-2 rounded-lg border border-border bg-muted p-5 sm:p-6">
         <p className="text-label text-primary">Interest Insight</p>
-        <p className="text-sm text-muted-foreground leading-relaxed">{helperText}</p>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {helperText}
+        </p>
+        {tags.length > 0 ? (
+          <Link
+            href="/dashboard/market-trends"
+            className="inline-flex text-xs font-semibold text-primary hover:underline"
+          >
+            Explore market demand for your interests →
+          </Link>
+        ) : null}
       </div>
     </div>
   );

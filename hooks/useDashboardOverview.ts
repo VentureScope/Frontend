@@ -17,13 +17,14 @@ import {
 } from "@/lib/dashboard-utils";
 import { getInDemandSkills, getTrendingCareers } from "@/lib/jobs-api";
 import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
+import { useJobStatsQuery } from "@/hooks/queries/use-job-stats-query";
 import { useNotificationsActivityQuery } from "@/hooks/queries/use-notifications-activity-query";
 import { getMarketPulseFallbackData } from "@/lib/market-pulse-fallback";
 import { queryKeys } from "@/lib/query-keys";
 import { listRoadmaps } from "@/lib/roadmaps-api";
 import { listResumes } from "@/lib/resume-api";
 import type { GeneratedResumeOut } from "@/types/generated-resume";
-import type { InDemandSkill, TrendingCareer } from "@/types/jobs";
+import type { InDemandSkill, JobStats, TrendingCareer } from "@/types/jobs";
 import type { RoadmapListItem } from "@/types/roadmap";
 
 export type DashboardSuggestedAction = {
@@ -49,6 +50,7 @@ export type DashboardOverviewData = {
   profileMatchPercent: number | null;
   trendingCareers: TrendingCareer[];
   inDemandSkills: InDemandSkill[];
+  jobStats: JobStats | null;
   activities: DashboardActivityItem[];
   suggestedActions: DashboardSuggestedAction[];
   syncItems: DashboardSyncItem[];
@@ -62,6 +64,7 @@ export type DashboardOverviewLoading = {
   resumes: boolean;
   sync: boolean;
   market: boolean;
+  jobStats: boolean;
   notifications: boolean;
   suggestedActions: boolean;
 };
@@ -129,7 +132,7 @@ function buildSuggestedActions(
 }
 
 export function useDashboardOverview(careerInterest: string) {
-  const { days } = useMarketAnalyticsPeriod();
+  const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
   const queryClient = useQueryClient();
   const fallback = getMarketPulseFallbackData();
 
@@ -175,6 +178,7 @@ export function useDashboardOverview(careerInterest: string) {
   });
 
   const [trendingQuery, skillsQuery] = marketQuery;
+  const jobStatsQuery = useJobStatsQuery(days);
 
   const sectionLoading: DashboardOverviewLoading = {
     readiness: readinessQuery.isPending,
@@ -182,6 +186,7 @@ export function useDashboardOverview(careerInterest: string) {
     resumes: resumesQuery.isPending,
     sync: githubQuery.isPending || transcriptQuery.isPending,
     market: trendingQuery.isPending || skillsQuery.isPending,
+    jobStats: jobStatsQuery.isPending,
     notifications: notificationsQuery.isPending,
     suggestedActions:
       roadmapsQuery.isPending ||
@@ -271,6 +276,7 @@ export function useDashboardOverview(careerInterest: string) {
       profileMatchPercent: null,
       trendingCareers,
       inDemandSkills,
+      jobStats: jobStatsQuery.data ?? null,
       activities,
       suggestedActions: mergeSuggestedActions(
         suggestedActionsFromReadiness(readiness),
@@ -289,6 +295,7 @@ export function useDashboardOverview(careerInterest: string) {
     readinessQuery.data,
     trendingQuery.data,
     skillsQuery.data,
+    jobStatsQuery.data,
     careerInterest,
     fallback.trending,
     fallback.skills,
@@ -304,6 +311,7 @@ export function useDashboardOverview(careerInterest: string) {
       readinessQuery.refetch(),
       trendingQuery.refetch(),
       skillsQuery.refetch(),
+      jobStatsQuery.refetch(),
     ]);
   }, [
     roadmapsQuery,
@@ -314,6 +322,7 @@ export function useDashboardOverview(careerInterest: string) {
     readinessQuery,
     trendingQuery,
     skillsQuery,
+    jobStatsQuery,
   ]);
 
   const refreshReadiness = useCallback(async () => {
@@ -346,5 +355,6 @@ export function useDashboardOverview(careerInterest: string) {
         : null,
     reload,
     refreshReadiness,
+    lookbackPhrase,
   };
 }
