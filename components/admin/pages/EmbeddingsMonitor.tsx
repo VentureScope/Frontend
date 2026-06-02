@@ -12,7 +12,6 @@ import {
   adminPage,
   adminPrimaryBtn,
 } from "@/components/admin/ui/admin-styles";
-import { MlRunSummaryCell } from "@/components/admin/MlRunSummaryCell";
 import { MlRunSummaryModal } from "@/components/admin/MlRunSummaryModal";
 import { useAdminMlRuns } from "@/hooks/useAdminMlRuns";
 import { formatAdminTimestamp } from "@/lib/admin-response-parsers";
@@ -95,7 +94,10 @@ export function EmbeddingsMonitor() {
   } = useAdminMlRuns();
 
   const [counts, setCounts] = useState({ total: 0, failed: 0, awaiting: 0 });
-  const [summaryRun, setSummaryRun] = useState<MlRunRow | null>(null);
+  const [summaryBundle, setSummaryBundle] = useState<{
+    label: string;
+    rows: MlRunRow[];
+  } | null>(null);
 
   useEffect(() => {
     void fetchCounts().then(setCounts);
@@ -199,6 +201,16 @@ export function EmbeddingsMonitor() {
                       <span className="rounded-full border border-border px-2 py-0.5 text-[10px] text-muted-foreground">
                         {rows.length} model{rows.length !== 1 ? "s" : ""}
                       </span>
+                      {rows.some((r) => r.has_summary) ? (
+                        <button
+                          type="button"
+                          className={`${adminGhostBtn} text-xs font-semibold text-primary`}
+                          onClick={() => setSummaryBundle({ label: base, rows })}
+                          title="View metrics for both models in this bundle"
+                        >
+                          View summary
+                        </button>
+                      ) : null}
                       {action && runYearMonth ? (
                         <button
                           type="button"
@@ -223,11 +235,11 @@ export function EmbeddingsMonitor() {
                     </div>
                   </div>
 
-                  {/* Per-model rows inside the bundle (read-only — no per-model actions) */}
+                  {/* Per-model rows inside the bundle (read-only) */}
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-border/40">
-                        {["Model", "Status", "Accuracy", "Summary"].map((col) => (
+                        {["Model", "Status", "Accuracy"].map((col) => (
                           <th
                             key={col}
                             className="px-4 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-muted-foreground"
@@ -257,12 +269,6 @@ export function EmbeddingsMonitor() {
                           <td className="px-4 py-2.5 font-mono text-xs text-muted-foreground">
                             {row.accuracy ?? "—"}
                           </td>
-                          <td className="px-4 py-2.5">
-                            <MlRunSummaryCell
-                              run={row}
-                              onView={() => setSummaryRun(row)}
-                            />
-                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -289,9 +295,10 @@ export function EmbeddingsMonitor() {
       )}
 
       <MlRunSummaryModal
-        run={summaryRun}
-        open={summaryRun != null}
-        onClose={() => setSummaryRun(null)}
+        bundle={summaryBundle?.rows ?? null}
+        bundleLabel={summaryBundle?.label ?? null}
+        open={summaryBundle != null}
+        onClose={() => setSummaryBundle(null)}
       />
     </div>
   );
