@@ -59,6 +59,23 @@ function bundleStatus(rows: MlRunRow[]): MlRunRow["status"] {
   }, rows[0]?.status ?? "unknown");
 }
 
+/**
+ * Determine the bundle-level action available:
+ *  - "deploy"   if any model is awaiting_review (and none are deployed mid-state)
+ *  - "redeploy" if all actionable models are superseded
+ *  - null       if the bundle is already fully deployed or has no actionable models
+ */
+function bundleAction(rows: MlRunRow[]): "deploy" | "redeploy" | null {
+  const hasAwaiting = rows.some((r) => r.status === "awaiting_review");
+  const hasSuperseded = rows.some((r) => r.status === "superseded");
+  const allDeployed = rows.length > 0 && rows.every((r) => r.status === "deployed");
+
+  if (allDeployed) return null;
+  if (hasAwaiting) return "deploy";
+  if (hasSuperseded) return "redeploy";
+  return null;
+}
+
 export function EmbeddingsMonitor() {
   const {
     items,
@@ -71,8 +88,7 @@ export function EmbeddingsMonitor() {
     setPage,
     pages,
     reload,
-    deploy,
-    redeploy,
+    deployBundle,
     triggerTraining,
     actionLoading,
     fetchCounts,
@@ -91,7 +107,10 @@ export function EmbeddingsMonitor() {
       base,
       rows,
       status: bundleStatus(rows),
+      action: bundleAction(rows),
       created_at: rows[0]?.created_at ?? "",
+      // run_yearmonth identifies the training instance for the bundle deploy endpoint
+      runYearMonth: rows.find((r) => r.run_yearmonth)?.run_yearmonth ?? null,
     }));
   }, [items]);
 
@@ -160,12 +179,12 @@ export function EmbeddingsMonitor() {
             </p>
           ) : (
             <div className="mb-4 space-y-3">
-              {bundles.map(({ base, rows, status, created_at }) => (
+              {bundles.map(({ base, rows, status, action, created_at, runYearMonth }) => (
                 <div
                   key={base}
                   className="overflow-hidden rounded-lg border border-border bg-card"
                 >
-                  {/* Bundle header */}
+                  {/* Bundle header — status, run id, model count, and the single bundle action */}
                   <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 bg-muted/30 px-4 py-3">
                     <div className="flex flex-wrap items-center gap-3">
                       <MlStatusLabel status={status} />
@@ -176,16 +195,39 @@ export function EmbeddingsMonitor() {
                         {formatAdminTimestamp(created_at)}
                       </span>
                     </div>
-                    <span className="rounded-full border border-border px-2 py-0.5 text-[10px] text-muted-foreground">
-                      {rows.length} model{rows.length !== 1 ? "s" : ""}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full border border-border px-2 py-0.5 text-[10px] text-muted-foreground">
+                        {rows.length} model{rows.length !== 1 ? "s" : ""}
+                      </span>
+                      {action && runYearMonth ? (
+                        <button
+                          type="button"
+                          className={action === "deploy" ? adminPrimaryBtn : adminGhostBtn}
+                          disabled={actionLoading === base}
+                          onClick={() => void deployBundle(base, runYearMonth)}
+                          title={
+                            action === "deploy"
+                              ? "Deploy both models from this training instance together"
+                              : "Reactivate both models from this superseded training instance"
+                          }
+                        >
+                          {actionLoading === base
+                            ? action === "deploy"
+                              ? "Deploying…"
+                              : "Redeploying…"
+                            : action === "deploy"
+                              ? "Deploy bundle"
+                              : "Redeploy bundle"}
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
 
-                  {/* Per-model rows inside the bundle */}
+                  {/* Per-model rows inside the bundle (read-only — no per-model actions) */}
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-border/40">
-                        {["Model", "Status", "Accuracy", "Summary", "Action"].map((col) => (
+                        {["Model", "Status", "Accuracy", "Summary"].map((col) => (
                           <th
                             key={col}
                             className="px-4 py-2 text-left text-[10px] font-normal uppercase tracking-widest text-muted-foreground"
@@ -220,30 +262,6 @@ export function EmbeddingsMonitor() {
                               run={row}
                               onView={() => setSummaryRun(row)}
                             />
-                          </td>
-                          <td className="px-4 py-2.5">
-                            {row.status === "awaiting_review" ? (
-                              <button
-                                type="button"
-                                className={adminGhostBtn}
-                                disabled={actionLoading === row.id}
-                                onClick={() => void deploy(row.id)}
-                              >
-                                {actionLoading === row.id ? "…" : "Deploy"}
-                              </button>
-                            ) : row.status === "superseded" ? (
-                              <button
-                                type="button"
-                                className={adminGhostBtn}
-                                disabled={actionLoading === row.id}
-                                onClick={() => void redeploy(row.id)}
-                                title="Reactivate this superseded run"
-                              >
-                                {actionLoading === row.id ? "…" : "Redeploy"}
-                              </button>
-                            ) : (
-                              <span className="text-xs text-muted-foreground">—</span>
-                            )}
                           </td>
                         </tr>
                       ))}

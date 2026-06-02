@@ -455,6 +455,7 @@ export function parseMlRunsList(data: unknown): MlRunListResponse {
       status: asString(row.status, "unknown"),
       created_at: asString(row.created_at ?? row.started_at, ""),
       accuracy: accuracy != null ? asString(accuracy) : null,
+      run_yearmonth: asString(row.run_yearmonth, "") || null,
       metrics_summary: shortSummary,
       detail,
       has_summary,

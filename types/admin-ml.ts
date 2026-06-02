@@ -23,6 +23,8 @@ export interface MlRunRow {
   status: MlRunStatus;
   created_at: string;
   accuracy: string | null;
+  /** Training instance month (YYYY-MM) — used to deploy the bundle as a unit. */
+  run_yearmonth: string | null;
   /** One-line preview for tooltips; full detail is in `detail`. */
   metrics_summary: string | null;
   /** Grouped fields for the summary modal. */
