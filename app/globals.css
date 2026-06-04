@@ -303,7 +303,7 @@
   --brand: #b8956a;
   --brand-accent: #8a8480;
   --primary: #b8956a;
-  --primary-foreground: #0a0a0a;
+  --primary-foreground: #111111;
   --accent: #8a8480;
   --accent-foreground: #f0f0f0;
   --secondary: #7a8499;
@@ -317,7 +317,7 @@
   --chart-4: #9a7a52;
   --chart-5: #9a6b6b;
   --sidebar-primary: #b8956a;
-  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-primary-foreground: #111111;
   --sidebar-accent: #221d18;
   --sidebar-accent-foreground: #b8956a;
   --sidebar-ring: #b8956a;

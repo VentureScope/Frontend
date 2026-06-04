@@ -12,11 +12,17 @@ export function ColorPalettePicker() {
 
   return (
     <>
-      <ColorPaletteTrigger onOpen={() => setOpen(true)} disabled={!ready} />
+      <ColorPaletteTrigger
+        open={open}
+        onOpen={() => setOpen(true)}
+        disabled={!ready}
+      />
       <ColorPaletteSheet
         open={open}
         palette={palette}
-        onOpenChange={setOpen}
+        onOpenChange={(next) => {
+          setOpen(next);
+        }}
         onSelect={setPalette}
       />
     </>

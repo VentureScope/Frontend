@@ -74,6 +74,18 @@ export function applyColorPaletteToDocument(palette: ColorPalette): void {
   document.documentElement.dataset.palette = palette;
 }
 
+/** Live preview only — does not write to storage. */
+export function previewColorPalette(palette: ColorPalette): void {
+  applyColorPaletteToDocument(palette);
+}
+
+/** Restore the saved palette after preview or bfcache restore. */
+export function restoreStoredColorPalette(): ColorPalette {
+  const stored = readStoredColorPalette();
+  applyColorPaletteToDocument(stored);
+  return stored;
+}
+
 export const COLOR_PALETTE_CHANGE_EVENT = "venturescope:color-palette-change";
 
 export function dispatchColorPaletteChange(palette: ColorPalette): void {

@@ -4,12 +4,14 @@ import { Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ColorPaletteTriggerProps = {
+  open: boolean;
   onOpen: () => void;
   disabled?: boolean;
   className?: string;
 };
 
 export function ColorPaletteTrigger({
+  open,
   onOpen,
   disabled = false,
   className,
@@ -20,6 +22,8 @@ export function ColorPaletteTrigger({
       onClick={onOpen}
       disabled={disabled}
       aria-label="Choose accent color"
+      aria-expanded={open}
+      aria-haspopup="dialog"
       title="Accent color"
       className={cn(
         "no-print fixed right-0 top-[42%] z-50 flex h-12 w-10 -translate-y-1/2 items-center justify-center",
@@ -28,6 +32,7 @@ export function ColorPaletteTrigger({
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         "disabled:pointer-events-none disabled:opacity-50",
         "motion-reduce:transition-none",
+        open && "border-primary/30 bg-primary/5 text-primary",
         className,
       )}
     >
