@@ -103,7 +103,7 @@ export function TrendingRolesPanel({
                       {role.name}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {formatCompactNumber(role.job_count)} open roles ·{" "}
+                      {formatCompactNumber(role.job_count)} postings ·{" "}
                       {formatCompactNumber(role.company_count)} hiring
                     </p>
                   </div>

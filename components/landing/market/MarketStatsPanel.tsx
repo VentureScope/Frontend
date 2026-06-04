@@ -40,7 +40,7 @@ export function MarketStatsPanel({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatTile
           icon={<Briefcase className="h-5 w-5" />}
-          label="Open roles"
+          label="Postings"
           value={stats?.total_jobs}
           loading={loading}
         />
@@ -84,7 +84,7 @@ export function MarketStatsPanel({
 
       <div className="mt-6 grid grid-cols-1 gap-4 min-[400px]:grid-cols-3">
         <MiniStat
-          label="Roles indexed"
+          label="Postings indexed"
           value={overviewStats?.total_jobs}
           subValue={
             allTimeStats && stats && allTimeStats.total_jobs > stats.total_jobs

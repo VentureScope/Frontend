@@ -112,7 +112,7 @@ export function statsInsight(stats: JobStats): string {
   const roles = formatCompactNumber(stats.total_jobs);
   const since = formatJobStatsSinceLabel(stats);
   const windowHint = since ? ` (${since})` : "";
-  return `${employers} employers are actively hiring across ${stats.unique_categories} role categories, with ${roles} open roles indexed in our dataset${windowHint}.`;
+  return `${employers} employers are actively hiring across ${stats.unique_categories} role categories, with ${roles} postings indexed in our dataset${windowHint}.`;
 }
 
 /** Short caption from API `date_range` start (and optional end). */
@@ -158,9 +158,9 @@ export function formatJobStatsPeriodCaption(
     return `Listings ${since}.`;
   }
   if (lookbackPhrase) {
-    return `Open roles posted in ${lookbackPhrase}.`;
+    return `Postings indexed in ${lookbackPhrase}.`;
   }
-  return "Open roles in the selected lookback window.";
+  return "Postings in the selected lookback window.";
 }
 
 export function trendingInsight(careers: TrendingCareer[]): string | null {
@@ -168,7 +168,7 @@ export function trendingInsight(careers: TrendingCareer[]): string | null {
     return null;
   }
   const busiest = [...careers].sort((a, b) => b.job_count - a.job_count)[0];
-  return `${busiest.name} leads hiring volume with ${formatCompactNumber(busiest.job_count)} open roles across ${formatCompactNumber(busiest.company_count)} companies.`;
+  return `${busiest.name} leads hiring volume with ${formatCompactNumber(busiest.job_count)} postings across ${formatCompactNumber(busiest.company_count)} companies.`;
 }
 
 export interface EmergingTrendItem {

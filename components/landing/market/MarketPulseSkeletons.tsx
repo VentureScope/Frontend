@@ -108,3 +108,51 @@ export function MarketPulseGridSkeleton() {
     </div>
   );
 }
+
+/** Home — roles-focused market pulse. */
+export function MarketPulseRolesSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div>
+        {sk("h-4 w-32 mb-3")}
+        <MarketStatsSkeleton />
+      </div>
+      <div className="rounded-lg border border-border bg-muted/50 p-6">
+        {sk("h-5 w-36 mb-6")}
+        <TrendingRolesSkeleton rows={4} />
+      </div>
+    </div>
+  );
+}
+
+/** About — skills-focused market section. */
+export function AboutMarketSkillsSkeleton() {
+  return (
+    <div className="space-y-8">
+      <MarketStatsSkeleton />
+      <div className="rounded-lg border border-border bg-card p-6 sm:p-8">
+        {sk("h-5 w-40 mb-6")}
+        <SkillDemandSkeleton rows={5} />
+      </div>
+    </div>
+  );
+}
+
+/** Market insight — roles + skills live snapshot. */
+export function MarketInsightLiveSkeleton() {
+  return (
+    <div className="space-y-6">
+      <MarketStatsSkeleton />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-lg border border-border bg-card p-6 sm:p-8">
+          {sk("h-5 w-36 mb-6")}
+          <TrendingRolesSkeleton rows={4} />
+        </div>
+        <div className="rounded-lg border border-border bg-card p-6 sm:p-8">
+          {sk("h-5 w-40 mb-6")}
+          <SkillDemandSkeleton rows={5} />
+        </div>
+      </div>
+    </div>
+  );
+}

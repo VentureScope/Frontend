@@ -3,21 +3,21 @@
 import Link from "next/link";
 import { ArrowUpRight, Radio } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SkillDemandPanel } from "@/components/landing/market/SkillDemandPanel";
 import { TrendingRolesPanel } from "@/components/landing/market/TrendingRolesPanel";
 import { MarketStatsPanel } from "@/components/landing/market/MarketStatsPanel";
 import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
 import { useLandingAuth } from "@/hooks/useLandingAuth";
 import { useLandingMarketPulse } from "@/hooks/useLandingMarketPulse";
 import { MARKET_TOP_K } from "@/lib/job-market-insights";
-import { MarketPulseGridSkeleton } from "@/components/landing/market/MarketPulseSkeletons";
-
-const HOME_TRENDING_LIMIT = 3;
+import { MarketPulseRolesSkeleton } from "@/components/landing/market/MarketPulseSkeletons";
 
 export default function MarketPulse() {
   const { isAuthenticated } = useLandingAuth();
-  const { skills, trending, stats, loading, usingFallback, lookbackPhrase } =
-    useLandingMarketPulse();
+  const { trending, stats, loading, usingFallback, lookbackPhrase } =
+    useLandingMarketPulse({
+      includeSkills: false,
+      includeTrending: true,
+    });
 
   return (
     <section className="relative overflow-hidden py-20 sm:py-28">
@@ -46,8 +46,8 @@ export default function MarketPulse() {
                 Ethiopia Tech Market Pulse
               </h2>
               <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
-                Hiring signals from VentureScope—see which skills and roles are
-                gaining traction across the tech economy.
+                Hiring signals from VentureScope—see which roles are gaining
+                traction and where employers are hiring across the tech economy.
               </p>
               {usingFallback && !loading && (
                 <p className="text-xs text-muted-foreground">
@@ -80,7 +80,7 @@ export default function MarketPulse() {
 
           <div className="mt-10 space-y-6">
             {loading ? (
-              <MarketPulseGridSkeleton />
+              <MarketPulseRolesSkeleton />
             ) : (
               <>
                 <div className="min-w-0">
@@ -93,29 +93,16 @@ export default function MarketPulse() {
                   />
                 </div>
 
-                <div className="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-2 lg:items-stretch">
-                  <div className="min-w-0 rounded-lg border border-border bg-muted/50 p-5 sm:p-6">
-                    <SkillDemandPanel
-                      skills={skills}
-                      loading={false}
-                      compact
-                      showInsight={false}
-                      limit={MARKET_TOP_K.skills}
-                      title="In-demand skills"
-                    />
-                  </div>
-                  <div className="min-w-0 rounded-lg border border-border bg-muted/50 p-5 sm:p-6">
-                    <TrendingRolesPanel
-                      careers={trending}
-                      loading={false}
-                      compact
-                      limit={HOME_TRENDING_LIMIT}
-                      showGrowth={false}
-                      showInsight={false}
-                      title="Trending careers"
-                      lookbackPhrase={lookbackPhrase}
-                    />
-                  </div>
+                <div className="min-w-0 rounded-lg border border-border bg-muted/50 p-5 sm:p-6">
+                  <TrendingRolesPanel
+                    careers={trending}
+                    loading={false}
+                    limit={MARKET_TOP_K.trending}
+                    showGrowth
+                    showInsight
+                    title="Trending careers"
+                    lookbackPhrase={lookbackPhrase}
+                  />
                 </div>
               </>
             )}

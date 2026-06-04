@@ -5,16 +5,18 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MarketStatsPanel } from "@/components/landing/market/MarketStatsPanel";
 import { SkillDemandPanel } from "@/components/landing/market/SkillDemandPanel";
-import { TrendingRolesPanel } from "@/components/landing/market/TrendingRolesPanel";
-import { trendingInsight } from "@/lib/job-market-insights";
+import { topSkillInsight } from "@/lib/job-market-insights";
 import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
 import { useLandingMarketPulse } from "@/hooks/useLandingMarketPulse";
+import { AboutMarketSkillsSkeleton } from "@/components/landing/market/MarketPulseSkeletons";
 
 export function AboutMarketInsights() {
-  const { skills, stats, trending, loading, lookbackPhrase } =
-    useLandingMarketPulse();
+  const { skills, stats, loading } = useLandingMarketPulse({
+    includeSkills: true,
+    includeTrending: false,
+  });
 
-  const trendNote = trendingInsight(trending);
+  const skillNote = topSkillInsight(skills);
 
   return (
     <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24 lg:px-8">
@@ -27,12 +29,12 @@ export function AboutMarketInsights() {
             The market we&apos;re building for
           </h2>
           <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
-            VentureScope indexes real job postings and employer activity so
-            graduates see where demand is—not guesswork from outdated advice.
+            VentureScope indexes real job postings so graduates see which
+            skills employers ask for—not guesswork from outdated advice.
           </p>
-          {trendNote && !loading && (
+          {skillNote && !loading && (
             <p className="mt-4 text-sm text-muted-foreground border-l-2 border-primary pl-3 leading-relaxed">
-              {trendNote}
+              {skillNote}
             </p>
           )}
         </div>
@@ -50,25 +52,24 @@ export function AboutMarketInsights() {
         </div>
       </div>
 
-      <div className="mb-8">
-        <MarketStatsPanel stats={stats} loading={loading} variant="inline" />
-      </div>
+      {loading ? (
+        <AboutMarketSkillsSkeleton />
+      ) : (
+        <>
+          <div className="mb-8">
+            <MarketStatsPanel stats={stats} loading={false} variant="inline" />
+          </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-border bg-card p-6 sm:p-8 shadow-sm">
-          <SkillDemandPanel
-            skills={skills}
-            loading={loading}
-            compact
-            title="Top skills in demand"
-          />
-        </div>
-        <TrendingRolesPanel
-          careers={trending}
-          loading={loading}
-          lookbackPhrase={lookbackPhrase}
-        />
-      </div>
+          <div className="rounded-lg border border-border bg-card p-6 sm:p-8 shadow-sm">
+            <SkillDemandPanel
+              skills={skills}
+              loading={false}
+              compact
+              title="Top skills in demand"
+            />
+          </div>
+        </>
+      )}
     </section>
   );
 }
