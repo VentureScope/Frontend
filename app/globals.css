@@ -62,6 +62,19 @@
 /*
  * Executive dashboard reference — muted accents, charcoal surfaces,
  * hairline borders (~1px), 4–6px corner radius. No neon status colors.
+ *
+ * Accent palettes (M1): set `data-palette="green|blue|orange|violet"` on <html>.
+ * Omitted attribute defaults to green (:root values below).
+ *
+ * Palette tokens overridden per accent:
+ *   --brand, --brand-accent, --primary, --primary-foreground,
+ *   --accent, --accent-foreground, --secondary, --success, --warning,
+ *   --ring, --chart-1 … --chart-5,
+ *   --sidebar-primary, --sidebar-primary-foreground,
+ *   --sidebar-accent, --sidebar-accent-foreground, --sidebar-ring
+ *
+ * Palette-neutral (unchanged across accents):
+ *   surfaces (--background, --card, …), --destructive, --border, --inverse, …
  */
 :root {
   --brand: #4a6b5a;
@@ -161,6 +174,202 @@
   --sidebar-accent-foreground: #6b9a7a;
   --sidebar-border: #1c1c1c;
   --sidebar-ring: #6b9a7a;
+}
+
+/* ── Accent palette: Green (explicit — matches :root / .dark default) ── */
+:root[data-palette="green"] {
+  --brand: #4a6b5a;
+  --brand-accent: #5c6578;
+  --primary: #4a6b5a;
+  --primary-foreground: #ffffff;
+  --accent: #5c6578;
+  --accent-foreground: #ffffff;
+  --secondary: #8a7348;
+  --secondary-foreground: #ffffff;
+  --success: #4a6b5a;
+  --warning: #8a7348;
+  --ring: #4a6b5a;
+  --chart-1: #4a6b5a;
+  --chart-2: #8a7348;
+  --chart-3: #5c6578;
+  --chart-4: #6b8f7a;
+  --chart-5: #9e5d5d;
+  --sidebar-primary: #4a6b5a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef3f0;
+  --sidebar-accent-foreground: #4a6b5a;
+  --sidebar-ring: #4a6b5a;
+}
+
+.dark[data-palette="green"] {
+  --brand: #6b9a7a;
+  --brand-accent: #7a8499;
+  --primary: #6b9a7a;
+  --primary-foreground: #0a0a0a;
+  --accent: #7a8499;
+  --accent-foreground: #f0f0f0;
+  --secondary: #a8925a;
+  --secondary-foreground: #0a0a0a;
+  --success: #6b9a7a;
+  --warning: #a8925a;
+  --ring: #6b9a7a;
+  --chart-1: #6b9a7a;
+  --chart-2: #a8925a;
+  --chart-3: #7a8499;
+  --chart-4: #5a7d68;
+  --chart-5: #9a6b6b;
+  --sidebar-primary: #6b9a7a;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #1a221d;
+  --sidebar-accent-foreground: #6b9a7a;
+  --sidebar-ring: #6b9a7a;
+}
+
+/* ── Accent palette: Blue (steel blue primary, cool gray accent) ── */
+:root[data-palette="blue"] {
+  --brand: #4a5f6b;
+  --brand-accent: #566370;
+  --primary: #4a5f6b;
+  --primary-foreground: #ffffff;
+  --accent: #566370;
+  --accent-foreground: #ffffff;
+  --secondary: #8a7348;
+  --secondary-foreground: #ffffff;
+  --success: #4a5f6b;
+  --warning: #8a7348;
+  --ring: #4a5f6b;
+  --chart-1: #4a5f6b;
+  --chart-2: #8a7348;
+  --chart-3: #566370;
+  --chart-4: #628798;
+  --chart-5: #9e5d5d;
+  --sidebar-primary: #4a5f6b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef2f5;
+  --sidebar-accent-foreground: #4a5f6b;
+  --sidebar-ring: #4a5f6b;
+}
+
+.dark[data-palette="blue"] {
+  --brand: #7091a8;
+  --brand-accent: #788493;
+  --primary: #7091a8;
+  --primary-foreground: #0a0a0a;
+  --accent: #788493;
+  --accent-foreground: #f0f0f0;
+  --secondary: #a8925a;
+  --secondary-foreground: #0a0a0a;
+  --success: #7091a8;
+  --warning: #a8925a;
+  --ring: #7091a8;
+  --chart-1: #7091a8;
+  --chart-2: #a8925a;
+  --chart-3: #788493;
+  --chart-4: #5a8096;
+  --chart-5: #9a6b6b;
+  --sidebar-primary: #7091a8;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #1a1e22;
+  --sidebar-accent-foreground: #7091a8;
+  --sidebar-ring: #7091a8;
+}
+
+/* ── Accent palette: Orange (burnt amber primary, warm stone accent) ── */
+:root[data-palette="orange"] {
+  --brand: #856648;
+  --brand-accent: #6b6560;
+  --primary: #856648;
+  --primary-foreground: #ffffff;
+  --accent: #6b6560;
+  --accent-foreground: #ffffff;
+  --secondary: #5c6578;
+  --secondary-foreground: #ffffff;
+  --success: #856648;
+  --warning: #8a7348;
+  --ring: #856648;
+  --chart-1: #856648;
+  --chart-2: #5c6578;
+  --chart-3: #6b6560;
+  --chart-4: #a08058;
+  --chart-5: #9e5d5d;
+  --sidebar-primary: #856648;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f5f0ea;
+  --sidebar-accent-foreground: #856648;
+  --sidebar-ring: #856648;
+}
+
+.dark[data-palette="orange"] {
+  --brand: #b8956a;
+  --brand-accent: #8a8480;
+  --primary: #b8956a;
+  --primary-foreground: #0a0a0a;
+  --accent: #8a8480;
+  --accent-foreground: #f0f0f0;
+  --secondary: #7a8499;
+  --secondary-foreground: #0a0a0a;
+  --success: #b8956a;
+  --warning: #a8925a;
+  --ring: #b8956a;
+  --chart-1: #b8956a;
+  --chart-2: #7a8499;
+  --chart-3: #8a8480;
+  --chart-4: #9a7a52;
+  --chart-5: #9a6b6b;
+  --sidebar-primary: #b8956a;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #221d18;
+  --sidebar-accent-foreground: #b8956a;
+  --sidebar-ring: #b8956a;
+}
+
+/* ── Accent palette: Violet (muted plum primary, blue-gray accent) ── */
+:root[data-palette="violet"] {
+  --brand: #634f70;
+  --brand-accent: #5a6070;
+  --primary: #634f70;
+  --primary-foreground: #ffffff;
+  --accent: #5a6070;
+  --accent-foreground: #ffffff;
+  --secondary: #8a7348;
+  --secondary-foreground: #ffffff;
+  --success: #634f70;
+  --warning: #8a7348;
+  --ring: #634f70;
+  --chart-1: #634f70;
+  --chart-2: #8a7348;
+  --chart-3: #5a6070;
+  --chart-4: #7a6588;
+  --chart-5: #9e5d5d;
+  --sidebar-primary: #634f70;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f2eef5;
+  --sidebar-accent-foreground: #634f70;
+  --sidebar-ring: #634f70;
+}
+
+.dark[data-palette="violet"] {
+  --brand: #9a84a8;
+  --brand-accent: #788493;
+  --primary: #9a84a8;
+  --primary-foreground: #0a0a0a;
+  --accent: #788493;
+  --accent-foreground: #f0f0f0;
+  --secondary: #a8925a;
+  --secondary-foreground: #0a0a0a;
+  --success: #9a84a8;
+  --warning: #a8925a;
+  --ring: #9a84a8;
+  --chart-1: #9a84a8;
+  --chart-2: #a8925a;
+  --chart-3: #788493;
+  --chart-4: #7a6588;
+  --chart-5: #9a6b6b;
+  --sidebar-primary: #9a84a8;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #1e1a22;
+  --sidebar-accent-foreground: #9a84a8;
+  --sidebar-ring: #9a84a8;
 }
 
 @layer base {
