@@ -9,6 +9,7 @@ import { QueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeSync } from "@/components/theme-sync";
 import { PaletteSync } from "@/components/PaletteSync";
+import { ColorPalettePicker } from "@/components/palette/ColorPalettePicker";
 import { COLOR_PALETTE_INIT_SCRIPT } from "@/lib/color-palette";
 
 const geistSans = Geist({
@@ -47,6 +48,7 @@ export default function RootLayout({
           <ThemeProvider>
             <ThemeSync />
             <PaletteSync />
+            <ColorPalettePicker />
             <BfcacheGuard />
             <Analytics />
             {children}
