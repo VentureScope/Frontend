@@ -491,9 +491,9 @@ export function buildPipelineDonutFromDags(
   const running = dags.filter((d) => d.status === "running").length;
   const failed = dags.filter((d) => d.status === "failed").length;
   const slices: PipelineDonutSlice[] = [
-    { name: "Success", value: success, color: "#34d399" },
-    { name: "Running", value: running, color: "#fbbf24" },
-    { name: "Failed", value: failed, color: "#f87171" },
+    { name: "Success", value: success, color: "var(--success)" },
+    { name: "Running", value: running, color: "var(--warning)" },
+    { name: "Failed", value: failed, color: "var(--destructive)" },
   ];
   return slices.filter((s) => s.value > 0);
 }

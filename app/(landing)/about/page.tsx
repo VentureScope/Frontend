@@ -255,7 +255,7 @@ export default function AboutPage() {
           Our Visionaries
         </h2>
         <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto mb-10 sm:mb-16">
-          A multidisciplinary team of engineers, educators, and data scientists
+          A multidisciplinary team of engineers, developers, and data scientists
           committed to Ethiopia's digital future.
         </p>
 

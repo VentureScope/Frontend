@@ -1,62 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  getInDemandSkills,
-  getJobStats,
-  getTrendingCareers,
-} from "@/lib/jobs-api";
-import type { InDemandSkill, JobStats, TrendingCareer } from "@/types/jobs";
 import { MarketStatsPanel } from "@/components/landing/market/MarketStatsPanel";
 import { SkillDemandPanel } from "@/components/landing/market/SkillDemandPanel";
-import { TrendingRolesPanel } from "@/components/landing/market/TrendingRolesPanel";
-import { MARKET_TOP_K, trendingInsight } from "@/lib/job-market-insights";
+import { topSkillInsight } from "@/lib/job-market-insights";
 import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
-import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
-import { logMarketSectionFailure } from "@/lib/log-jobs-api";
-import { getMarketPulseFallbackData } from "@/lib/market-pulse-fallback";
+import { useLandingMarketPulse } from "@/hooks/useLandingMarketPulse";
+import { AboutMarketSkillsSkeleton } from "@/components/landing/market/MarketPulseSkeletons";
 
 export function AboutMarketInsights() {
-  const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
-  const [skills, setSkills] = useState<InDemandSkill[]>([]);
-  const [stats, setStats] = useState<JobStats | null>(null);
-  const [trending, setTrending] = useState<TrendingCareer[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { skills, stats, loading } = useLandingMarketPulse({
+    includeSkills: true,
+    includeTrending: false,
+  });
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const [sk, tr, st] = await Promise.all([
-          getInDemandSkills({ limit: 5, period: days }),
-          getTrendingCareers({ limit: 4, period: days }),
-          getJobStats({ period: days }),
-        ]);
-        if (!cancelled) {
-          setSkills(sk);
-          setStats(st);
-          setTrending(tr);
-        }
-      } catch (err) {
-        logMarketSectionFailure("AboutMarketInsights", err);
-        if (!cancelled) {
-          setStats(getMarketPulseFallbackData().stats);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [days]);
-
-  const trendNote = trendingInsight(trending);
+  const skillNote = topSkillInsight(skills);
 
   return (
     <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24 lg:px-8">
@@ -69,12 +29,12 @@ export function AboutMarketInsights() {
             The market we&apos;re building for
           </h2>
           <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
-            VentureScope indexes real job postings and employer activity so
-            graduates see where demand is—not guesswork from outdated advice.
+            VentureScope indexes real job postings so graduates see which
+            skills employers ask for—not guesswork from outdated advice.
           </p>
-          {trendNote && !loading && (
+          {skillNote && !loading && (
             <p className="mt-4 text-sm text-muted-foreground border-l-2 border-primary pl-3 leading-relaxed">
-              {trendNote}
+              {skillNote}
             </p>
           )}
         </div>
@@ -92,25 +52,24 @@ export function AboutMarketInsights() {
         </div>
       </div>
 
-      <div className="mb-8">
-        <MarketStatsPanel stats={stats} loading={loading} variant="inline" />
-      </div>
+      {loading ? (
+        <AboutMarketSkillsSkeleton />
+      ) : (
+        <>
+          <div className="mb-8">
+            <MarketStatsPanel stats={stats} loading={false} variant="inline" />
+          </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-border bg-card p-6 sm:p-8 shadow-sm">
-          <SkillDemandPanel
-            skills={skills}
-            loading={loading}
-            compact
-            title="Top skills in demand"
-          />
-        </div>
-        <TrendingRolesPanel
-          careers={trending}
-          loading={loading}
-          lookbackPhrase={lookbackPhrase}
-        />
-      </div>
+          <div className="rounded-lg border border-border bg-card p-6 sm:p-8 shadow-sm">
+            <SkillDemandPanel
+              skills={skills}
+              loading={false}
+              compact
+              title="Top skills in demand"
+            />
+          </div>
+        </>
+      )}
     </section>
   );
 }

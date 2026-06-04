@@ -23,7 +23,7 @@ export function CategoryJobsPanel({
   return (
     <div className="rounded-lg sm:rounded-xl bg-card p-6 sm:p-8 lg:p-10 border border-border shadow-sm">
       <h2 className="text-lg sm:text-xl font-bold text-foreground">
-        Open roles in {categoryName ?? "this category"}
+        Postings in {categoryName ?? "this category"}
       </h2>
       <p className="text-xs sm:text-sm text-muted-foreground mt-2 mb-6 leading-relaxed">
         Top {limit} openings for{" "}

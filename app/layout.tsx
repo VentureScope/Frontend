@@ -8,6 +8,9 @@ import { BfcacheGuard } from "@/components/BfcacheGuard";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeSync } from "@/components/theme-sync";
+import { PaletteSync } from "@/components/PaletteSync";
+import { ColorPalettePicker } from "@/components/palette/ColorPalettePicker";
+import { COLOR_PALETTE_INIT_SCRIPT } from "@/lib/color-palette";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,12 +36,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{ __html: COLOR_PALETTE_INIT_SCRIPT }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <QueryProvider>
           <ThemeProvider>
             <ThemeSync />
+            <PaletteSync />
+            <ColorPalettePicker />
             <BfcacheGuard />
             <Analytics />
             {children}

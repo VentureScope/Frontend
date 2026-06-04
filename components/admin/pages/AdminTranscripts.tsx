@@ -108,8 +108,9 @@ export function AdminTranscripts() {
                     />
                     <Tooltip
                       contentStyle={{
-                        background: "#18181b",
-                        border: "1px solid #3f3f46",
+                        background: "var(--popover)",
+                        border: "1px solid var(--border)",
+                        color: "var(--popover-foreground)",
                       }}
                     />
                     <Bar dataKey="success" fill="var(--chart-1)" name="Success" />
