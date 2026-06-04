@@ -28,7 +28,13 @@ const FORBIDDEN = [
   /\bbg-blue-600\b/,
   /\bbg-\[#1d59db\]/i,
   /\bbg-\[#f8fafc\]/i,
-  /\bhover:bg-blue-700\b/,
+  /\bbg-emerald-\d+/,
+  /\btext-emerald-\d+/,
+  /\btext-red-600\b/,
+  /#4a6b5a/i,
+  /#6b9a7a/i,
+  /#3b82f6/i,
+  /radial-gradient\(#/i,
 ];
 
 /** Patterns allowed in feature code (dark cards, overlays, marketing panels). */
@@ -46,6 +52,10 @@ const ALLOWED_PATTERNS = [
   /\bprint:bg-/,
   /\bbg-white\/\d+/,
   /\btext-white\b/,
+  /components\/palette\//,
+  /lib\/color-palette\.ts$/,
+  /lib\/chart-colors\.ts$/,
+  /app\/globals\.css$/,
   /settings_page\.tsx$/,
 ];
 

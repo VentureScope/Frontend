@@ -199,7 +199,7 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
                     onClick={copySecret}
                     className="flex h-9 w-9 items-center justify-center rounded-lg bg-card shadow-sm border border-border text-muted-foreground hover:text-primary"
                   >
-                    {copied ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
+                    {copied ? <Check size={16} className="text-success" /> : <Copy size={16} />}
                   </button>
                 </div>
               </div>
@@ -255,7 +255,7 @@ export function MFAEnrollModal({ isOpen, onClose, onSuccess }: MFAEnrollModalPro
           {/* STEP 4: SUCCESS */}
           {step === "success" && (
             <div className="flex flex-col items-center py-4 space-y-6">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 animate-bounce">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-success/10 text-success animate-bounce">
                 <CheckCircle2 size={48} />
               </div>
               <div className="text-center space-y-2">

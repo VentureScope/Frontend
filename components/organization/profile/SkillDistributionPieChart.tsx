@@ -2,17 +2,7 @@
 
 import { useMemo } from "react";
 import type { UserOrgSkillBenchmark } from "@/types/organization-profile";
-
-/** Matches executive palette chart tokens in globals.css */
-const SLICE_COLORS = [
-  "#4a6b5a",
-  "#8a7348",
-  "#5c6578",
-  "#6b8f7a",
-  "#9e5d5d",
-  "#6b9a7a",
-  "#a8925a",
-];
+import { chartColorVar } from "@/lib/chart-colors";
 
 type Slice = {
   skill: string;
@@ -35,7 +25,7 @@ function buildSlices(benchmarks: UserOrgSkillBenchmark[]): Slice[] {
     return {
       skill: b.skill,
       value: b.yourScore,
-      color: SLICE_COLORS[index % SLICE_COLORS.length],
+      color: chartColorVar(index),
       startPct,
       endPct,
       roleMedian: b.roleMedian,

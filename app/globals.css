@@ -555,6 +555,20 @@
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
+
+  /* Palette-aware dot grid (marketing CTAs) */
+  .vs-dot-grid::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.4;
+    background-image: radial-gradient(
+      color-mix(in srgb, var(--primary) 55%, transparent) 1px,
+      transparent 1px
+    );
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
 }
 
 /* Sonner — top-right stack above app chrome */
@@ -612,7 +626,7 @@
 }
 
 .resume-pdf-export .resume-print-surface .text-primary {
-  color: #4a6b5a !important;
+  color: var(--primary) !important;
 }
 
 @media print {

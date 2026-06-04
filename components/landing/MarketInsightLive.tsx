@@ -93,7 +93,7 @@ export default function MarketInsightLive() {
         </header>
 
         {error && (
-          <p className="text-sm text-red-600" role="alert">
+          <p className="text-sm text-destructive" role="alert">
             {error}
           </p>
         )}
@@ -153,15 +153,7 @@ export default function MarketInsightLive() {
           <ProfileMatchesPanel signedIn={isAuthenticated} />
         </section>
 
-        <section className="relative overflow-hidden rounded-xl border border-border bg-linear-to-b from-muted to-background p-8 text-center sm:rounded-xl sm:p-12 lg:p-20">
-          <div
-            className="absolute inset-0 opacity-[0.4]"
-            style={{
-              backgroundImage: `radial-gradient(#3b82f6 1px, transparent 1px)`,
-              backgroundSize: "40px 40px",
-            }}
-            aria-hidden
-          />
+        <section className="vs-dot-grid relative overflow-hidden rounded-xl border border-border bg-linear-to-b from-muted to-background p-8 text-center sm:rounded-xl sm:p-12 lg:p-20">
           <div className="relative z-10 mx-auto max-w-2xl space-y-6 sm:space-y-8">
             <h2 className="text-2xl font-bold leading-tight text-foreground sm:text-3xl lg:text-4xl">
               Turn insights into a career plan
