@@ -1,74 +1,42 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getInDemandSkills, getJobStats } from "@/lib/jobs-api";
-import type { InDemandSkill, JobStats } from "@/types/jobs";
 import { useLandingAuth } from "@/hooks/useLandingAuth";
 import { SkillDemandPanel } from "@/components/landing/market/SkillDemandPanel";
 import { MarketStatsPanel } from "@/components/landing/market/MarketStatsPanel";
 import { LandingMarketAnalysisSection } from "@/components/landing/market/LandingMarketAnalysisSection";
 import { ProfileMatchesPanel } from "@/components/landing/market/ProfileMatchesPanel";
-import { MARKET_TOP_K } from "@/lib/job-market-insights";
-import { MARKET_ALL_TIME_DAYS } from "@/lib/market-analytics-period";
 import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
-import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
-import { logMarketSectionFailure } from "@/lib/log-jobs-api";
+import { useLandingMarketPulse } from "@/hooks/useLandingMarketPulse";
 
 export default function MarketInsightLive() {
-  const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
+  const {
+    skills,
+    stats,
+    allTimeStats,
+    loading,
+    isRefetching,
+    hasError,
+    lookbackPhrase,
+    updatedAt,
+  } = useLandingMarketPulse({
+    includeAllTimeStats: true,
+    includeTrending: false,
+  });
   const { isAuthenticated, dashboardHref, registerHref, signInHref } =
     useLandingAuth();
-  const [skills, setSkills] = useState<InDemandSkill[]>([]);
-  const [stats, setStats] = useState<JobStats | null>(null);
-  const [allTimeStats, setAllTimeStats] = useState<JobStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const [sk, st, allSt] = await Promise.all([
-          getInDemandSkills({ limit: MARKET_TOP_K.skills, period: days }),
-          getJobStats({ period: days }),
-          getJobStats({ period: MARKET_ALL_TIME_DAYS }),
-        ]);
-        if (cancelled) {
-          return;
-        }
-        setSkills(sk);
-        setStats(st);
-        setAllTimeStats(allSt);
-        setUpdatedAt(new Date());
-      } catch (err) {
-        logMarketSectionFailure("MarketInsightLive", err);
-        if (!cancelled) {
-          setError("Could not load market analytics.");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [days]);
 
   const updatedLabel =
-    loading || updatedAt == null
+    updatedAt == null
       ? null
-      : updatedAt.toLocaleTimeString([], {
+      : new Date(updatedAt).toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
         });
+
+  const showRefreshing = loading || isRefetching;
 
   return (
     <div className="bg-muted/50 pb-24">
@@ -85,16 +53,16 @@ export default function MarketInsightLive() {
                 : "Explore in-demand skills, live job corpus stats, and projected role demand across Ethiopia's tech economy."}
             </p>
           </div>
-          {updatedLabel && (
+          {updatedLabel && !loading && (
             <p className="text-center text-xs text-muted-foreground md:text-left">
               Live data last refreshed at {updatedLabel}
             </p>
           )}
         </header>
 
-        {error && (
+        {hasError && (
           <p className="text-sm text-destructive" role="alert">
-            {error}
+            Could not load market analytics.
           </p>
         )}
 
@@ -116,7 +84,7 @@ export default function MarketInsightLive() {
                 aria-live="polite"
               >
                 <RefreshCw
-                  className={`h-4 w-4 shrink-0 text-primary ${loading ? "animate-spin" : ""}`}
+                  className={`h-4 w-4 shrink-0 text-primary ${showRefreshing ? "animate-spin" : ""}`}
                   aria-hidden
                 />
                 <span className="text-xs font-medium text-muted-foreground">

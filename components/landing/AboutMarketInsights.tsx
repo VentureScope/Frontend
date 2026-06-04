@@ -1,60 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  getInDemandSkills,
-  getJobStats,
-  getTrendingCareers,
-} from "@/lib/jobs-api";
-import type { InDemandSkill, JobStats, TrendingCareer } from "@/types/jobs";
 import { MarketStatsPanel } from "@/components/landing/market/MarketStatsPanel";
 import { SkillDemandPanel } from "@/components/landing/market/SkillDemandPanel";
 import { TrendingRolesPanel } from "@/components/landing/market/TrendingRolesPanel";
-import { MARKET_TOP_K, trendingInsight } from "@/lib/job-market-insights";
+import { trendingInsight } from "@/lib/job-market-insights";
 import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
-import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
-import { logMarketSectionFailure } from "@/lib/log-jobs-api";
-import { getMarketPulseFallbackData } from "@/lib/market-pulse-fallback";
+import { useLandingMarketPulse } from "@/hooks/useLandingMarketPulse";
 
 export function AboutMarketInsights() {
-  const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
-  const [skills, setSkills] = useState<InDemandSkill[]>([]);
-  const [stats, setStats] = useState<JobStats | null>(null);
-  const [trending, setTrending] = useState<TrendingCareer[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const [sk, tr, st] = await Promise.all([
-          getInDemandSkills({ limit: 5, period: days }),
-          getTrendingCareers({ limit: 4, period: days }),
-          getJobStats({ period: days }),
-        ]);
-        if (!cancelled) {
-          setSkills(sk);
-          setStats(st);
-          setTrending(tr);
-        }
-      } catch (err) {
-        logMarketSectionFailure("AboutMarketInsights", err);
-        if (!cancelled) {
-          setStats(getMarketPulseFallbackData().stats);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [days]);
+  const { skills, stats, trending, loading, lookbackPhrase } =
+    useLandingMarketPulse();
 
   const trendNote = trendingInsight(trending);
 

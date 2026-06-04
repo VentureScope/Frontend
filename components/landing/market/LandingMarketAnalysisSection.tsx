@@ -5,7 +5,7 @@ import { MarketInsightStrip } from "@/components/market/MarketInsightStrip";
 import { MarketSectionError } from "@/components/market/MarketSectionError";
 import { RoleDemandForecastChart } from "@/components/market/RoleDemandForecastChart";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getJobForecasts } from "@/lib/jobs-api";
+import { useJobForecastsQuery } from "@/hooks/queries/use-job-forecasts-query";
 import { logMarketSectionFailure } from "@/lib/log-jobs-api";
 import {
   buildFutureRoleForecastBars,
@@ -20,41 +20,14 @@ function findDefaultForecastBarId(bars: FutureRoleForecastBar[]): string {
 }
 
 export function LandingMarketAnalysisSection() {
-  const [forecasts, setForecasts] = useState<JobForecast[]>([]);
-  const [loadingForecasts, setLoadingForecasts] = useState(true);
-  const [forecastError, setForecastError] = useState(false);
-  const [forecastsEmpty, setForecastsEmpty] = useState(false);
+  const forecastsQuery = useJobForecastsQuery();
   const [selectedRoleId, setSelectedRoleId] = useState("");
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoadingForecasts(true);
-      setForecastError(false);
-      setForecastsEmpty(false);
-      try {
-        const rows = await getJobForecasts();
-        if (cancelled) {
-          return;
-        }
-        setForecasts(rows);
-        setForecastsEmpty(rows.length === 0);
-      } catch (err) {
-        logMarketSectionFailure("LandingMarketAnalysisSection", err);
-        if (!cancelled) {
-          setForecastError(true);
-          setForecasts([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoadingForecasts(false);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const forecasts: JobForecast[] = forecastsQuery.data ?? [];
+  const loadingForecasts = forecastsQuery.isPending;
+  const forecastError = forecastsQuery.isError;
+  const forecastsEmpty =
+    !loadingForecasts && !forecastError && forecasts.length === 0;
 
   const forecastBars = useMemo(
     () => buildFutureRoleForecastBars(forecasts),
@@ -90,21 +63,9 @@ export function LandingMarketAnalysisSection() {
   }, [forecastBars]);
 
   const retryForecasts = () => {
-    setForecastError(false);
-    setLoadingForecasts(true);
-    void getJobForecasts()
-      .then((rows) => {
-        setForecasts(rows);
-        setForecastsEmpty(rows.length === 0);
-      })
-      .catch((err) => {
-        logMarketSectionFailure("LandingMarketAnalysisSection", err);
-        setForecastError(true);
-        setForecasts([]);
-      })
-      .finally(() => {
-        setLoadingForecasts(false);
-      });
+    void forecastsQuery.refetch().catch((err) => {
+      logMarketSectionFailure("LandingMarketAnalysisSection", err);
+    });
   };
 
   return (
@@ -123,7 +84,10 @@ export function LandingMarketAnalysisSection() {
         </p>
       </div>
 
-      <MarketInsightStrip insights={futureInsights} loading={loadingForecasts} />
+      <MarketInsightStrip
+        insights={futureInsights}
+        loading={loadingForecasts && forecastBars.length === 0}
+      />
 
       {forecastError ? (
         <MarketSectionError

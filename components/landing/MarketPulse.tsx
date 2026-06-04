@@ -1,80 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Radio } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  getInDemandSkills,
-  getJobStats,
-  getTrendingCareers,
-} from "@/lib/jobs-api";
-import type { InDemandSkill, JobStats, TrendingCareer } from "@/types/jobs";
 import { SkillDemandPanel } from "@/components/landing/market/SkillDemandPanel";
 import { TrendingRolesPanel } from "@/components/landing/market/TrendingRolesPanel";
 import { MarketStatsPanel } from "@/components/landing/market/MarketStatsPanel";
 import { MarketAnalyticsPeriodSelect } from "@/components/market/MarketAnalyticsPeriodSelect";
-import { useMarketAnalyticsPeriod } from "@/hooks/useMarketAnalyticsPeriod";
 import { useLandingAuth } from "@/hooks/useLandingAuth";
-import { getMarketPulseFallbackData } from "@/lib/market-pulse-fallback";
+import { useLandingMarketPulse } from "@/hooks/useLandingMarketPulse";
+import { MARKET_TOP_K } from "@/lib/job-market-insights";
 import { MarketPulseGridSkeleton } from "@/components/landing/market/MarketPulseSkeletons";
 
 const HOME_TRENDING_LIMIT = 3;
-const HOME_SKILLS_LIMIT = 5;
 
 export default function MarketPulse() {
   const { isAuthenticated } = useLandingAuth();
-  const { days, lookbackPhrase } = useMarketAnalyticsPeriod();
-  const [skills, setSkills] = useState<InDemandSkill[]>([]);
-  const [trending, setTrending] = useState<TrendingCareer[]>([]);
-  const [stats, setStats] = useState<JobStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [usingFallback, setUsingFallback] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      setUsingFallback(false);
-
-      const fallback = getMarketPulseFallbackData();
-      const [skillsResult, trendingResult, statsResult] = await Promise.allSettled([
-        getInDemandSkills({ limit: HOME_SKILLS_LIMIT, period: days }),
-        getTrendingCareers({ limit: HOME_TRENDING_LIMIT, period: days }),
-        getJobStats({ period: days }),
-      ]);
-
-      if (cancelled) {
-        return;
-      }
-
-      setSkills(
-        skillsResult.status === "fulfilled" && skillsResult.value.length > 0
-          ? skillsResult.value
-          : fallback.skills,
-      );
-      setTrending(
-        trendingResult.status === "fulfilled" && trendingResult.value.length > 0
-          ? trendingResult.value
-          : fallback.trending,
-      );
-      setStats(
-        statsResult.status === "fulfilled"
-          ? statsResult.value
-          : fallback.stats,
-      );
-
-      const anyFailed =
-        skillsResult.status === "rejected" ||
-        trendingResult.status === "rejected" ||
-        statsResult.status === "rejected";
-      setUsingFallback(anyFailed);
-      setLoading(false);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [days]);
+  const { skills, trending, stats, loading, usingFallback, lookbackPhrase } =
+    useLandingMarketPulse();
 
   return (
     <section className="relative overflow-hidden py-20 sm:py-28">
@@ -157,7 +100,7 @@ export default function MarketPulse() {
                       loading={false}
                       compact
                       showInsight={false}
-                      limit={HOME_SKILLS_LIMIT}
+                      limit={MARKET_TOP_K.skills}
                       title="In-demand skills"
                     />
                   </div>

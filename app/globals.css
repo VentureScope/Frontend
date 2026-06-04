@@ -569,6 +569,37 @@
     background-size: 40px 40px;
     pointer-events: none;
   }
+
+  /* Palette tab — subtle discoverability without loud motion */
+  @keyframes vs-palette-tab-hint {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--primary) 22%, transparent),
+        0 4px 14px color-mix(in srgb, var(--primary) 16%, transparent);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--primary) 38%, transparent),
+        0 6px 20px color-mix(in srgb, var(--primary) 28%, transparent);
+    }
+  }
+
+  .vs-palette-tab {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--primary) 22%, transparent),
+      0 4px 14px color-mix(in srgb, var(--primary) 16%, transparent);
+  }
+
+  .vs-palette-tab-hint {
+    animation: vs-palette-tab-hint 2.4s ease-in-out 2;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vs-palette-tab-hint {
+      animation: none;
+    }
+  }
 }
 
 /* Sonner — top-right stack above app chrome */
