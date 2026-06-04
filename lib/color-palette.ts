@@ -46,3 +46,49 @@ export const COLOR_PALETTE_OPTIONS: ColorPaletteOption[] = [
 export function isColorPalette(value: string): value is ColorPalette {
   return (COLOR_PALETTES as readonly string[]).includes(value);
 }
+
+export function readStoredColorPalette(): ColorPalette {
+  if (typeof window === "undefined") {
+    return DEFAULT_COLOR_PALETTE;
+  }
+  const stored = window.localStorage.getItem(COLOR_PALETTE_STORAGE_KEY);
+  return stored && isColorPalette(stored) ? stored : DEFAULT_COLOR_PALETTE;
+}
+
+export function writeStoredColorPalette(palette: ColorPalette): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+  window.localStorage.setItem(COLOR_PALETTE_STORAGE_KEY, palette);
+}
+
+/** Apply accent palette to `<html>` — green clears `data-palette` (CSS default). */
+export function applyColorPaletteToDocument(palette: ColorPalette): void {
+  if (typeof document === "undefined") {
+    return;
+  }
+  if (palette === DEFAULT_COLOR_PALETTE) {
+    document.documentElement.removeAttribute("data-palette");
+    return;
+  }
+  document.documentElement.dataset.palette = palette;
+}
+
+export const COLOR_PALETTE_CHANGE_EVENT = "venturescope:color-palette-change";
+
+export function dispatchColorPaletteChange(palette: ColorPalette): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+  window.dispatchEvent(
+    new CustomEvent<ColorPalette>(COLOR_PALETTE_CHANGE_EVENT, {
+      detail: palette,
+    }),
+  );
+}
+
+/**
+ * Inline script for `layout.tsx` — sets `data-palette` before first paint.
+ * Keep in sync with read/apply helpers above.
+ */
+export const COLOR_PALETTE_INIT_SCRIPT = `(function(){try{var k=${JSON.stringify(COLOR_PALETTE_STORAGE_KEY)};var v=localStorage.getItem(k);if(v==="blue"||v==="orange"||v==="violet"){document.documentElement.setAttribute("data-palette",v);}}catch(e){}})();`;
