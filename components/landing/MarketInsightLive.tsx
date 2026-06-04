@@ -4,23 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  getInDemandSkills,
-  getJobStats,
-  getJobsByCategory,
-  getTrendingCareers,
-} from "@/lib/jobs-api";
-import type {
-  InDemandSkill,
-  JobByCategoryRow,
-  JobStats,
-  TrendingCareer,
-} from "@/types/jobs";
+import { getInDemandSkills, getJobStats } from "@/lib/jobs-api";
+import type { InDemandSkill, JobStats } from "@/types/jobs";
 import { useLandingAuth } from "@/hooks/useLandingAuth";
 import { SkillDemandPanel } from "@/components/landing/market/SkillDemandPanel";
 import { MarketStatsPanel } from "@/components/landing/market/MarketStatsPanel";
-import { TrendingRolesPanel } from "@/components/landing/market/TrendingRolesPanel";
-import { CategoryJobsPanel } from "@/components/landing/market/CategoryJobsPanel";
+import { LandingMarketAnalysisSection } from "@/components/landing/market/LandingMarketAnalysisSection";
 import { ProfileMatchesPanel } from "@/components/landing/market/ProfileMatchesPanel";
 import { MARKET_TOP_K } from "@/lib/job-market-insights";
 import { MARKET_ALL_TIME_DAYS } from "@/lib/market-analytics-period";
@@ -35,8 +24,6 @@ export default function MarketInsightLive() {
   const [skills, setSkills] = useState<InDemandSkill[]>([]);
   const [stats, setStats] = useState<JobStats | null>(null);
   const [allTimeStats, setAllTimeStats] = useState<JobStats | null>(null);
-  const [trending, setTrending] = useState<TrendingCareer[]>([]);
-  const [categoryRows, setCategoryRows] = useState<JobByCategoryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
@@ -47,11 +34,10 @@ export default function MarketInsightLive() {
       setLoading(true);
       setError(null);
       try {
-        const [sk, st, allSt, tr] = await Promise.all([
+        const [sk, st, allSt] = await Promise.all([
           getInDemandSkills({ limit: MARKET_TOP_K.skills, period: days }),
           getJobStats({ period: days }),
           getJobStats({ period: MARKET_ALL_TIME_DAYS }),
-          getTrendingCareers({ limit: MARKET_TOP_K.trending, period: days }),
         ]);
         if (cancelled) {
           return;
@@ -59,25 +45,7 @@ export default function MarketInsightLive() {
         setSkills(sk);
         setStats(st);
         setAllTimeStats(allSt);
-        setTrending(tr);
         setUpdatedAt(new Date());
-
-        const cat = tr[0]?.name;
-        if (cat) {
-          try {
-            const rows = await getJobsByCategory({
-              category: cat,
-              limit: MARKET_TOP_K.categoryJobs,
-            });
-            if (!cancelled) {
-              setCategoryRows(rows);
-            }
-          } catch {
-            if (!cancelled) {
-              setCategoryRows([]);
-            }
-          }
-        }
       } catch (err) {
         logMarketSectionFailure("MarketInsightLive", err);
         if (!cancelled) {
@@ -94,111 +62,119 @@ export default function MarketInsightLive() {
     };
   }, [days]);
 
+  const updatedLabel =
+    loading || updatedAt == null
+      ? null
+      : updatedAt.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
   return (
     <div className="bg-muted/50 pb-24">
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-8 sm:pt-16 lg:px-8">
-        <div className="flex flex-col justify-between gap-6 sm:gap-8 md:flex-row md:items-end">
-          <div className="space-y-3 sm:space-y-4 text-center md:text-left">
-            <span className="inline-flex items-center rounded-lg bg-muted px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
-              Live market intelligence
-            </span>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground">
+      <div className="mx-auto max-w-7xl space-y-10 px-4 pt-8 sm:space-y-14 sm:px-6 sm:pt-16 lg:px-8">
+        <header className="space-y-4">
+          <div className="space-y-3 text-center md:text-left">
+            <p className="text-label text-primary">Live market intelligence</p>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
               Market Insights
             </h1>
-            <p className="max-w-xl mx-auto md:mx-0 text-base sm:text-lg text-muted-foreground leading-relaxed">
+            <p className="mx-auto max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg md:mx-0">
               {isAuthenticated
-                ? "Live hiring signals for your dashboard—compare trends here with personalized matches in your workspace."
-                : "Understand what employers are hiring for right now—trending roles, in-demand skills, and where opportunities cluster across Ethiopia's tech economy."}
+                ? "Compare live hiring signals with projected demand—then continue in your dashboard for personalized matches and roadmaps."
+                : "Explore in-demand skills, live job corpus stats, and projected role demand across Ethiopia's tech economy."}
             </p>
           </div>
+          {updatedLabel && (
+            <p className="text-center text-xs text-muted-foreground md:text-left">
+              Live data last refreshed at {updatedLabel}
+            </p>
+          )}
+        </header>
 
-          <div className="flex flex-col gap-3 sm:items-end">
-            <MarketAnalyticsPeriodSelect disabled={loading} compact />
-            <div className="flex items-center justify-center md:justify-start gap-4 rounded-lg bg-card p-4 shadow-sm border border-border">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                <RefreshCw className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                  Last refreshed
-                </p>
-                <p className="font-bold text-foreground">
-                  {loading
-                    ? "Updating…"
-                    : updatedAt
-                      ? updatedAt.toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                      : "—"}
-                </p>
+        {error && (
+          <p className="text-sm text-red-600" role="alert">
+            {error}
+          </p>
+        )}
+
+        <section className="space-y-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="space-y-1">
+              <p className="text-label text-primary">Current market</p>
+              <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                Live snapshot
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Skills and listings indexed in {lookbackPhrase}.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 self-center sm:self-auto">
+              <MarketAnalyticsPeriodSelect disabled={loading} compact />
+              <div
+                className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 shadow-sm"
+                aria-live="polite"
+              >
+                <RefreshCw
+                  className={`h-4 w-4 shrink-0 text-primary ${loading ? "animate-spin" : ""}`}
+                  aria-hidden
+                />
+                <span className="text-xs font-medium text-muted-foreground">
+                  {loading ? "Updating…" : updatedLabel ? updatedLabel : "—"}
+                </span>
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {error && (
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-4 text-sm text-red-600">
-          {error}
-        </div>
-      )}
-
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-8 sm:mt-12 lg:px-8">
-        <div className="grid gap-6 sm:gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <SkillDemandPanel skills={skills} loading={loading} />
-          </div>
-          <MarketStatsPanel
-            stats={stats}
-            allTimeStats={allTimeStats}
-            loading={loading}
-          />
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-6 sm:mt-8 lg:px-8">
-        <div className="grid gap-6 sm:gap-8 lg:grid-cols-5">
-          <div className="lg:col-span-2">
-            <TrendingRolesPanel
-              careers={trending}
-              loading={loading}
-              lookbackPhrase={lookbackPhrase}
-            />
-          </div>
-          <div className="lg:col-span-3">
-            <CategoryJobsPanel
-              jobs={categoryRows}
-              categoryName={trending[0]?.name ?? null}
+          <div className="grid gap-6 lg:grid-cols-3 lg:items-stretch">
+            <div className="lg:col-span-2">
+              <SkillDemandPanel skills={skills} loading={loading} />
+            </div>
+            <MarketStatsPanel
+              stats={stats}
+              allTimeStats={allTimeStats}
               loading={loading}
             />
-            <ProfileMatchesPanel signedIn={isAuthenticated} />
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-16 lg:px-8">
-        <div className="rounded-xl sm:rounded-xl bg-linear-to-b from-muted to-background border border-border p-8 sm:p-12 lg:p-24 text-center relative overflow-hidden">
+        <section aria-labelledby="forecast-heading" className="space-y-5">
+          <LandingMarketAnalysisSection />
+        </section>
+
+        <section aria-labelledby="matches-heading" className="space-y-1">
+          <p className="text-label text-primary">Personalized</p>
+          <h2
+            id="matches-heading"
+            className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl"
+          >
+            Profile-based matches
+          </h2>
+          <ProfileMatchesPanel signedIn={isAuthenticated} />
+        </section>
+
+        <section className="relative overflow-hidden rounded-xl border border-border bg-linear-to-b from-muted to-background p-8 text-center sm:rounded-xl sm:p-12 lg:p-20">
           <div
             className="absolute inset-0 opacity-[0.4]"
             style={{
               backgroundImage: `radial-gradient(#3b82f6 1px, transparent 1px)`,
               backgroundSize: "40px 40px",
             }}
+            aria-hidden
           />
-          <div className="relative z-10 space-y-6 sm:space-y-10">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground max-w-2xl mx-auto leading-tight">
+          <div className="relative z-10 mx-auto max-w-2xl space-y-6 sm:space-y-8">
+            <h2 className="text-2xl font-bold leading-tight text-foreground sm:text-3xl lg:text-4xl">
               Turn insights into a career plan
             </h2>
-            <p className="text-muted-foreground text-sm sm:text-lg max-w-xl mx-auto">
+            <p className="text-sm text-muted-foreground sm:text-base">
               {isAuthenticated
                 ? "Your dashboard uses this same market data for roadmaps, resumes, and ranked job matches."
-                : "Use VentureScope to generate learning roadmaps, tailored resumes, and profile-based job matches—all grounded in the same market data you see here."}
+                : "Generate learning roadmaps, tailored resumes, and profile-based job matches—all grounded in the same market data you see here."}
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-4">
+            <div className="flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
               <Button
                 asChild
-                className="h-12 sm:h-14 w-full sm:w-auto px-6 sm:px-10 rounded-xl bg-primary font-bold hover:bg-primary/90"
+                className="h-12 rounded-xl px-8 font-bold sm:h-14 sm:px-10"
               >
                 <Link href={isAuthenticated ? dashboardHref : registerHref}>
                   {isAuthenticated ? "Open dashboard" : "Get started free"}
@@ -208,7 +184,7 @@ export default function MarketInsightLive() {
                 <Button
                   asChild
                   variant="outline"
-                  className="h-12 sm:h-14 w-full sm:w-auto px-6 sm:px-10 rounded-xl border-border bg-card font-bold text-muted-foreground hover:bg-muted"
+                  className="h-12 rounded-xl border-border bg-card px-8 font-bold sm:h-14 sm:px-10"
                 >
                   <Link href={signInHref}>Sign in</Link>
                 </Button>
@@ -216,15 +192,15 @@ export default function MarketInsightLive() {
                 <Button
                   asChild
                   variant="outline"
-                  className="h-12 sm:h-14 w-full sm:w-auto px-6 sm:px-10 rounded-xl border-border bg-card font-bold text-muted-foreground hover:bg-muted"
+                  className="h-12 rounded-xl border-border bg-card px-8 font-bold sm:h-14 sm:px-10"
                 >
-                  <Link href="/dashboard/market-trends">Your matches</Link>
+                  <Link href="/dashboard/market-trends">Explore market trends</Link>
                 </Button>
               )}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   );
 }
