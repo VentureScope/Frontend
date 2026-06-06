@@ -14,6 +14,7 @@ import {
 } from "@/lib/auth-redirect";
 import type { OAuthAuthFlow } from "@/lib/onboarding";
 import { finalizeOAuthLoginSession } from "@/lib/oauth-post-auth";
+import { VentureScopeBrandLockup } from "@/components/brand/VentureScopeBrandLockup";
 import { useAppStore } from "@/store/useAppStore";
 
 const GITHUB_OAUTH_SESSION_KEY = "github_oauth_tx";
@@ -139,6 +140,9 @@ function GithubCallbackContent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-linear-to-b from-primary/5 via-background to-background p-4">
       <div className="vs-surface w-full max-w-md p-8 text-center pt-10 px-8 pb-10">
+        <div className="mb-6 flex justify-center">
+          <VentureScopeBrandLockup size={32} href="/" />
+        </div>
         <div className="mb-6 flex justify-center">
           {status === "processing" && (
             <div className="vs-icon-tile-primary flex h-20 w-20 items-center justify-center rounded-md">

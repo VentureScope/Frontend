@@ -13,6 +13,7 @@ import {
 } from "@/lib/auth-redirect";
 import type { OAuthAuthFlow } from "@/lib/onboarding";
 import { finalizeOAuthLoginSession } from "@/lib/oauth-post-auth";
+import { VentureScopeBrandLockup } from "@/components/brand/VentureScopeBrandLockup";
 import { useAppStore } from "@/store/useAppStore";
 
 const GOOGLE_OAUTH_SESSION_KEY = "google_oauth_tx";
@@ -160,6 +161,9 @@ function GoogleOAuthCallbackContent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-linear-to-b from-primary/5 via-background to-background px-4">
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 text-center shadow-sm">
+        <div className="mb-5 flex justify-center">
+          <VentureScopeBrandLockup size={32} href="/" />
+        </div>
         <h1 className="text-xl font-semibold text-foreground">Google Sign-In</h1>
         <p className="mt-3 text-sm text-muted-foreground">{statusMessage}</p>
       </div>

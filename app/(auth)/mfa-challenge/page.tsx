@@ -2,8 +2,9 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ShieldCheck, Smartphone, AlertCircle, ChevronRight, Loader2 } from "lucide-react";
+import { Smartphone, AlertCircle, ChevronRight, Loader2 } from "lucide-react";
 
+import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import { Button } from "@/components/ui/button";
 import {
   mfaListFactors,
@@ -203,9 +204,11 @@ function MFAChallengeContent() {
         <div className="overflow-hidden rounded-lg border border-border bg-card shadow-xl">
           {/* Header band */}
           <div className="vs-band border-b border-inverse-foreground/10 px-8 py-10 text-center">
-            <div className="vs-icon-tile-primary mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-md">
-              <ShieldCheck className="h-8 w-8" />
-            </div>
+            <VentureScopeLogo
+              size={40}
+              accent={false}
+              className="mx-auto mb-4 text-inverse-foreground"
+            />
             <h1 className="text-2xl font-bold text-inverse-foreground">
               Two-Factor Verification
             </h1>

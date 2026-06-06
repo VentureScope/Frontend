@@ -18,6 +18,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { AuthMobileBrand } from "@/components/brand/AuthMobileBrand";
 import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
@@ -341,6 +342,7 @@ function ForgotPasswordContent() {
         {/* RIGHT SIDE – FORM */}
         <section className="flex flex-1 flex-col items-center justify-center bg-card px-6 py-10 sm:px-12 lg:px-16">
           <div className="w-full max-w-sm sm:max-w-md space-y-6">
+            <AuthMobileBrand />
             {/* Back link */}
             <Link
               href="/sign-in"

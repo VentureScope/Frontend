@@ -10,6 +10,7 @@ import * as z from "zod";
 import { Eye, EyeOff, ArrowRight, TrendingUp, Github, ShieldCheck, Loader2, Smartphone, ChevronRight } from "lucide-react";
 import { AxiosError } from "axios";
 
+import { AuthMobileBrand } from "@/components/brand/AuthMobileBrand";
 import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
@@ -333,6 +334,7 @@ function SignInPageContent() {
         {/* --- RIGHT SIDE: LOGIN FORM (Centered in its container) --- */}
         <section className="flex flex-1 flex-col items-center justify-center bg-card px-6 py-10 sm:px-12 lg:px-16">
           <div className="w-full max-w-sm sm:max-w-md space-y-6 bg-transparent">
+            <AuthMobileBrand />
             <div className="space-y-1.5 text-center sm:text-left">
               <h2 className="text-3xl font-bold tracking-tight text-foreground">
                 Welcome back
