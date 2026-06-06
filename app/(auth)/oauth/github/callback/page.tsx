@@ -4,18 +4,16 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import {
-  buildAuthSessionData,
   completeGithubOAuthCallback,
   getApiErrorMessage,
   syncGithubProfile,
 } from "@/lib/auth-api";
 import {
-  buildMfaChallengeUrl,
   DEFAULT_MEMBER_PATH,
   isSafeReturnPath,
 } from "@/lib/auth-redirect";
-import { resolveAuthenticatedMemberPath } from "@/lib/auth-redirect";
-import { mfaGetAAL } from "@/lib/mfa-api";
+import type { OAuthAuthFlow } from "@/lib/onboarding";
+import { finalizeOAuthLoginSession } from "@/lib/oauth-post-auth";
 import { useAppStore } from "@/store/useAppStore";
 
 const GITHUB_OAUTH_SESSION_KEY = "github_oauth_tx";
@@ -24,8 +22,20 @@ const OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
 interface GithubOAuthTransaction {
   state: string;
   createdAt: number;
-  flow?: string;
+  flow?: "sync" | "register" | "sign-in" | "login";
   returnUrl?: string;
+}
+
+function normalizeGithubOAuthFlow(
+  flow: GithubOAuthTransaction["flow"],
+): OAuthAuthFlow | undefined {
+  if (flow === "register") {
+    return "register";
+  }
+  if (flow === "sign-in" || flow === "login") {
+    return "login";
+  }
+  return undefined;
 }
 
 function GithubCallbackContent() {
@@ -98,29 +108,21 @@ function GithubCallbackContent() {
             router.replace(redirectUrl);
           }, 1500);
         } else {
-          // Standard login flow
           const res = await completeGithubOAuthCallback(code, stateUrl);
-          const sessionData = await buildAuthSessionData(res);
-          setAuthData(sessionData);
-
-          setStatus("success");
-
           const returnUrl =
             tx.returnUrl && isSafeReturnPath(tx.returnUrl)
               ? tx.returnUrl
               : DEFAULT_MEMBER_PATH;
 
-          setTimeout(async () => {
-            const entryPath = resolveAuthenticatedMemberPath(returnUrl);
-            try {
-              const aal = await mfaGetAAL();
-              if (aal.current_level === "aal1" && aal.next_level === "aal2") {
-                router.replace(buildMfaChallengeUrl(entryPath));
-                return;
-              }
-            } catch (e) {
-              console.error("AAL check failed:", e);
-            }
+          const { sessionData, entryPath } = await finalizeOAuthLoginSession({
+            authResult: res,
+            returnPath: returnUrl,
+            flow: normalizeGithubOAuthFlow(tx.flow),
+          });
+          setAuthData(sessionData);
+
+          setStatus("success");
+          setTimeout(() => {
             router.replace(entryPath);
           }, 1500);
         }

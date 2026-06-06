@@ -11,6 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, ArrowLeft, RefreshCw, ShieldCheck, Loader2 } from "lucide-react";
+import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import { Button } from "@/components/ui/button";
 import {
   buildAuthSessionData,
@@ -261,12 +262,10 @@ function VerifyEmailContent() {
           />
           <div className="relative z-10 space-y-6">
             <div className="flex items-center gap-3 text-inverse-foreground">
-              <Image
-                src="/logo.png"
-                alt="VentureScope Logo"
-                width={32}
-                height={32}
-                className="h-8 w-8 object-contain"
+              <VentureScopeLogo
+                size={32}
+                accent={false}
+                className="text-inverse-foreground"
               />
               <span className="text-xl font-bold tracking-tight">
                 VentureScope

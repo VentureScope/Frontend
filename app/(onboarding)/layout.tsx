@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/store/useAppStore";
@@ -69,13 +69,7 @@ export default function OnboardingLayout({
       <header className="border-b border-border bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4 sm:px-6">
           <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/logo.png"
-              alt="VentureScope"
-              width={28}
-              height={28}
-              className="h-7 w-7 object-contain"
-            />
+            <VentureScopeLogo size={28} />
             <span className="text-sm font-bold text-foreground">
               VentureScope
             </span>

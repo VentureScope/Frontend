@@ -10,6 +10,7 @@ import * as z from "zod";
 import { Eye, EyeOff, ArrowRight, TrendingUp, Github, ShieldCheck, Loader2, Smartphone, ChevronRight } from "lucide-react";
 import { AxiosError } from "axios";
 
+import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -210,6 +211,7 @@ function SignInPageContent() {
           state,
           createdAt: Date.now(),
           returnPath: postAuthPath,
+          flow: "login",
         }),
       );
       console.log("[oauth] Redirecting to Google authorization URL", {
@@ -275,12 +277,10 @@ function SignInPageContent() {
           <div className="relative z-10 space-y-8">
             {/* Logo */}
             <div className="flex items-center gap-3 text-inverse-foreground">
-              <Image
-                src="/logo.png"
-                alt="VentureScope Logo"
-                width={32}
-                height={32}
-                className="h-8 w-8 object-contain"
+              <VentureScopeLogo
+                size={32}
+                accent={false}
+                className="text-inverse-foreground"
               />
               <span className="text-2xl font-bold tracking-tight">
                 VentureScope

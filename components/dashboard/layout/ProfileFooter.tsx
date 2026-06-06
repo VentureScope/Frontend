@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 
 export default function ProfileFooter() {
   return (
@@ -7,13 +7,7 @@ export default function ProfileFooter() {
       <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
         <div className="space-y-2 text-center md:text-left">
           <div className="flex items-center justify-center gap-2 md:justify-start">
-            <Image
-              src="/logo.png"
-              alt="VentureScope Logo"
-              width={20}
-              height={20}
-              className="h-5 w-5 object-contain"
-            />
+            <VentureScopeLogo size={20} />
             <h3 className="text-sm font-semibold text-foreground">VentureScope</h3>
           </div>
           <p className="text-body text-muted-foreground">

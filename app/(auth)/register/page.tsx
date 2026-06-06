@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Eye, EyeOff, Star, Check, X, Github } from "lucide-react";
+import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
@@ -172,6 +173,7 @@ function RegisterPageContent() {
           state,
           createdAt: Date.now(),
           returnPath: postAuthPath,
+          flow: "register",
         }),
       );
       window.location.href = authorization_url;
@@ -245,12 +247,10 @@ function RegisterPageContent() {
           <div className="relative z-10 space-y-6">
             {/* Logo */}
             <div className="flex items-center gap-3 text-inverse-foreground">
-              <Image
-                src="/logo.png"
-                alt="VentureScope Logo"
-                width={32}
-                height={32}
-                className="h-8 w-8 object-contain"
+              <VentureScopeLogo
+                size={32}
+                accent={false}
+                className="text-inverse-foreground"
               />
               <span className="text-xl font-bold tracking-tight">
                 VentureScope

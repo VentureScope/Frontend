@@ -18,6 +18,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -282,12 +283,10 @@ function ForgotPasswordContent() {
           <div className="relative z-10 space-y-6">
             {/* Logo */}
             <div className="flex items-center gap-3 text-inverse-foreground">
-              <Image
-                src="/logo.png"
-                alt="VentureScope Logo"
-                width={32}
-                height={32}
-                className="h-8 w-8 object-contain"
+              <VentureScopeLogo
+                size={32}
+                accent={false}
+                className="text-inverse-foreground"
               />
               <span className="text-xl font-bold tracking-tight">
                 VentureScope

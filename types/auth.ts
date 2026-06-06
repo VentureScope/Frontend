@@ -113,6 +113,8 @@ export interface AuthUser {
   oauth_provider?: string | null;
   mfa_enabled?: boolean;
   mfa_enrolled_at?: string | null;
+  /** Server-side onboarding flag when available (preferred over local heuristics). */
+  onboarding_completed?: boolean;
   [key: string]: unknown;
 }
 
@@ -120,6 +122,8 @@ export interface LoginSuccessResponse {
   access_token: string;
   token_type: "bearer" | string;
   user?: AuthUser;
+  /** When true, backend created the account during this OAuth exchange. */
+  is_new_user?: boolean;
 }
 
 export interface AuthSessionData {

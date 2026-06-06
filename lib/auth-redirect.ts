@@ -115,7 +115,7 @@ export function resolveReturnPath(
   return fallback;
 }
 
-/** Sign-in / OAuth / MFA — never sends users to onboarding. */
+/** Sign-in / OAuth / MFA — OAuth first-time users may be routed to onboarding. */
 export function resolveAuthenticatedMemberPath(
   intendedPath: string | null | undefined = DEFAULT_MEMBER_PATH,
 ): string {

@@ -19,7 +19,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { performClientLogout } from "@/lib/client-logout";
@@ -166,13 +166,7 @@ export default function Sidebar({
             onClick={onClose}
             title="VentureScope"
           >
-            <Image
-              src="/logo.png"
-              alt="VentureScope Logo"
-              width={32}
-              height={32}
-              className="h-8 w-8 shrink-0 object-contain"
-            />
+            <VentureScopeLogo size={32} />
             {!isCollapsed && (
               <div className="min-w-0">
                 <h2 className="truncate text-base font-semibold leading-none tracking-tight text-sidebar-foreground">
