@@ -1,13 +1,13 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ArrowRight, Loader2, Shield } from "lucide-react";
 import * as z from "zod";
+import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -76,13 +76,7 @@ function AdminSignInContent() {
       <div className="w-full max-w-md overflow-hidden rounded-xl border border-border bg-card shadow-xl">
         <div className="border-b border-border bg-muted/30 px-6 py-5 sm:px-8">
           <div className="flex items-center gap-3">
-            <Image
-              src="/logo.png"
-              alt="VentureScope"
-              width={36}
-              height={36}
-              className="h-9 w-9 object-contain"
-            />
+            <VentureScopeLogo size={36} />
             <div>
               <p className="text-label text-primary">VentureScope</p>
               <h1 className="text-xl font-semibold text-foreground">Admin sign in</h1>

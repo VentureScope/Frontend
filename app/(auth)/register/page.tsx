@@ -8,6 +8,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Eye, EyeOff, Star, Check, X, Github } from "lucide-react";
+import { AuthMobileBrand } from "@/components/brand/AuthMobileBrand";
+import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
@@ -172,6 +174,7 @@ function RegisterPageContent() {
           state,
           createdAt: Date.now(),
           returnPath: postAuthPath,
+          flow: "register",
         }),
       );
       window.location.href = authorization_url;
@@ -245,12 +248,10 @@ function RegisterPageContent() {
           <div className="relative z-10 space-y-6">
             {/* Logo */}
             <div className="flex items-center gap-3 text-inverse-foreground">
-              <Image
-                src="/logo.png"
-                alt="VentureScope Logo"
-                width={32}
-                height={32}
-                className="h-8 w-8 object-contain"
+              <VentureScopeLogo
+                size={32}
+                accent={false}
+                className="text-inverse-foreground"
               />
               <span className="text-xl font-bold tracking-tight">
                 VentureScope
@@ -310,6 +311,7 @@ function RegisterPageContent() {
         {/* ── RIGHT SIDE ── */}
         <section className="flex flex-1 flex-col items-center justify-center bg-card px-6 py-10 sm:px-12 lg:px-16">
           <div className="w-full max-w-sm sm:max-w-md space-y-5">
+            <AuthMobileBrand />
             <div className="space-y-1 text-center sm:text-left">
               <h2 className="text-2xl font-bold tracking-tight text-foreground">
                 Create your account

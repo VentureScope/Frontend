@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogOut } from "lucide-react";
@@ -48,14 +48,7 @@ export default function Navbar() {
       <nav className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/logo.png"
-              alt="VentureScope Logo"
-              width={28}
-              height={28}
-              className="h-7 w-7 object-contain"
-              priority
-            />
+            <VentureScopeLogo size={28} />
             <span className="text-lg font-semibold tracking-tight text-foreground">
               VentureScope
             </span>
@@ -151,13 +144,7 @@ export default function Navbar() {
             className="flex items-center gap-2"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            <Image
-              src="/logo.png"
-              alt="VentureScope Logo"
-              width={24}
-              height={24}
-              className="h-6 w-6 object-contain"
-            />
+            <VentureScopeLogo size={24} />
             <span className="font-bold tracking-tight text-foreground">
               VentureScope
             </span>

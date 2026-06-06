@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import Image from "next/image";
+import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -690,12 +690,9 @@ export function OnboardingWizard() {
       </div>
 
       <p className="text-center text-xs text-muted-foreground">
-        <Image
-          src="/logo.png"
-          alt=""
-          width={16}
-          height={16}
-          className="mr-1 inline-block h-4 w-4 opacity-60"
+        <VentureScopeLogo
+          size={16}
+          className="mr-1 inline-block align-middle opacity-60"
         />
         You can complete or change profile sections later under Profile.
       </p>

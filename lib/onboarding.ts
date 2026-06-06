@@ -1,6 +1,8 @@
+import type { AuthUser } from "@/types/auth";
 import {
   DEFAULT_MEMBER_PATH,
   isSafeReturnPath,
+  resolveAuthenticatedMemberPath,
 } from "@/lib/auth-redirect";
 
 export const ONBOARDING_PATH = "/onboarding";
@@ -145,6 +147,84 @@ export function resolveMemberEntryPath(
   }
 
   return ONBOARDING_PATH;
+}
+
+export type OAuthAuthFlow = "login" | "register" | "sign-in";
+
+/** Profile fields we expect after the onboarding wizard (or equivalent setup). */
+export function hasCompletedProfileBasics(user: AuthUser | null | undefined): boolean {
+  if (!user) {
+    return false;
+  }
+  if (user.onboarding_completed === true) {
+    return true;
+  }
+  const name = user.full_name?.trim() ?? "";
+  const interest = user.career_interest?.trim() ?? "";
+  return name.length >= 2 && interest.length > 0;
+}
+
+/**
+ * Whether a first-time OAuth user should see the onboarding wizard once.
+ * Returning OAuth users with a completed profile (or local/server flag) skip.
+ */
+export function shouldOAuthUserOnboard(
+  userId: string | undefined,
+  user: AuthUser | null | undefined,
+  options?: { isNewUser?: boolean; flow?: OAuthAuthFlow },
+): boolean {
+  if (!userId || isOnboardingComplete(userId)) {
+    return false;
+  }
+
+  if (user?.onboarding_completed === true || hasCompletedProfileBasics(user)) {
+    return false;
+  }
+
+  if (options?.isNewUser === true) {
+    return true;
+  }
+
+  if (options?.flow === "register") {
+    return true;
+  }
+
+  return Boolean(user?.oauth_provider);
+}
+
+/**
+ * Post-OAuth redirect: onboarding once for new OAuth users, dashboard for returners.
+ */
+export function resolveOAuthMemberEntryPath(
+  userId: string | undefined,
+  user: AuthUser | null | undefined,
+  intendedPath = DEFAULT_MEMBER_PATH,
+  options?: { isNewUser?: boolean; flow?: OAuthAuthFlow },
+): string {
+  const safePath = isSafeReturnPath(intendedPath)
+    ? intendedPath
+    : DEFAULT_MEMBER_PATH;
+
+  if (!userId) {
+    return resolveAuthenticatedMemberPath(safePath);
+  }
+
+  if (
+    user?.onboarding_completed === true ||
+    hasCompletedProfileBasics(user)
+  ) {
+    if (!isOnboardingComplete(userId)) {
+      markOnboardingComplete(userId);
+    }
+    return resolveAuthenticatedMemberPath(safePath);
+  }
+
+  if (!shouldOAuthUserOnboard(userId, user, options)) {
+    return resolveAuthenticatedMemberPath(safePath);
+  }
+
+  markOnboardingPending(userId);
+  return resolveMemberEntryPath(userId, safePath);
 }
 
 export type OnboardingStepId =

@@ -27,6 +27,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "VentureScope",
   description: "Career Intelligence Platform",
+  icons: {
+    icon: [
+      { url: "/brand/logo-scope.svg", type: "image/svg+xml" },
+      { url: "/logo.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/logo.png", sizes: "512x512" }],
+    shortcut: "/logo.png",
+  },
 };
 
 export default function RootLayout({

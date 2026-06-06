@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ShieldCheck,
   Copy,
   ChevronDown,
   ChevronUp,
@@ -14,6 +13,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 
+import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import { Button } from "@/components/ui/button";
 import {
   mfaEnroll,
@@ -228,9 +228,11 @@ export default function MFAEnrollPage() {
         <div className="overflow-hidden rounded-lg border border-border bg-card shadow-xl">
           {/* Header */}
           <div className="vs-band space-y-4 border-b border-inverse-foreground/10 px-8 py-8 text-center">
-            <div className="vs-icon-tile-primary mx-auto flex h-16 w-16 items-center justify-center rounded-md">
-              <ShieldCheck className="h-8 w-8" />
-            </div>
+            <VentureScopeLogo
+              size={40}
+              accent={false}
+              className="mx-auto text-inverse-foreground"
+            />
             <div>
               <h1 className="text-2xl font-bold text-inverse-foreground">
                 {isBackup ? "Add Backup Factor" : "Set Up Two-Factor Auth"}

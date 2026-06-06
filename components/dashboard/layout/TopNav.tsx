@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { Menu } from "lucide-react";
+import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import { getUserProfileView } from "@/lib/user-profile";
 import { useAppStore } from "@/store/useAppStore";
 import { useDeferredMount } from "@/hooks/useDeferredMount";
@@ -103,9 +104,12 @@ export default function TopNav({ breadcrumb, onMenuClick }: TopNavProps) {
         </button>
 
         <div className="min-w-0">
-          <p className="text-label hidden text-primary sm:block">
-            VentureScope
-          </p>
+          <div className="mb-0.5 flex items-center gap-1.5">
+            <VentureScopeLogo size={18} className="shrink-0" />
+            <p className="text-label hidden text-primary sm:block">
+              VentureScope
+            </p>
+          </div>
           <h1 className="truncate text-base font-semibold text-foreground sm:text-lg">
             {breadcrumb}
           </h1>

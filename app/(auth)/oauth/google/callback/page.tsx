@@ -4,17 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import {
-  buildAuthSessionData,
   completeGoogleOAuthCallback,
   getApiErrorMessage,
 } from "@/lib/auth-api";
 import {
-  buildMfaChallengeUrl,
   DEFAULT_MEMBER_PATH,
   isSafeReturnPath,
-  resolveAuthenticatedMemberPath,
 } from "@/lib/auth-redirect";
-import { mfaGetAAL } from "@/lib/mfa-api";
+import type { OAuthAuthFlow } from "@/lib/onboarding";
+import { finalizeOAuthLoginSession } from "@/lib/oauth-post-auth";
+import { VentureScopeBrandLockup } from "@/components/brand/VentureScopeBrandLockup";
 import { useAppStore } from "@/store/useAppStore";
 
 const GOOGLE_OAUTH_SESSION_KEY = "google_oauth_tx";
@@ -24,6 +23,7 @@ function readStoredOAuthState(): {
   state: string;
   createdAt: number;
   returnPath?: string;
+  flow?: OAuthAuthFlow;
 } | null {
   const raw = sessionStorage.getItem(GOOGLE_OAUTH_SESSION_KEY);
 
@@ -36,6 +36,7 @@ function readStoredOAuthState(): {
       state?: unknown;
       createdAt?: unknown;
       returnPath?: unknown;
+      flow?: unknown;
     };
 
     if (typeof parsed.state !== "string") {
@@ -46,11 +47,17 @@ function readStoredOAuthState(): {
       return null;
     }
 
+    const flow =
+      parsed.flow === "register" || parsed.flow === "login"
+        ? parsed.flow
+        : undefined;
+
     return {
       state: parsed.state,
       createdAt: parsed.createdAt,
       returnPath:
         typeof parsed.returnPath === "string" ? parsed.returnPath : undefined,
+      flow,
     };
   } catch {
     return null;
@@ -123,6 +130,7 @@ function GoogleOAuthCallbackContent() {
       storedState.returnPath && isSafeReturnPath(storedState.returnPath)
         ? storedState.returnPath
         : DEFAULT_MEMBER_PATH;
+    const oauthFlow = storedState.flow;
 
     async function exchangeCode() {
       try {
@@ -133,24 +141,14 @@ function GoogleOAuthCallbackContent() {
           oauthCode,
           oauthState,
         );
-        const authSessionData = await buildAuthSessionData(authResult);
-        setAuthData(authSessionData);
+        const { sessionData, entryPath } = await finalizeOAuthLoginSession({
+          authResult,
+          returnPath,
+          flow: oauthFlow,
+        });
+        setAuthData(sessionData);
         console.log("[oauth] Google sign-in completed");
-
-        // Critical: check AAL before redirecting — OAuth users with MFA
-        // enrolled must complete the challenge here, not just on the login page.
-
-        try {
-          const aal = await mfaGetAAL();
-          if (aal.current_level === "aal1" && aal.next_level === "aal2") {
-            router.replace(buildMfaChallengeUrl(returnPath));
-            return;
-          }
-        } catch {
-          // AAL check failure is non-fatal
-        }
-
-        router.replace(resolveAuthenticatedMemberPath(returnPath));
+        router.replace(entryPath);
       } catch (exchangeError) {
         console.log("[oauth] Token exchange failed", { exchangeError });
         setStatusMessage(getApiErrorMessage(exchangeError));
@@ -163,6 +161,9 @@ function GoogleOAuthCallbackContent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-linear-to-b from-primary/5 via-background to-background px-4">
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 text-center shadow-sm">
+        <div className="mb-5 flex justify-center">
+          <VentureScopeBrandLockup size={32} href="/" />
+        </div>
         <h1 className="text-xl font-semibold text-foreground">Google Sign-In</h1>
         <p className="mt-3 text-sm text-muted-foreground">{statusMessage}</p>
       </div>

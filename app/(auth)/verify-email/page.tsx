@@ -11,6 +11,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, ArrowLeft, RefreshCw, ShieldCheck, Loader2 } from "lucide-react";
+import { AuthMobileBrand } from "@/components/brand/AuthMobileBrand";
+import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import { Button } from "@/components/ui/button";
 import {
   buildAuthSessionData,
@@ -261,12 +263,10 @@ function VerifyEmailContent() {
           />
           <div className="relative z-10 space-y-6">
             <div className="flex items-center gap-3 text-inverse-foreground">
-              <Image
-                src="/logo.png"
-                alt="VentureScope Logo"
-                width={32}
-                height={32}
-                className="h-8 w-8 object-contain"
+              <VentureScopeLogo
+                size={32}
+                accent={false}
+                className="text-inverse-foreground"
               />
               <span className="text-xl font-bold tracking-tight">
                 VentureScope
@@ -313,6 +313,7 @@ function VerifyEmailContent() {
         {/* RIGHT SIDE - OTP FORM */}
         <section className="flex flex-1 flex-col items-center justify-center bg-card px-6 py-10 sm:px-12 lg:px-16">
           <div className="w-full max-w-sm sm:max-w-md space-y-6">
+            <AuthMobileBrand />
             <Link
               href={registerHref}
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-muted-foreground transition-colors"

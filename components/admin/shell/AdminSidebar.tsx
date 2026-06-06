@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import { VentureScopeLogo } from "@/components/brand/VentureScopeLogo";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -362,13 +362,7 @@ export function AdminSidebar({
             onClick={onClose}
             title="VentureScope Admin"
           >
-            <Image
-              src="/logo.png"
-              alt="VentureScope"
-              width={32}
-              height={32}
-              className="h-8 w-8 shrink-0 object-contain"
-            />
+            <VentureScopeLogo size={32} />
             {!isCollapsed && (
               <div className="min-w-0">
                 <h2 className="truncate text-base font-semibold leading-none tracking-tight text-sidebar-foreground">
