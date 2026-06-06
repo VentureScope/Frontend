@@ -52,8 +52,9 @@ export function ColorPaletteTrigger({
       aria-haspopup="dialog"
       title="Accent color"
       className={cn(
-        "vs-palette-tab no-print fixed right-0 top-[42%] z-50 flex h-14 w-12 -translate-y-1/2 flex-col items-center justify-center gap-0.5 sm:h-16 sm:w-14",
-        "rounded-l-xl border border-r-0 border-primary/30 border-l-[3px] border-l-primary bg-card text-primary",
+        "vs-palette-tab no-print fixed right-0 top-[42%] z-50 flex -translate-y-1/2 flex-col items-center justify-center gap-0.5",
+        "h-11 w-10 rounded-l-lg border border-r-0 border-l-2 sm:h-12 sm:w-11 sm:rounded-l-xl sm:border-l-[3px] md:h-14 md:w-12 lg:h-16 lg:w-14",
+        "border-primary/30 border-l-primary bg-card text-primary",
         "backdrop-blur-sm transition-[background-color,border-color,box-shadow] duration-200",
         "hover:border-primary/45 hover:bg-primary/10",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -65,11 +66,11 @@ export function ColorPaletteTrigger({
       )}
     >
       <Palette
-        className="h-5 w-5 shrink-0 sm:h-6 sm:w-6"
+        className="h-4 w-4 shrink-0 sm:h-[18px] sm:w-[18px] md:h-5 md:w-5 lg:h-6 lg:w-6"
         strokeWidth={2.25}
         aria-hidden
       />
-      <span className="text-[8px] font-bold uppercase leading-none tracking-[0.14em] text-primary/80 sm:text-[9px]">
+      <span className="hidden text-[7px] font-bold uppercase leading-none tracking-[0.12em] text-primary/80 sm:inline sm:text-[8px] lg:text-[9px]">
         Accent
       </span>
     </button>
