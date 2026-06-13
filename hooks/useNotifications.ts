@@ -105,14 +105,16 @@ export function useNotifications({ enabled }: UseNotificationsOptions) {
     [queryClient, setListData],
   );
 
+  const reload = useCallback(() => listQuery.refetch(), [listQuery.refetch]);
+
   return {
     items: listQuery.data?.notifications ?? [],
-    loading: enabled && listQuery.isFetching,
+    loading: enabled && listQuery.isPending,
     error:
       actionError ??
       (listQuery.error ? getApiErrorMessage(listQuery.error) : null),
     actionLoading,
-    reload: () => listQuery.refetch(),
+    reload,
     markRead,
     markAllRead,
     remove,
