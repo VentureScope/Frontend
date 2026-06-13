@@ -48,9 +48,6 @@ export function SettingsAccountInfo({ user }: SettingsAccountInfoProps) {
   return (
     <div className="rounded-xl border border-border bg-muted/30 p-5 sm:p-6">
       <p className="text-label text-primary">Account overview</p>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Live data from GET /api/users/me.
-      </p>
       <dl className="mt-5 grid gap-3 sm:grid-cols-2">
         {rows.map((row) => (
           <div key={row.label}>

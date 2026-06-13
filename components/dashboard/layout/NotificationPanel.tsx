@@ -33,16 +33,10 @@ export function NotificationPanel({ open, onOpenChange }: NotificationPanelProps
     loading,
     error,
     actionLoading,
-    reload,
     markRead,
     markAllRead,
     remove,
   } = useNotifications({ enabled: open });
-
-  useEffect(() => {
-    if (!open) return;
-    void reload();
-  }, [open, reload]);
 
   useEffect(() => {
     if (!open) return;
